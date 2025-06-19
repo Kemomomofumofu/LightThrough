@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+
+	<!-- 関数用 -->
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Doxygen: Function</Title>
+			<Shortcut>doxfunc</Shortcut>
+			<Description>Insert Doxygen comment for a function</Description>
+			<Author>YourName</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>brief</ID>
+					<Default>Brief description.</Default>
+				</Literal>
+				<Literal>
+					<ID>params</ID>
+					<Default>param1, param2</Default>
+				</Literal>
+				<Literal>
+					<ID>return</ID>
+					<Default>Return value description.</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="CPP">
+				<![CDATA[
+/**
+ * @brief $brief$
+$(
+  params.Split(',').Select(p=>" * @param "+p.Trim()+" ").Aggregate((a,b)=>a+"\n"+b)
+)
+$(
+  return.Trim().Length > 0 ? " * @return "+return : ""
+)
+ */
+]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+
+	<!-- クラス用 -->
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Doxygen: Class</Title>
+			<Shortcut>doxclass</Shortcut>
+			<Description>Insert Doxygen comment for a class</Description>
+			<Author>YourName</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>brief</ID>
+					<Default>Brief description of the class.</Default>
+				</Literal>
+				<Literal>
+					<ID>details</ID>
+					<Default>Longer, detailed description.</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="CPP">
+				<![CDATA[
+/**
+ * @brief $brief$
+ *
+ * $details$
+ */
+]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+
+	<!-- ファイル用 -->
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Doxygen: File Header</Title>
+			<Shortcut>doxfile</Shortcut>
+			<Description>Insert Doxygen comment for file header</Description>
+			<Author>YourName</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>file</ID>
+					<Default>Filename.h</Default>
+				</Literal>
+				<Literal>
+					<ID>brief</ID>
+					<Default>Brief description of this file.</Default>
+				</Literal>
+				<Literal>
+					<ID>author</ID>
+					<Default>Your Name</Default>
+				</Literal>
+				<Literal>
+					<ID>date</ID>
+					<Default>2025-06-19</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="CPP">
+				<![CDATA[
+/**
+ * @file $file$
+ * @brief $brief$
+ * @author $author$
+ * @date $date$
+ */
+]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+
+	<!-- テンプレート用 -->
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Doxygen: Template</Title>
+			<Shortcut>doxtemplate</Shortcut>
+			<Description>Insert Doxygen comment for a template</Description>
+			<Author>YourName</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>brief</ID>
+					<Default>Brief description.</Default>
+				</Literal>
+				<Literal>
+					<ID>tparams</ID>
+					<Default>T</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="CPP">
+				<![CDATA[
+/**
+ * @brief $brief$
+ *
+$(
+  tparams.Split(',').Select(tp=>" * @tparam "+tp.Trim()+" ").Aggregate((a,b)=>a+"\n"+b)
+)
+ */
+]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+
+</CodeSnippets>
