@@ -118,7 +118,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;d3d;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -136,42 +136,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3dcompiler.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <FxCompile Include="Shader\SimplePS.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Shader\SimpleVS.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Shader\unlitTexturePS.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ps_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ps_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="Shader\unlitTextureVS.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">vs_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">vs_main</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Base.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Logger.cpp" />
@@ -186,31 +153,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Window\Win32\Win32Window.cpp" />
-    <ClCompile Include="SourceFiles\GameManager.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\IComponent.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\Component\CameraComponent.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\Component\RenderComponent\RenderComponent.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\Component\RenderComponent\SpriteComponent.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\Component\TransformComponent.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\GameObject.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\GameObject\Camera.cpp" />
-    <ClCompile Include="SourceFiles\GameObjects\GameObject\Player.cpp" />
-    <ClCompile Include="SourceFiles\GameProcess.cpp" />
     <ClCompile Include="SourceFiles\Game\main.cpp" />
-    <ClCompile Include="SourceFiles\InputManager.cpp" />
-    <ClCompile Include="SourceFiles\main.cpp" />
-    <ClCompile Include="SourceFiles\Renderer.cpp" />
-    <ClCompile Include="SourceFiles\Scene\ClearScene.cpp" />
-    <ClCompile Include="SourceFiles\Scene\GameOverScene.cpp" />
-    <ClCompile Include="SourceFiles\Scene\GameScene.cpp" />
-    <ClCompile Include="SourceFiles\Scene\SceneBase.cpp" />
-    <ClCompile Include="SourceFiles\Scene\SceneManager.cpp" />
-    <ClCompile Include="SourceFiles\Scene\TitleScene.cpp" />
-    <ClCompile Include="SourceFiles\SubSystem\dx11helper.cpp" />
-    <ClCompile Include="SourceFiles\SubSystem\Shader.cpp" />
-    <ClCompile Include="SourceFiles\SubSystem\stb_image.cpp" />
-    <ClCompile Include="SourceFiles\SubSystem\Texture.cpp" />
-    <ClCompile Include="SourceFiles\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\All.h" />
@@ -234,33 +177,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderBinary.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.h" />
-    <ClInclude Include="SourceFiles\GameManager.h" />
-    <ClInclude Include="SourceFiles\GameObjects\IComponent.h" />
-    <ClInclude Include="SourceFiles\GameObjects\Component\CameraComponent.h" />
-    <ClInclude Include="SourceFiles\GameObjects\Component\ColliderComponent\BoxColliderComponent.h" />
-    <ClInclude Include="SourceFiles\GameObjects\Component\RenderComponent\RenderComponent.h" />
-    <ClInclude Include="SourceFiles\GameObjects\Component\RenderComponent\SpriteComponent.h" />
-    <ClInclude Include="SourceFiles\GameObjects\Component\TransformComponent.h" />
-    <ClInclude Include="SourceFiles\GameObjects\GameObject.h" />
-    <ClInclude Include="SourceFiles\GameObjects\GameObject\Camera.h" />
-    <ClInclude Include="SourceFiles\GameObjects\GameObject\Player.h" />
-    <ClInclude Include="SourceFiles\GameProcess.h" />
-    <ClInclude Include="SourceFiles\InputManager.h" />
-    <ClInclude Include="SourceFiles\main.h" />
-    <ClInclude Include="SourceFiles\Renderer.h" />
-    <ClInclude Include="SourceFiles\Scene\ClearScene.h" />
-    <ClInclude Include="SourceFiles\Scene\GameOverScene.h" />
-    <ClInclude Include="SourceFiles\Scene\GameScene.h" />
-    <ClInclude Include="SourceFiles\Scene\SceneBase.h" />
-    <ClInclude Include="SourceFiles\Scene\SceneManager.h" />
-    <ClInclude Include="SourceFiles\Scene\TitleScene.h" />
-    <ClInclude Include="SourceFiles\SubSystem\dx11helper.h" />
-    <ClInclude Include="SourceFiles\SubSystem\IndexBuffer.h" />
-    <ClInclude Include="SourceFiles\SubSystem\Shader.h" />
-    <ClInclude Include="SourceFiles\SubSystem\stb_image.h" />
-    <ClInclude Include="SourceFiles\SubSystem\Texture.h" />
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h" />
-    <ClInclude Include="SourceFiles\TextureManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
