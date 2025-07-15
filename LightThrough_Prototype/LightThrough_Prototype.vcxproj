@@ -118,6 +118,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3dcompiler.lib;d3d;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,6 +173,19 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Base.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Logger.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Display.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Game.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Win32\Win32Game.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsDevice.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsEngine.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsPipelineState.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderBinary.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Window\Win32\Win32Window.cpp" />
     <ClCompile Include="SourceFiles\GameManager.cpp" />
     <ClCompile Include="SourceFiles\GameObjects\IComponent.cpp" />
     <ClCompile Include="SourceFiles\GameObjects\Component\CameraComponent.cpp" />
@@ -182,6 +196,7 @@
     <ClCompile Include="SourceFiles\GameObjects\GameObject\Camera.cpp" />
     <ClCompile Include="SourceFiles\GameObjects\GameObject\Player.cpp" />
     <ClCompile Include="SourceFiles\GameProcess.cpp" />
+    <ClCompile Include="SourceFiles\Game\main.cpp" />
     <ClCompile Include="SourceFiles\InputManager.cpp" />
     <ClCompile Include="SourceFiles\main.cpp" />
     <ClCompile Include="SourceFiles\Renderer.cpp" />
@@ -198,6 +213,27 @@
     <ClCompile Include="SourceFiles\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\All.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Base.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Common.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Core.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Logger.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\Display.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\Game.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Rect.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Vec3.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Vec4.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Window\Window.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsDevice.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsEngine.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicslogUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsPipelineState.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsResource.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderBinary.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\GameManager.h" />
     <ClInclude Include="SourceFiles\GameObjects\IComponent.h" />
     <ClInclude Include="SourceFiles\GameObjects\Component\CameraComponent.h" />
