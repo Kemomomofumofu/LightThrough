@@ -1,0 +1,76 @@
+/**
+ * @file DeviceContext.cpp
+ * @brief デバイスコンテキスト
+ * @author Arima Keita
+ * @date 2025-06-25
+ */
+
+ /*---------- インクルード ----------*/
+#include <DX3D/Graphics/DeviceContext.h>
+#include <DX3D/Graphics/SwapChain.h>
+#include <DX3D/Graphics/GraphicsPipelineState.h>
+#include <DX3D/Graphics/VertexBuffer.h>
+
+
+/**
+ * @brief コンストラクタ
+ * @param _gDesc 
+ */
+dx3d::DeviceContext::DeviceContext(const GraphicsResourceDesc& _gDesc)
+	: GraphicsResource(_gDesc)
+{
+	DX3DGraphicsLogThrowOnFail(device_.CreateDeferredContext(0, &context_), "CreateDeferredContext を 失敗しました");
+}
+
+
+/**
+ * @brief バックバッファをクリアしたりセットしたり
+ * @param _swapChain スワップチェイン
+ * @param _color 初期化色
+ */
+void dx3d::DeviceContext::ClearAndSetBackBuffer(const SwapChain& _swapChain, const Vec4& _color)
+{
+	f32 fColor[] = { _color.x, _color.y, _color.z, _color.w };
+	auto rtv = _swapChain.rtv_.Get();
+	context_->ClearRenderTargetView(rtv, fColor);
+	context_->OMSetRenderTargets(1, &rtv, nullptr);
+}
+
+
+/**
+ * @brief InputLayoutやシェーダーをセットする
+ * @param _pipeline param1の説明
+ * @param param2 param2の説明
+ * @return 戻り値の説明
+ */
+void dx3d::DeviceContext::SetGraphicsPipelineState(const GraphicsPipelineState& _pipeline)
+{
+	context_->IASetInputLayout(_pipeline.layout_.Get());
+	context_->VSSetShader(_pipeline.vs_.Get(), nullptr, 0);
+	context_->PSSetShader(_pipeline.ps_.Get(), nullptr, 0);
+}
+
+void dx3d::DeviceContext::SetVertexBuffer(const VertexBuffer& _buffer)
+{
+	auto stride = _buffer.vertex_size_;
+	auto buf = _buffer.buffer_.Get();
+	auto offset = 0u;
+	context_->IASetVertexBuffers(0, 1, &buf, &stride, &offset);
+}
+
+void dx3d::DeviceContext::SetViewportSize(const Rect& _size)
+{
+	D3D11_VIEWPORT vp{};
+	vp.Width = static_cast<f32>(_size.width);
+	vp.Height = static_cast<f32>(_size.height);
+	vp.MinDepth = 0.0f;
+	vp.MaxDepth = 1.0f;
+	context_->RSSetViewports(1, &vp);
+}
+
+void dx3d::DeviceContext::DrawTriangleList(ui32 _vertexCount, ui32 _startVertexLocation)
+{
+	context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context_->Draw(_vertexCount, _startVertexLocation);
+}
+
