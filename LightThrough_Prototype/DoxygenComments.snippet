@@ -7,7 +7,7 @@
 			<Title>Doxygen: Function</Title>
 			<Shortcut>doxfunc</Shortcut>
 			<Description>Insert Doxygen comment for a function</Description>
-			<Author>YourName</Author>
+			<Author>Arima Keita</Author>
 			<SnippetTypes>
 				<SnippetType>Expansion</SnippetType>
 			</SnippetTypes>
@@ -19,8 +19,12 @@
 					<Default>Brief description.</Default>
 				</Literal>
 				<Literal>
-					<ID>params</ID>
-					<Default>param1, param2</Default>
+					<ID>param1</ID>
+					<Default>param1</Default>
+				</Literal>
+				<Literal>
+					<ID>param2</ID>
+					<Default>param2</Default>
 				</Literal>
 				<Literal>
 					<ID>return</ID>
@@ -31,12 +35,9 @@
 				<![CDATA[
 /**
  * @brief $brief$
-$(
-  params.Split(',').Select(p=>" * @param "+p.Trim()+" ").Aggregate((a,b)=>a+"\n"+b)
-)
-$(
-  return.Trim().Length > 0 ? " * @return "+return : ""
-)
+ * @param $param1$
+ * @param $param2$
+ * @return $return$
  */
 ]]>
 			</Code>
@@ -49,7 +50,7 @@ $(
 			<Title>Doxygen: Class</Title>
 			<Shortcut>doxclass</Shortcut>
 			<Description>Insert Doxygen comment for a class</Description>
-			<Author>YourName</Author>
+			<Author>Arima Keita</Author>
 			<SnippetTypes>
 				<SnippetType>Expansion</SnippetType>
 			</SnippetTypes>
@@ -83,7 +84,7 @@ $(
 			<Title>Doxygen: File Header</Title>
 			<Shortcut>doxfile</Shortcut>
 			<Description>Insert Doxygen comment for file header</Description>
-			<Author>YourName</Author>
+			<Author>Arima Keita</Author>
 			<SnippetTypes>
 				<SnippetType>Expansion</SnippetType>
 			</SnippetTypes>
@@ -100,11 +101,11 @@ $(
 				</Literal>
 				<Literal>
 					<ID>author</ID>
-					<Default>Your Name</Default>
+					<Default>Arima Keita</Default>
 				</Literal>
 				<Literal>
 					<ID>date</ID>
-					<Default>2025-06-19</Default>
+					<Default>2025-07-30</Default>
 				</Literal>
 			</Declarations>
 			<Code Language="CPP">
@@ -120,13 +121,41 @@ $(
 		</Snippet>
 	</CodeSnippet>
 
+	<!-- インクルード用 -->
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Include Comment</Title>
+			<Shortcut>incc</Shortcut>
+			<Description>Insert comment for a include</Description>
+			<Author>Arima Keita</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>include</ID>
+					<Default>インクルード</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="CPP">
+				<![CDATA[
+// ---------- $include$ ---------- // 
+]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+
+
+
 	<!-- テンプレート用 -->
 	<CodeSnippet Format="1.0.0">
 		<Header>
 			<Title>Doxygen: Template</Title>
 			<Shortcut>doxtemplate</Shortcut>
 			<Description>Insert Doxygen comment for a template</Description>
-			<Author>YourName</Author>
+			<Author>Arima Keita</Author>
 			<SnippetTypes>
 				<SnippetType>Expansion</SnippetType>
 			</SnippetTypes>

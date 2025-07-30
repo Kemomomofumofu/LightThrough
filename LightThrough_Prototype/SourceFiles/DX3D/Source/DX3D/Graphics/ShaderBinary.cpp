@@ -10,7 +10,6 @@
 #include <DX3D/Graphics/GraphicsUtils.h>
 #include <d3dcompiler.h>
 
-
 /**
  * @brief コンストラクタ
  * @param _desc シェーダバイナリの設定
