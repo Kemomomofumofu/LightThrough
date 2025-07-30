@@ -24,6 +24,7 @@ int main(void)
 				{1280, 720},					// ウィンドウサイズ
 				dx3d::Logger::LogLevel::Info	// ログ
 			});
+		game.Run();	// ゲーム実行
 	}
 	catch (const std::runtime_error&) {
 		return EXIT_FAILURE;

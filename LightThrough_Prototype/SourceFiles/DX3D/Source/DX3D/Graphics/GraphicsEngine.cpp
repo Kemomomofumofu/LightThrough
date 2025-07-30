@@ -32,7 +32,7 @@ float4 VSMain(float3 pos: POSITION):SV_Position
 {
 return float4(pos.xyz, 1.0);
 }
-float PSMain(): SV_Target
+float4 PSMain(): SV_Target
 {
 return float4(1.0, 1.0, 1.0, 1.0);
 }
@@ -67,14 +67,15 @@ GraphicsDevice& dx3d::GraphicsEngine::GetGraphicsDevice() noexcept
 void dx3d::GraphicsEngine::Render(SwapChain& _swapChain)
 {
 	auto& context = *device_context_;
-	context.ClearAndSetBackBuffer(_swapChain, { 1, 0, 0, 1 });
+	context.ClearAndSetBackBuffer(_swapChain, { 0, 0.3f, 0.3f, 1 });	// 初期色でクリア
 	context.SetGraphicsPipelineState(*pipeline_);
 
 	context.SetViewportSize(_swapChain.GetSize());
 
+	// 頂点バッファ
 	auto& vb = *vb_;
 	context.SetVertexBuffer(vb);
-	context.DrawTriangleList(vb.GetVertexListSize(), 0u);
+	context.DrawTriangleList(vb.GetVertexListSize(), 0u);	// テストでの三角形描画
 
 	auto& device = *graphics_device_;
 	device.ExecuteCommandList(context);

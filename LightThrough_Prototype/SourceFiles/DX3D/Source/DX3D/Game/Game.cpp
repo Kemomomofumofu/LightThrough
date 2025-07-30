@@ -13,7 +13,6 @@
 #include <DX3D/Game/Display.h>
 
 
-
 /**
  * @brief コンストラクタ
  * @param _desc ゲームの定義
