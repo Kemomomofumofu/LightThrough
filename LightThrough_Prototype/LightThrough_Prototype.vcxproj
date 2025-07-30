@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\InputSystem\InputSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Base.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Logger.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Display.cpp" />
@@ -156,6 +157,9 @@
     <ClCompile Include="SourceFiles\Game\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
+    <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
+    <ClInclude Include="SourceFiles\InputSystem\InputSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\All.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Base.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Common.h" />
