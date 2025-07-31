@@ -11,6 +11,8 @@
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Core/Logger.h>
 #include <DX3D/Game/Display.h>
+#include <DX3D/Math/Point.h>
+#include <InputSystem/InputSystem.h>
 
 
 /**
@@ -22,7 +24,9 @@ dx3d::Game::Game(const GameDesc& _desc)
 	logger_ptr_(&logger_)
 {
 	// 描画システムの生成
-	graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });
+	graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });	
+	// インプットシステムに登録
+	LightThrough::InputSystem::Get().AddListener(this);
 	// ウィンドウの生成
 	display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
 
@@ -31,6 +35,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 dx3d::Game::~Game()
 {
+	// インプットシステムから削除
+	LightThrough::InputSystem::Get().RemoveListener(this);
 	DX3DLogInfo("ゲーム終了");
 }
 
@@ -40,9 +46,26 @@ dx3d::Game::~Game()
  */
 void dx3d::Game::OnInternalUpdate()
 {
+	// 入力の更新
+	LightThrough::InputSystem::Get().Update();
+
 	// 描画
 	graphics_engine_->Render(display_->GetSwapChain());
+}
 
+void dx3d::Game::OnKeyDown(int _key)
+{
+	if (_key == 'W') {
+		DX3DLogInfo("Wキーが押された");
+	}
+}
+
+void dx3d::Game::OnKeyUp(int _key)
+{
 
 }
 
+void dx3d::Game::OnMouseMove(const dx3d::Point& _deltaMousePos)
+{
+
+}

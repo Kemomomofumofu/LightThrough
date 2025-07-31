@@ -16,7 +16,7 @@
  * @param _logLevel ƒƒO‚ÌƒŒƒxƒ‹
  */
 dx3d::Logger::Logger(LogLevel _logLevel) : log_level_(_logLevel) {
-	std::clog << "LightThrough | Prototype\n";
+	std::clog << "LightThrough\n";
 	std::clog << "------------------------\n";
 }
 
@@ -42,5 +42,5 @@ void dx3d::Logger::Log(LogLevel _level, const char* _message)
 		};
 
 	if (_level > log_level_) { return; }
-	std::clog << "[DX3D" << logLevelToString(_level) << "]" << _message << "\n";
+	std::clog << "[" << logLevelToString(_level) << "]" << _message << "\n";
 }

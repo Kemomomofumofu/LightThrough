@@ -157,6 +157,7 @@
     <ClCompile Include="SourceFiles\Game\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
     <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputSystem.h" />

@@ -62,6 +62,4 @@ void dx3d::SwapChain::ReloadBuffers(){
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> buffer{};
 	DX3DGraphicsLogThrowOnFail(swap_chain_->GetBuffer(0, IID_PPV_ARGS(&buffer)), "GetBuffer ‚ð Ž¸”s");
 	DX3DGraphicsLogThrowOnFail(device_.CreateRenderTargetView(buffer.Get(), nullptr, &rtv_), "CreateRenderTargetView ‚ð Ž¸”s");
-
-
 }

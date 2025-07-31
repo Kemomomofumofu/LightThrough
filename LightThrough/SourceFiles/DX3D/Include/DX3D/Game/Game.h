@@ -9,21 +9,28 @@
  /*---------- インクルード ----------*/
 #include <DX3D/Core/Base.h>
 #include <DX3D/Core/Core.h>
+#include <InputSystem/InputListener.h>
 
 
 
-/**
- * @brief ゲームクラス
- *
- * ゲームの実行、更新をするクラス
- */
 namespace dx3d {
-	class Game :public Base {
+	/**
+	 * @brief ゲームクラス
+	 *
+	 * ゲームの実行、更新をするクラス
+	 * [ToDo] InputListenerについては各オブジェクトに持たせたほうが責務がわかりやすい。
+	 */
+	class Game :public Base, public LightThrough::InputListener {
 	public:
 		explicit Game(const GameDesc& _desc);
 		virtual ~Game() override;
 
 		virtual void Run() final;
+
+		void OnKeyDown(int _key) override;
+		void OnKeyUp(int _key) override;
+
+		void OnMouseMove(const Point& _deltaMousePos) override;
 
 	private:
 		void OnInternalUpdate();

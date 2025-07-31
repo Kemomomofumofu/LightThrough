@@ -6,6 +6,9 @@
  * @date 2025-07-30
  */
 
+// ---------- インクルード ---------- // 
+#include <DX3D/Math/Point.h>
+
 namespace LightThrough {
 	/**
 	 * @brief インプットリスナー
@@ -17,7 +20,12 @@ namespace LightThrough {
 		InputListener() {}
 		~InputListener() {}
 
+		// キーボードの入力
+		// [ToDo] Triggerも追加するべき。
 		virtual void OnKeyDown(int _key) = 0;
 		virtual void OnKeyUp(int _key) = 0;
-	}
+
+		// マウス入力
+		virtual void OnMouseMove(const dx3d::Point& _deltaMausePos) = 0;
+	};
 }
