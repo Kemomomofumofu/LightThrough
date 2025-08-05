@@ -25,6 +25,7 @@ namespace dx3d {
 		ShaderBinaryPtr CompileShader(const ShaderCompileDesc& _desc);
 		GraphicsPipelineStatePtr CreateGraphicsPipelineState(const GraphicsPipelineStateDesc& _desc);
 		VertexBufferPtr CreateVertexBuffer(const VertexBufferDesc& _desc);
+		VertexShaderSignaturePtr CreateVertexShaderSignature(const VertexShaderSignatureDesc& _desc);
 
 		void ExecuteCommandList(DeviceContext& _context);
 

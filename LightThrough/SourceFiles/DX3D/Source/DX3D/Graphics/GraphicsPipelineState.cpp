@@ -8,24 +8,37 @@
  /*---------- ÉCÉìÉNÉãÅ[Éh ----------*/
 #include <DX3D/Graphics/GraphicsPipelineState.h>
 #include <DX3D/Graphics/ShaderBinary.h>
+#include <DX3D/Graphics/VertexShaderSignature.h>
+
 
 dx3d::GraphicsPipelineState::GraphicsPipelineState(const GraphicsPipelineStateDesc& _desc, const GraphicsResourceDesc& _gDesc)
 	:GraphicsResource(_gDesc) {
-	if (_desc.vs.GetType() != ShaderType::VertexShader) {
-		DX3DLogThrowInvalidArg("vs Ç™ VertexShader Ç≈ÇÕ Ç†ÇËÇ‹ÇπÇÒ");
-	}
 	if (_desc.ps.GetType() != ShaderType::PixelShader) {
 		DX3DLogThrowInvalidArg("ps Ç™ PixelShader Ç≈ÇÕ Ç†ÇËÇ‹ÇπÇÒ");
 	}
 
-	auto vs = _desc.vs.GetData();
+	auto vs = _desc.vs.GetShaderBinaryData();
 	auto ps = _desc.ps.GetData();
+	auto vsInputElements = _desc.vs.GetInputElementsData();
 
-	constexpr D3D11_INPUT_ELEMENT_DESC elements[] = {
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	};
+	DX3DGraphicsLogThrowOnFail(
+		device_.CreateInputLayout(
+			static_cast<const D3D11_INPUT_ELEMENT_DESC*>(vsInputElements.data),
+			static_cast<ui32>(vsInputElements.dataSize),
+			vs.data,
+			vs.dataSize,
+			&layout_
+		),
+		"CreateInputLayer Ç é∏îsÇµÇ‹ÇµÇΩ"
+	);
 
-	DX3DGraphicsLogThrowOnFail(device_.CreateInputLayout(elements, std::size(elements), vs.data, vs.dataSize, &layout_), "CreateInputLayer Ç é∏îsÇµÇ‹ÇµÇΩ");
-	DX3DGraphicsLogThrowOnFail(device_.CreateVertexShader(vs.data, vs.dataSize, nullptr, &vs_), "CreateVertexShader Ç é∏îsÇµÇ‹ÇµÇΩ");
-	DX3DGraphicsLogThrowOnFail(device_.CreatePixelShader(ps.data, ps.dataSize, nullptr, &ps_), "CreatePixelShader Ç é∏îsÇµÇ‹ÇµÇΩ");
+	DX3DGraphicsLogThrowOnFail(
+		device_.CreateVertexShader(vs.data, vs.dataSize, nullptr, &vs_),
+		"CreateVertexShader Ç é∏îsÇµÇ‹ÇµÇΩ"
+	);
+
+	DX3DGraphicsLogThrowOnFail(
+		device_.CreatePixelShader(ps.data, ps.dataSize, nullptr, &ps_),
+		"CreatePixelShader Ç é∏îsÇµÇ‹ÇµÇΩ"
+	);
 }

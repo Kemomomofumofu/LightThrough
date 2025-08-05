@@ -52,6 +52,12 @@
     <Filter Include="InputSystem">
       <UniqueIdentifier>{d74755e4-b967-4fc1-8be5-14452fb66804}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DX3D\Assets">
+      <UniqueIdentifier>{95f6cbd6-a6c3-4a22-b3ad-097910d599f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DX3D\Assets\Shaders">
+      <UniqueIdentifier>{b88df9a9-6b57-4f6b-a545-2f250d7f6220}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Base.h">
@@ -124,6 +130,9 @@
     <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
     <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h">
+      <Filter>DX3D\Source\DX3D\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -169,5 +178,11 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="SourceFiles\InputSystem\InputSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl">
+      <Filter>DX3D\Assets\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -9,7 +9,8 @@
  /*---------- インクルード ----------*/
 #include <DX3D/Core/Core.h>
 #include <DX3D/Core/Base.h>
-
+#include <DX3D/Math/Vec3.h>
+#include <DX3D/Math/Vec4.h>
 
 
 /**
@@ -27,6 +28,12 @@ namespace dx3d {
 		GraphicsDevice& GetGraphicsDevice() noexcept;
 
 		void Render(SwapChain& _swapChain);
+
+	private:
+		struct Vertex {
+			Vec3 position;
+			Vec4 color;
+		};
 
 	private:
 		std::shared_ptr<GraphicsDevice> graphics_device_{};

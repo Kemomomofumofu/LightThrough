@@ -16,7 +16,7 @@ namespace dx3d {
 		explicit Display(const DisplayDesc& _desc);
 
 		SwapChain& GetSwapChain() noexcept;
-		
+
 	private:
 		SwapChainPtr swap_chain_{};
 	};

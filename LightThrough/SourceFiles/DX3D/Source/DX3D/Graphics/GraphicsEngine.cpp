@@ -6,6 +6,8 @@
  */
 
  /*---------- インクルード ----------*/
+#include <fstream>
+
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/DeviceContext.h>
@@ -20,39 +22,41 @@ using namespace dx3d;
 dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 	: Base(_desc.base)
 {
-	graphics_device_ = std::make_shared<GraphicsDevice>(GraphicsDeviceDesc{logger_});
+	graphics_device_ = std::make_shared<GraphicsDevice>(GraphicsDeviceDesc{ logger_ });
 
 	auto& device = *graphics_device_;
 	device_context_ = device.CreateDeviceContext();
 
-	// デフォルトのシェーダーを設定
-	constexpr char shaderSourceCode[] =
-		R"(
-float4 VSMain(float3 pos: POSITION):SV_Position
-{
-return float4(pos.xyz, 1.0);
-}
-float4 PSMain(): SV_Target
-{
-return float4(1.0, 1.0, 1.0, 1.0);
-}
-)";
-
-	constexpr char shaderSourceName[] = "Default";
-	constexpr auto shaderSourceCodeSize = std::size(shaderSourceCode);
-
-	auto vs = device.CompileShader({ shaderSourceName, shaderSourceCode, shaderSourceCodeSize, "VSMain", ShaderType::VertexShader });
-	auto ps = device.CompileShader({ shaderSourceName, shaderSourceCode, shaderSourceCodeSize, "PSMain", ShaderType::PixelShader });
-
-	pipeline_ = device.CreateGraphicsPipelineState({ *vs, *ps });
-
-	const Vec3 vertexList[] = {
-		{-0.5f, -0.5f, 0.0f},
-		{ 0.0f,  0.5f, 0.0f},
-		{ 0.5f, -0.5f, 0.0f}
+	// デフォルトのシェーダーを読み込み
+	constexpr char shaderFilePath[] = "SourceFiles/DX3D/Assets/Shaders/Default.hlsl";
+	std::ifstream shaderStream(shaderFilePath);
+	if (!shaderStream) {
+		DX3DLogThrowError("シェーダーファイルを開くのに失敗");
+	}
+	std::string shaderFileData{
+		std::istreambuf_iterator<char>(shaderStream),
+		std::istreambuf_iterator<char>()
 	};
+	auto shaderSourceCode = shaderFileData.c_str();
+	auto shaderSourceCodeSize = shaderFileData.length();
 
-	vb_ = device.CreateVertexBuffer({ vertexList, std::size(vertexList), sizeof(Vec3) });
+	auto vs = device.CompileShader({ shaderFilePath, shaderSourceCode, shaderSourceCodeSize, "VSMain", ShaderType::VertexShader });
+	auto ps = device.CompileShader({ shaderFilePath, shaderSourceCode, shaderSourceCodeSize, "PSMain", ShaderType::PixelShader });
+	auto vsSig = device.CreateVertexShaderSignature({ vs });
+
+	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
+
+	// 頂点リストを定義
+	const Vertex vertexList[] = {
+		{ { -0.5f, -0.5f, 0.0f}, { 1, 0, 0, 1} },
+		{ { -0.5f,  0.5f, 0.0f}, { 0, 1, 0, 1} },
+		{ {  0.5f,  0.5f, 0.0f}, { 0, 0, 1, 1} },
+
+		{ {  0.5f,  0.5f, 0.0f}, { 0, 0, 1, 1} },
+		{ {  0.5f, -0.5f, 0.0f}, { 0, 1, 0, 1} },
+		{ { -0.5f, -0.5f, 0.0f}, { 1, 0, 0, 1} }
+	};
+	vb_ = device.CreateVertexBuffer({ vertexList, std::size(vertexList), sizeof(Vertex) });
 }
 
 dx3d::GraphicsEngine::~GraphicsEngine()
@@ -67,7 +71,7 @@ GraphicsDevice& dx3d::GraphicsEngine::GetGraphicsDevice() noexcept
 void dx3d::GraphicsEngine::Render(SwapChain& _swapChain)
 {
 	auto& context = *device_context_;
-	context.ClearAndSetBackBuffer(_swapChain, { 0, 0.3f, 0.3f, 1 });	// 初期色でクリア
+	context.ClearAndSetBackBuffer(_swapChain, { 0.27f, 0.39f, 0.55f, 1.0f });	// 初期色でクリア
 	context.SetGraphicsPipelineState(*pipeline_);
 
 	context.SetViewportSize(_swapChain.GetSize());

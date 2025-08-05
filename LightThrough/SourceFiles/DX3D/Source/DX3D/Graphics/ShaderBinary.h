@@ -14,7 +14,7 @@ namespace dx3d {
 	class ShaderBinary final : public GraphicsResource {
 	public:
 		ShaderBinary(const ShaderCompileDesc& _desc, const GraphicsResourceDesc& _gDesc);
-		ShaderBinaryData GetData() const noexcept;
+		BinaryData GetData() const noexcept;
 		ShaderType GetType() const noexcept;
 
 	private:
