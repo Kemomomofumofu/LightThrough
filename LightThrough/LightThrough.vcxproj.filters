@@ -133,6 +133,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Entity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
