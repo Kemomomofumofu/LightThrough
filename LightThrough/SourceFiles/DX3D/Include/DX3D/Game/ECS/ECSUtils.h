@@ -8,11 +8,14 @@
 
 // ---------- インクルード ---------- // 
 #include <cstdint>
+#include <bitset>
 
 
 namespace ecs {
-	constexpr uint32_t INDEX_BITS = 24;	// idのbit数
-	constexpr uint32_t VERSION_BITS = 8;	// versionのbit数
+
+	// Entity
+	constexpr uint32_t INDEX_BITS = 24;	// idのBit数
+	constexpr uint32_t VERSION_BITS = 8;	// VersionのBit数
 	constexpr uint32_t INDEX_MASK = (1 << INDEX_BITS) - 1;
 	constexpr uint32_t VERSION_MASK = (1 << VERSION_BITS) - 1;
 
@@ -34,4 +37,7 @@ namespace ecs {
 	inline uint32_t GetVersion(uint32_t _entity) {
 		return (_entity >> INDEX_BITS) & VERSION_MASK;
 	}
+
+	// System
+	using Signature = std::bitset<MAX_COMPONENTS>;
 }
