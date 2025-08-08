@@ -134,6 +134,12 @@
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Entity.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ECSUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComopnentManager.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Trasnform.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ISystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -180,6 +186,8 @@
     </ClCompile>
     <ClCompile Include="SourceFiles\InputSystem\InputSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl">

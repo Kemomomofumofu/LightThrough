@@ -140,6 +140,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
     <ClCompile Include="SourceFiles\InputSystem\InputSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Base.cpp" />
@@ -158,9 +160,14 @@
     <ClCompile Include="SourceFiles\Game\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ISystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComopnentManager.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Trasnform.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ECSUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Entity.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.h" />
     <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputSystem.h" />

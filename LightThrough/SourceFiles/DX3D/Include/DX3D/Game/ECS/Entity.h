@@ -15,7 +15,7 @@ namespace ecs {
 	/**
 	 * @brief エンティティ
 	 *
-	 * idはindexとversionを内包している
+	 * idはIndexとVersionを内包している
 	 */
 	struct Entity {
 		std::uint32_t id_ = 0;
