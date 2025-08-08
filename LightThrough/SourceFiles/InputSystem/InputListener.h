@@ -9,7 +9,7 @@
 // ---------- インクルード ---------- // 
 #include <DX3D/Math/Point.h>
 
-namespace LightThrough {
+namespace input {
 	/**
 	 * @brief インプットリスナー
 	 *

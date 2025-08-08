@@ -26,7 +26,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// 描画システムの生成
 	graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });	
 	// インプットシステムに登録
-	LightThrough::InputSystem::Get().AddListener(this);
+	input::InputSystem::Get().AddListener(this);
 	// ウィンドウの生成
 	display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
 
@@ -36,7 +36,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 dx3d::Game::~Game()
 {
 	// インプットシステムから削除
-	LightThrough::InputSystem::Get().RemoveListener(this);
+	input::InputSystem::Get().RemoveListener(this);
 	DX3DLogInfo("ゲーム終了");
 }
 
@@ -47,7 +47,7 @@ dx3d::Game::~Game()
 void dx3d::Game::OnInternalUpdate()
 {
 	// 入力の更新
-	LightThrough::InputSystem::Get().Update();
+	input::InputSystem::Get().Update();
 
 	// 描画
 	graphics_engine_->Render(display_->GetSwapChain());

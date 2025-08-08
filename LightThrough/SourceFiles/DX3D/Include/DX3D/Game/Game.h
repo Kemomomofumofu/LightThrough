@@ -20,7 +20,7 @@ namespace dx3d {
 	 * ゲームの実行、更新をするクラス
 	 * [ToDo] InputListenerについては各オブジェクトに持たせたほうが責務がわかりやすい。
 	 */
-	class Game :public Base, public LightThrough::InputListener {
+	class Game :public Base, public input::InputListener {
 	public:
 		explicit Game(const GameDesc& _desc);
 		virtual ~Game() override;

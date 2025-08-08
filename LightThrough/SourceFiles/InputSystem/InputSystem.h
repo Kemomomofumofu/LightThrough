@@ -11,7 +11,7 @@
 #include <InputSystem/InputListener.h>
 #include <DX3D/Math/Point.h>
 
-namespace LightThrough {
+namespace input {
 
 	/**
 	 * @brief インプットシステム

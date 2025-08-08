@@ -9,7 +9,7 @@
 // ---------- インクルード ---------- // 
 
 
-namespace LightThrough {
+namespace input {
 	struct IInputSystem {
 		virtual ~IInputSystem() = default;
 		virtual void Update() = 0;

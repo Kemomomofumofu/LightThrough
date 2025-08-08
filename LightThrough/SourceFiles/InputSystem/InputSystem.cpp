@@ -13,7 +13,7 @@
  * @brief リスナー追加
  * @param _listener 追加するリスナー
  */
-void LightThrough::InputSystem::AddListener(InputListener* _listener)
+void input::InputSystem::AddListener(InputListener* _listener)
 {
 	listeners_.insert(_listener);
 }
@@ -22,7 +22,7 @@ void LightThrough::InputSystem::AddListener(InputListener* _listener)
  * @brief リスナー削除
  * @param _listener 削除するリスナー
  */
-void LightThrough::InputSystem::RemoveListener(InputListener* _listener)
+void input::InputSystem::RemoveListener(InputListener* _listener)
 {
 	listeners_.erase(_listener);
 }
@@ -30,7 +30,7 @@ void LightThrough::InputSystem::RemoveListener(InputListener* _listener)
 /**
  * @brief 更新処理
  */
-void LightThrough::InputSystem::Update()
+void input::InputSystem::Update()
 {
 	POINT currentMousePos = {};
 	::GetCursorPos(&currentMousePos);
@@ -84,7 +84,7 @@ void LightThrough::InputSystem::Update()
  * @brief ゲッター
  * @return インプットシステムの参照
  */
-LightThrough::InputSystem& LightThrough::InputSystem::Get() {
+input::InputSystem& input::InputSystem::Get() {
 	static InputSystem system;
 	return system;
 }
