@@ -13,7 +13,8 @@
 
 namespace ecs {
 
-	// Entity
+
+	// ---------- Entity ---------- // 
 	constexpr uint32_t INDEX_BITS = 24;	// id‚ÌBit”
 	constexpr uint32_t VERSION_BITS = 8;	// Version‚ÌBit”
 	constexpr uint32_t INDEX_MASK = (1 << INDEX_BITS) - 1;
@@ -28,7 +29,6 @@ namespace ecs {
 	inline uint32_t CreateEntity(uint32_t _index, uint32_t _version) {
 		return((_version & VERSION_MASK) << INDEX_BITS) | (_index & INDEX_MASK);
 	}
-
 	
 	inline uint32_t GetIndex(uint32_t _entity) {
 		return _entity & INDEX_MASK;
@@ -38,6 +38,11 @@ namespace ecs {
 		return (_entity >> INDEX_BITS) & VERSION_MASK;
 	}
 
-	// System
-	using Signature = std::bitset<MAX_COMPONENTS>;
+
+	// ---------- Component ---------- // 
+	constexpr std::size_t MAX_COMPONENTS = 64;	// Å‘åComponent”
+	static_assert(MAX_COMPONENTS > 0, "MAX_COMPONENTS‚ª0ˆÈ‰º‚Å‚·B");
+
+	// ---------- System ---------- // 
+	using Signature = std::bitset<MAX_COMPONENTS>;	// ŠeEntity‚ª‚ÂComponent‚ÌSignature
 }

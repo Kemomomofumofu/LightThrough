@@ -21,10 +21,10 @@ namespace ecs {
 		std::shared_ptr<T> RegisterSystem();
 
 		template<typename T> 
-		void SetSignature(Signature _signature);
+		void SetSignature(Signature _signature);	// システムのSignatureを設定
 
-		void EntitySignatureChanged(Entity _e, Signature _eSignature);
-		void EntityDestroyed(Entity _e);
+		void EntitySignatureChanged(Entity _e, Signature _eSignature);	// EntityのSignatureが変わった時に呼び出す
+		void EntityDestroyed(Entity _e);	// Entityが破棄された時に呼び出す
 
 	private:
 		std::unordered_map<const char*, Signature> signature_;
