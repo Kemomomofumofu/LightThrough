@@ -13,7 +13,7 @@ namespace ecs {
 	struct Transform {
 		DirectX::XMFLOAT3 position = {};					// 位置
 		DirectX::XMFLOAT3 rotation = {};					// 回転(ラジアン)
-		DirectX::XMFLOAT3 scale	   = { 1.0f, 1.0f, 1.0f };	// スケール
+		DirectX::XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };	// スケール
 
 
 		/**
@@ -28,5 +28,5 @@ namespace ecs {
 
 			return S * R * T;
 		}
-	}
+	};
 }

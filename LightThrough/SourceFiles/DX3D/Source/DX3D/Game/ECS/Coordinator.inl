@@ -16,7 +16,7 @@
 namespace ecs {
 	/**
 	 * @brief Componentリストの登録
-	 * @<Com> Componentの種類
+	 * @param <Com> Componentの種類
 	 */
 	template<typename Com>
 	void Coordinator::RegisterComponent()
@@ -26,7 +26,7 @@ namespace ecs {
 
 	/**
 	 * @brief EntityにComponentを追加
-	 * @<Com> 追加するComponentの種類
+	 * @param <Com> 追加するComponentの種類
 	 * @param _e 追加先のEntity
 	 * @param _component 追加するComponentの参照
 	 */
@@ -42,31 +42,69 @@ namespace ecs {
 		system_manager_->EntitySignatureChanged(_e, sig);
 	}
 
+	/**
+	 * @brief EntityからComponentを取得
+	 * @param <Com> 取得するComponentの種類
+	 * @param _e 削除先のEntity
+	 */
+	template<typename Com>
+	Com& Coordinator::GetComponent(Entity _e)
+	{
+		return component_manager_->GetComponent<Com>(_e);
+	}
+
+	/**
+	 * @brief EntityがComponentを持っているか確認
+	 * @param <Com> 確認するComponentの種類
+	 * @param _e 確認するEntity
+	 * @return true: 持っている, false: 持っていない
+	 */
+	template<typename Com>
+	bool Coordinator::HasComponent(Entity _e)
+	{
+		return component_manager_->HasComponent<Com>(_e);
+	}
+
+	/**
+	 * @brief ComponentのTypeを取得
+	 * @param <Com> 取得するComponentの種類
+	 * @return ComponentのType
+	 */
+	template<typename Com>
+	ComponentType Coordinator::GetComponentType()
+	{
+		return component_manager_->GetComponentType<Com>();
+	}
 
 	/**
 	 * @brief Systemの登録
-	 * @<Com> 登録するSystemの種類
+	 * @param <Sys> 登録するSystemの種類
 	 */
-	template<typename Com>
+	template<typename Sys>
 	void Coordinator::RegisterSystem()
 	{
-		system_manager_->RegisterSystem<Com>();
+		system_manager_->RegisterSystem<Sys>();
 	}
 
 	/**
 	 * @brief SystemのSignatureを設定
-	 * @<Com> Signatureを設定するSystemの種類
+	 * @param <Sys> Signatureを設定するSystemの種類
 	 * @param _signature 設定するSignature
 	 */
-	template<typename Com>
+	template<typename Sys>
 	void Coordinator::SetSystemSignature(Signature _signature)
 	{
-		system_manager_->SetSignature<Com>(_signature);
+		system_manager_->SetSignature<Sys>(_signature);
 	}
 
-	template<typename Com>
-	std::shared_ptr<Com> Coordinator::GetSystem()
+	/**
+	 * @brief Systemを取得
+	 * @param <Sys> 取得するSystemの種類
+	 * @return 取得したSystemのポインタ
+	 */
+	template<typename Sys>
+	std::shared_ptr<Sys> Coordinator::GetSystem()
 	{
-		return system_manager_->GetSystem<Com>();
+		return system_manager_->GetSystem<Sys>();
 	}
 }

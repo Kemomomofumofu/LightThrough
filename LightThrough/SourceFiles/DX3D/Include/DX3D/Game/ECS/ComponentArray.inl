@@ -32,7 +32,7 @@ namespace ecs {
 	template<typename Com>
 	Com& ComponentArray<Com>::Get(Entity _e)
 	{
-		assert(entity_to_index_.find(_e) == entity_to_index_.end());
+		assert(entity_to_index_.find(_e) != entity_to_index_.end());
 		return components_[entity_to_index_[_e]];
 	}
 

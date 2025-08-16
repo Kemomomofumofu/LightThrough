@@ -26,6 +26,7 @@ namespace ecs {
 	class Coordinator final {
 	public:
 		void Init();		// ‰Šú‰»
+
 		Entity CreateEntity();	// Entity‚Ì¶¬
 		void DestroyEntity(Entity _e);	// Entity‚Ì”jŠü
 
@@ -34,11 +35,18 @@ namespace ecs {
 		template<typename Com>
 		void AddComponent(Entity _e, const Com& _component);	// Component‚Ì’Ç‰Á
 		template<typename Com>
+		Com& GetComponent(Entity _e);	// Component‚Ìæ“¾
+		template<typename Com>
+		bool HasComponent(Entity _e);	// Component‚ğ‚Á‚Ä‚¢‚é‚©
+		template<typename Com>
+		ComponentType GetComponentType();	// Component‚ÌType‚ğæ“¾
+
+		template<typename Sys>
 		void RegisterSystem();		// System‚Ì“o˜^
-		template<typename Com>
+		template<typename Sys>
 		void SetSystemSignature(Signature _signature);	// System‚ÌSignature‚ğİ’è
-		template<typename Com>
-		std::shared_ptr<Com> GetSystem();	// System‚Ìæ“¾
+		template<typename Sys>
+		std::shared_ptr<Sys> GetSystem();	// System‚Ìæ“¾
 
 
 	private:

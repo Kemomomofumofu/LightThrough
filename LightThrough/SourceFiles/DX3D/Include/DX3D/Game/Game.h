@@ -7,13 +7,17 @@
  */
 
  /*---------- インクルード ----------*/
+#include <memory>
+#include <chrono>
 #include <DX3D/Core/Base.h>
 #include <DX3D/Core/Core.h>
 #include <InputSystem/InputListener.h>
+#include <DX3D/Game/ECS/Coordinator.h>
 
 
 
 namespace dx3d {
+	// ---------- 前方宣言 ---------- //
 	/**
 	 * @brief ゲームクラス
 	 *
@@ -39,6 +43,9 @@ namespace dx3d {
 		std::unique_ptr<GraphicsEngine> graphics_engine_{};
 		std::unique_ptr<Display> display_{};
 		bool is_running_ = true;
+
+		std::unique_ptr<ecs::Coordinator> ecs_coordinator_{};	// ECSのコーディネーター
+		std::chrono::high_resolution_clock::time_point last_time_{};	// 時間管理用
 
 	};
 }

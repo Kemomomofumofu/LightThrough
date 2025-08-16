@@ -23,7 +23,12 @@ namespace ecs {
 	{
 		// [ToDo] typeid(Com)‚Æ‚Ì”äŠr‚¶‚á‚È‚­‚ÄAtype_index(typeid(Com))‚É‚µ‚ë‚Æcopilot‚³‚ñ‚ªŒ¾‚Á‚Ä‚¢‚½‚Ì‚Åƒƒ‚
 		const std::type_index type = typeid(Com);
-		assert(component_arrays_.find(type) != component_arrays_.end());
+		assert(component_arrays_.find(type) == component_arrays_.end());
+
+		// ComponentType‚ğ“o˜^
+		assert(next_component_type_ < MAX_COMPONENTS);
+		component_types_[type] = next_component_type_++;
+
 		// ComponentƒŠƒXƒg‚ğ“o˜^
 		component_arrays_[type] = std::make_unique<ComponentArray<Com>>();
 	}
