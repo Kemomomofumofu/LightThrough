@@ -11,44 +11,35 @@
 #include <unordered_map>
 #include <typeindex>
 #include <cassert>
-#include <DX3D/Game/ECS/ISystem.h>
+#include <DX3D/Game/ECS/ECSUtils.h>
 
 namespace ecs {
+	// ---------- 前方宣言 ---------- //
+	class Entity;		// Entityクラス
+	class ISystem;		// システムのインターフェース
 
-	class SystemManager {
+	/**
+	 * @brief システムマネージャ
+	 *
+	 * システムの登録、管理やシステムに必要なコンポーネントの管理をする。
+	 */
+	class SystemManager final{
 	public:
 		template<typename T>
 		std::shared_ptr<T> RegisterSystem();
-
 		template<typename T> 
 		void SetSignature(Signature _signature);	// システムのSignatureを設定
+		template<typename T>
+		std::shared_ptr<T> GetSystem();		// システムを取得
 
 		void EntitySignatureChanged(Entity _e, Signature _eSignature);	// EntityのSignatureが変わった時に呼び出す
 		void EntityDestroyed(Entity _e);	// Entityが破棄された時に呼び出す
 
+
 	private:
-		std::unordered_map<const char*, Signature> signature_;
-		std::unordered_map<const char*, std::shared_ptr<ISystem>> systems_;
+		std::unordered_map<std::type_index, Signature> signature_;
+		std::unordered_map<std::type_index, std::shared_ptr<ISystem>> systems_;
 	};
-
-	template<typename T>
-	std::shared_ptr<T> SystemManager::RegisterSystem()
-	{
-		std::type_index type = typeid(T);
-		assert(systems_.find(type) == systems_.end());
-		auto system = std::make_shared<T>();
-		systems_[type] = system;
-		return system;
-	}
-
-
-	template<typename T>
-	inline void SystemManager::SetSignature(Signature _signature)
-	{
-		std::type_index type = typeid(T);
-		assert(systems_.find(type) != systems_.end());
-		signature_[type] = _signature;
-	}
-
-
 }
+
+#include <DX3D/Game/ECS/SystemManager.inl>

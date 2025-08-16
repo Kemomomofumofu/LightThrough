@@ -1,6 +1,6 @@
 /**
  * @file Win32Window.cpp
- * @brief 
+ * @brief ウィンドウの初期化処理
  * @author Arima Keita
  * @date 2025-06-25
  */

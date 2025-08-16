@@ -1,4 +1,15 @@
-#include "SystemManager.h"
+/**
+ * @file SystemManager.cpp
+ * @brief システムマネージャメンバ関数の定義
+ * @author Arima Keita
+ * @date 2025-08-16
+ */
+
+ // ---------- インクルード ---------- // 
+#include <DX3D/Game/ECS/SystemManager.h>
+#include <DX3D/Game/ECS/Entity.h>
+#include <DX3D/Game/ECS/ECSUtils.h>
+
 
 void ecs::SystemManager::EntitySignatureChanged(Entity _e, Signature _eSignature)
 {

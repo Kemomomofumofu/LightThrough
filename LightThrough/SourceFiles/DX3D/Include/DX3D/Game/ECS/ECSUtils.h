@@ -41,7 +41,8 @@ namespace ecs {
 
 	// ---------- Component ---------- // 
 	constexpr std::size_t MAX_COMPONENTS = 64;	// Å‘åComponent”
-	static_assert(MAX_COMPONENTS > 0, "MAX_COMPONENTS‚ª0ˆÈ‰º‚Å‚·B");
+	using ComponentType = std::uint8_t;	// Component‚ÌType( 0 ~ MAX_COMPONENT - 1 ‚ğ•\‚¹‚ê‚é®”) 
+
 
 	// ---------- System ---------- // 
 	using Signature = std::bitset<MAX_COMPONENTS>;	// ŠeEntity‚ª‚ÂComponent‚ÌSignature

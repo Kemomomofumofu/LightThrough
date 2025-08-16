@@ -24,6 +24,17 @@ void ecs::Coordinator::Init()
  * @brief Entity‚ð¶¬
  * @return ¶¬‚³‚ê‚½Entity
  */
-ecs::Entity ecs::Coordinator::Create() {
+ecs::Entity ecs::Coordinator::CreateEntity() {
 	return entity_manager_->Create();
+}
+
+/**
+ * @brief Entity‚Ì”jŠü
+ * @param _e ‘ÎÛ‚ÌEntity
+ */
+void ecs::Coordinator::DestroyEntity(Entity _e)
+{
+	entity_manager_->Destroy(_e);
+	component_manager_->EntityDestroyed(_e);
+	system_manager_->EntityDestroyed(_e);
 }

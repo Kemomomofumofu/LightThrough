@@ -8,9 +8,11 @@
 
 // ---------- インクルード ---------- // 
 #include <set>
-#include <DX3D/Game/ECS/Entity.h>
 
 namespace ecs {
+	// ---------- 前方宣言 ---------- //
+	class Entity;		// Entityクラス
+
 	class ISystem {
 	public:
 		std::set<Entity> entities_;	// 処理対象のEntityの集合

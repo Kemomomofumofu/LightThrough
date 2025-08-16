@@ -8,6 +8,7 @@
 
  // ---------- インクルード ---------- // 
 #include <cstdint>
+#include <compare>
 #include <DX3D/Game/ECS/ECSUtils.h>
 
 namespace ecs {
@@ -18,7 +19,7 @@ namespace ecs {
 	 * idはIndexとVersionを内包している
 	 */
 	struct Entity {
-		std::uint32_t id_ = 0;
+		uint32_t id_ = 0;
 
 		Entity() = default;
 		explicit Entity(uint32_t _id) : id_(_id) {}
@@ -33,6 +34,23 @@ namespace ecs {
 		}
 		bool operator!=(const Entity& _other) const {
 			return id_ != _other.id_;
+		}
+
+
+		// Indexを比較して、同じならバージョンを比較する
+		std::strong_ordering operator<=>(const Entity& _other) const noexcept {
+			if (Index() != _other.Index()){	return Index() <=> _other.Index(); }
+			return Version() <=> _other.Version();
+		}
+	};
+}
+
+namespace std {
+	// Entityのハッシュ関数の特殊化
+	template <>
+	struct hash<ecs::Entity> {
+		std::size_t operator()(const ecs::Entity& _e) const noexcept {
+			return std::hash<uint32_t>()(_e.id_);
 		}
 	};
 }

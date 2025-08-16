@@ -6,6 +6,7 @@
  */
 
 // ---------- インクルード ---------- // 
+#include <cassert>
 #include <DX3D/Game/ECS/EntityManager.h>
 
 
@@ -45,6 +46,28 @@ void ecs::EntityManager::Destroy(Entity _entity)
 
 	++versions_[index];	// Versionを進めて無効化
 	free_index_.push(index);	// Indexを再利用可能リストへ
+}
+
+/**
+ * @brief EntityのSignatureを設定
+ * @param _entity 対象のEntity
+ * @param _signature 設定するSignature
+ */
+void ecs::EntityManager::SetSignature(Entity _entity, Signature _signature)
+{
+	assert(_entity.Index() < signatures_.size());
+	signatures_[_entity.Index()] = _signature;	// Signatureを設定
+}
+
+/**
+ * @brief EntityのSignatureを取得
+ * @param _entity 対象のEntity
+ * @return Signature
+ */
+ecs::Signature ecs::EntityManager::GetSignature(Entity _entity) const
+{
+	assert(_entity.Index() < signatures_.size());
+	return signatures_[_entity.Index()];	// Signatureを返す
 }
 
 

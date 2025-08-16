@@ -11,10 +11,13 @@
 #include <typeindex>
 #include <memory>
 #include <cassert>
-#include <DX3D/Game/ECS/ComponentArray.h>
-#include <DX3D/Game/ECS/Entity.h>
+#include <DX3D/Game/ECS/ECSUtils.h>
 
 namespace ecs {
+	// ---------- 前方宣言 ---------- //
+	class Entity;			// Entityクラス
+	class IComponentArray;	// コンポーネント配列のインターフェース
+	template<typename Com> class ComponentArray;	// コンポーネント配列クラス
 
 	/**
 	 * @brief コンポーネントマネージャ
@@ -22,7 +25,7 @@ namespace ecs {
 	 * コンポーネントの管理を担当するクラス
 	 * 各コンポーネントのリストを保持し、Entityに対してコンポーネントの追加、削除、取得を行う。
 	 */
-	class ComponentManager {
+	class ComponentManager final{
 	public:
 		template<typename Com>
 		void RegisterComponent();	// Componentリストの登録
@@ -34,88 +37,21 @@ namespace ecs {
 		Com& GetComponent(Entity _e);	// Componentの取得
 		template<typename Com>
 		bool HasComponent(Entity _e);	// Componentを持っているか
+		template<typename Com>
+		ComponentType GetComponentType();	// ComponentのTypeを取得
+
+		void EntityDestroyed(Entity _e);	// Entityが破棄された際に呼び出す
 
 	private:
-		std::unordered_map<std::type_index, std::unique_ptr<IComponentArray>> component_arrays_;	// ComponentのTypeidとComponentリストとのMap
-
 		template<typename Com>
 		ComponentArray<Com>* GetArray();	// Componentリストの取得
+
+	private:
+		std::unordered_map<std::type_index, std::unique_ptr<IComponentArray>> component_arrays_;	// Componentリストを保持するMap
+		std::unordered_map<std::type_index, ComponentType> component_types_;	// コンポーネントに対応する整数を保持するMap
+		ComponentType next_component_type_ = 0;	// 次に登録されるコンポーネントのType
 	};
 
-
-	// ---------- 実装 ---------- // 
-	/**
-	 * @brief Componentリストの登録
-	 * @param <Com> 登録するComponentの種類
-	 */
-	template<typename Com>
-	inline void ComponentManager::RegisterComponent()
-	{
-		// [ToDo] typeid(Com)との比較じゃなくて、type_index(typeid(Com))にしろとcopilotさんが言っていたのでメモ
-		const std::type_index type = typeid(Com);
-		assert(entity_to_index_.find(type) == entity_to_index_.end());
-		// Componentリストを登録
-		component_arrays_[type] = std::make_unique<ComponentArray<Com>>();
-	}
-
-	/**
-	 * @brief Componentの追加
-	 * @param <Com> 追加するComponentの種類
-	 * @param _e  追加先のEntity
-	 * @param _component 追加するComponentの参照
-	 */
-	template<typename Com>
-	inline void ComponentManager::AddComponent(Entity _e, const Com& _component)
-	{
-		GetArray<T>()->Insert(_e, _component);
-	}
-
-	/**
-	 * @brief Componentの削除
-	 * @param <Com> 削除するComponentの種類
-	 * @param _e 削除先のEntity
-	 */
-	template<typename Com>
-	inline void ComponentManager::RemoveComponent(Entity _e)
-	{
-		GetArray<Com>()->Remove(_e);
-	}
-
-	/**
-	 * @brief Componentの取得
-	 * @param <Com> 取得するComponentの種類
-	 * @param _e 取得先のComponent
-	 * @return Component
-	 */
-	template<typename Com>
-	inline Com& ComponentManager::GetComponent(Entity _e)
-	{
-		return GetArray<Com>()->Get(_e);
-	}
-
-	/**
-	* @brief Componentを持っているか
-	* @param <Com> 確認するComponentの種類
-	* @param _e 確認先のEntity
-	* @return 有る: true, 無い: false
-	*/
-	template<typename Com>
-	inline bool ComponentManager::HasComponent(Entity _e)
-	{
-		return GetArray<Com>()->Has(_e);
-	}
-
-	/**
-	 * @brief Componentリストの取得
-	 * @param <Com> 取得したいComponentの種類
-	 * @return Componentリスト
-	 */
-	template<typename Com>
-	inline ComponentArray<Com>* ComponentManager::GetArray()
-	{
-		const std::type_index type = typeid(Com);
-		assert(entity_to_index_.find(type) == entity_to_index_.end());
-		return static_cast<ComponentArray<Com>*>(component_arrays_[type].get());
-	}
-
 }
+
+#include <DX3D/Game/ECS/ComponentManager.inl>
