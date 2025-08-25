@@ -40,5 +40,6 @@ namespace dx3d {
 		DeviceContextPtr device_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
 		VertexBufferPtr vb_{};
+		IndexBufferPtr ib_{};
 	};
 }

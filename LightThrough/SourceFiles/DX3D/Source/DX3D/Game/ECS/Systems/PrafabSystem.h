@@ -6,22 +6,26 @@
  * @date 2025-08-20
  */
 
-// ---------- インクルード ---------- // 
+ // ---------- インクルード ---------- // 
 #include <DX3D/Game/LightThrough/GameObjectType.h>
 
-namespace LightThrough {
+// ---------- 前方宣言 ---------- //
+namespace ecs{
 	class Coordinator;
 	class Entity;
+}
+
+namespace LightThrough {
 
 	class PrefabSystem final {
 	public:
-		PrefabSystem(Coordinator& _coord);
+		PrefabSystem(ecs::Coordinator& _coord) : coordinator_(_coord) {}
 
-		Entity CreateGameObject(LightThrough::GameObjectType _type);
+		ecs::Entity CreateGameObject(LightThrough::GameObjectType _type);	// ゲームオブジェクトを生成する
 
 	private:
-		Entity CreatePlayer();
-		Entity CreateCamera();
+		ecs::Entity CreatePlayer();
+		ecs::Entity CreateCamera();
 
 	private:
 		ecs::Coordinator& coordinator_;	// コーディネーターへの参照

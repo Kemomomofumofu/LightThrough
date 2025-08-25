@@ -65,6 +65,11 @@ namespace dx3d {
 		const ShaderBinary& ps;
 	};
 
+	struct IndexBufferDesc {
+		const uint32_t* indexList{};
+		ui32 indexCount{};
+	};
+
 	struct VertexBufferDesc {
 		const void* vertexList{};
 		ui32 vertexListSize{};
@@ -75,5 +80,4 @@ namespace dx3d {
 		Rect windowSize{ 1208, 720 };
 		Logger::LogLevel logLevel = Logger::LogLevel::Error;
 	};
-
 }

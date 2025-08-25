@@ -24,6 +24,7 @@ namespace dx3d {
 		void ClearAndSetBackBuffer(const SwapChain& _swapChain, const Vec4& _color);
 		void SetGraphicsPipelineState(const GraphicsPipelineState& _pipepline);
 		void SetVertexBuffer(const VertexBuffer& _buffer);
+		void SetIndexBuffer(const IndexBuffer& _buffer);
 		void SetViewportSize(const Rect& _size);
 		void DrawTriangleList(ui32 _vertexCount, ui32 _startVertexLocation);
 	private:

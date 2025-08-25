@@ -145,6 +145,8 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\MovementSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
     <ClCompile Include="SourceFiles\InputSystem\InputSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Base.cpp" />
@@ -164,8 +166,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\StaticMesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ISystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\LightThrough\GameObjectType.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Transform.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ECSUtils.h" />
@@ -175,6 +179,9 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\MovementSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.h" />
     <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputSystem.h" />

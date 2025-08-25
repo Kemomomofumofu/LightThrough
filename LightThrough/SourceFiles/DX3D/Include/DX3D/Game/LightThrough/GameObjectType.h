@@ -7,7 +7,7 @@
  */
 
 namespace LightThrough {
-	enum class GameobjectType {
+	enum class GameObjectType {
 		None = 0,	// 何もない
 		Camera,		// カメラ
 		Player,		// プレイヤー

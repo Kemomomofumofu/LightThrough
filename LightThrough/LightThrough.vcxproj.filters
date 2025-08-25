@@ -144,6 +144,11 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\MovementSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\LightThrough\GameObjectType.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\StaticMesh.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -195,6 +200,8 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\MovementSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl">

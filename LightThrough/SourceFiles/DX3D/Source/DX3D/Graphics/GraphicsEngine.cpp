@@ -46,17 +46,46 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 
 	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
 
-	// 頂点リストを定義
-	const Vertex vertexList[] = {
-		{ { -0.5f, -0.5f, 0.0f}, { 1, 0, 0, 1} },
-		{ { -0.5f,  0.5f, 0.0f}, { 0, 1, 0, 1} },
-		{ {  0.5f,  0.5f, 0.0f}, { 0, 0, 1, 1} },
+	// 立方体の頂点
+	const Vertex cubeVertices[] =
+	{
+		// 前面
+		{ { -0.5f, -0.5f, -0.5f }, {1,0,0,1} }, // 0
+		{ { -0.5f,  0.5f, -0.5f }, {0,1,0,1} }, // 1
+		{ {  0.5f,  0.5f, -0.5f }, {0,0,1,1} }, // 2
+		{ {  0.5f, -0.5f, -0.5f }, {1,1,0,1} }, // 3
 
-		{ {  0.5f,  0.5f, 0.0f}, { 0, 0, 1, 1} },
-		{ {  0.5f, -0.5f, 0.0f}, { 0, 1, 0, 1} },
-		{ { -0.5f, -0.5f, 0.0f}, { 1, 0, 0, 1} }
+		// 背面
+		{ { -0.5f, -0.5f,  0.5f }, {1,0,1,1} }, // 4
+		{ { -0.5f,  0.5f,  0.5f }, {0,1,1,1} }, // 5
+		{ {  0.5f,  0.5f,  0.5f }, {1,1,1,1} }, // 6
+		{ {  0.5f, -0.5f,  0.5f }, {0,0,0,1} }  // 7
+
+
 	};
-	vb_ = device.CreateVertexBuffer({ vertexList, std::size(vertexList), sizeof(Vertex) });
+
+	// インデックス (12三角形 = 36インデックス)
+	const uint32_t cubeIndices[] =
+	{
+		// 前面
+		0,1,2, 0,2,3,
+		// 背面
+		4,6,5, 4,7,6,
+		// 左面
+		4,5,1, 4,1,0,
+		// 右面
+		3,2,6, 3,6,7,
+		// 上面
+		1,5,6, 1,6,2,
+		// 底面
+		4,0,3, 4,3,7
+	};
+
+	// 頂点バッファの作成
+	vb_ = device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
+	// インデックスバッファの作成
+	// インデックスバッファ作成
+	ib_ = device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
 }
 
 dx3d::GraphicsEngine::~GraphicsEngine()
