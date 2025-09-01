@@ -16,7 +16,8 @@
 
 #include <DX3D/Game/ECS/Components/Transform.h>
 #include <DX3D/Game/ECS/Components/Velocity.h>
-#include <DX3D/Game/ECS/Systems/MovementSystem.h>
+#include <Game/Systems/MovementSystem.h>
+#include <DX3D/Game/ECS/Systems/RenderSystem.h>
 
 /**
  * @brief コンストラクタ
@@ -47,8 +48,13 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs::Signature moveSig;
 	moveSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
 	moveSig.set(ecs_coordinator_->GetComponentType<ecs::Velocity>());
-
 	ecs_coordinator_->SetSystemSignature<ecs::MovementSystem>(moveSig);
+
+	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>();
+	ecs::Signature renderSig;
+	//renderSig.set(ecs_coordinator_->GetComponentType<ecs::mesh>());
+	renderSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
+	ecs_coordinator_->SetSystemSignature<ecs::RenderSystem>(renderSig);
 
 	// Entityの生成
 	auto e = ecs_coordinator_->CreateEntity();
@@ -86,9 +92,6 @@ void dx3d::Game::OnInternalUpdate()
 	if (movement) {
 		movement->Update(dt, *ecs_coordinator_);
 	}
-
-	// 描画
-	graphics_engine_->Render(display_->GetSwapChain());
 }
 
 void dx3d::Game::OnKeyDown(int _key)

@@ -19,7 +19,7 @@ namespace dx3d {
 	/**
 	 * @brief ÇÊÇ≠Ç†ÇÈê}å`
 	 */
-	class StaticMesh : public GraphicsResource{
+	class StaticMesh{
 	public:
 		StaticMesh(const StaticMeshDesc& _desc);
 		void Draw(ID3D11DeviceContext* _ctx);

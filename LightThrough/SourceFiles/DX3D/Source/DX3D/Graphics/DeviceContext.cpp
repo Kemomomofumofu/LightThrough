@@ -39,9 +39,7 @@ void dx3d::DeviceContext::ClearAndSetBackBuffer(const SwapChain& _swapChain, con
 
 /**
  * @brief InputLayoutやシェーダーをセットする
- * @param _pipeline param1の説明
- * @param param2 param2の説明
- * @return 戻り値の説明
+ * @param _pipeline 
  */
 void dx3d::DeviceContext::SetGraphicsPipelineState(const GraphicsPipelineState& _pipeline)
 {
@@ -56,6 +54,10 @@ void dx3d::DeviceContext::SetVertexBuffer(const VertexBuffer& _buffer)
 	auto buf = _buffer.buffer_.Get();
 	auto offset = 0u;
 	context_->IASetVertexBuffers(0, 1, &buf, &stride, &offset);
+}
+
+void dx3d::DeviceContext::SetIndexBuffer(const IndexBuffer& _buffer)
+{
 }
 
 void dx3d::DeviceContext::SetViewportSize(const Rect& _size)

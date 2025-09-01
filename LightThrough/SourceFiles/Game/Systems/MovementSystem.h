@@ -20,6 +20,6 @@ namespace ecs {
 	 */
 	class MovementSystem : public ISystem {
 	public:
-		void Update(float _dt, ecs::Coordinator& _coord);
+		void Update(float _dt, ecs::Coordinator& _ecs);
 	};
 }

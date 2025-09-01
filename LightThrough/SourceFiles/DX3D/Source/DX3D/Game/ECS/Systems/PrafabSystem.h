@@ -8,6 +8,7 @@
 
  // ---------- インクルード ---------- // 
 #include <DX3D/Game/LightThrough/GameObjectType.h>
+#include <DX3D/Game/ECS/ISystem.h>
 
 // ---------- 前方宣言 ---------- //
 namespace ecs{
@@ -17,7 +18,7 @@ namespace ecs{
 
 namespace LightThrough {
 
-	class PrefabSystem final {
+	class PrefabSystem final{
 	public:
 		PrefabSystem(ecs::Coordinator& _coord) : coordinator_(_coord) {}
 

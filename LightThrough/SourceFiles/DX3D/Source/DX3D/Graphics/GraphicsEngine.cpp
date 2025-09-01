@@ -45,47 +45,6 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 	auto vsSig = device.CreateVertexShaderSignature({ vs });
 
 	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
-
-	// 立方体の頂点
-	const Vertex cubeVertices[] =
-	{
-		// 前面
-		{ { -0.5f, -0.5f, -0.5f }, {1,0,0,1} }, // 0
-		{ { -0.5f,  0.5f, -0.5f }, {0,1,0,1} }, // 1
-		{ {  0.5f,  0.5f, -0.5f }, {0,0,1,1} }, // 2
-		{ {  0.5f, -0.5f, -0.5f }, {1,1,0,1} }, // 3
-
-		// 背面
-		{ { -0.5f, -0.5f,  0.5f }, {1,0,1,1} }, // 4
-		{ { -0.5f,  0.5f,  0.5f }, {0,1,1,1} }, // 5
-		{ {  0.5f,  0.5f,  0.5f }, {1,1,1,1} }, // 6
-		{ {  0.5f, -0.5f,  0.5f }, {0,0,0,1} }  // 7
-
-
-	};
-
-	// インデックス (12三角形 = 36インデックス)
-	const uint32_t cubeIndices[] =
-	{
-		// 前面
-		0,1,2, 0,2,3,
-		// 背面
-		4,6,5, 4,7,6,
-		// 左面
-		4,5,1, 4,1,0,
-		// 右面
-		3,2,6, 3,6,7,
-		// 上面
-		1,5,6, 1,6,2,
-		// 底面
-		4,0,3, 4,3,7
-	};
-
-	// 頂点バッファの作成
-	vb_ = device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
-	// インデックスバッファの作成
-	// インデックスバッファ作成
-	ib_ = device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
 }
 
 dx3d::GraphicsEngine::~GraphicsEngine()
@@ -97,20 +56,33 @@ GraphicsDevice& dx3d::GraphicsEngine::GetGraphicsDevice() noexcept
 	return *graphics_device_;
 }
 
-void dx3d::GraphicsEngine::Render(SwapChain& _swapChain)
+DeviceContext& dx3d::GraphicsEngine::GetDeviceContext() noexcept
+{
+	return *device_context_;
+}
+
+void dx3d::GraphicsEngine::SetSwapChain(SwapChain& _swapChain)
+{
+	swap_chain_ = &_swapChain;
+}
+
+void dx3d::GraphicsEngine::BeginFrame()
 {
 	auto& context = *device_context_;
-	context.ClearAndSetBackBuffer(_swapChain, { 0.27f, 0.39f, 0.55f, 1.0f });	// 初期色でクリア
-	context.SetGraphicsPipelineState(*pipeline_);
+	context.ClearAndSetBackBuffer(*swap_chain_, { 0.27f, 0.39f, 0.55f, 1.0f });	// 初期色でクリア
+}
 
-	context.SetViewportSize(_swapChain.GetSize());
+void dx3d::GraphicsEngine::Render()
+{
+	//auto& context = *device_context_;
+	//context.SetGraphicsPipelineState(*pipeline_);
+	//context.SetViewportSize(swap_chain_->GetSize());
 
-	// 頂点バッファ
-	auto& vb = *vb_;
-	context.SetVertexBuffer(vb);
-	context.DrawTriangleList(vb.GetVertexListSize(), 0u);	// テストでの三角形描画
+	//auto& device = *graphics_device_;
+	//device.ExecuteCommandList(context);
+}
 
-	auto& device = *graphics_device_;
-	device.ExecuteCommandList(context);
-	_swapChain.Present();
+void dx3d::GraphicsEngine::EndFrame()
+{
+	swap_chain_->Present();
 }

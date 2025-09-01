@@ -18,7 +18,6 @@
  *
  * Ç»ÇÒÇ©ï`âÊÇ∑ÇÈä¥Ç∂ÅH
  */
-
 namespace dx3d {
 	class GraphicsEngine final : public Base {
 	public:
@@ -26,9 +25,12 @@ namespace dx3d {
 		virtual ~GraphicsEngine() override;
 
 		GraphicsDevice& GetGraphicsDevice() noexcept;
+		DeviceContext& GetDeviceContext() noexcept;
+		void SetSwapChain(SwapChain& _swapChain);
 
-		void Render(SwapChain& _swapChain);
-
+		void BeginFrame();
+		void Render();
+		void EndFrame();
 	private:
 		struct Vertex {
 			Vec3 position;
@@ -39,7 +41,6 @@ namespace dx3d {
 		std::shared_ptr<GraphicsDevice> graphics_device_{};
 		DeviceContextPtr device_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
-		VertexBufferPtr vb_{};
-		IndexBufferPtr ib_{};
+		SwapChain* swap_chain_{};
 	};
 }
