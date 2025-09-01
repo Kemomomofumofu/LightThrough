@@ -55,6 +55,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 	//renderSig.set(ecs_coordinator_->GetComponentType<ecs::mesh>());
 	renderSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
 	ecs_coordinator_->SetSystemSignature<ecs::RenderSystem>(renderSig);
+	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
+	renderSystem->SetGraphicsEngine(*graphics_engine_);
 
 	// Entityの生成
 	auto e = ecs_coordinator_->CreateEntity();
@@ -87,11 +89,12 @@ void dx3d::Game::OnInternalUpdate()
 	float dt = delta.count();	// 秒
 	last_time_ = now;
 
-	// ECSの更新
-	auto movement = ecs_coordinator_->GetSystem<ecs::MovementSystem>();
-	if (movement) {
-		movement->Update(dt, *ecs_coordinator_);
-	}
+	// スワップチェインのセット
+	graphics_engine_->SetSwapChain(display_->GetSwapChain());
+	// Systemの更新
+	ecs_coordinator_->UpdateSystems(dt);
+
+
 }
 
 void dx3d::Game::OnKeyDown(int _key)

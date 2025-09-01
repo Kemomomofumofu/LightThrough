@@ -48,6 +48,8 @@ namespace ecs {
 		template<typename Sys>
 		std::shared_ptr<Sys> GetSystem();	// Systemの取得
 
+		void UpdateSystems(float _dt);	// 登録されたSystemの更新
+
 
 	private:
 		std::unique_ptr<EntityManager> entity_manager_{};		// Entityマネージャ

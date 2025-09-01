@@ -38,3 +38,10 @@ void ecs::Coordinator::DestroyEntity(Entity _e)
 	component_manager_->EntityDestroyed(_e);
 	system_manager_->EntityDestroyed(_e);
 }
+
+void ecs::Coordinator::UpdateSystems(float _dt)
+{
+	for (auto& [type, system] : system_manager_->GetAllSystems()) {
+		system->Update(_dt, *this);
+	}
+}

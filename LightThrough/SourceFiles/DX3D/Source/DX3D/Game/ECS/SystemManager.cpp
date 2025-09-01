@@ -9,7 +9,17 @@
 #include <DX3D/Game/ECS/SystemManager.h>
 #include <DX3D/Game/ECS/Entity.h>
 #include <DX3D/Game/ECS/ECSUtils.h>
+#include <DX3D/Game/ECS/ISystem.h>
 
+
+/**
+ * @brief ƒVƒXƒeƒ€ŒQ‚Ìæ“¾
+ * @return “o˜^‚³‚ê‚½ƒVƒXƒeƒ€ŒQ
+ */
+const std::unordered_map<std::type_index, std::shared_ptr<ecs::ISystem>>& ecs::SystemManager::GetAllSystems() const
+{
+	return systems_;
+}
 
 void ecs::SystemManager::EntitySignatureChanged(Entity _e, Signature _eSignature)
 {

@@ -31,6 +31,7 @@ namespace ecs {
 		void SetSignature(Signature _signature);	// システムのSignatureを設定
 		template<typename T>
 		std::shared_ptr<T> GetSystem();		// システムを取得
+		const std::unordered_map<std::type_index, std::shared_ptr<ISystem>>& GetAllSystems() const;
 
 		void EntitySignatureChanged(Entity _e, Signature _eSignature);	// EntityのSignatureが変わった時に呼び出す
 		void EntityDestroyed(Entity _e);	// Entityが破棄された時に呼び出す

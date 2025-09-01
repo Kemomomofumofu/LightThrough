@@ -27,7 +27,7 @@ namespace ecs {
 		auto& device = engine_->GetGraphicsDevice();
 		// •`‰æ
 		for (auto& e : entities_) {
-			//auto& mesh = _ecs.GetComponent<MeshComponent>(e);
+			//auto& mesh = _ecs.GetComponent<Mesh>(e);
 			auto& transform = _ecs.GetComponent<ecs::Transform>(e);
 
 			//context.SetVertexBuffer(*mesh.vb_);
