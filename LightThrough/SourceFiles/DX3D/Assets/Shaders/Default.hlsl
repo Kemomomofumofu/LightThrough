@@ -1,8 +1,14 @@
 // 一番シンプルなシェーダ
-cbuffer cbPerObject : register(b0)
+cbuffer cbperFrame : register(b0)
 {
-    float4x4 worldViewProj;
+    float4x4 viewMatrix;
+    float4x4 projectionMatrix;
 };
+
+cbuffer cbPerObject : register(b1)
+{
+    float4x4 worldMatrix;
+}
 
 struct VSIN
 {
@@ -19,7 +25,12 @@ struct VSOUT
 VSOUT VSMain(VSIN vin)
 {
     VSOUT vout;
-    vout.pos = mul(float4(vin.pos, 1.0f), worldViewProj); // 座標変換
+    
+    // 座標変換
+    float4 worldPos = mul(float4(vin.pos, 1.0f), worldMatrix);
+    float4 viewPos = mul(worldPos, viewMatrix);
+    vout.pos = mul(viewPos, projectionMatrix);
+    
     vout.col = vin.col;
     return vout;
 }
