@@ -38,7 +38,7 @@ dx3d::VertexBuffer::VertexBuffer(const VertexBufferDesc& _desc, const GraphicsRe
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = _desc.vertexList;
 
-	DX3DGraphicsLogThrowOnFail(device_.CreateBuffer(&buffDesc, &initData, &buffer_), "CreateBuffer ‚ð Ž¸”s‚µ‚Ü‚µ‚½");
+	DX3DGraphicsLogThrowOnFail(device_.CreateBuffer(&buffDesc, &initData, &buffer_), "VertexBuffer CreateBuffer‚ÉŽ¸”s‚µ‚Ü‚µ‚½");
 }
 
 dx3d::ui32 dx3d::VertexBuffer::GetVertexListSize() const noexcept

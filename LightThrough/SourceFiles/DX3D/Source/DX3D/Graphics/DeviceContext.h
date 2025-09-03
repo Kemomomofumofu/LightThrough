@@ -27,6 +27,7 @@ namespace dx3d {
 		void SetIndexBuffer(const IndexBuffer& _buffer);
 		void SetViewportSize(const Rect& _size);
 		void DrawTriangleList(ui32 _vertexCount, ui32 _startVertexLocation);
+		void DrawIndexed(ui32 _indexCount, ui32 _startIndex, ui32 _baseVertex);
 	private:
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> context_{};
 

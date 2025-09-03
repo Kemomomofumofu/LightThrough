@@ -10,6 +10,7 @@
 #include <DX3D/Graphics/SwapChain.h>
 #include <DX3D/Graphics/GraphicsPipelineState.h>
 #include <DX3D/Graphics/VertexBuffer.h>
+#include <DX3D/Graphics/IndexBuffer.h>
 
 
 /**
@@ -58,6 +59,7 @@ void dx3d::DeviceContext::SetVertexBuffer(const VertexBuffer& _buffer)
 
 void dx3d::DeviceContext::SetIndexBuffer(const IndexBuffer& _buffer)
 {
+	context_->IASetIndexBuffer(_buffer.GetBuffer(), DXGI_FORMAT_R32_UINT, 0);
 }
 
 void dx3d::DeviceContext::SetViewportSize(const Rect& _size)
@@ -74,5 +76,11 @@ void dx3d::DeviceContext::DrawTriangleList(ui32 _vertexCount, ui32 _startVertexL
 {
 	context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context_->Draw(_vertexCount, _startVertexLocation);
+}
+
+void dx3d::DeviceContext::DrawIndexed(ui32 _indexCount, ui32 _startIndex, ui32 _baseVertex)
+{
+	context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context_->DrawIndexed(_indexCount, _startIndex, _baseVertex);
 }
 

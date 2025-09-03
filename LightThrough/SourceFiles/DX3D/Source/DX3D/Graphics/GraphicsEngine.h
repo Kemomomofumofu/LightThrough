@@ -29,7 +29,7 @@ namespace dx3d {
 		void SetSwapChain(SwapChain& _swapChain);
 
 		void BeginFrame();
-		void Render();
+		void Render(VertexBuffer& _vb, IndexBuffer& _ib);
 		void EndFrame();
 	private:
 		struct Vertex {

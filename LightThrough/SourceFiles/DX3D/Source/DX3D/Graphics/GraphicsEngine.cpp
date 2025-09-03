@@ -13,6 +13,7 @@
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/SwapChain.h>
 #include <DX3D/Graphics/VertexBuffer.h>
+#include <DX3D/Graphics/IndexBuffer.h>
 #include <DX3D/Math/Vec3.h>
 
 
@@ -70,19 +71,24 @@ void dx3d::GraphicsEngine::BeginFrame()
 {
 	auto& context = *device_context_;
 	context.ClearAndSetBackBuffer(*swap_chain_, { 0.27f, 0.39f, 0.55f, 1.0f });	// ‰ŠúF‚ÅƒNƒŠƒA
+
 }
 
-void dx3d::GraphicsEngine::Render()
+void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib/*,_transform*/)
 {
-	//auto& context = *device_context_;
-	//context.SetGraphicsPipelineState(*pipeline_);
-	//context.SetViewportSize(swap_chain_->GetSize());
+	auto& context = *device_context_;
+	context.SetGraphicsPipelineState(*pipeline_);
+	context.SetViewportSize(swap_chain_->GetSize());
 
-	//auto& device = *graphics_device_;
-	//device.ExecuteCommandList(context);
+	context.SetVertexBuffer(_vb);
+	context.SetIndexBuffer(_ib);
+	context.DrawIndexed(_ib.GetIndexCount(), 0, 0);
 }
 
 void dx3d::GraphicsEngine::EndFrame()
 {
+	auto& context = *device_context_;
+	auto& device = *graphics_device_;
+	device.ExecuteCommandList(context);
 	swap_chain_->Present();
 }

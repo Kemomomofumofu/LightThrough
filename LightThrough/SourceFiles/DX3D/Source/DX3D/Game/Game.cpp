@@ -19,6 +19,44 @@
 #include <Game/Systems/MovementSystem.h>
 #include <DX3D/Game/ECS/Systems/RenderSystem.h>
 
+
+
+// [ToDo] テストでキューブを生成するメソッド
+#include <DX3D/Graphics/GraphicsDevice.h>
+#include <DX3D/Game/ECS/Components/Mesh.h>
+static ecs::Mesh CreateCube(dx3d::GraphicsDevice& _device) {
+	using namespace dx3d;
+	struct Vertex {
+		Vec3 pos;
+		Vec4 col;
+	};
+
+	const Vertex cubeVertices[] = {
+		{{-0.5f, -0.5f, -0.5f},{ 0, 0, 0, 1}},	// 0
+		{{-0.5f,  0.5f, -0.5f},{ 1, 0, 0, 1}},	// 1
+		{{ 0.5f,  0.5f, -0.5f},{ 1, 0, 0, 1}},	// 2
+		{{ 0.5f, -0.5f, -0.5f},{ 1, 0, 0, 1}},	// 3
+		{{-0.5f, -0.5f,  0.5f},{ 1, 0, 0, 1}},	// 4
+		{{-0.5f,  0.5f,  0.5f},{ 1, 0, 0, 1}},	// 5
+		{{ 0.5f,  0.5f,  0.5f},{ 1, 0, 0, 1}},	// 6
+		{{ 0.5f, -0.5f,  0.5f},{ 1, 0, 0, 1}},	// 7
+	};
+
+	const ui32 cubeIndices[] = {
+		0,1,2, 0,2,3,	// front
+		4,5,6, 4,7,6,	// back
+		4,5,1, 4,1,0,	// left
+		3,2,6, 3,6,7,	// right
+		1,5,6, 1,6,2,	// top
+		4,0,3, 4,3,7,	// bottom
+	};
+
+	auto vb = _device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
+	auto ib = _device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
+
+	return ecs::Mesh{ vb, ib };
+}
+
 /**
  * @brief コンストラクタ
  * @param _desc ゲームの定義
@@ -41,18 +79,20 @@ dx3d::Game::Game(const GameDesc& _desc)
 	last_time_ = std::chrono::high_resolution_clock::now();
 
 	// [ToDo] テスト用で動かしてみる
+	// [ToDo] 自動でComponentを登録する機能が欲しいかも。
 	ecs_coordinator_->RegisterComponent<ecs::Transform>();
-	ecs_coordinator_->RegisterComponent<ecs::Velocity>();
+	ecs_coordinator_->RegisterComponent<ecs::Mesh>();
 
-	ecs_coordinator_->RegisterSystem<ecs::MovementSystem>();
-	ecs::Signature moveSig;
-	moveSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
-	moveSig.set(ecs_coordinator_->GetComponentType<ecs::Velocity>());
-	ecs_coordinator_->SetSystemSignature<ecs::MovementSystem>(moveSig);
+	//ecs_coordinator_->RegisterSystem<ecs::MovementSystem>();
+	//ecs::Signature moveSig;
+	//moveSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
+	//moveSig.set(ecs_coordinator_->GetComponentType<ecs::Velocity>());
+	//ecs_coordinator_->SetSystemSignature<ecs::MovementSystem>(moveSig);
 
+	// 描画システム
 	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>();
 	ecs::Signature renderSig;
-	//renderSig.set(ecs_coordinator_->GetComponentType<ecs::mesh>());
+	renderSig.set(ecs_coordinator_->GetComponentType<ecs::Mesh>());
 	renderSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
 	ecs_coordinator_->SetSystemSignature<ecs::RenderSystem>(renderSig);
 	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
@@ -61,7 +101,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// Entityの生成
 	auto e = ecs_coordinator_->CreateEntity();
 	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} });
-	ecs_coordinator_->AddComponent<ecs::Velocity>(e, ecs::Velocity{ {10.0f, 0.0f, 0.0f} });
+	auto cubeMesh = CreateCube(graphics_engine_->GetGraphicsDevice());
+	ecs_coordinator_->AddComponent<ecs::Mesh>(e, cubeMesh);
 
 	DX3DLogInfo("ゲーム開始");
 }

@@ -12,6 +12,8 @@
 #include <DX3D/Game/ECS/Coordinator.h>
 #include <DX3D/Game/ECS/Systems/RenderSystem.h>
 #include <DX3D/Game/ECS/Components/Transform.h>
+#include <DX3D/Game/ECS/Components/Mesh.h>
+
 namespace ecs {
 
 	/**
@@ -23,18 +25,12 @@ namespace ecs {
 		// 描画開始
 		engine_->BeginFrame();
 
-		auto& context = engine_->GetDeviceContext();
-		auto& device = engine_->GetGraphicsDevice();
 		// 描画
 		for (auto& e : entities_) {
-			//auto& mesh = _ecs.GetComponent<Mesh>(e);
+			auto& mesh = _ecs.GetComponent<Mesh>(e);
 			auto& transform = _ecs.GetComponent<ecs::Transform>(e);
 
-			//context.SetVertexBuffer(*mesh.vb_);
-			//context.SetIndexBuffer(*mesh.ib_);
-			//context.SetConstantBuffer(transform);
-				
-			device.ExecuteCommandList(context);
+			engine_->Render(*mesh.vb, *mesh.ib);
 		}
 
 			//// 頂点バッファ

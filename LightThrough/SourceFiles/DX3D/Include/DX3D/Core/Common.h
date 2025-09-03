@@ -66,7 +66,7 @@ namespace dx3d {
 	};
 
 	struct IndexBufferDesc {
-		const uint32_t* indexList{};
+		const ui32* indexList{};
 		ui32 indexCount{};
 	};
 
