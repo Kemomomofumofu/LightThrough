@@ -9,6 +9,7 @@
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/SwapChain.h>
 #include <DX3D/Graphics/GraphicsPipelineState.h>
+#include <DX3D/Graphics/RasterizerState.h>
 #include <DX3D/Graphics/VertexBuffer.h>
 #include <DX3D/Graphics/IndexBuffer.h>
 
@@ -47,6 +48,11 @@ void dx3d::DeviceContext::SetGraphicsPipelineState(const GraphicsPipelineState& 
 	context_->IASetInputLayout(_pipeline.layout_.Get());
 	context_->VSSetShader(_pipeline.vs_.Get(), nullptr, 0);
 	context_->PSSetShader(_pipeline.ps_.Get(), nullptr, 0);
+}
+
+void dx3d::DeviceContext::SetRasterizerState(const RasterizerState& _rasterizer)
+{
+	context_->RSSetState(_rasterizer.rast_state_.Get());
 }
 
 void dx3d::DeviceContext::SetVertexBuffer(const VertexBuffer& _buffer)

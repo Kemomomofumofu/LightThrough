@@ -46,6 +46,10 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 	auto vsSig = device.CreateVertexShaderSignature({ vs });
 
 	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
+
+	rasterizer_ = device.CreateRasterizerState({});
+	
+
 }
 
 dx3d::GraphicsEngine::~GraphicsEngine()

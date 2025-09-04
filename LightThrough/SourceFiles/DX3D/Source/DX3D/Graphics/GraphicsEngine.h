@@ -41,6 +41,7 @@ namespace dx3d {
 		std::shared_ptr<GraphicsDevice> graphics_device_{};
 		DeviceContextPtr device_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
+		RasterizerStatePtr rasterizer_{};
 		SwapChain* swap_chain_{};
 	};
 }

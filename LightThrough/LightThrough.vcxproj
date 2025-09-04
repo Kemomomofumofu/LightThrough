@@ -147,6 +147,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Mesh.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h" />

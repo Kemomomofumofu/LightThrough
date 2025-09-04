@@ -65,6 +65,25 @@ namespace dx3d {
 		const ShaderBinary& ps;
 	};
 
+	enum class FillMode {
+		Solid,
+		Wireframe,
+	};
+	enum class CullMode {
+		None,
+		Front,
+		Back,
+	};
+	struct RasterizerStateDesc {
+		FillMode fillMode = FillMode::Solid;
+		CullMode cullMode = CullMode::Back;
+		bool frontCounterClockwise = false;
+		bool depthClipEnable = true;
+		bool scissorEnable = false;
+		bool multiSampleEnable = false;
+		bool antiAliasedLineEnable = false;
+	};
+
 	struct IndexBufferDesc {
 		const ui32* indexList{};
 		ui32 indexCount{};

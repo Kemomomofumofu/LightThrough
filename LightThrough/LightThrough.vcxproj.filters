@@ -58,6 +58,12 @@
     <Filter Include="DX3D\Assets\Shaders">
       <UniqueIdentifier>{b88df9a9-6b57-4f6b-a545-2f250d7f6220}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{f5a74b6a-ef84-4ec2-9e30-11a97029017d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Systems">
+      <UniqueIdentifier>{7e410f41-254e-4a70-9e96-d3a76545e32a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Base.h">
@@ -137,20 +143,37 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ECSUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Transform.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ISystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Velocity.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\LightThrough\GameObjectType.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Mesh.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h">
+      <Filter>DX3D\Source\DX3D\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Mesh.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Transform.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Velocity.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -201,11 +224,20 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.cpp">
+      <Filter>DX3D\Source\DX3D\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl">

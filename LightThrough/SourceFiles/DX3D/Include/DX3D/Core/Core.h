@@ -28,6 +28,7 @@ namespace dx3d {
 	class DeviceContext;
 	class ShaderBinary;
 	class GraphicsPipelineState;
+	class RasterizerState;
 	class VertexBuffer;
 	class IndexBuffer;
 	class VertexShaderSignature;
@@ -41,6 +42,7 @@ namespace dx3d {
 	using DeviceContextPtr = std::shared_ptr<DeviceContext>;
 	using ShaderBinaryPtr = std::shared_ptr<ShaderBinary>;
 	using GraphicsPipelineStatePtr = std::shared_ptr<GraphicsPipelineState>;
+	using RasterizerStatePtr = std::shared_ptr<RasterizerState>;
 	using VertexBufferPtr = std::shared_ptr<VertexBuffer>;
 	using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
 	using VertexShaderSignaturePtr = std::shared_ptr<VertexShaderSignature>;
