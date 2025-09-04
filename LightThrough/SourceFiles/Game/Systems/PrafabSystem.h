@@ -7,7 +7,7 @@
  */
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/LightThrough/GameObjectType.h>
+#include <Game/GameObjectType.h>
 #include <DX3D/Game/ECS/ISystem.h>
 
 // ---------- 前方宣言 ---------- //

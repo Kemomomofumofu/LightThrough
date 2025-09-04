@@ -6,8 +6,8 @@
 #include <DX3D/Core/Logger.h>
 #include <Game/Systems/MovementSystem.h>
 #include <DX3D/Game/ECS/Coordinator.h>
-#include <DX3D/Game/ECS/Components/Transform.h>
-#include <DX3D/Game/ECS/Components/Velocity.h>
+#include <Game/Components/Transform.h>
+#include <Game/Components/Velocity.h>
 
 
 void ecs::MovementSystem::Update(float _dt, ecs::Coordinator& _ecs)

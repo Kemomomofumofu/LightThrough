@@ -7,12 +7,12 @@
 
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/Systems/PrafabSystem.h>
 #include <DX3D/Game/ECS/Coordinator.h>
 #include <DX3D/Game/ECS/Entity.h>
 
-#include <DX3D/Game/ECS/Components/Transform.h>
-#include <DX3D/Game/ECS/Components/Velocity.h>
+#include <Game/Systems/PrafabSystem.h>
+#include <Game/Components/Transform.h>
+#include <Game/Components/Velocity.h>
 
 namespace LightThrough {
 

@@ -145,11 +145,12 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
+    <ClCompile Include="SourceFiles\Game\Systems\RenderSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\PrafabSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
     <ClCompile Include="SourceFiles\InputSystem\InputSystem.cpp" />
@@ -170,22 +171,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Velocity.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ISystem.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\LightThrough\GameObjectType.h" />
+    <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Transform.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Transform.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ECSUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Entity.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\RenderSystem.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\Components\Mesh.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\RenderSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Mesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Systems\PrafabSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\PrafabSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.h" />

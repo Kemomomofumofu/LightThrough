@@ -10,9 +10,9 @@
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Game/ECS/Coordinator.h>
-#include <DX3D/Game/ECS/Systems/RenderSystem.h>
-#include <DX3D/Game/ECS/Components/Transform.h>
-#include <DX3D/Game/ECS/Components/Mesh.h>
+#include <Game/Systems/RenderSystem.h>
+#include <Game/Components/Transform.h>
+#include <Game/Components/Mesh.h>
 
 namespace ecs {
 
