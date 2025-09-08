@@ -14,16 +14,19 @@
 #include <DX3D/Math/Point.h>
 #include <InputSystem/InputSystem.h>
 
-#include <DX3D/Game/ECS/Components/Transform.h>
-#include <DX3D/Game/ECS/Components/Velocity.h>
 #include <Game/Systems/MovementSystem.h>
-#include <DX3D/Game/ECS/Systems/RenderSystem.h>
+#include <Game/Systems/RenderSystem.h>
+#include <Game/Systems/CameraSystem.h>
+#include <Game/Components/Transform.h>
+#include <Game/Components/Velocity.h>
+#include <Game/Components/Camera.h>
+#include <Game/Components/CameraController.h>
 
 
 
 // [ToDo] テストでキューブを生成するメソッド
 #include <DX3D/Graphics/GraphicsDevice.h>
-#include <DX3D/Game/ECS/Components/Mesh.h>
+#include <Game/Components/Mesh.h>
 static ecs::Mesh CreateCube(dx3d::GraphicsDevice& _device) {
 	using namespace dx3d;
 	struct Vertex {
@@ -32,7 +35,7 @@ static ecs::Mesh CreateCube(dx3d::GraphicsDevice& _device) {
 	};
 
 	const Vertex cubeVertices[] = {
-		{{-0.5f, -0.5f, -0.5f},{ 0, 0, 0, 1}},	// 0
+		{{-0.5f, -0.5f, -0.5f},{ 1, 0, 0, 1}},	// 0
 		{{-0.5f,  0.5f, -0.5f},{ 1, 0, 0, 1}},	// 1
 		{{ 0.5f,  0.5f, -0.5f},{ 1, 0, 0, 1}},	// 2
 		{{ 0.5f, -0.5f, -0.5f},{ 1, 0, 0, 1}},	// 3
@@ -82,6 +85,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// [ToDo] 自動でComponentを登録する機能が欲しいかも。
 	ecs_coordinator_->RegisterComponent<ecs::Transform>();
 	ecs_coordinator_->RegisterComponent<ecs::Mesh>();
+	ecs_coordinator_->RegisterComponent<ecs::Camera>();
+	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 
 	//ecs_coordinator_->RegisterSystem<ecs::MovementSystem>();
 	//ecs::Signature moveSig;
@@ -98,7 +103,21 @@ dx3d::Game::Game(const GameDesc& _desc)
 	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
 	renderSystem->SetGraphicsEngine(*graphics_engine_);
 
+	// カメラシステム
+	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>();
+	ecs::Signature cameraSig;
+	cameraSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
+	cameraSig.set(ecs_coordinator_->GetComponentType<ecs::Camera>());
+	ecs_coordinator_->SetSystemSignature<ecs::CameraSystem>(cameraSig);	
+
 	// Entityの生成
+	// カメラ
+	auto eCamera = ecs_coordinator_->CreateEntity();
+	ecs_coordinator_->AddComponent<ecs::Transform>(eCamera, ecs::Transform{ {0.0f, 0.0f, -5.0f}, {0.0f, 0.0f, 0.0f} });
+	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, {});
+	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, {});
+
+
 	auto e = ecs_coordinator_->CreateEntity();
 	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} });
 	auto cubeMesh = CreateCube(graphics_engine_->GetGraphicsDevice());
@@ -133,7 +152,7 @@ void dx3d::Game::OnInternalUpdate()
 	// スワップチェインのセット
 	graphics_engine_->SetSwapChain(display_->GetSwapChain());
 	// Systemの更新
-	ecs_coordinator_->UpdateSystems(dt);
+	ecs_coordinator_->UpdateAllSystems(dt);
 
 
 }

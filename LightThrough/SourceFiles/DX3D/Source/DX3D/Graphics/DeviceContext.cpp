@@ -24,6 +24,11 @@ dx3d::DeviceContext::DeviceContext(const GraphicsResourceDesc& _gDesc)
 	DX3DGraphicsLogThrowOnFail(device_.CreateDeferredContext(0, &context_), "CreateDeferredContext を 失敗しました");
 }
 
+Microsoft::WRL::ComPtr<ID3D11DeviceContext> dx3d::DeviceContext::GetDeviceContext() const noexcept
+{
+	return context_;
+}
+
 
 /**
  * @brief バックバッファをクリアしたりセットしたり

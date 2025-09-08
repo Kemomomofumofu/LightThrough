@@ -29,10 +29,13 @@ namespace dx3d {
 		IndexBufferPtr CreateIndexBuffer(const IndexBufferDesc& _desc);
 		VertexShaderSignaturePtr CreateVertexShaderSignature(const VertexShaderSignatureDesc& _desc);
 		
+		template<typename T>
+		std::unique_ptr<ConstantBuffer<T>> CreateConstantBuffer();
 
 		void ExecuteCommandList(DeviceContext& _context);
 
 		Microsoft::WRL::ComPtr<ID3D11Device> GetD3DDevice() const noexcept { return d3d_device_; }
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetD3DContext() const noexcept { return d3d_context_; }
 	private:
 		GraphicsResourceDesc GetGraphicsResourceDesc() const noexcept;
 
@@ -43,4 +46,11 @@ namespace dx3d {
 		Microsoft::WRL::ComPtr<IDXGIAdapter> dxgi_adapter_{};		// GPUの情報を持っている
 		Microsoft::WRL::ComPtr<IDXGIFactory> dxgi_factory_{};		// スワップチェインを作ったり
 	};
+
+
+	template<typename T>
+	std::unique_ptr<ConstantBuffer<T>> GraphicsDevice::CreateConstantBuffer()
+	{
+		return std::make_unique<ConstantBuffer<T>>(GetGraphicsResourceDesc());
+	}
 }

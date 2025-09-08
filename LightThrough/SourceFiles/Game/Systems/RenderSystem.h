@@ -15,13 +15,20 @@ namespace dx3d {
 }
 
 namespace ecs {
+
+	/**
+	 * @brief ï`âÊÉVÉXÉeÉÄ
+	 *
+	 * ïKê{ÅG<Transform>, <Mesh>
+	 */
 	class RenderSystem : public ISystem{
 	public:
 		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
 		void Update(float _dt, ecs::Coordinator& _ecs) override;
 	private:
-		dx3d::GraphicsEngine* engine_;
+		dx3d::GraphicsEngine* engine_{};
+		dx3d::CBPerFrame cb_per_frame_{};
 	};
 
 }

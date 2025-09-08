@@ -9,6 +9,7 @@
 
 // ---------- インクルード ---------- // 
 #include <DX3D/Game/ECS/Coordinator.h>
+#include <DX3D/Game/ECS/ECSUtils.h>
 #include <DX3D/Game/ECS/EntityManager.h>
 #include <DX3D/Game/ECS/ComponentManager.h>
 #include <DX3D/Game/ECS/SystemManager.h>
@@ -53,6 +54,40 @@ namespace ecs {
 		return component_manager_->GetComponent<Com>(_e);
 	}
 
+
+	/**
+	 * @brief 指定されたComponentを持っているEntityを取得
+	 * @param <Com> 指定するComponent
+	 * @return EntityのVector型リスト
+	 */
+	template<typename Com>
+	inline std::vector<Entity> Coordinator::GetEntitiesWithComponent()
+	{
+		std::vector<Entity> result;
+		for (const auto& e : entity_manager_->GetAllEntities()) {
+			if (component_manager_->HasComponent<Com>(e)) {
+				result.push_back(e);	// 持っているなら追加
+			}
+		}
+
+		return result;
+	}
+
+
+	/**
+	 * @brief 指定された複数のComponentを持っているEntityを取得
+	 *	Signatureに変換して、GetEntitiesWithSignature()を呼び出す形
+	 * @param <...Coms> 指定する複数のComponent
+	 * @return EntityのVector型リスト
+	 */
+	template<typename ...Coms>
+	inline std::vector<Entity> Coordinator::GetEntitiesWithComponents()
+	{
+		Signature sig;
+		(sig.set(component_manager_->GetComponentType<Coms>()), ...);
+		return GetEntitiesWithSignature(sig);
+	}
+
 	/**
 	 * @brief EntityがComponentを持っているか確認
 	 * @param <Com> 確認するComponentの種類
@@ -92,7 +127,7 @@ namespace ecs {
 	 * @param _signature 設定するSignature
 	 */
 	template<typename Sys>
-	void Coordinator::SetSystemSignature(Signature _signature)
+	void Coordinator::SetSystemSignature(Signature& _signature)
 	{
 		system_manager_->SetSignature<Sys>(_signature);
 	}

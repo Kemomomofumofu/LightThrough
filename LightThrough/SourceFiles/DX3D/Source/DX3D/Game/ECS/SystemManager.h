@@ -15,7 +15,7 @@
 
 namespace ecs {
 	// ---------- 前方宣言 ---------- //
-	class Entity;		// Entityクラス
+	struct Entity;		// Entityクラス
 	class ISystem;		// システムのインターフェース
 
 	/**

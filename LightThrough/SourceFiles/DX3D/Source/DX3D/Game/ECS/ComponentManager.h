@@ -15,7 +15,7 @@
 
 namespace ecs {
 	// ---------- 前方宣言 ---------- //
-	class Entity;			// Entityクラス
+	struct Entity;			// Entityクラス
 	class IComponentArray;	// コンポーネント配列のインターフェース
 	template<typename Com> class ComponentArray;	// コンポーネント配列クラス
 
@@ -44,7 +44,7 @@ namespace ecs {
 
 	private:
 		template<typename Com>
-		ComponentArray<Com>* GetArray();	// Componentリストの取得
+		ComponentArray<Com>* GetComponentArray();	// Componentリストの取得
 
 	private:
 		std::unordered_map<std::type_index, std::unique_ptr<IComponentArray>> component_arrays_;	// Componentリストを保持するMap

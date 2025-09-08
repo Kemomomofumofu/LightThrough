@@ -31,6 +31,8 @@ namespace dx3d {
 	class RasterizerState;
 	class VertexBuffer;
 	class IndexBuffer;
+	template<typename T>
+	class ConstantBuffer;
 	class VertexShaderSignature;
 
 	using i32 = std::int32_t;

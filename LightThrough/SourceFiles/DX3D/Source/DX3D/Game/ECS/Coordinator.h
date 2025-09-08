@@ -7,13 +7,14 @@
  */
 
 // ---------- インクルード ---------- //
+#include <vector>
 #include <memory>
 #include <DX3D/Game/ECS/ECSUtils.h>
 
 namespace ecs {
 		
 	// ---------- 前方宣言 ---------- // 
-	class Entity;
+	struct Entity;
 	class EntityManager;
 	class ComponentManager;
 	class SystemManager;
@@ -35,20 +36,26 @@ namespace ecs {
 		template<typename Com>
 		void AddComponent(Entity _e, const Com& _component);	// Componentの追加
 		template<typename Com>
+		bool HasComponent(Entity _e);	// Componentを持っているか
+		template<typename Com>
 		Com& GetComponent(Entity _e);	// Componentの取得
 		template<typename Com>
-		bool HasComponent(Entity _e);	// Componentを持っているか
+		std::vector<Entity> GetEntitiesWithComponent(); // 指定したComponentを持っているEntityの一覧を取得
+		template<typename... Coms>
+		std::vector<Entity> GetEntitiesWithComponents(); // 複数指定したSignatureを持っているEntityの一覧を取得
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
 
 		template<typename Sys>
 		void RegisterSystem();		// Systemの登録
 		template<typename Sys>
-		void SetSystemSignature(Signature _signature);	// SystemのSignatureを設定
+		void SetSystemSignature(Signature& _signature);	// SystemのSignatureを設定
 		template<typename Sys>
 		std::shared_ptr<Sys> GetSystem();	// Systemの取得
 
-		void UpdateSystems(float _dt);	// 登録されたSystemの更新
+		void UpdateAllSystems(float _dt);	// 登録されたSystemの更新
+		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
+		
 
 
 	private:

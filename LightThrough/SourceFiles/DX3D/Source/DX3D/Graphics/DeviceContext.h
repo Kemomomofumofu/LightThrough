@@ -21,6 +21,9 @@ namespace dx3d {
 	{
 	public:
 		explicit DeviceContext(const GraphicsResourceDesc& _gDesc);
+
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetDeviceContext() const noexcept;
+
 		void ClearAndSetBackBuffer(const SwapChain& _swapChain, const Vec4& _color);
 		void SetGraphicsPipelineState(const GraphicsPipelineState& _pipepline);
 		void SetRasterizerState(const RasterizerState& _rasterizer);

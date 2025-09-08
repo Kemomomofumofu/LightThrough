@@ -9,8 +9,10 @@
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
+#include <DX3D/Graphics/ConstantBuffer.h>
 #include <DX3D/Game/ECS/Coordinator.h>
 #include <Game/Systems/RenderSystem.h>
+#include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Mesh.h>
 
@@ -24,6 +26,17 @@ namespace ecs {
 	void RenderSystem::Update(float _dt, ecs::Coordinator& _ecs) {
 		// 描画開始
 		engine_->BeginFrame();
+
+		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
+		auto camEntity = _ecs.GetEntitiesWithComponent<Camera>()[0];	// とりあえず一番最初のカメラを取得しとく
+		auto& cam = _ecs.GetComponent<Camera>(camEntity);
+		auto& context = engine_->GetDeviceContext();
+		
+		dx3d::CBPerFrame cbPerFrameData;
+		cbPerFrameData.view = cam.view;
+		cbPerFrameData.proj = cam.proj;
+		// cb_per_frame_.Update(context, cbPerFrameData);
+		
 
 		// 描画
 		for (auto& e : entities_) {

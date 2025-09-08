@@ -21,7 +21,7 @@ namespace ecs {
 	template<typename Com>
 	void ComponentManager::RegisterComponent()
 	{
-		// [ToDo] typeid(Com)との比較じゃなくて、type_index(typeid(Com))にしろとcopilotさんが言っていたのでメモ
+		// [ToDo] typeid(Com)との比較じゃなくて、type_index(typeid(Com))にしろとCopilotさんが言っていたのでメモ
 		const std::type_index type = typeid(Com);
 		assert(component_arrays_.find(type) == component_arrays_.end());
 
@@ -42,7 +42,7 @@ namespace ecs {
 	template<typename Com>
 	void ComponentManager::AddComponent(Entity _e, const Com& _component)
 	{
-		GetArray<Com>()->Insert(_e, _component);
+		GetComponentArray<Com>()->Insert(_e, _component);
 	}
 
 	/**
@@ -53,7 +53,7 @@ namespace ecs {
 	template<typename Com>
 	void ComponentManager::RemoveComponent(Entity _e)
 	{
-		GetArray<Com>()->Remove(_e);
+		GetComponentArray<Com>()->Remove(_e);
 	}
 
 	/**
@@ -65,7 +65,7 @@ namespace ecs {
 	template<typename Com>
 	Com& ComponentManager::GetComponent(Entity _e)
 	{
-		return GetArray<Com>()->Get(_e);
+		return GetComponentArray<Com>()->Get(_e);
 	}
 
 	/**
@@ -77,7 +77,7 @@ namespace ecs {
 	template<typename Com>
 	bool ComponentManager::HasComponent(Entity _e)
 	{
-		return GetArray<Com>()->Has(_e);
+		return GetComponentArray<Com>()->Has(_e);
 	}
 
 	/**
@@ -99,7 +99,7 @@ namespace ecs {
 	 * @return Componentリスト
 	 */
 	template<typename Com>
-	ComponentArray<Com>* ComponentManager::GetArray()
+	ComponentArray<Com>* ComponentManager::GetComponentArray()
 	{
 		const std::type_index type = typeid(Com);
 		assert(component_arrays_.find(type) != component_arrays_.end());

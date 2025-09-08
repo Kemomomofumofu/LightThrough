@@ -11,8 +11,8 @@
 
 namespace ecs {
 	// ---------- 前方宣言 ---------- //
-	class Entity;		// Entityクラス
-	class Coordinator;	// コーディネーター
+	struct Entity;
+	class Coordinator;
 
 	class ISystem {
 	public:
