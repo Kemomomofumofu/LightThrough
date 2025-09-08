@@ -20,11 +20,13 @@ dx3d::GraphicsPipelineState::GraphicsPipelineState(const GraphicsPipelineStateDe
 	auto vs = _desc.vs.GetShaderBinaryData();
 	auto ps = _desc.ps.GetData();
 	auto vsInputElements = _desc.vs.GetInputElementsData();
+	auto* elems = static_cast<const D3D11_INPUT_ELEMENT_DESC*>(vsInputElements.data);
+	UINT elemCount = static_cast<UINT>(vsInputElements.dataSize);
 
 	DX3DGraphicsLogThrowOnFail(
 		device_.CreateInputLayout(
-			static_cast<const D3D11_INPUT_ELEMENT_DESC*>(vsInputElements.data),
-			static_cast<ui32>(vsInputElements.dataSize),
+			elems,
+			elemCount,
 			vs.data,
 			vs.dataSize,
 			&layout_
