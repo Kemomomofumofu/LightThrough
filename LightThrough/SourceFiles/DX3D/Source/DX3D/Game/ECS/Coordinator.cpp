@@ -11,6 +11,7 @@
 #include <DX3D/Game/ECS/EntityManager.h>
 #include <DX3D/Game/ECS/ComponentManager.h>
 #include <DX3D/Game/ECS/SystemManager.h>
+#include <DX3D/Game/ECS/ISystem.h>
 
 namespace ecs {
 	/**

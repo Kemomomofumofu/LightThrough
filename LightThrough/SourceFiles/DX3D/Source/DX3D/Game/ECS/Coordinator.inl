@@ -118,7 +118,7 @@ namespace ecs {
 	template<typename Sys>
 	void Coordinator::RegisterSystem()
 	{
-		system_manager_->RegisterSystem<Sys>();
+		system_manager_->RegisterSystem<Sys>(this);
 	}
 
 	/**

@@ -21,34 +21,40 @@ namespace dx3d {
 		DirectX::XMMATRIX world;	// ƒ[ƒ‹ƒhs—ñ
 	};
 
-	template <typename T >
 	class ConstantBuffer : public GraphicsResource {
 	public:
-		ConstantBuffer(const GraphicsResourceDesc& _desc)
-			: GraphicsResource(_desc)
+		ConstantBuffer(const ConstantBufferDesc _desc, const GraphicsResourceDesc& _gDesc)
+			: GraphicsResource(_gDesc)
 		{
 			D3D11_BUFFER_DESC bd{};
 			bd.Usage = D3D11_USAGE_DYNAMIC;
-			bd.ByteWidth = sizeof(T);
+			bd.ByteWidth = _desc.byteWidth;
 			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-			DX3DGraphicsLogThrowOnFail(device_.CreateBuffer(&bd, nullptr, &buffer_), "ConstantBuffer CreateBuffer‚É¸”s");
+			D3D11_SUBRESOURCE_DATA init{};
+			D3D11_SUBRESOURCE_DATA* pInit = nullptr;
+			if (_desc.initData) {
+				init.pSysMem = _desc.initData;
+				pInit = &init;
+			}
+
+			DX3DGraphicsLogThrowOnFail(device_.CreateBuffer(&bd, pInit, &buffer_), "ConstantBuffer CreateBuffer‚É¸”s");
 		}
 
 
-		void Update(DeviceContext& _cxt, const T& _data)
+		void Update(DeviceContext& _cxt, const void* _data, size_t _size)
 		{
 			auto context = _cxt.GetDeviceContext().Get();
 
 			D3D11_MAPPED_SUBRESOURCE mapped{};
 			DX3DGraphicsLogThrowOnFail(
-				context.Map(buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped),
+				context->Map(buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped),
 				"ConstantBuffer Map‚É¸”s"
 			);
 
-			memcpy(mapped.pData, &_data, sizeof(T));
-			context.Unmap(buffer_.Get(), 0);
+			memcpy(mapped.pData, _data, _size);
+			context->Unmap(buffer_.Get(), 0);
 		}
 
 		ID3D11Buffer* Get() const noexcept { return buffer_.Get(); }

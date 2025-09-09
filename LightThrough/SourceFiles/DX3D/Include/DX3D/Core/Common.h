@@ -95,8 +95,13 @@ namespace dx3d {
 		ui32 vertexSize{};
 	};
 
+	struct ConstantBufferDesc {
+		ui32 byteWidth{};
+		const void* initData{};
+	};
+
 	struct GameDesc {
-		Rect windowSize{ 1208, 720 };
+		Rect windowSize{ 1280, 720 };
 		Logger::LogLevel logLevel = Logger::LogLevel::Error;
 	};
 }

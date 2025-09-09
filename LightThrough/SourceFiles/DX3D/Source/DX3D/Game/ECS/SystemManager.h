@@ -15,8 +15,9 @@
 
 namespace ecs {
 	// ---------- 前方宣言 ---------- //
-	struct Entity;		// Entityクラス
-	class ISystem;		// システムのインターフェース
+	class Coordinator;
+	class ISystem;
+	struct Entity;
 
 	/**
 	 * @brief システムマネージャ
@@ -26,7 +27,7 @@ namespace ecs {
 	class SystemManager final{
 	public:
 		template<typename T>
-		std::shared_ptr<T> RegisterSystem();
+		std::shared_ptr<T> RegisterSystem(ecs::Coordinator _ecs);
 		template<typename T> 
 		void SetSignature(Signature _signature);	// システムのSignatureを設定
 		template<typename T>

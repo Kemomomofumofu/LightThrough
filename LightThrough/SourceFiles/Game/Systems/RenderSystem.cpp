@@ -17,6 +17,20 @@
 #include <Game/Components/Mesh.h>
 
 namespace ecs {
+	/**
+	 * @brief コンストラクタ
+	 */
+	RenderSystem::RenderSystem(ecs::Coordinator& _ecs)
+	{
+		// 必須コンポーネント
+		Signature signature;
+		signature.set(_ecs.GetComponentType<Transform>());
+		signature.set(_ecs.GetComponentType<Mesh>());
+		_ecs.SetSystemSignature<RenderSystem>(signature);
+
+		// 初期化
+		//cb_per_frame_ = engine_->
+	}
 
 	/**
 	 * @brief 更新処理
@@ -35,7 +49,7 @@ namespace ecs {
 		dx3d::CBPerFrame cbPerFrameData;
 		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
-		// cb_per_frame_.Update(context, cbPerFrameData);
+		
 		
 
 		// 描画

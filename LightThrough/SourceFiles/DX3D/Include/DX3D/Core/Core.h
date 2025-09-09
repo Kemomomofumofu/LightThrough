@@ -31,7 +31,6 @@ namespace dx3d {
 	class RasterizerState;
 	class VertexBuffer;
 	class IndexBuffer;
-	template<typename T>
 	class ConstantBuffer;
 	class VertexShaderSignature;
 
@@ -47,5 +46,6 @@ namespace dx3d {
 	using RasterizerStatePtr = std::shared_ptr<RasterizerState>;
 	using VertexBufferPtr = std::shared_ptr<VertexBuffer>;
 	using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
+	using ConstantBufferPtr = std::shared_ptr<ConstantBuffer>;
 	using VertexShaderSignaturePtr = std::shared_ptr<VertexShaderSignature>;
 }

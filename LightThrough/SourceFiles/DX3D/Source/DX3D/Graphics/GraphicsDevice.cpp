@@ -95,18 +95,33 @@ RasterizerStatePtr dx3d::GraphicsDevice::CreateRasterizerState(const RasterizerS
 }
 
 /**
- * @brief 頂点バッファを生成する
- * @param _desc 頂点バッファの定義
- * @return 頂点バッファのSharedPtr
+ * @brief VertexBufferを生成する
+ * @param _desc VertexBufferの定義
+ * @return VertexBufferのSharedPtr
  */
 VertexBufferPtr dx3d::GraphicsDevice::CreateVertexBuffer(const VertexBufferDesc& _desc)
 {
 	return std::make_shared<VertexBuffer>(_desc, GetGraphicsResourceDesc());
 }
 
+/**
+ * @brief IndexBufferを生成する
+ * @param _desc IndexBufferの定義
+ * @return IndexBufferのSharedPtr
+ */
 IndexBufferPtr dx3d::GraphicsDevice::CreateIndexBuffer(const IndexBufferDesc& _desc)
 {
 	return std::make_shared<IndexBuffer>(_desc, GetGraphicsResourceDesc());
+}
+
+/**
+ * @brief ConstantBuffer生成する
+ * @param _desc ConstantBufferの定義
+ * @return ConstantBufferのSharedPtr
+ */
+ConstantBufferPtr dx3d::GraphicsDevice::CreateConstantBuffer(const ConstantBufferDesc& _desc)
+{
+	return std::make_shared<ConstantBuffer>(_desc, GetGraphicsResourceDesc());
 }
 
 VertexShaderSignaturePtr dx3d::GraphicsDevice::CreateVertexShaderSignature(const VertexShaderSignatureDesc& _desc)
