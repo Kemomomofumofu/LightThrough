@@ -23,7 +23,7 @@ namespace dx3d {
 
 	class ConstantBuffer : public GraphicsResource {
 	public:
-		ConstantBuffer(const ConstantBufferDesc _desc, const GraphicsResourceDesc& _gDesc)
+		ConstantBuffer(const ConstantBufferDesc& _desc, const GraphicsResourceDesc& _gDesc)
 			: GraphicsResource(_gDesc)
 		{
 			D3D11_BUFFER_DESC bd{};

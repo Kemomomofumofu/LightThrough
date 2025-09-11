@@ -16,6 +16,7 @@
 #include <DX3D/Graphics/VertexBuffer.h>
 #include <DX3D/Graphics/VertexShaderSignature.h>
 #include <DX3D/Graphics/IndexBuffer.h>
+#include <DX3D/Graphics/ConstantBuffer.h>
 
 /*---------- –¼‘O‹óŠÔ ----------*/
 using namespace dx3d;

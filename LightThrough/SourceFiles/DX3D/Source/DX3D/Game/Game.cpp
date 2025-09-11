@@ -89,26 +89,16 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 
 	//ecs_coordinator_->RegisterSystem<ecs::MovementSystem>();
-	//ecs::Signature moveSig;
-	//moveSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
-	//moveSig.set(ecs_coordinator_->GetComponentType<ecs::Velocity>());
-	//ecs_coordinator_->SetSystemSignature<ecs::MovementSystem>(moveSig);
 
 	// 描画システム
 	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>();
-	ecs::Signature renderSig;
-	renderSig.set(ecs_coordinator_->GetComponentType<ecs::Mesh>());
-	renderSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
-	ecs_coordinator_->SetSystemSignature<ecs::RenderSystem>(renderSig);
 	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
 	renderSystem->SetGraphicsEngine(*graphics_engine_);
-
+	renderSystem->Init(*ecs_coordinator_);
 	// カメラシステム
 	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>();
-	ecs::Signature cameraSig;
-	cameraSig.set(ecs_coordinator_->GetComponentType<ecs::Transform>());
-	cameraSig.set(ecs_coordinator_->GetComponentType<ecs::Camera>());
-	ecs_coordinator_->SetSystemSignature<ecs::CameraSystem>(cameraSig);	
+	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
+	cameraSystem->Init(*ecs_coordinator_);
 
 	// Entityの生成
 	// カメラ

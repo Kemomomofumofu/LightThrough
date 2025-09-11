@@ -15,7 +15,7 @@
 
 namespace ecs {
 	template<typename Sys>
-	std::shared_ptr<Sys> SystemManager::RegisterSystem(ecs::Coordinator _ecs)
+	std::shared_ptr<Sys> SystemManager::RegisterSystem(ecs::Coordinator& _ecs)
 	{
 		std::type_index type = typeid(Sys);
 		assert(systems_.find(type) == systems_.end());

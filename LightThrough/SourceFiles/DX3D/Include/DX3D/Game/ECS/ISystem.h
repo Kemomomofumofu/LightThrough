@@ -16,9 +16,9 @@ namespace ecs {
 
 	class ISystem {
 	public:
-		std::set<Entity> entities_;	// ˆ—‘ÎÛ‚ÌEntity‚ÌW‡
 		virtual ~ISystem() = default;
 		virtual void Update(float _dt, Coordinator& _ecs) = 0;
 
+		std::set<Entity> entities_;	// ˆ—‘ÎÛ‚ÌEntity‚ÌW‡
 	};
 }

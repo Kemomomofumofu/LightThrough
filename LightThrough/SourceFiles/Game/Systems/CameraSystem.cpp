@@ -13,12 +13,25 @@
 #include <Game/Components/CameraController.h>
 
 
+
+ecs::CameraSystem::CameraSystem(ecs::Coordinator& _ecs)
+{
+}
+
+void ecs::CameraSystem::Init(ecs::Coordinator& _ecs)
+{
+	// 必須コンポーネント
+	Signature signature;
+	signature.set(_ecs.GetComponentType<Transform>());
+	signature.set(_ecs.GetComponentType<Camera>());
+	_ecs.SetSystemSignature<CameraSystem>(signature);
+}
+
 /**
  * @brief 更新処理
  * @param _dt デルタタイム
  * @param _ecs ECSのコーディネーター
  */
-
 void ecs::CameraSystem::Update(float _dt, ecs::Coordinator& _ecs)
 {
 	using namespace DirectX;

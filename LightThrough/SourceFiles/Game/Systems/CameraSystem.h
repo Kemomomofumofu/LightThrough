@@ -23,6 +23,8 @@ namespace ecs {
 	 */
 	class CameraSystem : public ISystem {
 	public:
+		CameraSystem(ecs::Coordinator& _ecs);
+		void Init(ecs::Coordinator& _ecs);
 		void Update(float _dt, ecs::Coordinator& _ecs);
 
 	private:

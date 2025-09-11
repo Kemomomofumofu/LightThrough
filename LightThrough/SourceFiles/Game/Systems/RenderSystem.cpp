@@ -9,7 +9,6 @@
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
-#include <DX3D/Graphics/ConstantBuffer.h>
 #include <DX3D/Game/ECS/Coordinator.h>
 #include <Game/Systems/RenderSystem.h>
 #include <Game/Components/Camera.h>
@@ -22,6 +21,10 @@ namespace ecs {
 	 */
 	RenderSystem::RenderSystem(ecs::Coordinator& _ecs)
 	{
+	}
+
+	void RenderSystem::Init(ecs::Coordinator& _ecs)
+	{
 		// 必須コンポーネント
 		Signature signature;
 		signature.set(_ecs.GetComponentType<Transform>());
@@ -29,7 +32,11 @@ namespace ecs {
 		_ecs.SetSystemSignature<RenderSystem>(signature);
 
 		// 初期化
-		//cb_per_frame_ = engine_->
+		cb_per_frame_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
+			sizeof(dx3d::CBPerFrame),
+			nullptr
+			});
+
 	}
 
 	/**
@@ -50,7 +57,8 @@ namespace ecs {
 		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
 		
-		
+		// 定数バッファ更新
+		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 
 		// 描画
 		for (auto& e : entities_) {
