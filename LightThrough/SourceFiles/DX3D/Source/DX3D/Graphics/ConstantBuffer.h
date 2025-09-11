@@ -57,7 +57,10 @@ namespace dx3d {
 			context->Unmap(buffer_.Get(), 0);
 		}
 
-		ID3D11Buffer* Get() const noexcept { return buffer_.Get(); }
+		ID3D11Buffer* GetBuffer() const noexcept
+		{
+			return buffer_.Get();
+		}
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_{};

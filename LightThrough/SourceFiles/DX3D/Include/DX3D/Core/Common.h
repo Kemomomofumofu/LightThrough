@@ -104,4 +104,10 @@ namespace dx3d {
 		Rect windowSize{ 1280, 720 };
 		Logger::LogLevel logLevel = Logger::LogLevel::Error;
 	};
+
+	struct SystemDesc {
+		dx3d::BaseDesc base;
+	};
+
+
 }

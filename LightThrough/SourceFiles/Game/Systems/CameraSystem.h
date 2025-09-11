@@ -23,7 +23,7 @@ namespace ecs {
 	 */
 	class CameraSystem : public ISystem {
 	public:
-		CameraSystem(ecs::Coordinator& _ecs);
+		CameraSystem(const dx3d::SystemDesc& _desc);
 		void Init(ecs::Coordinator& _ecs);
 		void Update(float _dt, ecs::Coordinator& _ecs);
 

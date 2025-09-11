@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include <typeindex>
 #include <cassert>
+#include <DX3D/Core/Common.h>
 #include <DX3D/Game/ECS/ECSUtils.h>
-
 namespace ecs {
 	// ---------- 前方宣言 ---------- //
 	class Coordinator;
@@ -27,7 +27,7 @@ namespace ecs {
 	class SystemManager final{
 	public:
 		template<typename T>
-		std::shared_ptr<T> RegisterSystem(ecs::Coordinator& _ecs);
+		std::shared_ptr<T> RegisterSystem(const dx3d::SystemDesc& _desc);
 		template<typename T> 
 		void SetSignature(Signature _signature);	// システムのSignatureを設定
 		template<typename T>

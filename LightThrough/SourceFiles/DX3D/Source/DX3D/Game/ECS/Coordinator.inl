@@ -116,9 +116,9 @@ namespace ecs {
 	 * @param <Sys> “o˜^‚·‚éSystem‚ÌŽí—Þ
 	 */
 	template<typename Sys>
-	void Coordinator::RegisterSystem()
+	void Coordinator::RegisterSystem(const dx3d::SystemDesc& _desc)
 	{
-		system_manager_->RegisterSystem<Sys>(*this);
+		system_manager_->RegisterSystem<Sys>(_desc);
 	}
 
 	/**

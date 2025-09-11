@@ -9,7 +9,6 @@
 #include <DX3D/Game/Game.h>
 #include <DX3D/Window/Window.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
-#include <DX3D/Core/Logger.h>
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
 #include <InputSystem/InputSystem.h>
@@ -21,6 +20,8 @@
 #include <Game/Components/Velocity.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
+
+#include <DX3D/Game/ECS/ECSLogUtils.h>
 
 
 
@@ -90,13 +91,16 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 	//ecs_coordinator_->RegisterSystem<ecs::MovementSystem>();
 
+	// SystemDescの準備
+	dx3d::SystemDesc systemDesc{ logger_ };
+
 	// 描画システム
-	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>();
+	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>(systemDesc);
 	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
 	renderSystem->SetGraphicsEngine(*graphics_engine_);
 	renderSystem->Init(*ecs_coordinator_);
 	// カメラシステム
-	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>();
+	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
 	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
 	cameraSystem->Init(*ecs_coordinator_);
 
@@ -106,6 +110,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->AddComponent<ecs::Transform>(eCamera, ecs::Transform{ {0.0f, 0.0f, -5.0f}, {0.0f, 0.0f, 0.0f} });
 	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, {});
 	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, {});
+
+	ECSLogEntity(eCamera);
 
 
 	auto e = ecs_coordinator_->CreateEntity();

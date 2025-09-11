@@ -9,6 +9,7 @@
 // ---------- ƒCƒ“ƒNƒ‹[ƒh ---------- //
 #include <vector>
 #include <memory>
+#include <DX3D/Core/Common.h>
 #include <DX3D/Game/ECS/ECSUtils.h>
 
 namespace ecs {
@@ -47,7 +48,7 @@ namespace ecs {
 		ComponentType GetComponentType();	// Component‚ÌType‚ğæ“¾
 
 		template<typename Sys>
-		void RegisterSystem();		// System‚Ì“o˜^
+		void RegisterSystem(const dx3d::SystemDesc& _desc);		// System‚Ì“o˜^
 		template<typename Sys>
 		void SetSystemSignature(Signature& _signature);	// System‚ÌSignature‚ğİ’è
 		template<typename Sys>

@@ -82,6 +82,7 @@ void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib/*,_transfo
 {
 	auto& context = *device_context_;
 	context.SetGraphicsPipelineState(*pipeline_);
+	context.SetRasterizerState(*rasterizer_);
 	context.SetViewportSize(swap_chain_->GetSize());
 
 	context.SetVertexBuffer(_vb);

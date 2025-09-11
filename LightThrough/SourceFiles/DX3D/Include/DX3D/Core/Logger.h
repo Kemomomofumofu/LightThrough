@@ -6,6 +6,11 @@
  * @date 2025-06-25
  */
 
+// ---------- インクルード ---------- // 
+#include <format>
+#include <iostream>
+#include <string_view>
+
  /**
   * @brief Logger Class
   *
@@ -26,6 +31,16 @@ namespace dx3d {
 
 		void Log(LogLevel _level, const char* _message);
 
+		template <typename... Args>
+		void LogF(LogLevel  _level, std::string_view _fmt, Args&&... _args)
+		{
+			if (_level > log_level_) { return; }
+
+			std::string msg = std::vformat(_fmt, std::make_format_args(_args...));
+			Log(_level, msg.c_str());
+		}
+
+
 	protected:
 		Logger(const Logger&) = delete;
 		Logger(Logger&&) = delete;
@@ -38,10 +53,13 @@ namespace dx3d {
 }
 
 #define DX3DLog(logger, type, message)\
-logger.Log((type), message)
+	logger.Log((type), message)
 
 #define DX3DLogThrow(logger, exception, type, message)\
-{\
-DX3DLog(logger, type, message);\
-throw exception(message);\
-}
+	{\
+		DX3DLog(logger, type, message);\
+		throw exception(message);\
+	}
+
+#define DX3DLogF(logger, type, fmt, ...)\
+	logger.LogF((type), (fmt), ##__VA_ARGS__)

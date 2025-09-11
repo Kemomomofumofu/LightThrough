@@ -177,6 +177,8 @@
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ConstantBuffer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">

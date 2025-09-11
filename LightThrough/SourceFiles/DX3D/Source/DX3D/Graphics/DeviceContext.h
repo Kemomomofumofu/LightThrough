@@ -29,6 +29,9 @@ namespace dx3d {
 		void SetRasterizerState(const RasterizerState& _rasterizer);
 		void SetVertexBuffer(const VertexBuffer& _buffer);
 		void SetIndexBuffer(const IndexBuffer& _buffer);
+		void VSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
+		void PSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
+		void SetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
 		void SetViewportSize(const Rect& _size);
 		void DrawTriangleList(ui32 _vertexCount, ui32 _startVertexLocation);
 		void DrawIndexed(ui32 _indexCount, ui32 _startIndex, ui32 _baseVertex);

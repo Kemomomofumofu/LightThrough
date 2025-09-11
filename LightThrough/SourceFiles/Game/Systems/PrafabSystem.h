@@ -18,9 +18,13 @@ namespace ecs{
 
 namespace LightThrough {
 
-	class PrefabSystem final{
+	class PrefabSystem final : public ecs::ISystem{
 	public:
-		PrefabSystem(ecs::Coordinator& _ecs) : coordinator_(_ecs) {}
+		PrefabSystem(dx3d::SystemDesc _desc, ecs::Coordinator& _ecs)
+			: coordinator_(_ecs)
+			, ISystem(_desc){ }
+
+		void Update(float _dt, ecs::Coordinator& _ecs);
 
 		ecs::Entity CreateGameObject(LightThrough::GameObjectType _type);	// ゲームオブジェクトを生成する
 

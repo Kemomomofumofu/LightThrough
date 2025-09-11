@@ -8,14 +8,17 @@
 
 // ---------- インクルード ---------- // 
 #include <set>
+#include <DX3D/Core/Base.h>
+#include <DX3D/Core/Common.h>
 
 namespace ecs {
 	// ---------- 前方宣言 ---------- //
 	struct Entity;
 	class Coordinator;
 
-	class ISystem {
+	class ISystem  : public dx3d::Base{
 	public:
+		explicit ISystem(const dx3d::SystemDesc& _desc) : dx3d::Base(_desc.base){}
 		virtual ~ISystem() = default;
 		virtual void Update(float _dt, Coordinator& _ecs) = 0;
 

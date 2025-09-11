@@ -11,15 +11,20 @@
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Game/ECS/Coordinator.h>
 #include <Game/Systems/RenderSystem.h>
+
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Mesh.h>
+
+#include <DX3D/Game/ECS/ECSLogUtils.h>
+
 
 namespace ecs {
 	/**
 	 * @brief コンストラクタ
 	 */
-	RenderSystem::RenderSystem(ecs::Coordinator& _ecs)
+	RenderSystem::RenderSystem(const dx3d::SystemDesc& _desc)
+		: ISystem(_desc)
 	{
 	}
 
@@ -37,6 +42,11 @@ namespace ecs {
 			nullptr
 			});
 
+		cb_per_object_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
+			sizeof(dx3d::CBPerObject),
+			nullptr
+			});
+
 	}
 
 	/**
@@ -44,7 +54,9 @@ namespace ecs {
 	 * @param _dt デルタタイム
 	 * @param _ecs コーディネータ
 	 */
-	void RenderSystem::Update(float _dt, ecs::Coordinator& _ecs) {
+	void RenderSystem::Update(float _dt, ecs::Coordinator& _ecs)
+	{
+
 		// 描画開始
 		engine_->BeginFrame();
 
@@ -59,11 +71,18 @@ namespace ecs {
 		
 		// 定数バッファ更新
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
+		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
 
 		// 描画
 		for (auto& e : entities_) {
 			auto& mesh = _ecs.GetComponent<Mesh>(e);
 			auto& transform = _ecs.GetComponent<ecs::Transform>(e);
+
+			// ワールド座標行列の取得
+			dx3d::CBPerObject cbPerObjectData;
+			cbPerObjectData.world = transform.GetWorldMatrix();
+			cb_per_object_->Update(context, &cbPerObjectData, sizeof(cbPerObjectData));
+			context.VSSetConstantBuffer(1, *cb_per_object_);
 
 			engine_->Render(*mesh.vb, *mesh.ib);
 		}

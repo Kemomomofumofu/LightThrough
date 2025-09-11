@@ -15,11 +15,11 @@
 
 namespace ecs {
 	template<typename Sys>
-	std::shared_ptr<Sys> SystemManager::RegisterSystem(ecs::Coordinator& _ecs)
+	std::shared_ptr<Sys> SystemManager::RegisterSystem(const dx3d::SystemDesc& _desc)
 	{
 		std::type_index type = typeid(Sys);
 		assert(systems_.find(type) == systems_.end());
-		auto system = std::make_shared<Sys>(_ecs);
+		auto system = std::make_shared<Sys>(_desc);
 		systems_[type] = system;
 		return system;
 	}

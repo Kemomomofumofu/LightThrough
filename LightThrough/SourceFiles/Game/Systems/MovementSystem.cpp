@@ -10,12 +10,14 @@
 #include <Game/Components/Velocity.h>
 
 
-ecs::MovementSystem::MovementSystem(ecs::Coordinator& _ecs)
-{// 必須コンポーネント
-	Signature signature;
-	signature.set(_ecs.GetComponentType<Transform>());
-	signature.set(_ecs.GetComponentType<Velocity>());
-	_ecs.SetSystemSignature<MovementSystem>(signature);
+ecs::MovementSystem::MovementSystem(dx3d::SystemDesc _desc)
+	: ISystem(_desc)
+{
+	//// 必須コンポーネント
+	//Signature signature;
+	//signature.set(_ecs.GetComponentType<Transform>());
+	//signature.set(_ecs.GetComponentType<Velocity>());
+	//_ecs.SetSystemSignature<MovementSystem>(signature);
 }
 
 void ecs::MovementSystem::Update(float _dt, ecs::Coordinator& _ecs)

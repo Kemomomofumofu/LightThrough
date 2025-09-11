@@ -171,7 +171,9 @@
     <ClCompile Include="SourceFiles\Game\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
     <ClInclude Include="SourceFiles\Game\Components\Velocity.h" />
