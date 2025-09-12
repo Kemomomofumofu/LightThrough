@@ -9,7 +9,7 @@
 // ---------- インクルード ---------- // 
 #include <set>
 #include <DX3D/Core/Base.h>
-#include <DX3D/Core/Common.h>
+#include <DX3D/Game/ECS/ECSLogUtils.h>
 
 namespace ecs {
 	// ---------- 前方宣言 ---------- //

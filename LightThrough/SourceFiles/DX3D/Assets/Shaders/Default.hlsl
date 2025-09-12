@@ -27,9 +27,9 @@ VSOUT VSMain(VSIN vin)
     VSOUT vout;
     
     // ç¿ïWïœä∑
-    float4 worldPos = mul(float4(vin.pos, 1.0f), worldMatrix);
-    float4 viewPos = mul(worldPos, viewMatrix);
-    vout.pos = mul(viewPos, projectionMatrix);
+    float4 worldPos = mul(worldMatrix, float4(vin.pos, 1.0f));
+    float4 viewPos = mul(viewMatrix, worldPos);
+    vout.pos = mul(projectionMatrix, viewPos);
     
     vout.col = vin.col;
     return vout;

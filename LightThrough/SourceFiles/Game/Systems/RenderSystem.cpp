@@ -16,8 +16,6 @@
 #include <Game/Components/Transform.h>
 #include <Game/Components/Mesh.h>
 
-#include <DX3D/Game/ECS/ECSLogUtils.h>
-
 
 namespace ecs {
 	/**
@@ -56,6 +54,8 @@ namespace ecs {
 	 */
 	void RenderSystem::Update(float _dt, ecs::Coordinator& _ecs)
 	{
+		auto& context = engine_->GetDeviceContext();
+		auto& device = engine_->GetGraphicsDevice();
 
 		// 描画開始
 		engine_->BeginFrame();
@@ -63,7 +63,7 @@ namespace ecs {
 		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
 		auto camEntity = _ecs.GetEntitiesWithComponent<Camera>()[0];	// とりあえず一番最初のカメラを取得しとく
 		auto& cam = _ecs.GetComponent<Camera>(camEntity);
-		auto& context = engine_->GetDeviceContext();
+
 		
 		dx3d::CBPerFrame cbPerFrameData;
 		cbPerFrameData.view = cam.view;
@@ -77,20 +77,21 @@ namespace ecs {
 		for (auto& e : entities_) {
 			auto& mesh = _ecs.GetComponent<Mesh>(e);
 			auto& transform = _ecs.GetComponent<ecs::Transform>(e);
-
+			
 			// ワールド座標行列の取得
 			dx3d::CBPerObject cbPerObjectData;
 			cbPerObjectData.world = transform.GetWorldMatrix();
 			cb_per_object_->Update(context, &cbPerObjectData, sizeof(cbPerObjectData));
 			context.VSSetConstantBuffer(1, *cb_per_object_);
 
-			engine_->Render(*mesh.vb, *mesh.ib);
-		}
 
-			//// 頂点バッファ
-			//auto& vb = *vb_;
-			//context.SetVertexBuffer(vb);
-			//context.DrawTriangleList(vb.GetVertexListSize(), 0u);	// テストでの三角形描画
+			engine_->Render(*mesh.vb, *mesh.ib);
+
+			ECSLogFInfo("描画エンティティ[{}] - 頂点数:{} インデックス数:{}",
+				e.Index(),
+				mesh.vb->GetVertexListSize(),
+				mesh.ib->GetIndexCount());
+		}
 
 		// 描画終了
 		engine_->EndFrame();

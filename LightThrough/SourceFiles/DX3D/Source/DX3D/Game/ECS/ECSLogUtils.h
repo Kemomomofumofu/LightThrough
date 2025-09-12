@@ -3,7 +3,7 @@
 
 /**
  * @file ECSLogUtils.h
- * @brief ECSシステム用のログ出力メソッド
+ * @brief ECS用のログ出力メソッド
  * @author Arima Keita
  * @date 2025-09-11
  */
@@ -14,6 +14,7 @@
 #include <sstream>
 #include <format>
 #include <DX3D/Game/ECS/Entity.h>
+#include <Game/Components/Transform.h>
 
 namespace ecs {
     namespace ECSLogUtils {
@@ -30,6 +31,16 @@ namespace ecs {
                 _t.scale.x, _t.scale.y, _t.scale.z
             );
         }
+
+        //inline void LogMatrix(dx3d::Logger& _logger, const DirectX::XMMATRIX& _matrix, const char* _name)
+        //{
+        //    _logger.Log(dx3d::Logger::LogLevel::Info, std::format("{}:", _name).c_str());
+
+        //    char buffer[256];
+        //    snprintf(buffer, sizeof(buffer),
+        //        "[%f %f %f %f]",
+        //     
+        //}
     }
 }
 
@@ -42,4 +53,6 @@ namespace ecs {
 
 #define ECSLogEntity(e)\
     DX3DLog(GetLogger(), dx3d::Logger::LogLevel::Info, ecs::ECSLogUtils::ToString(e).c_str())
+#define ECSLogTransform(t)\
+    DX3DLog(GetLogger(), dx3d::Logger::LogLevel::Info, ecs::ECSLogUtils::ToString(t).c_str())
 

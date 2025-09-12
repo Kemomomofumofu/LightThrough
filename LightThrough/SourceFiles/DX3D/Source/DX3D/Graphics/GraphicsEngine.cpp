@@ -47,7 +47,10 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 
 	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
 
-	rasterizer_ = device.CreateRasterizerState({});
+	rasterizer_ = device.CreateRasterizerState({
+		.fillMode = FillMode::Solid,
+		.cullMode = CullMode::Back,
+		});
 	
 
 }

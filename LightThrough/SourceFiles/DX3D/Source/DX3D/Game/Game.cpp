@@ -37,13 +37,13 @@ static ecs::Mesh CreateCube(dx3d::GraphicsDevice& _device) {
 
 	const Vertex cubeVertices[] = {
 		{{-0.5f, -0.5f, -0.5f},{ 1, 0, 0, 1}},	// 0
-		{{-0.5f,  0.5f, -0.5f},{ 1, 0, 0, 1}},	// 1
-		{{ 0.5f,  0.5f, -0.5f},{ 1, 0, 0, 1}},	// 2
-		{{ 0.5f, -0.5f, -0.5f},{ 1, 0, 0, 1}},	// 3
-		{{-0.5f, -0.5f,  0.5f},{ 1, 0, 0, 1}},	// 4
-		{{-0.5f,  0.5f,  0.5f},{ 1, 0, 0, 1}},	// 5
-		{{ 0.5f,  0.5f,  0.5f},{ 1, 0, 0, 1}},	// 6
-		{{ 0.5f, -0.5f,  0.5f},{ 1, 0, 0, 1}},	// 7
+		{{-0.5f,  0.5f, -0.5f},{ 0, 1, 0, 1}},	// 1
+		{{ 0.5f,  0.5f, -0.5f},{ 0, 0, 1, 1}},	// 2
+		{{ 0.5f, -0.5f, -0.5f},{ 1, 1, 0, 1}},	// 3
+		{{-0.5f, -0.5f,  0.5f},{ 1, 0, 1, 1}},	// 4
+		{{-0.5f,  0.5f,  0.5f},{ 0, 1, 1, 1}},	// 5
+		{{ 0.5f,  0.5f,  0.5f},{ 1, 1, 1, 1}},	// 6
+		{{ 0.5f, -0.5f,  0.5f},{ 0, 0, 0, 1}},	// 7
 	};
 
 	const ui32 cubeIndices[] = {
@@ -70,7 +70,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	logger_ptr_(&logger_)
 {
 	// 描画システムの生成
-	graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });	
+	graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });
 	// インプットシステムに登録
 	input::InputSystem::Get().AddListener(this);
 	// ECSのコーディネーターの生成
@@ -111,13 +111,11 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, {});
 	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, {});
 
-	ECSLogEntity(eCamera);
-
-
 	auto e = ecs_coordinator_->CreateEntity();
 	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} });
 	auto cubeMesh = CreateCube(graphics_engine_->GetGraphicsDevice());
 	ecs_coordinator_->AddComponent<ecs::Mesh>(e, cubeMesh);
+
 
 	DX3DLogInfo("ゲーム開始");
 }

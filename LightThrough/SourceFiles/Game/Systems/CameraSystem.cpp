@@ -37,20 +37,20 @@ namespace ecs {
 	{
 		using namespace DirectX;
 		for (auto& e : entities_) {
-			auto& tf = _ecs.GetComponent<Transform>(e);
+			auto& t = _ecs.GetComponent<Transform>(e);
 			auto& cam = _ecs.GetComponent<Camera>(e);
 
 			// CameraControllerコンポーネントがあれば更新
 			if (_ecs.HasComponent<CameraController>(e)) {
 				auto& ctrl = _ecs.GetComponent<CameraController>(e);
-				UpdateController(_dt, tf, ctrl);
+				UpdateController(_dt, t, ctrl);
 			}
 
 			// view行列の計算(左手系)
-			XMVECTOR pos = XMLoadFloat3(&tf.position);
+			XMVECTOR pos = XMLoadFloat3(&t.position);
 
 			// forwardベクトルを計算
-			XMMATRIX rot = XMMatrixRotationRollPitchYaw(tf.rotation.x, tf.rotation.y, tf.rotation.z);
+			XMMATRIX rot = XMMatrixRotationRollPitchYaw(t.rotation.x, t.rotation.y, t.rotation.z);
 			XMVECTOR forward = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rot);
 			XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
