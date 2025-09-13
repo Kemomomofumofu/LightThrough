@@ -16,6 +16,7 @@
 #include <Game/Systems/MovementSystem.h>
 #include <Game/Systems/RenderSystem.h>
 #include <Game/Systems/CameraSystem.h>
+#include <Game/Systems/DebugRenderSystem.h>
 #include <Game/Components/Mesh.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Velocity.h>
@@ -66,6 +67,11 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
 	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
 	cameraSystem->Init(*ecs_coordinator_);
+	// デバッグ描画システム
+	ecs_coordinator_->RegisterSystem<ecs::DebugRenderSystem>(systemDesc);
+	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
+	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
+	debugRenderSystem->Init(*ecs_coordinator_);
 
 	// Entityの生成
 	// カメラ
@@ -96,6 +102,8 @@ dx3d::Game::~Game()
  */
 void dx3d::Game::OnInternalUpdate()
 {
+	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
+
 	// 入力の更新
 	input::InputSystem::Get().Update();
 
@@ -106,12 +114,19 @@ void dx3d::Game::OnInternalUpdate()
 	float dt = delta.count();	// 秒
 	last_time_ = now;
 
+	ecs::Transform testTransform;
+	debugRenderSystem->DrawCube({ {0, 0, 0}, { 10, 10, 5 }, {1, 1, 1} }, {1, 1, 1, 0.1f});
+
+	// 描画前処理
 	// スワップチェインのセット
 	graphics_engine_->SetSwapChain(display_->GetSwapChain());
+	graphics_engine_->BeginFrame();
+
 	// Systemの更新
 	ecs_coordinator_->UpdateAllSystems(dt);
 
-
+	// 描画
+	graphics_engine_->EndFrame();
 }
 
 void dx3d::Game::OnKeyDown(int _key)

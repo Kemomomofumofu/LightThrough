@@ -7,7 +7,7 @@
  */
 
 // ---------- インクルード ---------- // 
-#include <DX3D/Graphics/IndexBuffer.h>
+#include <DX3D/Graphics/Buffers/IndexBuffer.h>
 
 dx3d::IndexBuffer::IndexBuffer(const IndexBufferDesc& _desc, const GraphicsResourceDesc& _gDesc)
 	: index_count_(_desc.indexCount)

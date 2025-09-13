@@ -12,7 +12,7 @@
 #include <Game/Components/Mesh.h>
 
 namespace ecs {
-	class Mesh;
+	struct Mesh;
 }
 
 namespace dx3d {

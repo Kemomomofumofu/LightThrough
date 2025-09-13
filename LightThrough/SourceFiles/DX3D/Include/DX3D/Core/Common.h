@@ -108,6 +108,4 @@ namespace dx3d {
 	struct SystemDesc {
 		dx3d::BaseDesc base;
 	};
-
-
 }

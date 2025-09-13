@@ -6,7 +6,7 @@
  */
 
  /*---------- インクルード ----------*/
-#include <DX3D/Graphics/VertexBuffer.h>
+#include <DX3D/Graphics/Buffers/VertexBuffer.h>
 
 
 

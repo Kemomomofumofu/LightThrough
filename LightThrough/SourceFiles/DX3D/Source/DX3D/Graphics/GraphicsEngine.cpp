@@ -12,8 +12,8 @@
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/SwapChain.h>
-#include <DX3D/Graphics/VertexBuffer.h>
-#include <DX3D/Graphics/IndexBuffer.h>
+#include <DX3D/Graphics/Buffers/VertexBuffer.h>
+#include <DX3D/Graphics/Buffers/IndexBuffer.h>
 #include <DX3D/Math/Vec3.h>
 
 
@@ -34,6 +34,7 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 	if (!shaderStream) {
 		DX3DLogThrowError("シェーダーファイルを開くのに失敗");
 	}
+	// シェーダーファイルの内容を文字列として読み込み
 	std::string shaderFileData{
 		std::istreambuf_iterator<char>(shaderStream),
 		std::istreambuf_iterator<char>()
@@ -41,14 +42,17 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 	auto shaderSourceCode = shaderFileData.c_str();
 	auto shaderSourceCodeSize = shaderFileData.length();
 
+	// シェーダーのコンパイルと頂点シグネチャの生成
 	auto vs = device.CompileShader({ shaderFilePath, shaderSourceCode, shaderSourceCodeSize, "VSMain", ShaderType::VertexShader });
 	auto ps = device.CompileShader({ shaderFilePath, shaderSourceCode, shaderSourceCodeSize, "PSMain", ShaderType::PixelShader });
 	auto vsSig = device.CreateVertexShaderSignature({ vs });
 
+	// グラフィックスパイプラインステートの生成
 	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
 
+	// ラスタライザーステートの生成
 	rasterizer_ = device.CreateRasterizerState({
-		.fillMode = FillMode::Wireframe,
+		.fillMode = FillMode::Solid,
 		.cullMode = CullMode::Back,
 		});
 	
@@ -78,10 +82,9 @@ void dx3d::GraphicsEngine::BeginFrame()
 {
 	auto& context = *device_context_;
 	context.ClearAndSetBackBuffer(*swap_chain_, { 0.27f, 0.39f, 0.55f, 1.0f });	// 初期色でクリア
-
 }
 
-void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib/*,_transform*/)
+void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib)
 {
 	auto& context = *device_context_;
 	context.SetGraphicsPipelineState(*pipeline_);

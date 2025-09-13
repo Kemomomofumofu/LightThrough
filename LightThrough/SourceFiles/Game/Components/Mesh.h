@@ -9,8 +9,8 @@
 
 // ---------- インクルード ---------- // 
 #include <memory>
-#include <DX3D/Graphics/VertexBuffer.h>
-#include <DX3D/Graphics/IndexBuffer.h>
+#include <DX3D/Graphics/Buffers/VertexBuffer.h>
+#include <DX3D/Graphics/Buffers/IndexBuffer.h>
 
 namespace ecs {
 	struct Mesh {

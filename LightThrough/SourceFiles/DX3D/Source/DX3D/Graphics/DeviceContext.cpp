@@ -10,9 +10,9 @@
 #include <DX3D/Graphics/SwapChain.h>
 #include <DX3D/Graphics/GraphicsPipelineState.h>
 #include <DX3D/Graphics/RasterizerState.h>
-#include <DX3D/Graphics/VertexBuffer.h>
-#include <DX3D/Graphics/IndexBuffer.h>
-#include <DX3D/Graphics/ConstantBuffer.h>
+#include <DX3D/Graphics/Buffers/VertexBuffer.h>
+#include <DX3D/Graphics/Buffers/IndexBuffer.h>
+#include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 
 
 namespace dx3d {

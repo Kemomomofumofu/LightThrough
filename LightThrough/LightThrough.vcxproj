@@ -148,9 +148,9 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
     <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\DebugDrawSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\DebugRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\RenderSystem.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\PrafabSystem.cpp" />
@@ -167,7 +167,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsPipelineState.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderBinary.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Window\Win32\Win32Window.cpp" />
     <ClCompile Include="SourceFiles\Game\main.cpp" />
   </ItemGroup>
@@ -175,9 +175,9 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ConstantBuffer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Vertex.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
     <ClInclude Include="SourceFiles\Game\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ISystem.h" />
@@ -191,13 +191,13 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.h" />
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\DebugDrawSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\RenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Mesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\PrafabSystem.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h" />
     <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
@@ -222,7 +222,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderBinary.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h" />
   </ItemGroup>

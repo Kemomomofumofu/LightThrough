@@ -31,11 +31,6 @@ namespace dx3d {
 		void BeginFrame();
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib);
 		void EndFrame();
-	private:
-		struct Vertex {
-			Vec3 position;
-			Vec4 color;
-		};
 
 	private:
 		std::shared_ptr<GraphicsDevice> graphics_device_{};

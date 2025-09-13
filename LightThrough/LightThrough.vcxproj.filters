@@ -129,7 +129,7 @@
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.h">
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\InputSystem\InputSystem.h" />
@@ -151,7 +151,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.h">
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\Game\Components\Mesh.h">
@@ -175,12 +175,12 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ConstantBuffer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\DebugDrawSystem.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Vertex.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -219,7 +219,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.cpp">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexBuffer.cpp">
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.cpp">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="SourceFiles\Game\main.cpp">
@@ -230,7 +230,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.cpp">
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.cpp">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp">
@@ -246,7 +246,7 @@
     <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\DebugDrawSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\DebugRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
   </ItemGroup>
   <ItemGroup>

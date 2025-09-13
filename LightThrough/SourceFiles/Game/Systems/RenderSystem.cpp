@@ -57,15 +57,13 @@ namespace ecs {
 		auto& context = engine_->GetDeviceContext();
 		auto& device = engine_->GetGraphicsDevice();
 
-		// 描画開始
-		engine_->BeginFrame();
 
 		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
 		auto camEntity = _ecs.GetEntitiesWithComponent<Camera>()[0];	// とりあえず一番最初のカメラを取得しとく
 		auto& cam = _ecs.GetComponent<Camera>(camEntity);
 
 		
-		dx3d::CBPerFrame cbPerFrameData;
+		dx3d::CBPerFrame cbPerFrameData{};
 		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
 		
@@ -79,7 +77,7 @@ namespace ecs {
 			auto& transform = _ecs.GetComponent<ecs::Transform>(e);
 			
 			// ワールド座標行列の取得
-			dx3d::CBPerObject cbPerObjectData;
+			dx3d::CBPerObject cbPerObjectData{};
 			cbPerObjectData.world = transform.GetWorldMatrix();
 			cb_per_object_->Update(context, &cbPerObjectData, sizeof(cbPerObjectData));
 			context.VSSetConstantBuffer(1, *cb_per_object_);
@@ -92,8 +90,5 @@ namespace ecs {
 				mesh.vb->GetVertexListSize(),
 				mesh.ib->GetIndexCount());
 		}
-
-		// 描画終了
-		engine_->EndFrame();
 	}
 }

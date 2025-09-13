@@ -13,10 +13,10 @@
 #include <DX3D/Graphics/ShaderBinary.h>
 #include <DX3D/Graphics/GraphicsPipelineState.h>
 #include <DX3D/Graphics/RasterizerState.h>
-#include <DX3D/Graphics/VertexBuffer.h>
 #include <DX3D/Graphics/VertexShaderSignature.h>
-#include <DX3D/Graphics/IndexBuffer.h>
-#include <DX3D/Graphics/ConstantBuffer.h>
+#include <DX3D/Graphics/Buffers/VertexBuffer.h>
+#include <DX3D/Graphics/Buffers/IndexBuffer.h>
+#include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 
 /*---------- –¼‘O‹óŠÔ ----------*/
 using namespace dx3d;
