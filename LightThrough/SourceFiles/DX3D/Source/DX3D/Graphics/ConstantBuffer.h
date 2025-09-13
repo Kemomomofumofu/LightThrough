@@ -19,6 +19,7 @@ namespace dx3d {
 
 	struct CBPerObject {
 		DirectX::XMMATRIX world;	// ワールド行列
+		DirectX::XMFLOAT4 color;	// 色
 	};
 
 	class ConstantBuffer : public GraphicsResource {

@@ -148,7 +148,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -179,6 +178,9 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\DebugDrawSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -228,7 +230,6 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\StaticMesh.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\IndexBuffer.cpp">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClCompile>
@@ -245,6 +246,8 @@
     <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\DebugDrawSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl">

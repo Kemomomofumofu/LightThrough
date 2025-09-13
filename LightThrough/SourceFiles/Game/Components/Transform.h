@@ -19,6 +19,7 @@ namespace ecs {
 		/**
 		 * @brief モデル行列を計算する
 		 * @return モデル行列
+		 * [ToDo] 値が変わったら計算するようにすると軽くなる
 		 */
 		DirectX::XMMATRIX GetWorldMatrix() const {
 			using namespace DirectX;

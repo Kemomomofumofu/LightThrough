@@ -16,50 +16,13 @@
 #include <Game/Systems/MovementSystem.h>
 #include <Game/Systems/RenderSystem.h>
 #include <Game/Systems/CameraSystem.h>
+#include <Game/Components/Mesh.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Velocity.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 
 #include <DX3D/Game/ECS/ECSLogUtils.h>
-
-
-
-// [ToDo] テストでキューブを生成するメソッド
-#include <DX3D/Graphics/GraphicsDevice.h>
-#include <Game/Components/Mesh.h>
-static ecs::Mesh CreateCube(dx3d::GraphicsDevice& _device) {
-	using namespace dx3d;
-	struct Vertex {
-		Vec3 pos;
-		Vec4 col;
-	};
-
-	const Vertex cubeVertices[] = {
-		{{-0.5f, -0.5f, -0.5f},{ 1, 0, 0, 1}},	// 0
-		{{-0.5f,  0.5f, -0.5f},{ 0, 1, 0, 1}},	// 1
-		{{ 0.5f,  0.5f, -0.5f},{ 0, 0, 1, 1}},	// 2
-		{{ 0.5f, -0.5f, -0.5f},{ 1, 1, 0, 1}},	// 3
-		{{-0.5f, -0.5f,  0.5f},{ 1, 0, 1, 1}},	// 4
-		{{-0.5f,  0.5f,  0.5f},{ 0, 1, 1, 1}},	// 5
-		{{ 0.5f,  0.5f,  0.5f},{ 1, 1, 1, 1}},	// 6
-		{{ 0.5f, -0.5f,  0.5f},{ 0, 0, 0, 1}},	// 7
-	};
-
-	const ui32 cubeIndices[] = {
-		0,1,2, 0,2,3,	// front
-		4,5,6, 4,7,6,	// back
-		4,5,1, 4,1,0,	// left
-		3,2,6, 3,6,7,	// right
-		1,5,6, 1,6,2,	// top
-		4,0,3, 4,3,7,	// bottom
-	};
-
-	auto vb = _device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
-	auto ib = _device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
-
-	return ecs::Mesh{ vb, ib };
-}
 
 /**
  * @brief コンストラクタ
@@ -111,10 +74,10 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, {});
 	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, {});
 
-	auto e = ecs_coordinator_->CreateEntity();
-	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} });
-	auto cubeMesh = CreateCube(graphics_engine_->GetGraphicsDevice());
-	ecs_coordinator_->AddComponent<ecs::Mesh>(e, cubeMesh);
+	//auto e = ecs_coordinator_->CreateEntity();
+	//ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} });
+	//auto cubeMesh = CreateCube(graphics_engine_->GetGraphicsDevice());
+	//ecs_coordinator_->AddComponent<ecs::Mesh>(e, cubeMesh);
 
 
 	DX3DLogInfo("ゲーム開始");
