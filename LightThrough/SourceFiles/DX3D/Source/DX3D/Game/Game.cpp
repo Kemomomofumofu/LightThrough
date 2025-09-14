@@ -33,18 +33,23 @@ dx3d::Game::Game(const GameDesc& _desc)
 	: Base({ *std::make_unique<Logger>(_desc.logLevel).release() }),
 	logger_ptr_(&logger_)
 {
+	// 時間初期化
+	last_time_ = std::chrono::high_resolution_clock::now();
+
 	// 描画システムの生成
 	graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });
-	// インプットシステムに登録
+
+	// ウィンドウの生成
+	display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
+
+	// インプットシステム初期化
+	input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));
 	input::InputSystem::Get().AddListener(this);
+	input::InputSystem::Get().LockMouse(true);
 	// ECSのコーディネーターの生成
 	ecs_coordinator_ = std::make_unique<ecs::Coordinator>();
 	ecs_coordinator_->Init();
 
-	// ウィンドウの生成
-	display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
-	// 時間初期化
-	last_time_ = std::chrono::high_resolution_clock::now();
 
 	// [ToDo] テスト用で動かしてみる
 	// [ToDo] 自動でComponentを登録する機能が欲しいかも。

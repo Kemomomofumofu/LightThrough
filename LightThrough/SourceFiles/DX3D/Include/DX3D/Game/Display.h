@@ -15,7 +15,8 @@ namespace dx3d {
 	public:
 		explicit Display(const DisplayDesc& _desc);
 
-		SwapChain& GetSwapChain() noexcept;
+		SwapChain& GetSwapChain() noexcept;	// スワップチェイン取得
+		void* GetHandle() { return handle_; }	// ウィンドウハンドル取得
 
 	private:
 		SwapChainPtr swap_chain_{};

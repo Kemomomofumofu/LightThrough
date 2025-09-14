@@ -79,6 +79,7 @@ namespace ecs {
 	{
 		using namespace DirectX;
 
+		//
 		if (_ctrl.mode == CameraMode::FPS) {
 			_tf.rotation.x = _ctrl.pitch;
 			_tf.rotation.y = _ctrl.yaw;

@@ -9,10 +9,47 @@
 #include <DX3D/Window/Window.h>
 #include <Windows.h>
 #include <stdexcept>
+#include <InputSystem/InputSystem.h>
+
+
+/**
+ * @brief カーソルがクライアント領域内か
+ * @param _hwnd		ウィンドウハンドル
+ * @return 領域内: true, 領域外: false
+ */
+static bool IsCursorInClient(HWND _hwnd) {
+	POINT p{};
+	::GetCursorPos(&p);
+	POINT client = p;
+	::ScreenToClient(_hwnd, &client);
+	RECT rc{};
+	::GetClientRect(_hwnd, &rc);
+	
+	return ::PtInRect(&rc, client);
+}
 
 static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam) {
 	switch (_msg)
 	{
+	// フォーカスが当たった
+	case WM_SETFOCUS:
+		// クライアント領域内でない可能性があるのでロックはしない
+		input::InputSystem::Get().SetFocus(true);
+		break;
+	// フォーカスが外れた
+	case WM_KILLFOCUS:
+		if (input::InputSystem::Get().IsMouseLocked()) {
+			input::InputSystem::Get().LockMouse(false);
+		}
+		input::InputSystem::Get().SetFocus(false);
+		break;
+	case WM_LBUTTONDOWN:
+		// クライアント領域内であればマウスロック
+		if (IsCursorInClient(_hwnd) && !input::InputSystem::Get().IsMouseLocked()) {
+			input::InputSystem::Get().LockMouse(true);
+		}
+		break;
+	// ウィンドウが閉じられた
 	case WM_CLOSE:
 	{
 		PostQuitMessage(0);

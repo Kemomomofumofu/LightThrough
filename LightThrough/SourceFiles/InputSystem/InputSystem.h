@@ -7,6 +7,7 @@
  */
 
 // ---------- インクルード ---------- // 
+#include <Windows.h>
 #include <unordered_set>
 #include <InputSystem/InputListener.h>
 #include <DX3D/Math/Point.h>
@@ -24,12 +25,16 @@ namespace input {
 	class InputSystem
 	{
 	public:
+		void Init(HWND _hwnd);
+		void Update();
 		void AddListener(InputListener* _listener);
 		void RemoveListener(InputListener* _listener);
-		void Update();
 
 		static InputSystem& Get();
+		bool IsMouseLocked() const;
 
+		void LockMouse(bool _lock);
+		void SetFocus(bool _focused);
 	private:
 		InputSystem() = default;
 		~InputSystem() = default;
@@ -37,11 +42,16 @@ namespace input {
 		InputSystem(const InputSystem&) = delete;
 		InputSystem& operator=(const InputSystem&) = delete;
 
+	private:
 		std::unordered_set<InputListener*> listeners_;	// 通知される方々
 		unsigned char keys_state_[256] = {};					// キーステート
 		unsigned char old_keys_state_[256] = {};					// 前回のキーステート
 		dx3d::Point old_mouse_pos_;
 		bool first_time_ = true;
+		bool mouse_locked_ = false; // マウスロックされているか
+		bool focused_ = true;		// ウィンドウにフォーカスが当たっているか
+
+		HWND hwnd_{};	// ウィンドウハンドル
 	};
 }
 
