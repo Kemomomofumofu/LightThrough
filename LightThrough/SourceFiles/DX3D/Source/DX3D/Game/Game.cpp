@@ -44,7 +44,6 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 	// インプットシステム初期化
 	input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));
-	input::InputSystem::Get().AddListener(this);
 	input::InputSystem::Get().LockMouse(true);
 	// ECSのコーディネーターの生成
 	ecs_coordinator_ = std::make_unique<ecs::Coordinator>();
@@ -83,7 +82,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	auto eCamera = ecs_coordinator_->CreateEntity();
 	ecs_coordinator_->AddComponent<ecs::Transform>(eCamera, ecs::Transform{ {0.0f, 0.0f, -5.0f}, {0.0f, 0.0f, 0.0f} });
 	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, {});
-	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, {});
+	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, {ecs::CameraMode::FPS});
 
 	//auto e = ecs_coordinator_->CreateEntity();
 	//ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} });
@@ -96,8 +95,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 dx3d::Game::~Game()
 {
-	// インプットシステムから削除
-	input::InputSystem::Get().RemoveListener(this);
+
 	DX3DLogInfo("ゲーム終了");
 }
 
@@ -111,6 +109,11 @@ void dx3d::Game::OnInternalUpdate()
 
 	// 入力の更新
 	input::InputSystem::Get().Update();
+	dx3d::Point mouseDelta = input::InputSystem::Get().GetMouseDelta();
+	if (mouseDelta.x != 0 || mouseDelta.y != 0)
+	{
+		ECSLogFInfo(" MouseDelta\nx {}\ny {}", mouseDelta.x, mouseDelta.y);
+	}
 
 	// 時間の更新
 	using clock = std::chrono::high_resolution_clock;
@@ -132,21 +135,4 @@ void dx3d::Game::OnInternalUpdate()
 
 	// 描画
 	graphics_engine_->EndFrame();
-}
-
-void dx3d::Game::OnKeyDown(int _key)
-{
-	if (_key == 'W') {
-		DX3DLogInfo("Wキーが押された");
-	}
-}
-
-void dx3d::Game::OnKeyUp(int _key)
-{
-
-}
-
-void dx3d::Game::OnMouseMove(const dx3d::Point& _deltaMousePos)
-{
-
 }

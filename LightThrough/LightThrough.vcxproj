@@ -199,8 +199,6 @@
     <ClInclude Include="SourceFiles\Game\Systems\PrafabSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h" />
-    <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
-    <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
     <ClInclude Include="SourceFiles\InputSystem\InputSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\All.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Base.h" />

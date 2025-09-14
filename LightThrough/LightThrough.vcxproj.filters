@@ -133,8 +133,6 @@
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\InputSystem\InputSystem.h" />
-    <ClInclude Include="SourceFiles\InputSystem\InputListener.h" />
-    <ClInclude Include="SourceFiles\InputSystem\IInputSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>

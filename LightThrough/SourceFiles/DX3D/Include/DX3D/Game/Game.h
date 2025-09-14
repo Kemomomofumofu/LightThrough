@@ -24,17 +24,12 @@ namespace dx3d {
 	 * ゲームの実行、更新をするクラス
 	 * [ToDo] InputListenerについては各オブジェクトに持たせたほうが責務がわかりやすい。
 	 */
-	class Game :public Base, public input::InputListener {
+	class Game :public Base{
 	public:
 		explicit Game(const GameDesc& _desc);
 		virtual ~Game() override;
 
 		virtual void Run() final;
-
-		void OnKeyDown(int _key) override;
-		void OnKeyUp(int _key) override;
-
-		void OnMouseMove(const Point& _deltaMousePos) override;
 
 	private:
 		void OnInternalUpdate();

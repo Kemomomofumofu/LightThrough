@@ -5,8 +5,11 @@
  * @date 2025-09-05
  */
 
- // ---------- インクルード ---------- // 
+ // ---------- インクルード ---------- //
+#include <algorithm>
+#include <DirectXMath.h>
 #include <Game/Systems/CameraSystem.h>
+#include <InputSystem/InputSystem.h>
 #include <DX3D/Game/ECS/Coordinator.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Camera.h>
@@ -78,18 +81,73 @@ namespace ecs {
 	void CameraSystem::UpdateController(float _dt, Transform& _tf, CameraController& _ctrl)
 	{
 		using namespace DirectX;
+		auto& input = input::InputSystem::Get();
+		dx3d::Point delta = input.GetMouseDelta();	// 移動量
+		const float sensitivity = _ctrl.mouseSensitivity * _dt;		// 感度係数	
+		float dx = delta.x * sensitivity;
+		float dy = (_ctrl.invertY ? -delta.y : delta.y) * sensitivity;	// Y軸が反転しているかで変わる
 
-		//
-		if (_ctrl.mode == CameraMode::FPS) {
+		// FPSモード
+		if(_ctrl.mode == CameraMode::FPS) {
+			// ---------- 視点操作 ---------- // 
+			_ctrl.yaw += dx;
+			_ctrl.pitch += dy;	
+			// ピッチ制限
+			_ctrl.pitch = std::clamp(_ctrl.pitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
+
 			_tf.rotation.x = _ctrl.pitch;
 			_tf.rotation.y = _ctrl.yaw;
+
+			// ---------- 移動操作 ---------- // 
+			XMVECTOR forward = XMVectorSet(sinf(_ctrl.yaw), 0, cosf(_ctrl.yaw), 0);
+			XMVECTOR right = XMVector3Cross(XMVectorSet(0, 1, 0, 0), forward);
+
+			XMVECTOR pos = XMLoadFloat3(&_tf.position);
+			const float moveSpeed = _ctrl.moveSpeed * _dt;	// 速度係数
+			if(input.IsKeyDown('W')) {
+				pos += forward * moveSpeed;
+			}
+			if(input.IsKeyDown('S')) {
+				pos -= forward * moveSpeed;
+			}
+			if(input.IsKeyDown('A')) {
+				pos -= right * moveSpeed;
+			}
+			if(input.IsKeyDown('D')) {
+				pos += right * moveSpeed;
+			}
+
+			XMStoreFloat3(&_tf.position, pos);
 		}
+		// Orbitモード
 		else {
+			// ---------- 視点操作 ---------- // 
+			_ctrl.orbitYaw += dx;
+			_ctrl.orbitPitch += dy;
+			// ピッチ制限
+			_ctrl.orbitPitch = std::clamp(_ctrl.pitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
+
+			// [ToDo] InputSystemにマウスホイールの実装が出来たら距離を変えられるようにする
+			//_ctrl.orbitDistance = std::clamp(_ctrl.orbitDistance - wheelDelta * 0.5f, 1.0f, 50.0f);
+
+			// 注視点からの相対位置を計算
 			XMMATRIX rot = XMMatrixRotationRollPitchYaw(_ctrl.orbitPitch, _ctrl.orbitYaw, 0.0f);
-			XMVECTOR dir = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rot);
-			XMVECTOR pos = XMLoadFloat3(&_ctrl.orbitTarget) + (-_ctrl.orbitDistance) * dir;
-			XMFLOAT3 p; XMStoreFloat3(&p, pos);
-			_tf.position = p;
+			XMVECTOR offset = XMVector3TransformNormal(XMVectorSet(0.0, 0.0f, -_ctrl.orbitDistance, 0.0f), rot);
+
+			XMVECTOR target = XMLoadFloat3(&_ctrl.orbitTarget);
+			XMVECTOR pos = target + offset;
+
+			XMStoreFloat3(&_tf.position, pos);
+
+			// Transform.rotationに保持しとく
+			XMVECTOR forward = XMVector3Normalize(target - pos);
+			float yaw = atan2f(XMVectorGetX(forward), XMVectorGetZ(forward));
+			float pitch = asinf(-XMVectorGetY(forward));
+
+			_tf.rotation.x = pitch;
+			_tf.rotation.y = yaw;
+			_tf.rotation.z = 0.0f;
 		}
+
 	}
 }

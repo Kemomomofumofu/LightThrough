@@ -20,21 +20,31 @@ namespace input {
 	 * 入力を管理するクラス。
 	 * [ToDo] 現状は工数削減のためにシングルトンでの実装。
 	 * 将来的にはもっといい形にしたいがひとまず妥協する。
-	 * パフォーマンス的には変化のあったキーだけ通知する形にしたほうが良い。まぁ追々ですね...
+	 * もともとオブザーバーパターンで入力のあったキーを通知する形だったが、
+	 * ECSとの親和性を考慮して、押されているキーの状態を問い合わせる形に変更した。
+	 * 一応残しておく
 	 */
 	class InputSystem
 	{
 	public:
+		static InputSystem& Get();
+
 		void Init(HWND _hwnd);
 		void Update();
-		void AddListener(InputListener* _listener);
-		void RemoveListener(InputListener* _listener);
 
-		static InputSystem& Get();
-		bool IsMouseLocked() const;
+		bool IsMouseLocked() const;		// マウスがロックされているか
+		bool IsKeyDown(int _key) const;	// キーが押されているか
+		bool IsKeyUp(int _key) const;	// キーが離されているか
+		bool IsKeyTrigger(int _key) const;	// キーが押された瞬間か
+		bool IsKeyRelease(int _key) const;	// キーが離された瞬間か
+		dx3d::Point GetMouseDelta();
 
-		void LockMouse(bool _lock);
-		void SetFocus(bool _focused);
+		//void AddListener(InputListener* _listener);
+		//void RemoveListener(InputListener* _listener);
+
+		void LockMouse(bool _lock);		// マウスをロックするか
+		void SetFocus(bool _focused);	// フォーカス設定
+
 	private:
 		InputSystem() = default;
 		~InputSystem() = default;
@@ -43,10 +53,10 @@ namespace input {
 		InputSystem& operator=(const InputSystem&) = delete;
 
 	private:
-		std::unordered_set<InputListener*> listeners_;	// 通知される方々
-		unsigned char keys_state_[256] = {};					// キーステート
-		unsigned char old_keys_state_[256] = {};					// 前回のキーステート
-		dx3d::Point old_mouse_pos_;
+		//std::unordered_set<InputListener*> listeners_;	// 通知される方々
+		unsigned char keys_state_[256] = {};			// キーステート
+		unsigned char old_keys_state_[256] = {};		// 前回のキーステート
+		dx3d::Point mouse_delta_{};						// マウスの移動量
 		bool first_time_ = true;
 		bool mouse_locked_ = false; // マウスロックされているか
 		bool focused_ = true;		// ウィンドウにフォーカスが当たっているか

@@ -33,8 +33,7 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 	{
 	// フォーカスが当たった
 	case WM_SETFOCUS:
-		// クライアント領域内でない可能性があるのでロックはしない
-		input::InputSystem::Get().SetFocus(true);
+
 		break;
 	// フォーカスが外れた
 	case WM_KILLFOCUS:
@@ -44,6 +43,8 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 		input::InputSystem::Get().SetFocus(false);
 		break;
 	case WM_LBUTTONDOWN:
+		input::InputSystem::Get().SetFocus(true);
+
 		// クライアント領域内であればマウスロック
 		if (IsCursorInClient(_hwnd) && !input::InputSystem::Get().IsMouseLocked()) {
 			input::InputSystem::Get().LockMouse(true);
