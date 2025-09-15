@@ -57,8 +57,6 @@ namespace ecs {
 		void UpdateAllSystems(float _dt);	// 登録されたSystemの更新
 		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
 		
-
-
 	private:
 		std::unique_ptr<EntityManager> entity_manager_{};		// Entityマネージャ
 		std::unique_ptr<ComponentManager> component_manager_{};	// Componentマネージャ

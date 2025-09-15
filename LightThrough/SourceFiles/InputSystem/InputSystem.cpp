@@ -20,9 +20,16 @@ namespace input {
 		return system;
 	}
 
+	/**
+	 * @brief 初期化
+	 * @param _hwnd ウィンドウハンドル
+	 */
 	void InputSystem::Init(HWND _hwnd)
 	{
 		hwnd_ = _hwnd;
+
+		// マウスの初期状態
+		LockMouse(true);
 	}
 
 	void InputSystem::Update()

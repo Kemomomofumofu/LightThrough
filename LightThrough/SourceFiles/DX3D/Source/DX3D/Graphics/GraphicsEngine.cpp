@@ -16,7 +16,6 @@
 #include <DX3D/Graphics/Buffers/IndexBuffer.h>
 #include <DX3D/Math/Vec3.h>
 
-
 /*---------- 名前空間 ----------*/
 using namespace dx3d;
 
@@ -82,6 +81,7 @@ void dx3d::GraphicsEngine::BeginFrame()
 {
 	auto& context = *device_context_;
 	context.ClearAndSetBackBuffer(*swap_chain_, { 0.27f, 0.39f, 0.55f, 1.0f });	// 初期色でクリア
+
 }
 
 void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib)
@@ -101,5 +101,7 @@ void dx3d::GraphicsEngine::EndFrame()
 	auto& context = *device_context_;
 	auto& device = *graphics_device_;
 	device.ExecuteCommandList(context);
+
+	// 画面に表示
 	swap_chain_->Present();
 }

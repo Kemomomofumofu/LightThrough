@@ -84,11 +84,6 @@ namespace ecs {
 
 
 			engine_->Render(*mesh.vb, *mesh.ib);
-
-			ECSLogFInfo("描画エンティティ[{}] - 頂点数:{} インデックス数:{}",
-				e.Index(),
-				mesh.vb->GetVertexListSize(),
-				mesh.ib->GetIndexCount());
 		}
 	}
 }

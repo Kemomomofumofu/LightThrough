@@ -13,6 +13,8 @@
 #include <DX3D/Game/ECS/SystemManager.h>
 #include <DX3D/Game/ECS/ISystem.h>
 
+#include <DX3D/Game/ECS/ECSLogUtils.h>
+
 namespace ecs {
 	/**
 	 * @brief ‰Šú‰»

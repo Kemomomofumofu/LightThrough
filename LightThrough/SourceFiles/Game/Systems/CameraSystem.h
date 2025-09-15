@@ -12,8 +12,8 @@
 
 namespace ecs {
 	class Coordinator;
-	class CameraController;
-	class Transform;
+	struct CameraController;
+	struct Transform;
 	/**
 	 * @brief ƒJƒƒ‰
 	 *

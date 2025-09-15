@@ -11,8 +11,8 @@
 #include <chrono>
 #include <DX3D/Core/Base.h>
 #include <DX3D/Core/Core.h>
-#include <InputSystem/InputListener.h>
 #include <DX3D/Game/ECS/Coordinator.h>
+#include <DX3D/Game/Scene/SceneManager.h>
 
 
 
@@ -40,6 +40,7 @@ namespace dx3d {
 		bool is_running_ = true;
 
 		std::unique_ptr<ecs::Coordinator> ecs_coordinator_{};	// ECSのコーディネーター
+		std::unique_ptr<scene::SceneManager> scene_manager_{};
 		std::chrono::high_resolution_clock::time_point last_time_{};	// 時間管理用
 
 	};

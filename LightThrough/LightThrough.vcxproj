@@ -72,10 +72,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\directxtk\lib\x64\Debug;C:\assimp\5.2.5\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
     <LibraryPath>C:\directxtk\lib\x64\Release;C:\assimp\5.2.5\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -133,18 +133,21 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3dcompiler.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ComponentManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
     <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
@@ -170,11 +173,21 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Window\Win32\Win32Window.cpp" />
     <ClCompile Include="SourceFiles\Game\main.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\Scene.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
@@ -223,6 +236,14 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imconfig.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_internal.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_textedit.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl" />

@@ -39,12 +39,16 @@ namespace ecs
 		void Insert(Entity _e, const Com& _component);
 		void Remove(Entity _e);
 		Com& Get(Entity _e);
+		//const std::vector<Com>& GetAllComponents() const;
+		//const std::vector<Entity>& GetAllEntityIDs() const;
+		
 
 		bool Has(Entity _e) const;
 		void EntityDestroyed(Entity _e) override;
 
 	private:
 		std::vector<Com> components_{};	// Component‚ÌVector”z—ñ
+		std::vector<Entity> entity_IDs_{};	// Component‚É‘Î‰ž‚·‚éEntity‚ÌVector”z—ñ
 		std::unordered_map<Entity, size_t> entity_to_index_{};	// Entity‚ÆIndex‚ð‘Î‰ž‚³‚¹‚é‚½‚ß‚ÌMap
 	};
 

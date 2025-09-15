@@ -33,16 +33,21 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 	{
 	// フォーカスが当たった
 	case WM_SETFOCUS:
+	{
 
 		break;
+	}
 	// フォーカスが外れた
 	case WM_KILLFOCUS:
+	{
 		if (input::InputSystem::Get().IsMouseLocked()) {
 			input::InputSystem::Get().LockMouse(false);
 		}
 		input::InputSystem::Get().SetFocus(false);
 		break;
+	}
 	case WM_LBUTTONDOWN:
+	{
 		input::InputSystem::Get().SetFocus(true);
 
 		// クライアント領域内であればマウスロック
@@ -50,6 +55,18 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 			input::InputSystem::Get().LockMouse(true);
 		}
 		break;
+	}
+	case WM_KEYDOWN:
+	{
+		// ESCキーが押された
+		if (_wparam == VK_ESCAPE) {
+			if (input::InputSystem::Get().IsMouseLocked()) {
+				input::InputSystem::Get().LockMouse(false);	// マウスロック解除
+			}
+			input::InputSystem::Get().SetFocus(false);
+		}
+		break;
+	}
 	// ウィンドウが閉じられた
 	case WM_CLOSE:
 	{

@@ -64,6 +64,9 @@
     <Filter Include="Systems">
       <UniqueIdentifier>{7e410f41-254e-4a70-9e96-d3a76545e32a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{35d0c7d0-2ff3-436d-ac45-e36697fe34d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Base.h">
@@ -171,14 +174,31 @@
       <Filter>Systems</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
-    <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\Scene.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.h" />
+    <ClInclude Include="SourceFiles\Game\Components\CameraController.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h">
+      <Filter>Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imconfig.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_internal.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_textedit.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_truetype.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -241,11 +261,26 @@
       <Filter>Systems</Filter>
     </ClCompile>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
-    <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
-    <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\DebugRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.cpp" />
+    <ClCompile Include="SourceFiles\Game\Components\Camera.h">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Game\Systems\DebugRenderSystem.cpp">
+      <Filter>Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
+    <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_demo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl">
