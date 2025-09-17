@@ -9,7 +9,6 @@
 // ---------- インクルード ---------- // 
 #include <Windows.h>
 #include <unordered_set>
-#include <InputSystem/InputListener.h>
 #include <DX3D/Math/Point.h>
 
 namespace input {
@@ -44,6 +43,9 @@ namespace input {
 
 		void LockMouse(bool _lock);		// マウスをロックするか
 		void SetFocus(bool _focused);	// フォーカス設定
+		// 入力の有効/無効
+		void SetInputEnabled(bool _enable);
+		bool IsInputEnabled() const;
 
 	private:
 		InputSystem() = default;
@@ -58,6 +60,7 @@ namespace input {
 		unsigned char old_keys_state_[256] = {};		// 前回のキーステート
 		dx3d::Point mouse_delta_{};						// マウスの移動量
 		bool first_time_ = true;
+		bool input_enabled_ = false; // 入力が有効か
 		bool mouse_locked_ = false; // マウスロックされているか
 		bool focused_ = true;		// ウィンドウにフォーカスが当たっているか
 

@@ -21,14 +21,14 @@ namespace dx3d {
 	ecs::Mesh PrimitiveFactory::CreateCube(GraphicsDevice& _device, float _size) {
 		// [ToDo] Normalñ¢í≤êÆ
 		const Vertex cubeVertices[] = {
-			{{-0.5f, -0.5f, -0.5f}, { 1, 1, 1, 0.75f}, {0, 1}, {1, 0, 0}},	// 0
-			{{-0.5f,  0.5f, -0.5f}, { 1, 1, 1, 0.75f}, {0, 0}, {1, 0, 0}},	// 1
-			{{ 0.5f,  0.5f, -0.5f}, { 1, 1, 1, 0.75f}, {1, 0}, {1, 0, 0}},	// 2
-			{{ 0.5f, -0.5f, -0.5f}, { 1, 1, 1, 0.75f}, {1, 1}, {1, 0, 0}},	// 3
-			{{-0.5f, -0.5f,  0.5f}, { 1, 1, 1, 0.75f}, {0, 1}, {1, 0, 0}},	// 4
-			{{-0.5f,  0.5f,  0.5f}, { 1, 1, 1, 0.75f}, {0, 0}, {1, 0, 0}},	// 5
-			{{ 0.5f,  0.5f,  0.5f}, { 1, 1, 1, 0.75f}, {1, 0}, {1, 0, 0}},	// 6
-			{{ 0.5f, -0.5f,  0.5f}, { 1, 1, 1, 0.75f}, {1, 1}, {1, 0, 0}},	// 7
+			{{-0.5f * _size, -0.5f * _size, -0.5f * _size}, { 1, 1, 1, 0.75f}, {0, 1}, {1, 0, 0}},	// 0
+			{{-0.5f * _size,  0.5f * _size, -0.5f * _size}, { 1, 1, 1, 0.75f}, {0, 0}, {1, 0, 0}},	// 1
+			{{ 0.5f * _size,  0.5f * _size, -0.5f * _size}, { 1, 1, 1, 0.75f}, {1, 0}, {1, 0, 0}},	// 2
+			{{ 0.5f * _size, -0.5f * _size, -0.5f * _size}, { 1, 1, 1, 0.75f}, {1, 1}, {1, 0, 0}},	// 3
+			{{-0.5f * _size, -0.5f * _size,  0.5f * _size}, { 1, 1, 1, 0.75f}, {0, 1}, {1, 0, 0}},	// 4
+			{{-0.5f * _size,  0.5f * _size,  0.5f * _size}, { 1, 1, 1, 0.75f}, {0, 0}, {1, 0, 0}},	// 5
+			{{ 0.5f * _size,  0.5f * _size,  0.5f * _size}, { 1, 1, 1, 0.75f}, {1, 0}, {1, 0, 0}},	// 6
+			{{ 0.5f * _size, -0.5f * _size,  0.5f * _size}, { 1, 1, 1, 0.75f}, {1, 1}, {1, 0, 0}},	// 7
 		};
 
 		const ui32 cubeIndices[] = {
@@ -42,6 +42,27 @@ namespace dx3d {
 
 		auto vb = _device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
 		auto ib = _device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
+
+		return ecs::Mesh{ vb, ib };
+	}
+	ecs::Mesh PrimitiveFactory::CreateQuad(GraphicsDevice& _device, float _size)
+	{
+
+		const Vertex quadVertices[] = {
+			{{-0.5f * _size, -0.5f * _size, 0.0f}, {1, 1, 1, 0.75f}, {0, 1}, {0, 0, -1}},	// 0
+			{{-0.5f * _size,  0.5f * _size, 0.0f}, {1, 1, 1, 0.75f}, {1, 1}, {0, 0, -1}},	// 1
+			{{ 0.5f * _size,  0.5f * _size, 0.0f}, {1, 1, 1, 0.75f}, {1, 0}, {0, 0, -1}},	// 2
+			{{ 0.5f * _size, -0.5f * _size, 0.0f}, {1, 1, 1, 0.75f}, {0, 0}, {0, 0, -1}},	// 3
+		};
+
+		const ui32 quadIndices[] = {
+			0, 1, 2,
+			0, 2, 3,
+		};
+		
+
+		auto vb = _device.CreateVertexBuffer({ quadVertices, std::size(quadVertices), sizeof(Vertex) });
+		auto ib = _device.CreateIndexBuffer({ quadIndices, std::size(quadIndices) });
 
 		return ecs::Mesh{ vb, ib };
 	}

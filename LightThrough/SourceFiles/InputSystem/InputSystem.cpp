@@ -30,6 +30,7 @@ namespace input {
 
 		// マウスの初期状態
 		LockMouse(true);
+		input_enabled_ = true;
 	}
 
 	void InputSystem::Update()
@@ -209,6 +210,31 @@ namespace input {
 			mouse_delta_ = {};
 			first_time_ = true;
 		}
+	}
+
+	/**
+	 * @brief 入力の有効/無効設定
+	 * @param _enable 有効にするか
+	 */
+	void InputSystem::SetInputEnabled(bool _enable)
+	{
+		input_enabled_ = _enable;
+		if (!input_enabled_) {
+			// 押されているキーを全て離す
+			::memset(keys_state_, 0, sizeof(keys_state_));
+			::memset(old_keys_state_, 0, sizeof(old_keys_state_));
+			// マウスデルタをリセット
+			mouse_delta_ = {};
+		}
+	}
+
+	/**
+	 * @brief 入力が有効か
+	 * @return 有効: true, 無効: false
+	 */
+	bool InputSystem::IsInputEnabled() const
+	{
+		return input_enabled_;
 	}
 }
 

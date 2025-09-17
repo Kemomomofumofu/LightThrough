@@ -10,7 +10,13 @@
 #include <Windows.h>
 #include <stdexcept>
 #include <InputSystem/InputSystem.h>
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_dx11.h>
 
+
+// ImGuiのWin32用イベントハンドラ
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 /**
  * @brief カーソルがクライアント領域内か
@@ -24,14 +30,21 @@ static bool IsCursorInClient(HWND _hwnd) {
 	::ScreenToClient(_hwnd, &client);
 	RECT rc{};
 	::GetClientRect(_hwnd, &rc);
-	
+
 	return ::PtInRect(&rc, client);
 }
 
 static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam) {
+	if (ImGui_ImplWin32_WndProcHandler(_hwnd, _msg, _wparam, _lparam)) { return true; }	// ImGuiがイベントを消費したらスキップ
+
+
+	// [ToDo] ImGui操作時はゲームに対する入力を無効化したい
+	auto& inputSystem = input::InputSystem::Get();
+
+
 	switch (_msg)
 	{
-	// フォーカスが当たった
+		// フォーカスが当たった
 	case WM_SETFOCUS:
 	{
 
@@ -40,30 +53,42 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 	// フォーカスが外れた
 	case WM_KILLFOCUS:
 	{
-		if (input::InputSystem::Get().IsMouseLocked()) {
-			input::InputSystem::Get().LockMouse(false);
+		if (inputSystem.IsMouseLocked()) {
+			inputSystem.LockMouse(false);
 		}
-		input::InputSystem::Get().SetFocus(false);
+		inputSystem.SetFocus(false);
 		break;
 	}
 	case WM_LBUTTONDOWN:
 	{
-		input::InputSystem::Get().SetFocus(true);
+		inputSystem.SetFocus(true);
 
-		// クライアント領域内であればマウスロック
-		if (IsCursorInClient(_hwnd) && !input::InputSystem::Get().IsMouseLocked()) {
-			input::InputSystem::Get().LockMouse(true);
+		// ImGuiがマウスをキャプチャしているならスキップ
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse) { break; }
+
+		static bool wasPressed = false;
+		bool isPressed = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
+
+		// クライアント領域内か
+		if (IsCursorInClient(_hwnd) && !inputSystem.IsMouseLocked()) {
+			// 押された瞬間か
+			if (isPressed && !wasPressed) {
+				inputSystem.LockMouse(true);	// マウスロック
+			}
 		}
+
+		wasPressed = isPressed;
 		break;
 	}
 	case WM_KEYDOWN:
 	{
 		// ESCキーが押された
 		if (_wparam == VK_ESCAPE) {
-			if (input::InputSystem::Get().IsMouseLocked()) {
-				input::InputSystem::Get().LockMouse(false);	// マウスロック解除
+			if (inputSystem.IsMouseLocked()) {
+				inputSystem.LockMouse(false);	// マウスロック解除
 			}
-			input::InputSystem::Get().SetFocus(false);
+			inputSystem.SetFocus(false);
 		}
 		break;
 	}
@@ -97,7 +122,7 @@ dx3d::Window::Window(const WindowDesc& _desc) : Base(_desc.base), size_(_desc.si
 	RECT rc{ 0, 0, size_.width, size_.height };
 	AdjustWindowRect(&rc, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, false);
 
-	handle_ = CreateWindowEx(NULL, MAKEINTATOM(windowClassId), "Fabitami | Light Through",
+	handle_ = CreateWindowEx(NULL, MAKEINTATOM(windowClassId), "Light Through",
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT,
 		rc.right - rc.left, rc.bottom - rc.top,
 		NULL, NULL, NULL, NULL);

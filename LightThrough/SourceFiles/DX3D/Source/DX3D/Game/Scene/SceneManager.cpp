@@ -10,7 +10,7 @@
 #include <sstream>
 #include <cassert>
 #include <DX3D/Game/Scene/SceneManager.h>
-#include <nlohmann/json.hpp>
+//#include <nlohmann/json.hpp>
 
 #include <Game/Components/Transform.h>
 #include <Game/Components/Mesh.h>

@@ -12,7 +12,7 @@
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
 #include <DX3D/Graphics/PrimitiveFactory.h>
-#include <DX3D/Game/Scene/SceneManager.h>
+//#include <DX3D/Game/Scene/SceneManager.h>
 #include <InputSystem/InputSystem.h>
 
 #include <Game/Systems/MovementSystem.h>
@@ -102,11 +102,11 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, ecs::Camera{});
 	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, ecs::CameraController{ecs::CameraMode::FPS});
 
-	// キューブ
-	auto eCube = ecs_coordinator_->CreateEntity();
-	ecs_coordinator_->AddComponent<ecs::Transform>(eCube, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f} });
-	auto cubeMesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
-	ecs_coordinator_->AddComponent<ecs::Mesh>(eCube, cubeMesh);
+	// テストのメッシュ
+	auto e = ecs_coordinator_->CreateEntity();
+	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
+	auto mesh = dx3d::PrimitiveFactory::CreateQuad(graphics_engine_->GetGraphicsDevice());
+	ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
 
 
 

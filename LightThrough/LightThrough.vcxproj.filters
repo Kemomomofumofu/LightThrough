@@ -179,8 +179,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\Scene.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -263,7 +261,6 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.cpp" />
     <ClCompile Include="SourceFiles\Game\Components\Camera.h">
       <Filter>Components</Filter>
     </ClCompile>
