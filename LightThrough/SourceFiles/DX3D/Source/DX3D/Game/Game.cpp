@@ -105,7 +105,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// テストのメッシュ
 	auto e = ecs_coordinator_->CreateEntity();
 	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
-	auto mesh = dx3d::PrimitiveFactory::CreateQuad(graphics_engine_->GetGraphicsDevice());
+	auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
 	ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
 
 

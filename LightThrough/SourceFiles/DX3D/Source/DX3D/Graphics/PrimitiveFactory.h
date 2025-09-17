@@ -17,9 +17,9 @@ namespace ecs {
 
 namespace dx3d {
 	namespace PrimitiveFactory {
-		ecs::Mesh CreateCube(GraphicsDevice& _device, float _size = 1.0f);
-		ecs::Mesh CreateQuad(GraphicsDevice& _device, float _size = 1.0f);
-		//ecs::Mesh CreateSphere(GraphicsDevice& _device, int _slices, int _stacks, float _radius);
+		ecs::Mesh CreateCube(GraphicsDevice& _device, f32 _size = 1.0f);
+		ecs::Mesh CreateQuad(GraphicsDevice& _device, f32 _size = 1.0f);
+		ecs::Mesh CreateSphere(GraphicsDevice& _device, ui32 _slices = 10, ui32 _stacks = 10, f32 _radius = 0.5f);
 		//ecs::Mesh CreateLine(GraphicsDevice& _device, DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end);
 
 	}

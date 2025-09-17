@@ -77,7 +77,7 @@ namespace dx3d {
 	struct RasterizerStateDesc {
 		FillMode fillMode = FillMode::Solid;
 		CullMode cullMode = CullMode::Back;
-		bool frontCounterClockwise = false;
+		bool frontCounterClockwise = true;
 		bool depthClipEnable = true;
 		bool scissorEnable = false;
 		bool multiSampleEnable = false;
