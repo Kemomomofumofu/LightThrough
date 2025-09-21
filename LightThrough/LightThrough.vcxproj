@@ -147,6 +147,8 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\EntityManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\SystemManager.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneSerializer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
     <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
@@ -185,6 +187,9 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\GameLogger.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\ECS\ECSLogUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\Scene.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />

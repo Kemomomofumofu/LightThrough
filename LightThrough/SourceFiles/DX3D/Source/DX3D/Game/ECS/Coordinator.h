@@ -53,7 +53,7 @@ namespace ecs {
 		void SetSystemSignature(Signature& _signature);	// System‚ÌSignature‚ğİ’è
 		template<typename Sys>
 		std::shared_ptr<Sys> GetSystem();	// System‚Ìæ“¾
-
+		
 		void UpdateAllSystems(float _dt);	// “o˜^‚³‚ê‚½System‚ÌXV
 		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // w’è‚µ‚½Signature‚ğ‚Á‚Ä‚¢‚éEntity‚Ìˆê——‚ğæ“¾
 		

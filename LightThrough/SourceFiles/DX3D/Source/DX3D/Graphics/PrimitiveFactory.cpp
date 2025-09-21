@@ -34,11 +34,11 @@ namespace dx3d {
 
 		const ui32 cubeIndices[] = {
 			0,1,2, 0,2,3,	// ëO
-			4,5,6, 4,6,7,	// å„
-			4,0,2, 4,2,6,	// ç∂
-			1,3,7, 1,7,5,	// âE
-			2,3,7, 2,7,6,	// è„
-			0,1,5, 0,5,4,	// â∫
+			5,4,7, 5,7,6,	// å„
+			4,0,3, 4,3,7,	// ç∂
+			1,5,6, 1,6,2,	// âE
+			3,2,6, 3,6,7,	// è„
+			1,0,4, 1,4,5,	// â∫
 		};
 
 		auto vb = _device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
@@ -124,8 +124,8 @@ namespace dx3d {
 		std::vector<ui32> sphereIndices{};
 		for (uint32_t i = 1; i <= _slices; ++i) {
 			sphereIndices.push_back(0);
-			sphereIndices.push_back(i + 1);
 			sphereIndices.push_back(i);
+			sphereIndices.push_back(i + 1);
 		}
 
 		// íÜä‘

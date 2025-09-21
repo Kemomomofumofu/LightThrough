@@ -197,6 +197,9 @@
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\Scene.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneSerializer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -278,6 +281,8 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneManager.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Scene\SceneSerializer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Assets\Shaders\Default.hlsl">

@@ -72,5 +72,4 @@ namespace ecs {
 		//}
 		return result;
 	}
-
 }

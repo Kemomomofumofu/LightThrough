@@ -34,8 +34,9 @@ namespace scene {
 		bool UnloadScene(Scene::Id _id, bool _destroyEntities = true);
 
 		// JSONで保存・読み込み
-		bool LoadSceneFromFile(const std::string& _path, Scene::Id _id);
-		bool SaveSceneToFile(const Scene::Id& _id, const std::string& _path);
+		bool LoadSceneFromFile(const std::string& _path);
+		bool SaveActiveScene(const std::string& _path) const;
+		bool SaveSceneToFile(const std::string& _path) const;
 
 		// アクティベート
 		bool SetActiveScene(Scene::Id _id, bool _unloadPrev = true);
@@ -49,15 +50,11 @@ namespace scene {
 		// 永続化
 		void MarkPersistentEntity(ecs::Entity _e, bool _persistent = true); // Entityを永続化するかどうか
 
-		// イベント
-		OnSceneEvent OnBeforeSceneUnload;
-		OnSceneEvent OnAfterSceneUnLoad;
-		OnSceneEvent OnBeforeSceneLoad;
-		OnSceneEvent OnAfterSceneLoad;
-
-		// コンポーネントのデシリアライズ関数の登録
-		using ComponentDeserializer = std::function<void(ecs::Coordinator&, ecs::Entity, const std::string&)>;
-		void RegisterComponentDeserializer(const std::string& _componentName, ComponentDeserializer _deserializer);
+		// イベント [ToDo] まだ仮置き
+		//OnSceneEvent OnBeforeSceneUnload;
+		//OnSceneEvent OnAfterSceneUnload;
+		//OnSceneEvent OnBeforeSceneLoad;
+		//OnSceneEvent OnAfterSceneLoad;
 
 	private:
 		Scene::Id GenerateId(const std::string& _base);
@@ -67,8 +64,5 @@ namespace scene {
 		std::unordered_map<Scene::Id, Scene> scenes_{};
 		std::optional<Scene::Id> active_scene_{};
 		std::unordered_set<ecs::Entity> persistent_entities_{};
-
-		// コンポーネントのデシリアライズ関数マップ
-		std::unordered_map<std::string, ComponentDeserializer> component_deserializers_{};
 	};
 }

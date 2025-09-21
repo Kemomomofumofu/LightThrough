@@ -1,45 +1,18 @@
 {
-  "sceneName": "TestScene",
+  "scene": "TestScene",
   "entities": [
     {
-      "_comment": "CameraEntity",
+      "id": 1,
       "components": {
         "Transform": {
-          "position": {
-            "x": 0.0,
-            "y": 1.0,
-            "z": 2.0
-          },
-          "rotation": {
-            "x": 0.0,
-            "y": 1.0,
-            "z": 2.0
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 5.0,
-            "z": 1.0
-          }
+          "position": [ 0, 0, -5 ],
+          "rotation": [ 0, 0, 0 ],
+          "scale": [ 1, 1, 1 ]
         },
         "Camera": {
           "fovY": 60.0,
-          "aspectRatio": 1.77777778,
           "nearZ": 0.1,
-          "farZ": 1000.0,
-          "isMain": true,
-          "isActive": true
-        },
-        "CameraController":{
-          "mode": 1,
-          "moveSpeed": 10.0,
-          "mouseSensitivity": 1.2,
-          "yaw": 0.0,
-          "pitch": 0.0,
-          "orbitTarget": [ 0.0, 1.0, 0.0 ],
-          "orbitDistance": 7.0,
-          "orbitYaw": 1.57,
-          "orbitPitch": 0.3,
-          "invertY": false
+          "farZ": 1000.0
         }
       }
     }

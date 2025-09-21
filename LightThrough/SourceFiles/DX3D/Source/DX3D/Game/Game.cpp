@@ -12,7 +12,7 @@
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
 #include <DX3D/Graphics/PrimitiveFactory.h>
-//#include <DX3D/Game/Scene/SceneManager.h>
+#include <DX3D/Game/Scene/SceneManager.h>
 #include <InputSystem/InputSystem.h>
 
 #include <Game/Systems/MovementSystem.h>
@@ -73,7 +73,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 	//// Sceneの生成・読み込み・アクティベート
 	//auto sceneId = scene_manager_->CreateScene("TestScene");
-	//scene_manager_->LoadSceneFromFile("Assets/Scenes/TestScene.json", sceneId);
+	//scene_manager_->LoadSceneFromFile("Assets/Scenes/TestScene.json");
 	//scene_manager_->SetActiveScene(sceneId, false);
 
 
@@ -95,6 +95,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
 	debugRenderSystem->Init(*ecs_coordinator_);
 
+
 	// Entityの生成
 	// カメラ
 	auto eCamera = ecs_coordinator_->CreateEntity();
@@ -105,10 +106,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// テストのメッシュ
 	auto e = ecs_coordinator_->CreateEntity();
 	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
-	auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
+	auto mesh = dx3d::PrimitiveFactory::CreateSphere(graphics_engine_->GetGraphicsDevice(), 32, 16);
 	ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
-
-
 
 	DX3DLogInfo("ゲーム開始");
 }
