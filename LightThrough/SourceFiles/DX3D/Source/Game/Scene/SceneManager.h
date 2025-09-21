@@ -16,27 +16,29 @@
 #include <optional>
 #include <DX3D/Core/Base.h>
 
-#include <DX3D/Game/Scene/Scene.h>
-#include <DX3D/Game/ECS/Coordinator.h>
-#include <DX3D/Game/ECS/Entity.h>
+#include <Game/Scene/Scene.h>
+#include <Game/ECS/Coordinator.h>
+#include <Game/ECS/Entity.h>
 
 namespace scene {
+	struct SceneManagerDesc {
+		dx3d::BaseDesc base;
+		ecs::Coordinator& ecs;
+	};
+
 	class SceneManager: public dx3d::Base {
 	public:
 		using OnSceneEvent = std::function<void(const Scene::Id&)>;
 
-		SceneManager(dx3d::BaseDesc _base) : dx3d::Base(_base) {}
-
-		void Init(ecs::Coordinator& _ecs);	// 初期化
+		SceneManager(const SceneManagerDesc& _base);
 
 		// Sceneの生成・削除
 		Scene::Id CreateScene(const std::string& _name);
 		bool UnloadScene(Scene::Id _id, bool _destroyEntities = true);
 
 		// JSONで保存・読み込み
+		bool SaveActiveScene(const std::string& _path);
 		bool LoadSceneFromFile(const std::string& _path);
-		bool SaveActiveScene(const std::string& _path) const;
-		bool SaveSceneToFile(const std::string& _path) const;
 
 		// アクティベート
 		bool SetActiveScene(Scene::Id _id, bool _unloadPrev = true);
@@ -60,7 +62,7 @@ namespace scene {
 		Scene::Id GenerateId(const std::string& _base);
 
 	private:
-		ecs::Coordinator* ecs_{};
+		ecs::Coordinator& ecs_;
 		std::unordered_map<Scene::Id, Scene> scenes_{};
 		std::optional<Scene::Id> active_scene_{};
 		std::unordered_set<ecs::Entity> persistent_entities_{};

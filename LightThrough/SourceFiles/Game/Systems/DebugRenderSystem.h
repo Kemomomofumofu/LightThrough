@@ -9,7 +9,7 @@
  /*---------- インクルード ----------*/
 #include <vector>
 #include <DirectXMath.h>
-#include <DX3D/Game/ECS/ISystem.h>
+#include <Game/ECS/ISystem.h>
 #include <Game/Components/Mesh.h>
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 

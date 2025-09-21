@@ -6,7 +6,7 @@
  */
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/ComponentManager.h>
+#include <Game/ECS/ComponentManager.h>
 
 namespace ecs {
 	/**

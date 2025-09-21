@@ -11,7 +11,7 @@
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/PrimitiveFactory.h>
-#include <DX3D/Game/ECS/Coordinator.h>
+#include <Game/ECS/Coordinator.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
 

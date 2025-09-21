@@ -7,8 +7,8 @@
 
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/Coordinator.h>
-#include <DX3D/Game/ECS/Entity.h>
+#include <Game/ECS/Coordinator.h>
+#include <Game/ECS/Entity.h>
 
 #include <Game/Systems/PrafabSystem.h>
 #include <Game/Components/Transform.h>

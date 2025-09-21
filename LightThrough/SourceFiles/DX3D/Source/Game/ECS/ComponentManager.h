@@ -11,7 +11,7 @@
 #include <typeindex>
 #include <memory>
 #include <cassert>
-#include <DX3D/Game/ECS/ECSUtils.h>
+#include <Game/ECS/ECSUtils.h>
 
 namespace ecs {
 	// ---------- ‘O•ûéŒ¾ ---------- //
@@ -54,4 +54,4 @@ namespace ecs {
 
 }
 
-#include <DX3D/Game/ECS/ComponentManager.inl>
+#include <Game/ECS/ComponentManager.inl>

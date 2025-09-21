@@ -10,7 +10,7 @@
 #include <vector>
 #include <memory>
 #include <DX3D/Core/Common.h>
-#include <DX3D/Game/ECS/ECSUtils.h>
+#include <Game/ECS/ECSUtils.h>
 
 namespace ecs {
 		
@@ -65,5 +65,5 @@ namespace ecs {
 	};
 }
 
-#include <DX3D/Game/ECS/Coordinator.inl>
+#include <Game/ECS/Coordinator.inl>
 

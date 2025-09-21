@@ -1,29 +1,30 @@
-// ECSLogUtils.h
 #pragma once
-
 /**
- * @file ECSLogUtils.h
- * @brief ECS用のログ出力メソッド
+ * @file GameLogUtils.h
+ * @brief Game用のログ出力メソッド
  * @author Arima Keita
  * @date 2025-09-11
  */
 
  /*---------- インクルード ----------*/
+
+
 #include <DX3D/Core/Logger.h>
 #include <string>
 #include <sstream>
 #include <format>
-#include <DX3D/Game/ECS/Entity.h>
+
+#include <Game/ECS/Entity.h>
 #include <Game/Components/Transform.h>
 
-namespace ecs {
-    namespace ECSLogUtils {
-        inline std::string ToString(const Entity& _e)
+namespace game {
+    namespace GameLogUtils {
+        inline std::string ToString(const ecs::Entity& _e)
         {
             return std::format("Entity(id = {}, version = {})", _e.Index(), _e.Version());
         }
 
-        inline std::string ToString(const Transform& _t)
+        inline std::string ToString(const ecs::Transform& _t)
         {
             return std::format("Transform(Pos =({}, {}, {}), Rotation = ({}, {}, {}), Scale = ({}, {}, {})",
                 _t.position.x, _t.position.y, _t.position.z,
@@ -34,12 +35,19 @@ namespace ecs {
     }
 }
 
-#define ECSLogFInfo(fmt, ...)\
+#define GameLogFInfo(fmt, ...)\
     DX3DLogF(GetLogger(), dx3d::Logger::LogLevel::Info, fmt, __VA_ARGS__)
-#define ECSLogFWarning(fmt, ...)\
+#define GameLogFWarning(fmt, ...)\
     DX3DLogF(GetLogger(), dx3d::Logger::LogLevel::Warning, fmt, __VA_ARGS__)
-#define ECSLogFError(fmt, ...)\
+#define GameLogFError(fmt, ...)\
     DX3DLogF(GetLogger(), dx3d::Logger::LogLevel::Error, fmt, __VA_ARGS__)
 
-#define ECSLogEntity(e)\
-    DX3DLog(GetLogger(), dx3d::Logger::LogLevel::Info, ecs::ECSLogUtils::ToString(e).c_str())
+#define GameLogInfo(message)\
+    DX3DLog(GetLogger(), dx3d::Logger::LogLevel::Info, message)
+#define GameLogWarning(message)\
+    DX3DLog(GetLogger(), dx3d::Logger::LogLevel::Warning, message)
+#define GameLogError(message)\
+    DX3DLog(GetLogger(), dx3d::Logger::LogLevel::Error, message)
+
+#define GameLogEntity(e)\
+    DX3DLog(GetLogger(), dx3d::Logger::LogLevel::Info, log::GameLogUtils::ToString(e).c_str())

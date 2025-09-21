@@ -7,6 +7,7 @@
 
 
 /*----- インクルード -----*/
+import std;
 #include <DX3D/All.h>
 
 

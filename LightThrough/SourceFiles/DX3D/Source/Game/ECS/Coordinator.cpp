@@ -6,14 +6,14 @@
  */
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/Coordinator.h>
-#include <DX3D/Game/ECS/Entity.h>
-#include <DX3D/Game/ECS/EntityManager.h>
-#include <DX3D/Game/ECS/ComponentManager.h>
-#include <DX3D/Game/ECS/SystemManager.h>
-#include <DX3D/Game/ECS/ISystem.h>
+#include <Game/ECS/Coordinator.h>
+#include <Game/ECS/Entity.h>
+#include <Game/ECS/EntityManager.h>
+#include <Game/ECS/ComponentManager.h>
+#include <Game/ECS/SystemManager.h>
+#include <Game/ECS/ISystem.h>
 
-#include <DX3D/Game/ECS/ECSLogUtils.h>
+#include <Game/GameLogUtils.h>
 
 namespace ecs {
 	/**

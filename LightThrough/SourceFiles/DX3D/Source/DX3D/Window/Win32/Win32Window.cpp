@@ -9,7 +9,7 @@
 #include <DX3D/Window/Window.h>
 #include <Windows.h>
 #include <stdexcept>
-#include <InputSystem/InputSystem.h>
+#include <Game/InputSystem/InputSystem.h>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>

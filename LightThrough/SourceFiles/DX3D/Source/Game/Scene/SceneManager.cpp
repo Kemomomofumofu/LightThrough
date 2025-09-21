@@ -10,28 +10,27 @@
 #include <sstream>
 #include <cassert>
 #include <nlohmann/json.hpp>
-#include <DX3D/Game/ECS/Coordinator.h>
-#include <DX3D/Game/Scene/SceneManager.h>
-#include <DX3D/Game/Scene/SceneSerializer.h>
+
+#include <Game/Scene/SceneManager.h>
+#include <Game/Scene/SceneSerializer.h>
 
 #include <Game/Components/Transform.h>
 #include <Game/Components/Mesh.h>
+
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 //#include <Game/Components/Sprite.h>
 
-#include <DX3D/Game/ECS/ECSLogUtils.h>
+#include <Game/GameLogUtils.h>
 
 using json = nlohmann::json;
 
 namespace scene {
-
-	void SceneManager::Init(ecs::Coordinator& _ecs)
+	SceneManager::SceneManager(const SceneManagerDesc& _base)
+		: dx3d::Base(_base.base)
+		, ecs_(_base.ecs)
 	{
-		ecs_ = &_ecs;
 	}
-
-
 
 	/**
 	 * @brief Sceneの生成
@@ -52,35 +51,47 @@ namespace scene {
 	 * @brief ファイルからSceneを読み込む
 	 * @param _path		ファイルパス
 	 * @param _id		シーンID
-	 * @return 成功したらTrue、失敗したらFalse
+	 * @return 成功したらTrue, 失敗したらFalse
 	 */
 	bool SceneManager::LoadSceneFromFile(const std::string& _path)
 	{
-		return SceneSerializer::SaveScene(*ecs_, *this, _path);
+		SceneSerializer serializer(ecs_);
+		try {
+			Scene scene = serializer.DeserializeScene(_path);
+			scenes_.emplace(scene.id_, std::move(scene));	// シーンの追加
+			active_scene_ = scene.id_;	// アクティブに
+			return true;
+		}
+		catch (const std::exception& e) {
+			GameLogFError("[SceneManager] シーンの読み込みに失敗: {} ", std::string(e.what()));
+			return false;
+		}
 	}
 
 	/**
 	 * @brief アクティブなSceneを保存する
 	 * @param _path		保存先のファイルパス
-	 * @return 成功: true、失敗: false
+	 * @return 成功: true, 失敗: false
 	 */
-	bool SceneManager::SaveActiveScene(const std::string& _path) const
+	bool SceneManager::SaveActiveScene(const std::string& _path)
 	{
-		return SceneSerializer::SaveScene(*ecs_, *this, _path);
-	}
-
-	bool SceneManager::SaveSceneToFile(const std::string& _path) const
-	{
-		if (!active_scene_) { return false; }
-
-		json jScene;
-		const auto& entities = GetEntitiesInScene(active_scene_.value());
-
-		for (auto e : entities) {
-			jScene["entities"].push_back()
+		if (!active_scene_) {
+			GameLogError("[SceneManager] アクティブなシーンが存在しない。");
+			return false;
 		}
 
+		auto it = scenes_.find(*active_scene_);
+		if(it == scenes_.end()){
+			GameLogError("[SceneManager] アクティブなシーンが存在しない。");
+			return false;
+		}
+
+
+		SceneSerializer serializer(ecs_);
+		return serializer.SerializeScene(it->second, _path);
 	}
+
+
 
 	/**
 	 * @brief Sceneをアンロードする
@@ -103,7 +114,7 @@ namespace scene {
 			for (auto e : it->second.entities_) {
 				if (persistent_entities_.count(e)) { continue; }	// 永続化されているなら削除しない
 				if (_destroyEntities) {
-					ecs_->DestroyEntity(e);	// Entityの破棄
+					ecs_.DestroyEntity(e);	// Entityの破棄
 				}
 			}
 		}

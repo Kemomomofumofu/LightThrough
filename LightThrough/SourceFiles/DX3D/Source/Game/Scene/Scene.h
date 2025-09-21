@@ -9,7 +9,7 @@
  // ---------- インクルード ---------- //
 #include <string>
 #include <vector>
-#include <DX3D/Game/ECS/Entity.h>
+#include <Game/ECS/Entity.h>
 
 namespace scene {
 	/**

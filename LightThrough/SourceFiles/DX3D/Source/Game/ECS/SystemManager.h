@@ -12,7 +12,7 @@
 #include <typeindex>
 #include <cassert>
 #include <DX3D/Core/Common.h>
-#include <DX3D/Game/ECS/ECSUtils.h>
+#include <Game/ECS/ECSUtils.h>
 namespace ecs {
 	// ---------- ‘O•ûéŒ¾ ---------- //
 	class Coordinator;
@@ -44,4 +44,4 @@ namespace ecs {
 	};
 }
 
-#include <DX3D/Game/ECS/SystemManager.inl>
+#include <Game/ECS/SystemManager.inl>

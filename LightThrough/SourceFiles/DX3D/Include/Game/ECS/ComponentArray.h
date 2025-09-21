@@ -12,7 +12,7 @@
 #include <typeindex>
 #include <type_traits>
 #include <cassert>
-#include <DX3D/Game/ECS/Entity.h>
+#include <Game/ECS/Entity.h>
 
 namespace ecs
 {
@@ -56,4 +56,4 @@ namespace ecs
 }
 
 
-#include <DX3D/Game/ECS/ComponentArray.inl>
+#include <Game/ECS/ComponentArray.inl>

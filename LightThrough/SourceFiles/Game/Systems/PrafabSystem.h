@@ -8,12 +8,12 @@
 
  // ---------- インクルード ---------- // 
 #include <Game/GameObjectType.h>
-#include <DX3D/Game/ECS/ISystem.h>
+#include <Game/ECS/ISystem.h>
 
 // ---------- 前方宣言 ---------- //
 namespace ecs{
 	class Coordinator;
-	class Entity;
+	struct Entity;
 }
 
 namespace LightThrough {

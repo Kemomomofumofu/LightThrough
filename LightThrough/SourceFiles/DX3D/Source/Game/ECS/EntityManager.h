@@ -10,8 +10,8 @@
 #include <cstdint>
 #include <vector>
 #include <queue>
-#include <DX3D/Game/ECS/Entity.h>
-#include <DX3D/Game/ECS/ECSUtils.h>
+#include <Game/ECS/Entity.h>
+#include <Game/ECS/ECSUtils.h>
 
 
 namespace ecs {

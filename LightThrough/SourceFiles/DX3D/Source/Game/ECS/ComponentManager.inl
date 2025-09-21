@@ -8,9 +8,9 @@
 
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/Entity.h>
-#include <DX3D/Game/ECS/ComponentArray.h>
-#include <DX3D/Game/ECS/Coordinator.h>
+#include <Game/ECS/Entity.h>
+#include <Game/ECS/ComponentArray.h>
+#include <Game/ECS/Coordinator.h>
 
 
 namespace ecs {

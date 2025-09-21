@@ -9,7 +9,7 @@
 // ---------- インクルード ---------- // 
 #include <DX3D/Core/Core.h>
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
-#include <DX3D/Game/ECS/ISystem.h>
+#include <Game/ECS/ISystem.h>
 
 // ---------- 前方宣言 ---------- //
 namespace dx3d {

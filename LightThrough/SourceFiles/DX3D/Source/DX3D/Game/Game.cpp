@@ -12,8 +12,8 @@
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
 #include <DX3D/Graphics/PrimitiveFactory.h>
-#include <DX3D/Game/Scene/SceneManager.h>
-#include <InputSystem/InputSystem.h>
+#include <Game/Scene/SceneManager.h>
+#include <Game/InputSystem/InputSystem.h>
 
 #include <Game/Systems/MovementSystem.h>
 #include <Game/Systems/RenderSystem.h>
@@ -26,7 +26,7 @@
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 
-#include <DX3D/Game/ECS/ECSLogUtils.h>
+#include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
 
 
@@ -60,9 +60,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_ = std::make_unique<ecs::Coordinator>();
 	ecs_coordinator_->Init();
 
-	//// SceneManagerの初期化
-	//scene_manager_ = std::make_unique<scene::SceneManager>(BaseDesc{ logger_ });
-	//scene_manager_->Init(*ecs_coordinator_);
+	// SceneManagerの初期化
+	scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
 
 	// [ToDo] テスト用で動かしてみる
 	// [ToDo] 自動でComponentを登録する機能が欲しいかも。
@@ -71,11 +70,9 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->RegisterComponent<ecs::Camera>();
 	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 
-	//// Sceneの生成・読み込み・アクティベート
-	//auto sceneId = scene_manager_->CreateScene("TestScene");
-	//scene_manager_->LoadSceneFromFile("Assets/Scenes/TestScene.json");
-	//scene_manager_->SetActiveScene(sceneId, false);
-
+	// Sceneの生成・読み込み・アクティベート
+	auto sceneId = scene_manager_->CreateScene("TestScene");
+	scene_manager_->SetActiveScene(sceneId);
 
 	// SystemDescの準備
 	dx3d::SystemDesc systemDesc{ logger_ };
@@ -102,6 +99,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->AddComponent<ecs::Transform>(eCamera, ecs::Transform{ {0.0f, 0.0f, -5.0f}, {0.0f, 0.0f, 0.0f} });
 	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, ecs::Camera{});
 	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, ecs::CameraController{ecs::CameraMode::FPS});
+	scene_manager_->AddEntityToScene(sceneId, eCamera);
 
 	// テストのメッシュ
 	auto e = ecs_coordinator_->CreateEntity();
@@ -114,6 +112,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 dx3d::Game::~Game()
 {
+	// ImGuiの破棄
 	debug::DebugUI::DisposeUI();
 	DX3DLogInfo("ゲーム終了");
 }
@@ -126,7 +125,9 @@ void dx3d::Game::OnInternalUpdate()
 {
 
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
-
+	if (ImGui::Button("Save")) {
+		scene_manager_->SaveActiveScene("Assets/Scenes/SceneDebug.json");
+	}
 	// 入力の更新
 	input::InputSystem::Get().Update();
 	dx3d::Point mouseDelta = input::InputSystem::Get().GetMouseDelta();

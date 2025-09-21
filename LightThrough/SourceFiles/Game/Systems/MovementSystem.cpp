@@ -5,7 +5,7 @@
 #include <format>
 #include <DX3D/Core/Logger.h>
 #include <Game/Systems/MovementSystem.h>
-#include <DX3D/Game/ECS/Coordinator.h>
+#include <Game/ECS/Coordinator.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Velocity.h>
 

@@ -9,7 +9,7 @@
  // ---------- インクルード ---------- // 
 #include <cstdint>
 #include <compare>
-#include <DX3D/Game/ECS/ECSUtils.h>
+#include <Game/ECS/ECSUtils.h>
 
 namespace ecs {
 

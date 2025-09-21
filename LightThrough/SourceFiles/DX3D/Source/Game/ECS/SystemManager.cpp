@@ -6,10 +6,10 @@
  */
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/SystemManager.h>
-#include <DX3D/Game/ECS/Entity.h>
-#include <DX3D/Game/ECS/ECSUtils.h>
-#include <DX3D/Game/ECS/ISystem.h>
+#include <Game/ECS/SystemManager.h>
+#include <Game/ECS/Entity.h>
+#include <Game/ECS/ECSUtils.h>
+#include <Game/ECS/ISystem.h>
 
 
 /**

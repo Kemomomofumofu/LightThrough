@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <DirectXMath.h>
 #include <Game/Systems/CameraSystem.h>
-#include <InputSystem/InputSystem.h>
-#include <DX3D/Game/ECS/Coordinator.h>
+#include <Game/InputSystem/InputSystem.h>
+#include <Game/ECS/Coordinator.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>

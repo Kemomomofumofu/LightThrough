@@ -8,11 +8,11 @@
 
 
 // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/Coordinator.h>
-#include <DX3D/Game/ECS/ECSUtils.h>
-#include <DX3D/Game/ECS/EntityManager.h>
-#include <DX3D/Game/ECS/ComponentManager.h>
-#include <DX3D/Game/ECS/SystemManager.h>
+#include <Game/ECS/Coordinator.h>
+#include <Game/ECS/ECSUtils.h>
+#include <Game/ECS/EntityManager.h>
+#include <Game/ECS/ComponentManager.h>
+#include <Game/ECS/SystemManager.h>
 
 namespace ecs {
 	/**

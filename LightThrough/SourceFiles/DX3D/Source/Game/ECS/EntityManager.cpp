@@ -6,10 +6,10 @@
  */
 
  // ---------- インクルード ---------- // 
-#include <DX3D/Game/ECS/EntityManager.h>
+#include <Game/ECS/EntityManager.h>
 #include <cassert>
 #include <stdexcept>
-#include <DX3D/Game/ECS/ECSUtils.h>
+#include <Game/ECS/ECSUtils.h>
 
 
 namespace ecs {
