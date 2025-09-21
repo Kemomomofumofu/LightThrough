@@ -55,7 +55,7 @@ namespace scene {
 	 * @param _path		保存先のパス
 	 * @return 成功: true, 失敗: false
 	 */
-	bool SceneSerializer::SerializeScene(const Scene& _scene, const std::string& _path)
+	bool SceneSerializer::SerializeScene(const SceneData& _scene, const std::string& _path)
 	{
 		json jScene;
 		jScene["sceneId"] = _scene.id_;
@@ -82,7 +82,7 @@ namespace scene {
 	 * @param _path		読み込み元のパス
 	 * @return 復元したScene
 	 */
-	Scene SceneSerializer::DeserializeScene(const std::string& _path)
+	SceneData SceneSerializer::DeserializeScene(const std::string& _path)
 	{
 		std::ifstream ifs(_path);
 		if (!ifs.is_open()) {
@@ -92,9 +92,9 @@ namespace scene {
 		json jScene;
 		ifs >> jScene;
 
-		Scene scene;
-		scene.id_ = jScene["id"].get<std::string>();
-		scene.name_ = jScene["name"].get<std::string>();
+		SceneData scene;
+		scene.id_ = jScene["sceneId"].get<std::string>();
+		scene.name_ = jScene["sceneName"].get<std::string>();
 
 		for (auto& jEntity : jScene["entitites"]) {
 			ecs::Entity e = DeserializeEntity(jEntity);
@@ -137,6 +137,14 @@ namespace scene {
 			jEntity["components"]["Camera"]["isActive"] = c.isActive;
 		}
 
+		// CameraController
+		if (_ecs.HasComponent<ecs::CameraController>(_e)) {
+			const auto& cc = _ecs.GetComponent<ecs::CameraController>(_e);
+			jEntity["components"]["CameraController"]["mode"] = static_cast<int>(cc.mode);
+			jEntity["components"]["CameraController"]["moveSpeed"] = cc.moveSpeed;
+			jEntity["components"]["CameraController"]["mouseSensitivity"] = cc.mouseSensitivity;
+		}
+
 		//// Mesh
 		//if (_ecs.HasComponent<ecs::Mesh>(_e)) {
 		//	const auto& m = _ecs.GetComponent<ecs::Mesh>(_e);
@@ -160,7 +168,7 @@ namespace scene {
 		ecs::Entity e = ecs_.CreateEntity();
 
 		// Transform
-		if(_j.contains("Transform")) {
+		if(_j["components"].contains("Transform")) {
 			ecs::Transform t;
 			auto& jt = _j["Transform"];
 			t.position = { jt["position"][0], jt["position"][1], jt["position"][2] };
@@ -171,7 +179,7 @@ namespace scene {
 		}
 
 		// Camera
-		if(_j.contains("Camera")) {
+		if(_j["components"].contains("Camera")) {
 			ecs::Camera c;
 			auto& jc = _j["Camera"];
 			c.fovY = jc["fovY"];
@@ -184,7 +192,7 @@ namespace scene {
 		}
 
 		// CameraController
-		if (_j.contains("CameraController")) {
+		if (_j["components"].contains("CameraController")) {
 			ecs::CameraController cc;
 			auto& jcc = _j["CameraController"];
 			cc.mode = static_cast<ecs::CameraMode>(jcc["mode"].get<int>());

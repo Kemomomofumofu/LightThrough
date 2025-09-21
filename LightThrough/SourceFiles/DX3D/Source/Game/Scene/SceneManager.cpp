@@ -1,6 +1,6 @@
 /**
  * @file SceneManager.cpp
- * @brief Scene管理クラス
+ * @brief SceneData管理クラス
  * @author Arima Keita
  * @date 2025-09-15
  */
@@ -33,14 +33,14 @@ namespace scene {
 	}
 
 	/**
-	 * @brief Sceneの生成
-	 * @param _name		Scene名
-	 * @return 生成したSceneのID
+	 * @brief SceneDataの生成
+	 * @param _name		SceneData名
+	 * @return 生成したSceneDataのID
 	 */
-	Scene::Id SceneManager::CreateScene(const std::string& _name)
+	SceneData::Id SceneManager::CreateScene(const std::string& _name)
 	{
-		Scene::Id id = GenerateId(_name);
-		Scene s;
+		SceneData::Id id = GenerateId(_name);
+		SceneData s;
 		s.id_ = id;
 		s.name_ = _name;
 		scenes_.emplace(id, std::move(s));
@@ -48,7 +48,7 @@ namespace scene {
 	}
 
 	/**
-	 * @brief ファイルからSceneを読み込む
+	 * @brief ファイルからSceneDataを読み込む
 	 * @param _path		ファイルパス
 	 * @param _id		シーンID
 	 * @return 成功したらTrue, 失敗したらFalse
@@ -57,7 +57,7 @@ namespace scene {
 	{
 		SceneSerializer serializer(ecs_);
 		try {
-			Scene scene = serializer.DeserializeScene(_path);
+			SceneData scene = serializer.DeserializeScene(_path);
 			scenes_.emplace(scene.id_, std::move(scene));	// シーンの追加
 			active_scene_ = scene.id_;	// アクティブに
 			return true;
@@ -69,7 +69,7 @@ namespace scene {
 	}
 
 	/**
-	 * @brief アクティブなSceneを保存する
+	 * @brief アクティブなSceneDataを保存する
 	 * @param _path		保存先のファイルパス
 	 * @return 成功: true, 失敗: false
 	 */
@@ -94,12 +94,12 @@ namespace scene {
 
 
 	/**
-	 * @brief Sceneをアンロードする
+	 * @brief SceneDataをアンロードする
 	 * @param _id	シーンID
 	 * @param _destroyEntities	シーンに含まれるEntityを破棄するかどうか
 	 * @return 成功: true、失敗: false
 	 */
-	bool SceneManager::UnloadScene(Scene::Id _id, bool _destroyEntities)
+	bool SceneManager::UnloadScene(SceneData::Id _id, bool _destroyEntities)
 	{
 		auto it = scenes_.find(_id);
 		if (it == scenes_.end()) { return false; }
@@ -130,12 +130,12 @@ namespace scene {
 	}
 
 	/**
-	 * @brief Sceneをアクティブにする
+	 * @brief SceneDataをアクティブにする
 	 * @param _id			シーンID
 	 * @param unloadPrev	前のシーンをアンロードするかどうか
 	 * @return 成功したらTrue、失敗したらFalse
 	 */
-	bool SceneManager::SetActiveScene(Scene::Id _id, bool _unloadPrev)
+	bool SceneManager::SetActiveScene(SceneData::Id _id, bool _unloadPrev)
 	{
 		if (scenes_.find(_id) == scenes_.end()) { return false; } // 存在しないシーン
 		if (active_scene_.has_value() && active_scene_ == _id) { return true; } // すでにアクティブ
@@ -153,20 +153,20 @@ namespace scene {
 	}
 
 	/**
-	 * @brief アクティブなSceneのIDを取得
-	 * @return アクティブなSceneのID, 無い場合: nullopt
+	 * @brief アクティブなSceneDataのIDを取得
+	 * @return アクティブなSceneDataのID, 無い場合: nullopt
 	 */
-	std::optional<Scene::Id> SceneManager::GetActiveScene() const
+	std::optional<SceneData::Id> SceneManager::GetActiveScene() const
 	{
 		return active_scene_;
 	}
 
 	/**
-	 * @brief SceneにEntityを追加
+	 * @brief SceneDataにEntityを追加
 	 * @param _id	シーンID
 	 * @param _e	追加するEntity
 	 */
-	void SceneManager::AddEntityToScene(const Scene::Id& _id, ecs::Entity _e)
+	void SceneManager::AddEntityToScene(const SceneData::Id& _id, ecs::Entity _e)
 	{
 		auto it = scenes_.find(_id);
 		if (it == scenes_.end()) { return; } // 存在しないシーン
@@ -175,11 +175,11 @@ namespace scene {
 	}
 
 	/**
-	 * @brief SceneからEntityを削除
+	 * @brief SceneDataからEntityを削除
 	 * @param _id	シーンID
 	 * @param _e	削除するEntity
 	 */
-	void SceneManager::RemoveEntityFromScene(const Scene::Id& _id, ecs::Entity _e)
+	void SceneManager::RemoveEntityFromScene(const SceneData::Id& _id, ecs::Entity _e)
 	{
 		auto it = scenes_.find(_id);
 		if (it == scenes_.end()) { return; } // 存在しないシーン
@@ -188,11 +188,11 @@ namespace scene {
 	}
 
 	/**
-	 * @brief Sceneに含まれるEntityの一覧を取得
+	 * @brief SceneDataに含まれるEntityの一覧を取得
 	 * @param _id	シーンID
 	 * @return EntityのVector型リスト
 	 */
-	const std::vector<ecs::Entity>& SceneManager::GetEntitiesInScene(const Scene::Id& _id) const
+	const std::vector<ecs::Entity>& SceneManager::GetEntitiesInScene(const SceneData::Id& _id) const
 	{
 		auto it = scenes_.find(_id);
 		if (it == scenes_.end()) {
@@ -218,7 +218,7 @@ namespace scene {
 	}
 
 
-	Scene::Id SceneManager::GenerateId(const std::string& _base)
+	SceneData::Id SceneManager::GenerateId(const std::string& _base)
 	{
 		std::string id = _base;
 		int suffix = 1;

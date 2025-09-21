@@ -1,13 +1,12 @@
 /**
  * @file main.cpp
- * @brief エイントリポイント
+ * @brief エントリポイント
  * @author Arima Keita
  * @date 2025-06-25
  */
 
 
 /*----- インクルード -----*/
-import std;
 #include <DX3D/All.h>
 
 

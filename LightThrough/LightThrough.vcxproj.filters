@@ -197,9 +197,8 @@
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\Scene.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\Game\Scene\SceneData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\Game\Scene\IScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">

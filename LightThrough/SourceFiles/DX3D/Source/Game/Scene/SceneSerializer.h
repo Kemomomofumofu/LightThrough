@@ -8,7 +8,7 @@
 
 // ---------- インクルード ---------- //
 #include <nlohmann/json.hpp>
-#include <Game/Scene/Scene.h>
+#include <Game/Scene/SceneData.h>
 
 namespace ecs {
 	class Coordinator;
@@ -22,8 +22,8 @@ namespace scene {
 	public:
 		SceneSerializer(ecs::Coordinator& _ecs);
 
-		bool SerializeScene(const Scene& _scene, const std::string& _path);
-		Scene DeserializeScene(const std::string& _path);
+		bool SerializeScene(const SceneData& _scene, const std::string& _path);
+		SceneData DeserializeScene(const std::string& _path);
 
 	private:
 		nlohmann::json SerializeEntity(ecs::Coordinator& _ecs, ecs::Entity _e);

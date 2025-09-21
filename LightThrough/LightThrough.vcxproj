@@ -114,9 +114,9 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <EnableModules>true</EnableModules>
+      <EnableModules>false</EnableModules>
       <BuildStlModules>false</BuildStlModules>
-      <ScanSourceForModuleDependencies>true</ScanSourceForModuleDependencies>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <TranslateIncludes>false</TranslateIncludes>
     </ClCompile>
@@ -191,8 +191,7 @@
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\GameLogUtils.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\Game\Scene\IScene.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\Scene.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\Game\Scene\SceneData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />

@@ -1,7 +1,7 @@
 #pragma once
 /**
- * @file Scene.h
- * @brief シーンクラス
+ * @file SceneData.h
+ * @brief どのエンティティがシーンに属しているかなどを管理するクラス
  * @author Arima Keita
  * @date 2025-09-15
  */
@@ -15,10 +15,11 @@ namespace scene {
 	/**
 	 * @brief シーンクラス
 	 *
-	 * シーンの基本的な機能を持つクラス
+	 * Scene固有のID, 名前, 含まれるEntityの一覧を管理する
+	 * SceneManagerによって管理される
 	 * 
 	 */
-	class Scene {
+	class SceneData {
 	public:
 		using Id = std::string;
 		

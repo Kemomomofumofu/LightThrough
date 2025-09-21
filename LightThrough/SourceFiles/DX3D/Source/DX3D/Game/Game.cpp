@@ -125,9 +125,6 @@ void dx3d::Game::OnInternalUpdate()
 {
 
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
-	if (ImGui::Button("Save")) {
-		scene_manager_->SaveActiveScene("Assets/Scenes/SceneDebug.json");
-	}
 	// “ü—Í‚ÌXV
 	input::InputSystem::Get().Update();
 	dx3d::Point mouseDelta = input::InputSystem::Get().GetMouseDelta();
