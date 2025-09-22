@@ -10,7 +10,7 @@
 #include <Game/Components/Velocity.h>
 
 
-ecs::MovementSystem::MovementSystem(dx3d::SystemDesc _desc)
+ecs::MovementSystem::MovementSystem(SystemDesc _desc)
 	: ISystem(_desc)
 {
 	//// 必須コンポーネント
@@ -20,11 +20,11 @@ ecs::MovementSystem::MovementSystem(dx3d::SystemDesc _desc)
 	//_ecs.SetSystemSignature<MovementSystem>(signature);
 }
 
-void ecs::MovementSystem::Update(float _dt, ecs::Coordinator& _ecs)
+void ecs::MovementSystem::Update(float _dt)
 {
 	for (auto const& e : entities_) {
-		auto& t = _ecs.GetComponent<Transform>(e);
-		auto& v = _ecs.GetComponent<Velocity>(e);
+		auto& t = ecs_.GetComponent<Transform>(e);
+		auto& v = ecs_.GetComponent<Velocity>(e);
 		float delta = v.velocity.x * _dt;
 		t.position.x += delta;
 		t.position.y += v.velocity.y * _dt;

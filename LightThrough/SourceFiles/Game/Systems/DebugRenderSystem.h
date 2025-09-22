@@ -32,15 +32,15 @@ namespace ecs {
 	public:
 		
 
-		DebugRenderSystem(const dx3d::SystemDesc& _desc);
-		void Init(const ecs::Coordinator& _ecs);
+		DebugRenderSystem(const SystemDesc& _desc);
+		void Init();
 		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
 		void DrawLine(XMFLOAT3 _start, XMFLOAT3 _end, XMFLOAT4 _color);
 		void DrawCube(const Transform& _transform, XMFLOAT4 _color);
 		void DrawSphere(const Transform& _transform, XMFLOAT4 _color);
 
-		void Update(float _dt, Coordinator& _ecs) override;
+		void Update(float _dt) override;
 
 
 	private:

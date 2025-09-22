@@ -21,18 +21,18 @@ namespace ecs {
 	/**
 	 * @brief コンストラクタ
 	 */
-	RenderSystem::RenderSystem(const dx3d::SystemDesc& _desc)
+	RenderSystem::RenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
 	{
 	}
 
-	void RenderSystem::Init(ecs::Coordinator& _ecs)
+	void RenderSystem::Init()
 	{
 		// 必須コンポーネント
 		Signature signature;
-		signature.set(_ecs.GetComponentType<Transform>());
-		signature.set(_ecs.GetComponentType<Mesh>());
-		_ecs.SetSystemSignature<RenderSystem>(signature);
+		signature.set(ecs_.GetComponentType<Transform>());
+		signature.set(ecs_.GetComponentType<Mesh>());
+		ecs_.SetSystemSignature<RenderSystem>(signature);
 
 		// 初期化
 		cb_per_frame_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
@@ -50,17 +50,16 @@ namespace ecs {
 	/**
 	 * @brief 更新処理
 	 * @param _dt デルタタイム
-	 * @param _ecs コーディネータ
 	 */
-	void RenderSystem::Update(float _dt, ecs::Coordinator& _ecs)
+	void RenderSystem::Update(float _dt)
 	{
 		auto& context = engine_->GetDeviceContext();
 		auto& device = engine_->GetGraphicsDevice();
 
 
 		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
-		auto camEntity = _ecs.GetEntitiesWithComponent<Camera>()[0];	// とりあえず一番最初のカメラを取得しとく
-		auto& cam = _ecs.GetComponent<Camera>(camEntity);
+		auto camEntity = ecs_.GetEntitiesWithComponent<Camera>()[0];	// とりあえず一番最初のカメラを取得しとく
+		auto& cam = ecs_.GetComponent<Camera>(camEntity);
 
 		
 		dx3d::CBPerFrame cbPerFrameData{};
@@ -73,8 +72,8 @@ namespace ecs {
 
 		// 描画
 		for (auto& e : entities_) {
-			auto& mesh = _ecs.GetComponent<Mesh>(e);
-			auto& transform = _ecs.GetComponent<ecs::Transform>(e);
+			auto& mesh = ecs_.GetComponent<Mesh>(e);
+			auto& transform = ecs_.GetComponent<ecs::Transform>(e);
 			
 			// ワールド座標行列の取得
 			dx3d::CBPerObject cbPerObjectData{};

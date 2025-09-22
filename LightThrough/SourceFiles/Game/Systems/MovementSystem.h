@@ -20,7 +20,7 @@ namespace ecs {
 	 */
 	class MovementSystem : public ISystem {
 	public:
-		MovementSystem(dx3d::SystemDesc _desc);
-		void Update(float _dt, ecs::Coordinator& _ecs);
+		MovementSystem(SystemDesc _desc);
+		void Update(float _dt);
 	};
 }

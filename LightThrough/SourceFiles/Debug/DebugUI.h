@@ -22,7 +22,7 @@ namespace debug {
 	public:
 		static void Init(ID3D11Device* _device, ID3D11DeviceContext* _context, void* _hwnd);
 
-		static void RedistDebugFunction(std::function<void(void)> _func);	// デバッグ関数の登録
+		static void ResistDebugFunction(std::function<void(void)> _func);	// デバッグ関数の登録
 		static void Render();		// デバッグUIの描画
 		static void DisposeUI();	// デバッグUIの破棄
 	};

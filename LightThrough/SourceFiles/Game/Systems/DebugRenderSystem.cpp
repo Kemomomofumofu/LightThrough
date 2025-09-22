@@ -21,7 +21,7 @@ namespace ecs {
 	using namespace DirectX;
 
 
-	DebugRenderSystem::DebugRenderSystem(const dx3d::SystemDesc& _desc)
+	DebugRenderSystem::DebugRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
 	{
 
@@ -30,17 +30,16 @@ namespace ecs {
 
 	/**
 	 * @brief 初期化
-	 * @param _ecs		ecsコーディネータ
 	 */
 
-	void DebugRenderSystem::Init(const ecs::Coordinator& _ecs)
+	void DebugRenderSystem::Init()
 	{
 		auto& device = engine_->GetGraphicsDevice();
 
 		// 初期化
 		// Meshを事前に生成しておく
 		cube_mesh_ = dx3d::PrimitiveFactory::CreateCube(device);
-		//sphere_mesh_ = dx3d::PrimitiveFactory::CreateSphere(engine_->GetGraphicsDevice(), 16, 16, 1.0f);
+		sphere_mesh_ = dx3d::PrimitiveFactory::CreateSphere(engine_->GetGraphicsDevice(), 16, 16, 1.0f);
 		//line_mesh_ = dx3d::PrimitiveFactory::CreateLine(engine_->GetGraphicsDevice(), {0,0,0}, {1,0,0});
 
 		cb_per_frame_ = device.CreateConstantBuffer({
@@ -107,15 +106,14 @@ namespace ecs {
 	/**
 	 * @brief 更新
 	 * @param _dt	デルタタイム
-	 * @param _ecs	ecsコーディネータ
 	 */
-	void DebugRenderSystem::Update(float _dt, Coordinator& _ecs)
+	void DebugRenderSystem::Update(float _dt)
 	{
 		auto& context = engine_->GetDeviceContext();
 
 		// カメラ取得 [ToDo] 現状カメラは一つだけを想定
-		auto camEntity = _ecs.GetEntitiesWithComponent<Camera>()[0];
-		auto& cam = _ecs.GetComponent<Camera>(camEntity);
+		auto camEntity = ecs_.GetEntitiesWithComponent<Camera>()[0];
+		auto& cam = ecs_.GetComponent<Camera>(camEntity);
 
 		// 定数バッファ更新
 		// フレーム単位の定数バッファ更新

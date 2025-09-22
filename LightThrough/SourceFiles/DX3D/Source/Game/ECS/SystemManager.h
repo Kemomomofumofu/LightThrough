@@ -27,7 +27,7 @@ namespace ecs {
 	class SystemManager final{
 	public:
 		template<typename T>
-		std::shared_ptr<T> RegisterSystem(const dx3d::SystemDesc& _desc);
+		std::shared_ptr<T> RegisterSystem(const SystemDesc& _desc);
 		template<typename T> 
 		void SetSignature(Signature _signature);	// ƒVƒXƒeƒ€‚ÌSignature‚ğİ’è
 		template<typename T>

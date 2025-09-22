@@ -16,12 +16,19 @@ namespace ecs {
 	struct Entity;
 	class Coordinator;
 
+
 	class ISystem  : public dx3d::Base{
 	public:
-		explicit ISystem(const dx3d::SystemDesc& _desc) : dx3d::Base(_desc.base){}
+		explicit ISystem(const SystemDesc& _desc)
+			: dx3d::Base(_desc.base)
+			, ecs_(_desc.ecs){}
+
 		virtual ~ISystem() = default;
-		virtual void Update(float _dt, Coordinator& _ecs) = 0;
+		virtual void Update(float _dt) = 0;
 
 		std::set<Entity> entities_;	// ˆ—‘ÎÛ‚ÌEntity‚ÌW‡
+
+	protected:
+		::ecs::Coordinator& ecs_; // ecs::Coordinator‚Ö‚ÌQÆ
 	};
 }

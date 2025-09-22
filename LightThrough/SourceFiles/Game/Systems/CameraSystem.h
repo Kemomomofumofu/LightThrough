@@ -23,9 +23,9 @@ namespace ecs {
 	 */
 	class CameraSystem : public ISystem {
 	public:
-		CameraSystem(const dx3d::SystemDesc& _desc);
-		void Init(ecs::Coordinator& _ecs);
-		void Update(float _dt, ecs::Coordinator& _ecs);
+		CameraSystem(const SystemDesc& _desc);
+		void Init();
+		void Update(float _dt) override;
 
 	private:
 		void UpdateController(float _dt, Transform& _tf, CameraController& _ctrl);

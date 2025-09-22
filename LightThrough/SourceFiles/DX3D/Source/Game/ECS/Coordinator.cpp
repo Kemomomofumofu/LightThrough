@@ -11,7 +11,6 @@
 #include <Game/ECS/EntityManager.h>
 #include <Game/ECS/ComponentManager.h>
 #include <Game/ECS/SystemManager.h>
-#include <Game/ECS/ISystem.h>
 
 #include <Game/GameLogUtils.h>
 
@@ -52,7 +51,7 @@ namespace ecs {
 	void Coordinator::UpdateAllSystems(float _dt)
 	{
 		for (auto& [type, system] : system_manager_->GetAllSystems()) {
-			system->Update(_dt, *this);
+			system->Update(_dt);
 		}
 	}
 

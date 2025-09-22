@@ -15,10 +15,12 @@
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
 
+#include <Game/Systems/Factorys/PrefabSystem.h>
 #include <Game/Systems/MovementSystem.h>
 #include <Game/Systems/RenderSystem.h>
 #include <Game/Systems/CameraSystem.h>
 #include <Game/Systems/DebugRenderSystem.h>
+#include <Game/Systems/Scenes/TitleSceneSystem.h>
 
 #include <Game/Components/Mesh.h>
 #include <Game/Components/Transform.h>
@@ -75,35 +77,37 @@ dx3d::Game::Game(const GameDesc& _desc)
 	scene_manager_->SetActiveScene(sceneId);
 
 	// SystemDescの準備
-	dx3d::SystemDesc systemDesc{ logger_ };
+	ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
+
+	// prefub
+	ecs_coordinator_->RegisterSystem<ecs::PrefabSystem>(systemDesc);
+	const auto& prefabSystem = ecs_coordinator_->GetSystem<ecs::PrefabSystem>();
 
 	// 描画システム
 	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>(systemDesc);
 	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
 	renderSystem->SetGraphicsEngine(*graphics_engine_);
-	renderSystem->Init(*ecs_coordinator_);
+	renderSystem->Init();
 	// カメラシステム
 	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
 	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
-	cameraSystem->Init(*ecs_coordinator_);
+	cameraSystem->Init();
 	// デバッグ描画システム
 	ecs_coordinator_->RegisterSystem<ecs::DebugRenderSystem>(systemDesc);
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
 	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
-	debugRenderSystem->Init(*ecs_coordinator_);
+	debugRenderSystem->Init();
 
+	// TitleSceneに
+	ecs_coordinator_->RegisterSystem<ecs::TitleSceneSystem>(systemDesc);
 
 	// Entityの生成
 	// カメラ
-	auto eCamera = ecs_coordinator_->CreateEntity();
-	ecs_coordinator_->AddComponent<ecs::Transform>(eCamera, ecs::Transform{ {0.0f, 0.0f, -5.0f}, {0.0f, 0.0f, 0.0f} });
-	ecs_coordinator_->AddComponent<ecs::Camera>(eCamera, ecs::Camera{});
-	ecs_coordinator_->AddComponent<ecs::CameraController>(eCamera, ecs::CameraController{ecs::CameraMode::FPS});
-	scene_manager_->AddEntityToScene(sceneId, eCamera);
+	prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
 
 	// テストのメッシュ
 	auto e = ecs_coordinator_->CreateEntity();
-	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
+	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f} });
 	auto mesh = dx3d::PrimitiveFactory::CreateSphere(graphics_engine_->GetGraphicsDevice(), 32, 16);
 	ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
 

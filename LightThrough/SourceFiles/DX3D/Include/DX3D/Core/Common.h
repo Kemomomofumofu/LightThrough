@@ -104,8 +104,13 @@ namespace dx3d {
 		Rect windowSize{ 1280, 720 };
 		Logger::LogLevel logLevel = Logger::LogLevel::Error;
 	};
+}
+
+namespace ecs {
+	class Coordinator;
 
 	struct SystemDesc {
 		dx3d::BaseDesc base;
+		Coordinator& ecs; // CoordinatorÇ÷ÇÃéQè∆
 	};
 }

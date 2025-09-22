@@ -17,35 +17,34 @@
 
 
 namespace ecs {
-	CameraSystem::CameraSystem(const dx3d::SystemDesc& _desc)
+	CameraSystem::CameraSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
 	{
 	}
 
-	void CameraSystem::Init(ecs::Coordinator& _ecs)
+	void CameraSystem::Init()
 	{
 		// 必須コンポーネント
 		Signature signature;
-		signature.set(_ecs.GetComponentType<Transform>());
-		signature.set(_ecs.GetComponentType<Camera>());
-		_ecs.SetSystemSignature<CameraSystem>(signature);
+		signature.set(ecs_.GetComponentType<Transform>());
+		signature.set(ecs_.GetComponentType<Camera>());
+		ecs_.SetSystemSignature<CameraSystem>(signature);
 	}
 
 	/**
 	 * @brief 更新処理
 	 * @param _dt デルタタイム
-	 * @param _ecs ECSのコーディネーター
 	 */
-	void CameraSystem::Update(float _dt, ecs::Coordinator& _ecs)
+	void CameraSystem::Update(float _dt)
 	{
 		using namespace DirectX;
 		for (auto& e : entities_) {
-			auto& t = _ecs.GetComponent<Transform>(e);
-			auto& cam = _ecs.GetComponent<Camera>(e);
+			auto& t = ecs_.GetComponent<Transform>(e);
+			auto& cam = ecs_.GetComponent<Camera>(e);
 
 			// CameraControllerコンポーネントがあれば更新
-			if (_ecs.HasComponent<CameraController>(e)) {
-				auto& ctrl = _ecs.GetComponent<CameraController>(e);
+			if (ecs_.HasComponent<CameraController>(e)) {
+				auto& ctrl = ecs_.GetComponent<CameraController>(e);
 				UpdateController(_dt, t, ctrl);
 			}
 

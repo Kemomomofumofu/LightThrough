@@ -36,7 +36,7 @@ namespace debug {
 	 * @brief ƒfƒoƒbƒOŠÖ”‚Ì“o˜^
 	 * @param _func “o˜^‚·‚éŠÖ”
 	 */
-	void DebugUI::RedistDebugFunction(std::function<void(void)> _func)
+	void DebugUI::ResistDebugFunction(std::function<void(void)> _func)
 	{
 		debug_functions_.emplace_back(std::move(_func));
 	}

@@ -15,7 +15,7 @@
 
 namespace ecs {
 	template<typename Sys>
-	std::shared_ptr<Sys> SystemManager::RegisterSystem(const dx3d::SystemDesc& _desc)
+	std::shared_ptr<Sys> SystemManager::RegisterSystem(const SystemDesc& _desc)
 	{
 		std::type_index type = typeid(Sys);
 		assert(systems_.find(type) == systems_.end());

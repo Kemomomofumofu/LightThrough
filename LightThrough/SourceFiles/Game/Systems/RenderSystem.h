@@ -25,11 +25,11 @@ namespace ecs {
 	 */
 	class RenderSystem : public ISystem{
 	public:
-		RenderSystem(const dx3d::SystemDesc& _desc);
-		void Init(ecs::Coordinator& _ecs);
+		RenderSystem(const SystemDesc& _desc);
+		void Init();
 		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
-		void Update(float _dt, ecs::Coordinator& _ecs) override;
+		void Update(float _dt) override;
 	private:
 		dx3d::GraphicsEngine* engine_{};
 		dx3d::ConstantBufferPtr cb_per_frame_{};
