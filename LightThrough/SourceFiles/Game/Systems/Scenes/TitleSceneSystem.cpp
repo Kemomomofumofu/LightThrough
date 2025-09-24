@@ -52,4 +52,11 @@ namespace ecs {
 	void TitleSceneSystem::Update(float _dt)
 	{
 	}
+
+	void TitleSceneSystem::DebugTitleScene()
+	{
+		ImGui::Begin("Title Scene Debug");
+		ImGui::Text("Title Scene System");
+		ImGui::End();
+	}
 }

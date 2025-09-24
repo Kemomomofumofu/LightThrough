@@ -12,17 +12,16 @@
 #include <nlohmann/json.hpp>
 
 #include <Game/Scene/SceneManager.h>
-#include <Game/Scene/SceneSerializer.h>
 
 #include <Game/Components/Transform.h>
 #include <Game/Components/Mesh.h>
-
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 //#include <Game/Components/Sprite.h>
 
 #include <Game/GameLogUtils.h>
 
+// JSONライブラリ
 using json = nlohmann::json;
 
 namespace scene {
@@ -30,6 +29,9 @@ namespace scene {
 		: dx3d::Base(_base.base)
 		, ecs_(_base.ecs)
 	{
+		// SceneSerializerの生成
+		serializer_ = std::make_unique<SceneSerializer>(ecs_);
+
 	}
 
 	/**
@@ -53,13 +55,13 @@ namespace scene {
 	 * @param _id		シーンID
 	 * @return 成功したらTrue, 失敗したらFalse
 	 */
-	bool SceneManager::LoadSceneFromFile(const std::string& _path)
+	bool SceneManager::LoadSceneFromFile(const std::string& _name)
 	{
-		SceneSerializer serializer(ecs_);
 		try {
-			SceneData scene = serializer.DeserializeScene(_path);
+			SceneData scene = serializer_->DeserializeScene(_name);
+			auto id = scene.id_;	// moveの後で使うためキャッシュ
 			scenes_.emplace(scene.id_, std::move(scene));	// シーンの追加
-			active_scene_ = scene.id_;	// アクティブに
+			active_scene_ = id;	// アクティブに
 			return true;
 		}
 		catch (const std::exception& e) {
@@ -68,12 +70,30 @@ namespace scene {
 		}
 	}
 
+	bool SceneManager::ChangeScene(const SceneData::Id& _newScene, bool _unloadPrev)
+	{
+		// すでにアクティブならスキップ
+		if (active_scene_ && active_scene_ == _newScene) { return true; }
+
+		auto it = scenes_.find(_newScene);
+		// シーンが存在しないなら読み込み
+		if (it == scenes_.end()) {
+			SceneData scene = serializer_->DeserializeScene(_newScene);
+			scenes_.emplace(_newScene, std::move(scene));	// シーンの追加
+		}
+
+		// 新しいSceneをアクティブに
+		if (!SetActiveScene(_newScene, false)) { return false; }
+
+		return true;
+	}
+
 	/**
 	 * @brief アクティブなSceneDataを保存する
 	 * @param _path		保存先のファイルパス
 	 * @return 成功: true, 失敗: false
 	 */
-	bool SceneManager::SaveActiveScene(const std::string& _path)
+	bool SceneManager::SaveActiveScene(const std::string& _name)
 	{
 		if (!active_scene_) {
 			GameLogError("[SceneManager] アクティブなシーンが存在しない。");
@@ -88,7 +108,7 @@ namespace scene {
 
 
 		SceneSerializer serializer(ecs_);
-		return serializer.SerializeScene(it->second, _path);
+		return serializer.SerializeScene(it->second, _name);
 	}
 
 
@@ -135,19 +155,24 @@ namespace scene {
 	 * @param unloadPrev	前のシーンをアンロードするかどうか
 	 * @return 成功したらTrue、失敗したらFalse
 	 */
-	bool SceneManager::SetActiveScene(SceneData::Id _id, bool _unloadPrev)
+	bool SceneManager::SetActiveScene(const SceneData::Id& _id, bool _unloadPrev)
 	{
 		if (scenes_.find(_id) == scenes_.end()) { return false; } // 存在しないシーン
 		if (active_scene_.has_value() && active_scene_ == _id) { return true; } // すでにアクティブ
 
 		// 前のシーンをアンロードするなら
 		if (_unloadPrev && active_scene_) {
+			// アンロード前処理
+			if (OnBeforeSceneUnload) { OnBeforeSceneUnload(active_scene_.value()); }
 			// アンロード
 			UnloadScene(active_scene_.value());
 		}
 
 		// アクティブなシーンを切り替え
 		active_scene_ = _id;
+
+		// アクティブ後処理
+		if (OnAfterSceneLoad) { OnAfterSceneLoad(_id); }
 
 		return true;
 	}
@@ -217,7 +242,11 @@ namespace scene {
 		}
 	}
 
-
+	/**
+	 * @brief シーンIDを生成
+	 * @param _base	ベースとなる名前
+	 * @return ユニークなシーンID
+	 */
 	SceneData::Id SceneManager::GenerateId(const std::string& _base)
 	{
 		std::string id = _base;

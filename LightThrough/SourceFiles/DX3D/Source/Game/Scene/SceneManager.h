@@ -17,6 +17,7 @@
 #include <DX3D/Core/Base.h>
 
 #include <Game/Scene/SceneData.h>
+#include <Game/Scene/SceneSerializer.h>
 #include <Game/ECS/Coordinator.h>
 #include <Game/ECS/Entity.h>
 
@@ -26,9 +27,18 @@ namespace scene {
 		ecs::Coordinator& ecs;
 	};
 
+	/**
+	 * @brief Scene管理クラス。
+	 *
+	 * シーンはイベントフックで切り替える。
+	 */
 	class SceneManager: public dx3d::Base {
 	public:
 		using OnSceneEvent = std::function<void(const SceneData::Id&)>;
+
+		OnSceneEvent OnAfterSceneLoad;
+		OnSceneEvent OnBeforeSceneUnload;
+
 
 		SceneManager(const SceneManagerDesc& _base);
 
@@ -37,11 +47,14 @@ namespace scene {
 		bool UnloadScene(SceneData::Id _id, bool _destroyEntities = true);
 
 		// JSONで保存・読み込み
-		bool SaveActiveScene(const std::string& _path);
-		bool LoadSceneFromFile(const std::string& _path);
+		bool SaveActiveScene(const std::string& _name);
+		bool LoadSceneFromFile(const std::string& _name);
+
+		// Sceneの切り替え
+		bool ChangeScene(const SceneData::Id& _newScene, bool _unloadPrev = true);
 
 		// アクティベート
-		bool SetActiveScene(SceneData::Id _id, bool _unloadPrev = true);
+		bool SetActiveScene(const SceneData::Id& _id, bool _unloadPrev = true);
 		std::optional<SceneData::Id> GetActiveScene() const;
 
 		// Entityの管理
@@ -52,11 +65,10 @@ namespace scene {
 		// 永続化
 		void MarkPersistentEntity(ecs::Entity _e, bool _persistent = true); // Entityを永続化するかどうか
 
+
 		// イベント [ToDo] まだ仮置き
-		//OnSceneEvent OnBeforeSceneUnload;
 		//OnSceneEvent OnAfterSceneUnload;
 		//OnSceneEvent OnBeforeSceneLoad;
-		//OnSceneEvent OnAfterSceneLoad;
 
 	private:
 		SceneData::Id GenerateId(const std::string& _base);
@@ -66,5 +78,6 @@ namespace scene {
 		std::unordered_map<SceneData::Id, SceneData> scenes_{};
 		std::optional<SceneData::Id> active_scene_{};
 		std::unordered_set<ecs::Entity> persistent_entities_{};
+		std::unique_ptr<SceneSerializer> serializer_{};
 	};
 }

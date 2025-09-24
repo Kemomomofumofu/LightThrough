@@ -25,7 +25,7 @@ namespace ecs {
 		bool isMain = false;	// メインカメラフラグ [ToDo] (仮置き)
 		bool isActive = true;	// アクティブフラグ [ToDo] (仮置き)
 
-		DirectX::XMMATRIX view;	// ビュー行列
-		DirectX::XMMATRIX proj;	// プロジェクション行列
+		DirectX::XMMATRIX view{};	// ビュー行列
+		DirectX::XMMATRIX proj{};	// プロジェクション行列
 	};
 }

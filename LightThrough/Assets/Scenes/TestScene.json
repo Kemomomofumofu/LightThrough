@@ -1,20 +1,23 @@
 {
-  "scene": "TestScene",
-  "entities": [
-    {
-      "id": 1,
-      "components": {
-        "Transform": {
-          "position": [ 0, 0, -5 ],
-          "rotation": [ 0, 0, 0 ],
-          "scale": [ 1, 1, 1 ]
-        },
-        "Camera": {
-          "fovY": 60.0,
-          "nearZ": 0.1,
-          "farZ": 1000.0
-        }
-      }
+  "id": 1,
+  "components": {
+    "Transform": {
+      "position": [ 0.0, 1.0, 2.0 ],
+      "rotation": [ 0.0, 0.0, 0.0 ],
+      "scale": [ 1.0, 1.0, 1.0 ]
+    },
+    "Camera": {
+      "fovY": 45.0,
+      "aspectRatio": 1.7777778,
+      "nearZ": 0.1,
+      "farZ": 1000.0,
+      "isMain": true,
+      "isActive": true
+    },
+    "CameraController": {
+      "mode": 0,
+      "moveSpeed": 5.0,
+      "mouseSensitivity": 0.1
     }
-  ]
+  }
 }

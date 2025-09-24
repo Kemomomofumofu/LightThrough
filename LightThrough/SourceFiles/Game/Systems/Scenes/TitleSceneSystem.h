@@ -17,6 +17,8 @@ namespace ecs {
 	public:
 		explicit TitleSceneSystem(const SystemDesc& _desc);
 		virtual void Update(float _dt) override;
+
+		void DebugTitleScene();
 	};
 }
 

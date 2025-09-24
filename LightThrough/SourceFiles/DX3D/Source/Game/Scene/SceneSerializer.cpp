@@ -55,8 +55,10 @@ namespace scene {
 	 * @param _path		保存先のパス
 	 * @return 成功: true, 失敗: false
 	 */
-	bool SceneSerializer::SerializeScene(const SceneData& _scene, const std::string& _path)
+	bool SceneSerializer::SerializeScene(const SceneData& _scene, const std::string& _name)
 	{
+		auto& path = GetSceneFilePath(_name);
+
 		json jScene;
 		jScene["sceneId"] = _scene.id_;
 		jScene["sceneName"] = _scene.name_;
@@ -68,7 +70,7 @@ namespace scene {
 		}
 
 		// 書き出し
-		std::ofstream ofs(_path);
+		std::ofstream ofs(path);
 		if (!ofs.is_open()) {
 			return false;
 		}
@@ -82,11 +84,13 @@ namespace scene {
 	 * @param _path		読み込み元のパス
 	 * @return 復元したScene
 	 */
-	SceneData SceneSerializer::DeserializeScene(const std::string& _path)
+	SceneData SceneSerializer::DeserializeScene(const std::string& _name)
 	{
-		std::ifstream ifs(_path);
+		auto& path = GetSceneFilePath(_name);
+
+		std::ifstream ifs(path);
 		if (!ifs.is_open()) {
-			throw std::runtime_error("[SceneSerializer] シーンファイルを開くのに失敗" + _path);
+			throw std::runtime_error("[SceneSerializer] シーンファイルを開くのに失敗" + path);
 		}
 
 		json jScene;
@@ -96,7 +100,7 @@ namespace scene {
 		scene.id_ = jScene["sceneId"].get<std::string>();
 		scene.name_ = jScene["sceneName"].get<std::string>();
 
-		for (auto& jEntity : jScene["entitites"]) {
+		for (auto& jEntity : jScene["entities"]) {
 			ecs::Entity e = DeserializeEntity(jEntity);
 			scene.entities_.push_back(e);
 		}
@@ -202,5 +206,17 @@ namespace scene {
 		}
 
 		return e;
+	}
+
+	/**
+	 * @brief シーン名からシーンファイルのパスを取得
+	 * @param _sceneName	シーン名
+	 * @return シーンファイルのパス
+	 */
+	std::string& SceneSerializer::GetSceneFilePath(const std::string& _sceneName)
+	{
+		constexpr const char* basePath = "Assets/Scenes/";
+		auto path = std::string(basePath) + _sceneName + ".json";
+		return path;
 	}
 }

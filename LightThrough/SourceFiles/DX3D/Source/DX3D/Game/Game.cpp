@@ -74,12 +74,13 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 	// Sceneの生成・読み込み・アクティベート
 	auto sceneId = scene_manager_->CreateScene("TestScene");
-	scene_manager_->SetActiveScene(sceneId);
+	scene_manager_->LoadSceneFromFile(sceneId);
+	scene_manager_->ChangeScene(sceneId);
 
 	// SystemDescの準備
 	ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
 
-	// prefub
+	// prefab
 	ecs_coordinator_->RegisterSystem<ecs::PrefabSystem>(systemDesc);
 	const auto& prefabSystem = ecs_coordinator_->GetSystem<ecs::PrefabSystem>();
 
@@ -98,12 +99,14 @@ dx3d::Game::Game(const GameDesc& _desc)
 	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
 	debugRenderSystem->Init();
 
-	// TitleSceneに
-	ecs_coordinator_->RegisterSystem<ecs::TitleSceneSystem>(systemDesc);
+
+	//// TitleSceneに
+	//ecs_coordinator_->RegisterSystem<ecs::TitleSceneSystem>(systemDesc);
+
 
 	// Entityの生成
 	// カメラ
-	prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
+	//prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
 
 	// テストのメッシュ
 	auto e = ecs_coordinator_->CreateEntity();
