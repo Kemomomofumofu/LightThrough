@@ -79,5 +79,10 @@ namespace scene {
 		std::optional<SceneData::Id> active_scene_{};
 		std::unordered_set<ecs::Entity> persistent_entities_{};
 		std::unique_ptr<SceneSerializer> serializer_{};
+
+
+	// ---------- デバッグ関連 ---------- // 
+	private:
+		void DebugCurrentScene();
 	};
 }

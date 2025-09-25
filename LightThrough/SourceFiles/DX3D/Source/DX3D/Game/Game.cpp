@@ -148,9 +148,17 @@ void dx3d::Game::OnInternalUpdate()
 	graphics_engine_->SetSwapChain(display_->GetSwapChain());
 	graphics_engine_->BeginFrame();
 
-	if (input::InputSystem::Get().IsKeyDown('T'))
+	if (input::InputSystem::Get().IsKeyTrigger('T'))
 	{
 		scene_manager_->SaveActiveScene();
+	}
+	if (input::InputSystem::Get().IsKeyTrigger('1'))
+	{
+		scene_manager_->ChangeScene("TestScene");
+	}
+	if(input::InputSystem::Get().IsKeyTrigger('2'))
+	{
+		scene_manager_->ChangeScene("TestScene2");
 	}
 
 	// System‚ÌXV

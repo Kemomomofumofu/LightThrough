@@ -17,13 +17,13 @@
                 },
                 "Transform": {
                     "position": [
+                        -0.596676766872406,
                         0.0,
-                        0.0,
-                        -5.0
+                        4.846796035766602
                     ],
                     "rotation": [
-                        0.0,
-                        0.0,
+                        0.0012079000007361174,
+                        -0.00151119998190552,
                         0.0
                     ],
                     "scale": [
@@ -34,8 +34,8 @@
                 }
             },
             "id": 1
-        },
+        }
     ],
-    "sceneId": "TestScene",
-    "sceneName": "TestScene"
+    "sceneId": "TestScene2",
+    "sceneName": "TestScene2"
 }

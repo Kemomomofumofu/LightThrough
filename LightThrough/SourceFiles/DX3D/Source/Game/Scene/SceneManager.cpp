@@ -20,9 +20,11 @@
 //#include <Game/Components/Sprite.h>
 
 #include <Game/GameLogUtils.h>
+#include <Debug/DebugUI.h>
 
 // JSONライブラリ
 using json = nlohmann::json;
+
 
 namespace scene {
 	SceneManager::SceneManager(const SceneManagerDesc& _base)
@@ -31,6 +33,9 @@ namespace scene {
 	{
 		// SceneSerializerの生成
 		serializer_ = std::make_unique<SceneSerializer>(ecs_);
+
+		// デバッグメソッドの登録
+		debug::DebugUI::ResistDebugFunction([this]() { DebugCurrentScene(); });
 
 	}
 
@@ -256,4 +261,74 @@ namespace scene {
 		return id;
 	}
 
+
+	void SceneManager::DebugCurrentScene()
+	{
+		ImGui::Begin("Debug SceneManager");
+
+		// Active Scene
+		const char* activeName = "<none>";
+		if (active_scene_) {
+			activeName = active_scene_->c_str();
+		}
+		ImGui::Text("Active Scene: %s", activeName);
+
+		// Loaded Scenes (click to activate)
+		if (ImGui::CollapsingHeader("Loaded Scenes", ImGuiTreeNodeFlags_DefaultOpen)) {
+			for (auto& kv : scenes_) {
+				const std::string& id = kv.first;
+				bool isActive = (active_scene_ && *active_scene_ == id);
+				if (ImGui::Selectable(id.c_str(), isActive)) {
+					SetActiveScene(id, false);
+				}
+			}
+		}
+
+		// Entities in Active Scene
+		if (active_scene_) {
+			auto it = scenes_.find(*active_scene_);
+			if (it != scenes_.end()) {
+				const auto& ents = it->second.entities_;
+				ImGui::Separator();
+				ImGui::Text("Entity Count: %d", static_cast<int>(ents.size()));
+
+				if (ImGui::BeginTable("SceneEntities", 3,
+					ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable))
+				{
+					ImGui::TableSetupColumn("Entity");
+					ImGui::TableSetupColumn("Persistent");
+					ImGui::TableSetupColumn("Details");
+					ImGui::TableHeadersRow();
+
+					for (auto e : ents) {
+						ImGui::TableNextRow();
+
+						// Column: Entity
+						ImGui::TableSetColumnIndex(0);
+						ImGui::Text("Idx:%u Ver:%u", e.Index(), e.Version());
+
+						// Column: Persistent (toggle)
+						ImGui::TableSetColumnIndex(1);
+						bool persistent = (persistent_entities_.count(e) != 0);
+						bool toggled = persistent;
+						ImGui::PushID(static_cast<int>(e.Index()));
+						if (ImGui::Checkbox("##persist", &toggled)) {
+							MarkPersistentEntity(e, toggled);
+						}
+						ImGui::PopID();
+
+						// Column: Details
+						ImGui::TableSetColumnIndex(2);
+						ImGui::TextUnformatted(e.IsInitialized() ? "Initialized" : "Uninitialized");
+					}
+
+					ImGui::EndTable();
+				}
+			} else {
+				ImGui::TextUnformatted("Active scene is not loaded.");
+			}
+		}
+
+		ImGui::End();
+	}
 }
