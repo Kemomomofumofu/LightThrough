@@ -25,14 +25,14 @@ namespace scene {
 	public:
 		SceneSerializer(ecs::Coordinator& _ecs);
 
-		bool SerializeScene(const SceneData& _scene, const std::string& _path);
+		bool SerializeScene(const SceneData& _scene);
 		SceneData DeserializeScene(const std::string& _path);
 
 	private:
 		nlohmann::json SerializeEntity(ecs::Coordinator& _ecs, ecs::Entity _e);
 		ecs::Entity DeserializeEntity(const nlohmann::json& _j);
 
-		std::string& GetSceneFilePath(const std::string& _sceneName);
+		std::string GetSceneFilePath(const std::string& _name);
 
 	private:
 		ecs::Coordinator& ecs_;

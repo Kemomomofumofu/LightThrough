@@ -20,6 +20,8 @@
 #include <Game/Components/CameraController.h>
 #include <Game/Components/Mesh.h>
 
+#define SCENE_FILE_DIR "Assets/Scenes/"
+
 
 
 using json = nlohmann::json;
@@ -52,12 +54,11 @@ namespace scene {
 	/**
 	 * @brief SceneをJSON化して保存
 	 * @param _scene	対象のScene
-	 * @param _path		保存先のパス
 	 * @return 成功: true, 失敗: false
 	 */
-	bool SceneSerializer::SerializeScene(const SceneData& _scene, const std::string& _name)
+	bool SceneSerializer::SerializeScene(const SceneData& _scene)
 	{
-		auto& path = GetSceneFilePath(_name);
+		const auto path = GetSceneFilePath(_scene.name_);
 
 		json jScene;
 		jScene["sceneId"] = _scene.id_;
@@ -65,7 +66,7 @@ namespace scene {
 
 		// Entity一覧をJSON化
 		jScene["entities"] = json::array();
-		for(auto e : _scene.entities_) {
+		for (auto e : _scene.entities_) {
 			jScene["entities"].push_back(SerializeEntity(ecs_, e));
 		}
 
@@ -86,7 +87,7 @@ namespace scene {
 	 */
 	SceneData SceneSerializer::DeserializeScene(const std::string& _name)
 	{
-		auto& path = GetSceneFilePath(_name);
+		const auto path = GetSceneFilePath(_name);
 
 		std::ifstream ifs(path);
 		if (!ifs.is_open()) {
@@ -110,9 +111,9 @@ namespace scene {
 
 	/**
 	 * @brief EntityをJSON化する
-	 * 
+	 *
 	 * コンポーネントごとに出力内容を追記する必要あり。
-	 * 
+	 *
 	 * @param _ecs		ECSのCoordinator
 	 * @param _e		対象のEntity
 	 * @return JSONオブジェクト
@@ -161,9 +162,9 @@ namespace scene {
 
 	/**
 	 * @brief JSONからEntityを復元する
-	 * 
+	 *
 	 * コンポーネントごとに読み込み内容を追記する必要あり。
-	 * 
+	 *
 	 * @param _j		対象のJSONオブジェクト
 	 * @return 復元したEntity
 	 */
@@ -171,37 +172,46 @@ namespace scene {
 	{
 		ecs::Entity e = ecs_.CreateEntity();
 
-		// Transform
-		if(_j["components"].contains("Transform")) {
-			ecs::Transform t;
-			auto& jt = _j["Transform"];
-			t.position = { jt["position"][0], jt["position"][1], jt["position"][2] };
-			t.rotation = { jt["rotation"][0], jt["rotation"][1], jt["rotation"][2] };
-			t.scale = { jt["scale"][0], jt["scale"][1], jt["scale"][2] };
+		if (!_j.contains("components") || !_j["components"].is_object()) {
+			return e;
+		}
+		const auto& comps = _j["components"];
 
-			ecs_.AddComponent(e, t);
+		// Transform
+		if (comps.contains("Transform") && comps["Transform"].is_object()) {
+			const auto& jt = comps["Transform"];
+			if (jt.contains("position") && jt["position"].is_array() && jt["position"].size() == 3 &&
+				jt.contains("rotation") && jt["rotation"].is_array() && jt["rotation"].size() == 3 &&
+				jt.contains("scale") && jt["scale"].is_array() && jt["scale"].size() == 3) {
+
+				ecs::Transform t;
+				t.position = { jt["position"][0].get<float>(), jt["position"][1].get<float>(), jt["position"][2].get<float>() };
+				t.rotation = { jt["rotation"][0].get<float>(), jt["rotation"][1].get<float>(), jt["rotation"][2].get<float>() };
+				t.scale = { jt["scale"][0].get<float>(),    jt["scale"][1].get<float>(),    jt["scale"][2].get<float>() };
+				ecs_.AddComponent(e, t);
+			}
 		}
 
 		// Camera
-		if(_j["components"].contains("Camera")) {
-			ecs::Camera c;
-			auto& jc = _j["Camera"];
-			c.fovY = jc["fovY"];
-			c.aspectRatio = jc["aspectRatio"];
-			c.nearZ = jc["nearZ"];
-			c.farZ = jc["farZ"];
-			c.isMain = jc["isMain"];
-			c.isActive = jc["isActive"];
+		if (comps.contains("Camera") && comps["Camera"].is_object()) {
+			const auto& jc = comps["Camera"];
+			ecs::Camera c{};
+			if (jc.contains("fovY"))         c.fovY = jc["fovY"].get<float>();
+			if (jc.contains("aspectRatio"))  c.aspectRatio = jc["aspectRatio"].get<float>();
+			if (jc.contains("nearZ"))        c.nearZ = jc["nearZ"].get<float>();
+			if (jc.contains("farZ"))         c.farZ = jc["farZ"].get<float>();
+			if (jc.contains("isMain"))       c.isMain = jc["isMain"].get<bool>();
+			if (jc.contains("isActive"))     c.isActive = jc["isActive"].get<bool>();
 			ecs_.AddComponent(e, c);
 		}
 
 		// CameraController
-		if (_j["components"].contains("CameraController")) {
-			ecs::CameraController cc;
-			auto& jcc = _j["CameraController"];
-			cc.mode = static_cast<ecs::CameraMode>(jcc["mode"].get<int>());
-			cc.moveSpeed = jcc["moveSpeed"];
-			cc.mouseSensitivity = jcc["mouseSensitivity"];
+		if (comps.contains("CameraController") && comps["CameraController"].is_object()) {
+			const auto& jcc = comps["CameraController"];
+			ecs::CameraController cc{};
+			if (jcc.contains("mode"))             cc.mode = static_cast<ecs::CameraMode>(jcc["mode"].get<int>());
+			if (jcc.contains("moveSpeed"))        cc.moveSpeed = jcc["moveSpeed"].get<float>();
+			if (jcc.contains("mouseSensitivity")) cc.mouseSensitivity = jcc["mouseSensitivity"].get<float>();
 			ecs_.AddComponent(e, cc);
 		}
 
@@ -210,13 +220,12 @@ namespace scene {
 
 	/**
 	 * @brief シーン名からシーンファイルのパスを取得
-	 * @param _sceneName	シーン名
+	 * @param	_name	シーン名
 	 * @return シーンファイルのパス
 	 */
-	std::string& SceneSerializer::GetSceneFilePath(const std::string& _sceneName)
+	std::string SceneSerializer::GetSceneFilePath(const std::string& _name)
 	{
-		constexpr const char* basePath = "Assets/Scenes/";
-		auto path = std::string(basePath) + _sceneName + ".json";
+		auto path = std::string(SCENE_FILE_DIR) + _name + ".json";
 		return path;
 	}
 }

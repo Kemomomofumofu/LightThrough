@@ -72,10 +72,6 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->RegisterComponent<ecs::Camera>();
 	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 
-	// Sceneの生成・読み込み・アクティベート
-	auto sceneId = scene_manager_->CreateScene("TestScene");
-	scene_manager_->LoadSceneFromFile(sceneId);
-	scene_manager_->ChangeScene(sceneId);
 
 	// SystemDescの準備
 	ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
@@ -84,21 +80,23 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->RegisterSystem<ecs::PrefabSystem>(systemDesc);
 	const auto& prefabSystem = ecs_coordinator_->GetSystem<ecs::PrefabSystem>();
 
+	// カメラシステム
+	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
+	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
+	cameraSystem->Init();
 	// 描画システム
 	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>(systemDesc);
 	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
 	renderSystem->SetGraphicsEngine(*graphics_engine_);
 	renderSystem->Init();
-	// カメラシステム
-	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
-	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
-	cameraSystem->Init();
 	// デバッグ描画システム
 	ecs_coordinator_->RegisterSystem<ecs::DebugRenderSystem>(systemDesc);
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
 	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
 	debugRenderSystem->Init();
 
+	// Sceneの生成・読み込み・アクティベート
+	scene_manager_->ChangeScene("TestScene");
 
 	//// TitleSceneに
 	//ecs_coordinator_->RegisterSystem<ecs::TitleSceneSystem>(systemDesc);
@@ -106,13 +104,14 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 	// Entityの生成
 	// カメラ
-	//prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
+	prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
 
 	// テストのメッシュ
 	auto e = ecs_coordinator_->CreateEntity();
 	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f} });
 	auto mesh = dx3d::PrimitiveFactory::CreateSphere(graphics_engine_->GetGraphicsDevice(), 32, 16);
 	ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
+	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
 
 	DX3DLogInfo("ゲーム開始");
 }
@@ -131,6 +130,7 @@ dx3d::Game::~Game()
 void dx3d::Game::OnInternalUpdate()
 {
 
+
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
 	// 入力の更新
 	input::InputSystem::Get().Update();
@@ -147,6 +147,11 @@ void dx3d::Game::OnInternalUpdate()
 	// スワップチェインのセット
 	graphics_engine_->SetSwapChain(display_->GetSwapChain());
 	graphics_engine_->BeginFrame();
+
+	if (input::InputSystem::Get().IsKeyDown('T'))
+	{
+		scene_manager_->SaveActiveScene();
+	}
 
 	// Systemの更新
 	ecs_coordinator_->UpdateAllSystems(dt);

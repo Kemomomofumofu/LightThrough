@@ -1,23 +1,217 @@
 {
-  "id": 1,
-  "components": {
-    "Transform": {
-      "position": [ 0.0, 1.0, 2.0 ],
-      "rotation": [ 0.0, 0.0, 0.0 ],
-      "scale": [ 1.0, 1.0, 1.0 ]
-    },
-    "Camera": {
-      "fovY": 45.0,
-      "aspectRatio": 1.7777778,
-      "nearZ": 0.1,
-      "farZ": 1000.0,
-      "isMain": true,
-      "isActive": true
-    },
-    "CameraController": {
-      "mode": 0,
-      "moveSpeed": 5.0,
-      "mouseSensitivity": 0.1
-    }
-  }
+    "entities": [
+        {
+            "components": {
+                "Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 1000.0,
+                    "fovY": 60.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 0.10000000149011612
+                },
+                "CameraController": {
+                    "mode": 0,
+                    "mouseSensitivity": 1.0,
+                    "moveSpeed": 5.0
+                },
+                "Transform": {
+                    "position": [
+                        -0.2218906283378601,
+                        0.0,
+                        2.5281081199645996
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 1
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 2
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 3
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 4
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 5
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 6
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 7
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 8
+        },
+        {
+            "components": {
+                "Transform": {
+                    "position": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 10
+        }
+    ],
+    "sceneId": "TestScene",
+    "sceneName": "TestScene"
 }

@@ -24,7 +24,7 @@ namespace ecs {
 	 * カメラを操作に関する情報を持つComponent
 	 */
 	struct CameraController {
-		CameraMode mode = CameraMode::Orbit;	// カメラモード
+		CameraMode mode = CameraMode::FPS;	// カメラモード
 
 		float moveSpeed = 5.0f;				// 移動速度
 		float mouseSensitivity = 1.0f;		// マウス感度

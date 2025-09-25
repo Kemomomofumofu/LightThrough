@@ -90,10 +90,9 @@ namespace scene {
 
 	/**
 	 * @brief アクティブなSceneDataを保存する
-	 * @param _path		保存先のファイルパス
 	 * @return 成功: true, 失敗: false
 	 */
-	bool SceneManager::SaveActiveScene(const std::string& _name)
+	bool SceneManager::SaveActiveScene()
 	{
 		if (!active_scene_) {
 			GameLogError("[SceneManager] アクティブなシーンが存在しない。");
@@ -107,8 +106,7 @@ namespace scene {
 		}
 
 
-		SceneSerializer serializer(ecs_);
-		return serializer.SerializeScene(it->second, _name);
+		return serializer_->SerializeScene(it->second);
 	}
 
 

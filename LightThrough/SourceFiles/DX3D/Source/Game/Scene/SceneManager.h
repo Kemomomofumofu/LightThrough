@@ -47,7 +47,7 @@ namespace scene {
 		bool UnloadScene(SceneData::Id _id, bool _destroyEntities = true);
 
 		// JSON‚Å•Û‘¶E“Ç‚İ‚İ
-		bool SaveActiveScene(const std::string& _name);
+		bool SaveActiveScene();
 		bool LoadSceneFromFile(const std::string& _name);
 
 		// Scene‚ÌØ‚è‘Ö‚¦
