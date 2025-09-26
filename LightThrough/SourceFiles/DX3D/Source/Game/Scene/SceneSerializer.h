@@ -17,7 +17,6 @@ namespace ecs {
 
 namespace scene {
 	class SceneManager;
-
 	/**
 	 * @brief シーンのロード/セーブを行うクラス
 	 */

@@ -34,8 +34,3 @@ VSOUT VSMain(VSIN vin)
     vout.col = vin.col;
     return vout;
 }
-
-float4 PSMain(VSOUT pin) : SV_Target
-{
-    return float4(pin.col);
-}

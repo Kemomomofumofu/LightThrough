@@ -17,6 +17,7 @@
 
 
 namespace ecs {
+
 	CameraSystem::CameraSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
 	{
@@ -50,12 +51,16 @@ namespace ecs {
 
 			// view行列の計算(左手系)
 			XMVECTOR pos = XMLoadFloat3(&t.position);
+			XMVECTOR q = XMLoadFloat4(&t.rotationQuat);
+			q = XMQuaternionNormalize(q);
 
-			// forwardベクトルを計算
-			XMMATRIX rot = XMMatrixRotationRollPitchYaw(t.rotation.x, t.rotation.y, t.rotation.z);
-			XMVECTOR forward = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rot);
-			XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+			const XMVECTOR basisForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+			const XMVECTOR basisUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
+			// forward / up
+			XMVECTOR forward = XMVector3Rotate(basisForward, q);
+			XMVECTOR up = XMVector3Rotate(basisUp, q);
+			
 			XMMATRIX viewM = XMMatrixLookAtLH(pos, XMVectorAdd(pos, forward), up);
 
 			// proj行列の計算
@@ -77,32 +82,35 @@ namespace ecs {
 	 * @param _tf Transformコンポーネント
 	 * @param _ctrl CameraControllerコンポーネント
 	 */
-	void CameraSystem::UpdateController(float _dt, Transform& _tf, CameraController& _ctrl)
+	void CameraSystem::UpdateController(float _dt, Transform& _transform, CameraController& _controller)
 	{
 		using namespace DirectX;
 		auto& input = input::InputSystem::Get();
 		dx3d::Point delta = input.GetMouseDelta();	// 移動量
-		const float sensitivity = _ctrl.mouseSensitivity * _dt;		// 感度係数	
+		const float sensitivity = _controller.mouseSensitivity * _dt;		// 感度係数	
 		float dx = delta.x * sensitivity;
-		float dy = (_ctrl.invertY ? -delta.y : delta.y) * sensitivity;	// Y軸が反転しているかで変わる
+		float dy = (_controller.invertY ? -delta.y : delta.y) * sensitivity;	// Y軸が反転しているかで変わる
 
 		// FPSモード
-		if(_ctrl.mode == CameraMode::FPS) {
+		if(_controller.mode == CameraMode::FPS) {
 			// ---------- 視点操作 ---------- // 
-			_ctrl.yaw += dx;
-			_ctrl.pitch += dy;	
+			_controller.yaw += dx;
+			_controller.pitch += dy;
 			// ピッチ制限
-			_ctrl.pitch = std::clamp(_ctrl.pitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
+			_controller.pitch = std::clamp(_controller.pitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
 
-			_tf.rotation.x = _ctrl.pitch;
-			_tf.rotation.y = _ctrl.yaw;
+			// Yaw/Pitch からクォータニオン生成(Roll = 0)
+			XMVECTOR q = XMQuaternionRotationRollPitchYaw(_controller.pitch, _controller.yaw, 0.0f);
+			q = XMQuaternionNormalize(q);
+			XMStoreFloat4(&_transform.rotationQuat, q);
 
 			// ---------- 移動操作 ---------- // 
-			XMVECTOR forward = XMVectorSet(sinf(_ctrl.yaw), 0, cosf(_ctrl.yaw), 0);
-			XMVECTOR right = XMVector3Cross(XMVectorSet(0, 1, 0, 0), forward);
+			 XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+			XMVECTOR forward = XMVectorSet(sinf(_controller.yaw), 0, cosf(_controller.yaw), 0);
+			XMVECTOR right = XMVector3Cross(up, forward);
 
-			XMVECTOR pos = XMLoadFloat3(&_tf.position);
-			const float moveSpeed = _ctrl.moveSpeed * _dt;	// 速度係数
+			XMVECTOR pos = XMLoadFloat3(&_transform.position);
+			const float moveSpeed = _controller.moveSpeed * _dt;	// 速度係数
 			if(input.IsKeyDown('W')) {
 				pos += forward * moveSpeed;
 			}
@@ -115,37 +123,48 @@ namespace ecs {
 			if(input.IsKeyDown('D')) {
 				pos += right * moveSpeed;
 			}
+			if (input.IsKeyDown('E')) {
+				pos += up * moveSpeed;
+			}
+			if (input.IsKeyDown('Q')) {
+				pos -= up * moveSpeed;
+			}
 
-			XMStoreFloat3(&_tf.position, pos);
+			XMStoreFloat3(&_transform.position, pos);
 		}
 		// Orbitモード
 		else {
 			// ---------- 視点操作 ---------- // 
-			_ctrl.orbitYaw += dx;
-			_ctrl.orbitPitch += dy;
+			_controller.orbitYaw += dx;
+			_controller.orbitPitch += dy;
 			// ピッチ制限
-			_ctrl.orbitPitch = std::clamp(_ctrl.pitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
+			_controller.orbitPitch = std::clamp(_controller.pitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
 
 			// [ToDo] InputSystemにマウスホイールの実装が出来たら距離を変えられるようにする
-			//_ctrl.orbitDistance = std::clamp(_ctrl.orbitDistance - wheelDelta * 0.5f, 1.0f, 50.0f);
+			//_controller.orbitDistance = std::clamp(_controller.orbitDistance - wheelDelta * 0.5f, 1.0f, 50.0f);
 
 			// 注視点からの相対位置を計算
-			XMMATRIX rot = XMMatrixRotationRollPitchYaw(_ctrl.orbitPitch, _ctrl.orbitYaw, 0.0f);
-			XMVECTOR offset = XMVector3TransformNormal(XMVectorSet(0.0, 0.0f, -_ctrl.orbitDistance, 0.0f), rot);
+			XMMATRIX rot = XMMatrixRotationRollPitchYaw(_controller.orbitPitch, _controller.orbitYaw, 0.0f);
+			XMVECTOR offset = XMVector3TransformNormal(XMVectorSet(0.0, 0.0f, -_controller.orbitDistance, 0.0f), rot);
 
-			XMVECTOR target = XMLoadFloat3(&_ctrl.orbitTarget);
+			XMVECTOR target = XMLoadFloat3(&_controller.orbitTarget);
 			XMVECTOR pos = target + offset;
 
-			XMStoreFloat3(&_tf.position, pos);
+			XMStoreFloat3(&_transform.position, pos);
 
 			// Transform.rotationに保持しとく
 			XMVECTOR forward = XMVector3Normalize(target - pos);
 			float yaw = atan2f(XMVectorGetX(forward), XMVectorGetZ(forward));
 			float pitch = asinf(-XMVectorGetY(forward));
 
-			_tf.rotation.x = pitch;
-			_tf.rotation.y = yaw;
-			_tf.rotation.z = 0.0f;
+			_controller.orbitYaw = yaw;
+			_controller.orbitPitch = pitch;
+
+			// クォータニオン生成
+			XMVECTOR q = XMQuaternionRotationRollPitchYaw(pitch, yaw, 0.0f);
+			q = XMQuaternionNormalize(q);
+			XMStoreFloat4(&_transform.rotationQuat, q);
+
 		}
 
 	}

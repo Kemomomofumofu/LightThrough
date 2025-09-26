@@ -19,32 +19,40 @@ namespace dx3d {
 	 * @param _size サイズ
 	 * @return 生成したメッシュ
 	 */
-	ecs::Mesh PrimitiveFactory::CreateCube(GraphicsDevice& _device, f32 _size) {
-		// [ToDo] Normal未調整
-		const Vertex cubeVertices[] = {
-			{{-0.5f * _size, -0.5f * _size, -0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 0
-			{{ 0.5f * _size, -0.5f * _size, -0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 1
-			{{ 0.5f * _size,  0.5f * _size, -0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 2
-			{{-0.5f * _size,  0.5f * _size, -0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 3
-			{{-0.5f * _size, -0.5f * _size,  0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},	// 4
-			{{ 0.5f * _size, -0.5f * _size,  0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},	// 5
-			{{ 0.5f * _size,  0.5f * _size,  0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},	// 6
-			{{-0.5f * _size,  0.5f * _size,  0.5f * _size}, {1.0f, 1.0f, 1.0f, 0.75f}, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},	// 7
-		};
+	ecs::Mesh PrimitiveFactory::CreateCube(GraphicsDevice& _device)
+	{
+		// 未生成なら
+		if (!g_cube.Valid())
+		{
+			// [ToDo] Normal未調整
+			const Vertex cubeVertices[] = {
+				{{-0.5f, -0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 0
+				{{ 0.5f, -0.5f, -0.5f}, DEFAULT_COLOR, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 1
+				{{ 0.5f,  0.5f, -0.5f}, DEFAULT_COLOR, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 2
+				{{-0.5f,  0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 3
 
-		const ui32 cubeIndices[] = {
-			0,1,2, 0,2,3,	// 前
-			5,4,7, 5,7,6,	// 後
-			4,0,3, 4,3,7,	// 左
-			1,5,6, 1,6,2,	// 右
-			3,2,6, 3,6,7,	// 上
-			1,0,4, 1,4,5,	// 下
-		};
+				{{-0.5f, -0.5f,  0.5f}, DEFAULT_COLOR, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},	// 4
+				{{ 0.5f, -0.5f,  0.5f}, DEFAULT_COLOR, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},	// 5
+				{{ 0.5f,  0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},	// 6
+				{{-0.5f,  0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},	// 7
+			};
 
-		auto vb = _device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
-		auto ib = _device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
+			const ui32 cubeIndices[] = {
+				0,1,2, 0,2,3,	// 前
+				5,4,7, 5,7,6,	// 後
+				4,0,3, 4,3,7,	// 左
+				1,5,6, 1,6,2,	// 右
+				3,2,6, 3,6,7,	// 上
+				1,0,4, 1,4,5,	// 下
+			};
 
-		return ecs::Mesh{ vb, ib };
+			g_cube.vb = _device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
+			g_cube.ib = _device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
+			g_cube.indexCount = std::size(cubeIndices);
+		}
+
+
+		return ecs::Mesh{ g_cube.vb, g_cube.ib, g_cube.indexCount, 0 };
 	}
 
 	/**
@@ -53,23 +61,27 @@ namespace dx3d {
 	 * @param _size サイズ
 	 * @return 生成したメッシュ
 	 */
-	ecs::Mesh PrimitiveFactory::CreateQuad(GraphicsDevice& _device, f32 _size)
+	ecs::Mesh PrimitiveFactory::CreateQuad(GraphicsDevice& _device)
 	{
-		const Vertex quadVertices[] = {
-			{{-0.5f * _size, -0.5f * _size, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 0
-			{{ 0.5f * _size, -0.5f * _size, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 1
-			{{ 0.5f * _size,  0.5f * _size, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 2
-			{{-0.5f * _size,  0.5f * _size, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 3
-		};
-		const ui32 quadIndices[] = {
-			0, 1, 2,
-			0, 2, 3,
-		};
+		// 未生成なら
+		if (!g_quad.Valid())
+		{
+			const Vertex quadVertices[] = {
+				{{-0.5f, -0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 0
+				{{ 0.5f, -0.5f, 0.0f}, DEFAULT_COLOR, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 1
+				{{ 0.5f,  0.5f, 0.0f}, DEFAULT_COLOR, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 2
+				{{-0.5f,  0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 3
+			};
+			const ui32 quadIndices[] = {
+				0, 1, 2,
+				0, 2, 3,
+			};
 
-		auto vb = _device.CreateVertexBuffer({ quadVertices, std::size(quadVertices), sizeof(Vertex) });
-		auto ib = _device.CreateIndexBuffer({ quadIndices, std::size(quadIndices) });
-
-		return ecs::Mesh{ vb, ib };
+			g_quad.vb = _device.CreateVertexBuffer({ quadVertices, std::size(quadVertices), sizeof(Vertex) });
+			g_quad.ib = _device.CreateIndexBuffer({ quadIndices, std::size(quadIndices) });
+			g_quad.indexCount = std::size(quadIndices);
+		}
+		return ecs::Mesh{ g_quad.vb, g_quad.ib, g_quad.indexCount, 0 };
 	}
 
 	/**
@@ -80,17 +92,29 @@ namespace dx3d {
 	 * @param _radius 半径
 	 * @return 生成したメッシュ
 	 */
-	ecs::Mesh PrimitiveFactory::CreateSphere(GraphicsDevice& _device, ui32 _slices, ui32 _stacks, f32 _radius)
+	ecs::Mesh PrimitiveFactory::CreateSphere(GraphicsDevice& _device, ui32 _slices, ui32 _stacks)
 	{
 		using namespace DirectX;
 
-		std::vector<Vertex> sphereVertices{};
-		// 色
-		XMFLOAT4 color{ 1.0f, 1.0f, 1.0f, 0.75f };
+		if (_slices < 3) { _slices = 3; }
+		if (_stacks < 3) { _stacks = 3; }
 
+		// すでに生成済みなら
+		SphereKey key{ _slices, _stacks };
+		if (auto it = g_spheres.find(key); it != g_spheres.end())
+		{
+			const auto& cached = it->second;
+			return ecs::Mesh{cached.vb, cached.ib, cached.indexCount, 0};
+		}
+
+		// 半径
+		const float radius = 0.5f;
+
+
+		std::vector<Vertex> sphereVertices{};
 		// 頂点生成
 		// 北極
-		sphereVertices.push_back({ {0.0f, _radius, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 0.0f }, {0.0f, 1.0f, 0.0f} });
+		sphereVertices.push_back({ {0.0f, radius, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f }, {0.0f, 1.0f, 0.0f} });
 
 		// 中間
 		for (uint32_t i = 1; i <= _stacks; ++i) {
@@ -100,9 +124,9 @@ namespace dx3d {
 				float theta = 2.0f * XM_PI * j / _slices; // 経度角
 
 				XMFLOAT3 pos{
-					_radius * sinf(phi) * cosf(theta),
-					_radius * cosf(phi),
-					_radius * sinf(phi) * sinf(theta),
+					radius * sinf(phi) * cosf(theta),
+					radius* cosf(phi),
+					radius* sinf(phi) * sinf(theta),
 				};
 
 				XMFLOAT3 normal{};
@@ -113,12 +137,12 @@ namespace dx3d {
 					phi / XM_PI,
 				};
 
-				sphereVertices.push_back({ pos, color, uv, normal });
+				sphereVertices.push_back({ pos, DEFAULT_COLOR, uv, normal });
 			}
 		}
 
 		// 南極
-		sphereVertices.push_back({ {0.0f, -_radius, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 1.0f }, {0.0f, -1.0f, 0.0f} });
+		sphereVertices.push_back({ {0.0f, -radius, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 1.0f }, {0.0f, -1.0f, 0.0f} });
 
 		// 北極
 		std::vector<ui32> sphereIndices{};
@@ -154,8 +178,12 @@ namespace dx3d {
 			sphereIndices.push_back(baseIndex + i + 1);
 		}
 
-		auto vb = _device.CreateVertexBuffer({ sphereVertices.data(), static_cast<ui32>(sphereVertices.size()), sizeof(Vertex) });
-		auto ib = _device.CreateIndexBuffer({ sphereIndices.data(), static_cast<ui32>(sphereIndices.size()) });
-		return ecs::Mesh{ vb, ib };
+		CachedMesh cm;
+		cm.vb = _device.CreateVertexBuffer({ sphereVertices.data(), (ui32)sphereVertices.size(), (ui32)sizeof(Vertex) });
+		cm.ib = _device.CreateIndexBuffer({ sphereIndices.data(), (ui32)sphereIndices.size() });
+		cm.indexCount = (ui32)sphereIndices.size();
+
+		auto [it, _] = g_spheres.emplace(key, std::move(cm));
+		return ecs::Mesh{ it->second.vb, it->second.ib, it->second.indexCount, 0 };
 	}
 }

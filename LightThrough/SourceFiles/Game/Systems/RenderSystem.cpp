@@ -6,6 +6,9 @@
  */
 
  // ---------- インクルード ---------- //
+#include <DirectXMath.h>
+
+#include <DX3D/Graphics/Buffers/Vertex.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
@@ -53,36 +56,160 @@ namespace ecs {
 	 */
 	void RenderSystem::Update(float _dt)
 	{
+
 		auto& context = engine_->GetDeviceContext();
 		auto& device = engine_->GetGraphicsDevice();
-
 
 		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
 		auto camEntity = ecs_.GetEntitiesWithComponent<Camera>()[0];	// とりあえず一番最初のカメラを取得しとく
 		auto& cam = ecs_.GetComponent<Camera>(camEntity);
 
-		
+
 		dx3d::CBPerFrame cbPerFrameData{};
 		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
-		
+
 		// 定数バッファ更新
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
 
-		// 描画
+		// バッチ処理
+		batches_.clear();	// バッチクリア
+		CollectBatches();	// バッチ収集
+		UploadAndDrawBatches();	// バッチアップロード＆描画
+	}
+
+	/**
+	 * @brief バッチ収集
+	 *
+	 * Meshの頂点バッファとインデックスバッファが同じものをまとめてバッチ化する
+	 * インスタンスデータは各EntityのTransformからワールド行列を取得して格納する
+	 */
+	void RenderSystem::CollectBatches()
+	{
+		struct Key {
+			dx3d::VertexBuffer* vb{};
+			dx3d::IndexBuffer* ib{};
+			bool operator==(const Key& o) const noexcept { return vb == o.vb && ib == o.ib; }
+		};
+
+		struct KeyHash {
+			size_t operator()(const Key& k) const noexcept {
+				return std::hash<void*>()(k.vb) ^ (std::hash<void*>()(k.ib) << 1);
+			}
+		};
+		std::unordered_map<Key, size_t, KeyHash> map;
+
+		// Entity一覧を走査してバッチ化
 		for (auto& e : entities_) {
 			auto& mesh = ecs_.GetComponent<Mesh>(e);
 			auto& transform = ecs_.GetComponent<ecs::Transform>(e);
-			
-			// ワールド座標行列の取得
-			dx3d::CBPerObject cbPerObjectData{};
-			cbPerObjectData.world = transform.GetWorldMatrix();
-			cb_per_object_->Update(context, &cbPerObjectData, sizeof(cbPerObjectData));
-			context.VSSetConstantBuffer(1, *cb_per_object_);
+			if (!mesh.vb || !mesh.ib) continue;
 
+			Key key{ mesh.vb.get(), mesh.ib.get() };
+			size_t batchIndex{};
+			// 既存のバッチ
+			if (auto it = map.find(key); it != map.end()) {
+				batchIndex = it->second;
+			}
+			// 新しいバッチ
+			else {
+				batchIndex = batches_.size();
+				map.emplace(key, batchIndex);
+				batches_.push_back(InstanceBatch{
+					.vb = mesh.vb,
+					.ib = mesh.ib,
+					.indexCount = mesh.indexCount,
+					.instances = {},
+					.instanceOffset = 0
+					});
+			}
 
-			engine_->Render(*mesh.vb, *mesh.ib);
+			// インスタンスデータ追加
+			InstanceData d{};
+			DirectX::XMMATRIX wm = transform.GetWorldMatrix();
+			DirectX::XMStoreFloat4x4(&d.world, wm);		// 非転置
+			batches_[batchIndex].instances.emplace_back(d);
+
+		}
+	}
+
+	/**
+	 * @brief インスタンスバッファの作成またはリサイズ
+	 * @param _requiredInstanceCapacity 必要なインスタンス数
+	 */
+	void RenderSystem::CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity)
+	{
+		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
+		instance_buffer_capacity_ = max(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
+	}
+
+	/**
+	 * @brief バッチアップロード＆描画
+	 *
+	 * 各バッチのインスタンスデータをインスタンスバッファにアップロードし、描画する
+	 */
+	void RenderSystem::UploadAndDrawBatches()
+	{
+		// 総インスタンス数
+		size_t totalInstance = 0;
+		for (auto& b : batches_) {
+			totalInstance += b.instances.size();
+		}
+		if (totalInstance == 0) { return; } // 描画するものがない
+
+		// インスタンスバッファの作成またはリサイズ
+		CreateOrResizeInstanceBuffer(totalInstance);
+
+		std::vector<InstanceData> instances;
+		instances.reserve(totalInstance);
+
+		size_t cursor = 0;
+
+		// インスタンスデータをインスタンスバッファ用に変換して格納
+		for (auto& b : batches_) {
+			b.instanceOffset = cursor;
+			for (auto& inst : b.instances) {
+				DirectX::XMMATRIX w = DirectX::XMLoadFloat4x4(&inst.world);
+				InstanceData d{};
+				DirectX::XMStoreFloat4x4(&d.world, DirectX::XMMatrixTranspose(w));
+				instances.emplace_back(d);
+			}
+			cursor += b.instances.size();
+
+		}
+
+		// インスタンスバッファの作成
+		{
+			dx3d::VertexBufferDesc desc{
+				.vertexList = instances.data(),
+				.vertexListSize = static_cast<uint32_t>(instances.size()),
+				.vertexSize = static_cast<uint32_t>(sizeof(InstanceData))
+			};
+			instance_buffer_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
+		}
+
+		auto& context = engine_->GetDeviceContext();
+
+		// 描画
+		for (auto& b : batches_) {
+			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
+			if (instanceCount == 0) { continue; }
+
+			if (instanceCount == 1) {
+				// インスタンスが1つだけなら通常描画
+				dx3d::CBPerObject obj{};
+				DirectX::XMMATRIX w = DirectX::XMLoadFloat4x4(&b.instances[0].world);
+				 obj.world = DirectX::XMMatrixTranspose(w);
+				//obj.world = w;	// 非転置
+				cb_per_object_->Update(context, &obj, sizeof(obj));
+				context.VSSetConstantBuffer(1, *cb_per_object_);
+				engine_->Render(*b.vb, *b.ib);
+			}
+			else {
+				// インスタンスが複数ならインスタンス描画
+				engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset);
+			}
 		}
 	}
 }

@@ -28,6 +28,8 @@ namespace dx3d {
 		void SetGraphicsPipelineState(const GraphicsPipelineState& _pipepline);
 		void SetRasterizerState(const RasterizerState& _rasterizer);
 		void SetVertexBuffer(const VertexBuffer& _buffer);
+		void SetVertexBuffers(ui32 _startSlot, const VertexBuffer* const* _buffers, ui32 _count);	// ï°êîóp
+		void SetVertexBuffers(const VertexBuffer& _vb0, const VertexBuffer& _vb1);
 		void SetIndexBuffer(const IndexBuffer& _buffer);
 		void VSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
 		void PSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
@@ -35,6 +37,7 @@ namespace dx3d {
 		void SetViewportSize(const Rect& _size);
 		void DrawTriangleList(ui32 _vertexCount, ui32 _startVertexLocation);
 		void DrawIndexed(ui32 _indexCount, ui32 _startIndex, ui32 _baseVertex);
+		void DrawIndexedInstanced(ui32 _indexCount, ui32 _instanceCount, ui32 _startIndex, ui32 _baseVertex, ui32 _startInstance);
 	private:
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> context_{};
 

@@ -33,14 +33,23 @@ namespace ecs {
 	template<typename Com>
 	void ComponentArray<Com>::Remove(Entity _e)
 	{
-		assert(entity_to_index_.find(_e) == entity_to_index_.end());
-		size_t index = entity_to_index_[_e];
-		size_t lastIndex = components_.size() - 1;
+		auto it = entity_to_index_.find(_e);
+		// Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚ç
+		if (it == entity_to_index_.end()) {
+			assert(false && "[ComponentArray] Remove‚ÅEntity‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½");
+			return;
+		}
 
-		// íœ‚·‚é—v‘f‚ÆÅŒã‚Ì—v‘f‚ğ“ü‚ê‘Ö‚¦‚é
-		components_[index] = components_[lastIndex];
-		entity_IDs_[index] = entity_IDs_[lastIndex];
-		entity_to_index_[entity_IDs_[index]] = index;
+		const size_t index = entity_to_index_[_e];
+		const size_t lastIndex = components_.size() - 1;
+		// ‚à‚Æ‚à‚ÆÅŒã‚Ì—v‘f‚È‚çSwap‚µ‚È‚¢
+		if (index != lastIndex)
+		{
+			// íœ‚·‚é—v‘f‚ÆÅŒã‚Ì—v‘f‚ğ“ü‚ê‘Ö‚¦‚é
+			components_[index] = components_[lastIndex];
+			entity_IDs_[index] = entity_IDs_[lastIndex];
+			entity_to_index_[entity_IDs_[index]] = index;
+		}
 
 		components_.pop_back();
 		entity_IDs_.pop_back();

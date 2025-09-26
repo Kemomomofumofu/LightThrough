@@ -6,6 +6,7 @@
  * @date 2025-06-25
  */
 /*---------- インクルード ----------*/
+#include <DirectXMath.h>
 #include <DX3D/Core/Core.h>
 #include <DX3D/Core/Logger.h>
 #include <DX3D/Math/Rect.h>
@@ -99,6 +100,12 @@ namespace dx3d {
 		ui32 byteWidth{};
 		const void* initData{};
 	};
+
+	struct InstanceData {
+		DirectX::XMFLOAT4X4 world;
+		uint32_t materialId;	// [ToDo] 仮置き
+	};
+
 
 	struct GameDesc {
 		Rect windowSize{ 1280, 720 };

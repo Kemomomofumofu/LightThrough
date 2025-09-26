@@ -10,7 +10,7 @@
 #include <Game/ECS/ISystem.h>
 
 
-namespace ecs {
+namespace ecs {	
 	class Coordinator;
 	struct CameraController;
 	struct Transform;

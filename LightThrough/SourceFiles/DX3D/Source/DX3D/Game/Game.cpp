@@ -59,7 +59,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// InputSystem初期化
 	input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));
 	// ECSのコーディネーターの生成
-	ecs_coordinator_ = std::make_unique<ecs::Coordinator>();
+	ecs_coordinator_ = std::make_unique<ecs::Coordinator>(dx3d::BaseDesc{ logger_ });
 	ecs_coordinator_->Init();
 
 	// SceneManagerの初期化
@@ -104,15 +104,18 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 	// Entityの生成
 	// カメラ
-	prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
+	//prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
 
 	// テストのメッシュ
-	auto e = ecs_coordinator_->CreateEntity();
-	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 10.0f}, {0.0f, 0.0f, 0.0f} });
-	auto mesh = dx3d::PrimitiveFactory::CreateSphere(graphics_engine_->GetGraphicsDevice(), 32, 16);
-	ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
-	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-
+	for (int i = 0; i < 10; ++i) {
+		for (int j = 0; j < 10; ++j) {
+			auto e = ecs_coordinator_->CreateEntity();
+			ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.0f * i, 0.0f, 1.0f * j}});
+			auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
+			ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
+			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		}
+	}
 	DX3DLogInfo("ゲーム開始");
 }
 
@@ -156,7 +159,7 @@ void dx3d::Game::OnInternalUpdate()
 	{
 		scene_manager_->ChangeScene("TestScene");
 	}
-	if(input::InputSystem::Get().IsKeyTrigger('2'))
+	if (input::InputSystem::Get().IsKeyTrigger('2'))
 	{
 		scene_manager_->ChangeScene("TestScene2");
 	}

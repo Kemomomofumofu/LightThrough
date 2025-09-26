@@ -17,6 +17,17 @@ namespace dx3d {
 }
 
 namespace ecs {
+	struct InstanceData {
+		DirectX::XMFLOAT4X4 world;
+	};
+
+	struct InstanceBatch {
+		dx3d::VertexBufferPtr vb{};
+		dx3d::IndexBufferPtr ib{};
+		uint32_t indexCount{};
+		std::vector<InstanceData> instances{};
+		size_t instanceOffset = 0;
+	};
 
 	/**
 	 * @brief 描画システム
@@ -31,9 +42,19 @@ namespace ecs {
 
 		void Update(float _dt) override;
 	private:
+		void CollectBatches();
+		void UploadAndDrawBatches();
+		void CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity);
+
+	private:
 		dx3d::GraphicsEngine* engine_{};
 		dx3d::ConstantBufferPtr cb_per_frame_{};
-		dx3d::ConstantBufferPtr cb_per_object_{};
+		dx3d::ConstantBufferPtr cb_per_object_{};	// [ToDo] 単体描画用/マテリアル毎とか？？？
+
+		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_{};
+		size_t instance_buffer_capacity_{};
+
+		std::vector<InstanceBatch> batches_{};
 	};
 
 }

@@ -26,19 +26,7 @@ namespace ecs {
 	TitleSceneSystem::TitleSceneSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
 	{
-//		// Entityの生成
-//// カメラ
-//		auto eCamera = ecs_.CreateEntity();
-//		ecs_.AddComponent<ecs::Transform>(eCamera, ecs::Transform{ {0.0f, 0.0f, -5.0f}, {0.0f, 0.0f, 0.0f} });
-//		ecs_.AddComponent<ecs::Camera>(eCamera, ecs::Camera{});
-//		ecs_.AddComponent<ecs::CameraController>(eCamera, ecs::CameraController{ ecs::CameraMode::FPS });
-//		scene_manager_->AddEntityToScene(sceneId, eCamera);
-//
-//		// テストのメッシュ
-//		auto e = ecs_.CreateEntity();
-//		ecs_.AddComponent<ecs::Transform>(e, ecs::Transform{ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} });
-//		auto mesh = dx3d::PrimitiveFactory::CreateSphere(graphics_engine_->GetGraphicsDevice(), 32, 16);
-//		ecs_.AddComponent<ecs::Mesh>(e, mesh);
+
 
 	}
 
@@ -55,8 +43,5 @@ namespace ecs {
 
 	void TitleSceneSystem::DebugTitleScene()
 	{
-		ImGui::Begin("Title Scene Debug");
-		ImGui::Text("Title Scene System");
-		ImGui::End();
 	}
 }

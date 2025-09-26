@@ -2,7 +2,7 @@
 /**
  * @file Mesh.h
  * @brief VertexBufferやIndexBufferを保持するクラス
- * [ToDo] StaticMesh, SkeletalMeshなどの情報を持たせるようにする
+ * [ToDo] SkeletalMeshなどの情報を持たせるようにする
  * @author Arima Keita
  * @date 2025-09-03
  */
@@ -16,6 +16,7 @@ namespace ecs {
 	struct Mesh {
 		std::shared_ptr<dx3d::VertexBuffer> vb;
 		std::shared_ptr<dx3d::IndexBuffer> ib;
-		uint32_t materialId = 0;	// 仮置き
+		uint32_t indexCount{};
+		uint32_t materialId{};	// 仮置き
 	};
 }

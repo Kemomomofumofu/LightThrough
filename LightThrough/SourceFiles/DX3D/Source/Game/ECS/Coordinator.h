@@ -14,7 +14,6 @@
 #include <Game/ECS/ISystem.h>
 
 namespace ecs {
-		
 	// ---------- 前方宣言 ---------- // 
 	struct Entity;
 	class EntityManager;
@@ -26,8 +25,10 @@ namespace ecs {
 	 *
 	 * Entity、Component、Systemを管理する。
 	 */
-	class Coordinator final {
+	class Coordinator final: public dx3d::Base {
 	public:
+		Coordinator(const dx3d::BaseDesc& _desc) : Base(_desc) {}
+
 		void Init();		// 初期化
 
 		Entity CreateEntity();	// Entityの生成

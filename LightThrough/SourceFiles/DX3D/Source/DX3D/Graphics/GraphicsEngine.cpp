@@ -27,24 +27,39 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 	auto& device = *graphics_device_;
 	device_context_ = device.CreateDeviceContext();
 
-	// デフォルトのシェーダーを読み込み
-	constexpr char shaderFilePath[] = "SourceFiles/DX3D/Assets/Shaders/Default.hlsl";
-	std::ifstream shaderStream(shaderFilePath);
-	if (!shaderStream) {
-		DX3DLogThrowError("シェーダーファイルを開くのに失敗");
+	// デフォルトの頂点シェーダ読み込み
+	constexpr char vsFilePath[] = "SourceFiles/DX3D/Assets/Shaders/Vertex/VS_Instancing.hlsl";
+	std::ifstream vsStream(vsFilePath);
+	if (!vsStream) {
+		DX3DLogThrowError("VSファイルを開くのに失敗");
 	}
 	// シェーダーファイルの内容を文字列として読み込み
-	std::string shaderFileData{
-		std::istreambuf_iterator<char>(shaderStream),
+	std::string vsFileData{
+		std::istreambuf_iterator<char>(vsStream),
 		std::istreambuf_iterator<char>()
 	};
-	auto shaderSourceCode = shaderFileData.c_str();
-	auto shaderSourceCodeSize = shaderFileData.length();
+	auto vsSourceCode = vsFileData.c_str();
+	auto vsSourceCodeSize = vsFileData.length();
 
 	// シェーダーのコンパイルと頂点シグネチャの生成
-	auto vs = device.CompileShader({ shaderFilePath, shaderSourceCode, shaderSourceCodeSize, "VSMain", ShaderType::VertexShader });
-	auto ps = device.CompileShader({ shaderFilePath, shaderSourceCode, shaderSourceCodeSize, "PSMain", ShaderType::PixelShader });
+	auto vs = device.CompileShader({ vsFilePath, vsSourceCode, vsSourceCodeSize, "VSMain", ShaderType::VertexShader });
 	auto vsSig = device.CreateVertexShaderSignature({ vs });
+
+	// デフォルトのピクセルシェーダ読み込み
+	constexpr char psFilePath[] = "SourceFiles/DX3D/Assets/Shaders/Pixel/PS_Default.hlsl";
+	std::ifstream psStream(psFilePath);
+	if (!psStream) {
+		DX3DLogThrowError("PSファイルを開くのに失敗");
+	}
+	// シェーダーファイルの内容を文字列として読み込み
+	std::string psFileData{
+		std::istreambuf_iterator<char>(psStream),
+		std::istreambuf_iterator<char>()
+	};
+	auto psSourceCode = psFileData.c_str();
+	auto psSourceCodeSize = psFileData.length();
+
+	auto ps = device.CompileShader({ psFilePath, psSourceCode, psSourceCodeSize, "PSMain", ShaderType::PixelShader });
 
 	// グラフィックスパイプラインステートの生成
 	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
@@ -54,7 +69,7 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 		.fillMode = FillMode::Solid,
 		.cullMode = CullMode::Back,
 		});
-	
+
 
 }
 
@@ -86,14 +101,24 @@ void dx3d::GraphicsEngine::BeginFrame()
 
 void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib)
 {
-	auto& context = *device_context_;
-	context.SetGraphicsPipelineState(*pipeline_);
-	context.SetRasterizerState(*rasterizer_);
-	context.SetViewportSize(swap_chain_->GetSize());
+	device_context_->SetGraphicsPipelineState(*pipeline_);
+	device_context_->SetRasterizerState(*rasterizer_);
+	device_context_->SetViewportSize(swap_chain_->GetSize());
 
-	context.SetVertexBuffer(_vb);
-	context.SetIndexBuffer(_ib);
-	context.DrawIndexed(_ib.GetIndexCount(), 0, 0);
+	device_context_->SetVertexBuffer(_vb);
+	device_context_->SetIndexBuffer(_ib);
+	device_context_->DrawIndexed(_ib.GetIndexCount(), 0, 0);
+}
+
+void dx3d::GraphicsEngine::RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, ui32 _instanceCount, ui32 _startInstance)
+{
+	device_context_->SetGraphicsPipelineState(*pipeline_);
+	device_context_->SetRasterizerState(*rasterizer_);
+	device_context_->SetViewportSize(swap_chain_->GetSize());
+
+	device_context_->SetVertexBuffers(_vb, _instanceVB);
+	device_context_->SetIndexBuffer(_ib);
+	device_context_->DrawIndexedInstanced(_ib.GetIndexCount(), _instanceCount, 0, 0, _startInstance);
 }
 
 void dx3d::GraphicsEngine::EndFrame()

@@ -12,7 +12,7 @@
 namespace ecs {
 	struct Transform {
 		DirectX::XMFLOAT3 position = {};					// 位置
-		DirectX::XMFLOAT3 rotation = {};					// 回転(ラジアン)
+		DirectX::XMFLOAT4 rotationQuat = { 0.0f, 0.0f, 0.0f, 1.0f }; // 回転(クォータニオン)
 		DirectX::XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };	// スケール
 
 
@@ -24,7 +24,7 @@ namespace ecs {
 		DirectX::XMMATRIX GetWorldMatrix() const {
 			using namespace DirectX;
 			XMMATRIX S = XMMatrixScaling(scale.x, scale.y, scale.z);
-			XMMATRIX R = XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
+			XMMATRIX R = XMMatrixRotationQuaternion(XMLoadFloat4(&rotationQuat));
 			XMMATRIX T = XMMatrixTranslation(position.x, position.y, position.z);
 
 			return S * R * T;

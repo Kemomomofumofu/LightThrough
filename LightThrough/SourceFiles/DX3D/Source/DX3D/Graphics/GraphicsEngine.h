@@ -30,6 +30,7 @@ namespace dx3d {
 
 		void BeginFrame();
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib);
+		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, ui32 _instanceCount, ui32 _startInstance = 0);
 		void EndFrame();
 
 	private:

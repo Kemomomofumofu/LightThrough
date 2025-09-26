@@ -88,7 +88,7 @@ namespace scene {
 		}
 
 		// 新しいSceneをアクティブに
-		if (!SetActiveScene(_newScene, false)) { return false; }
+		if (!SetActiveScene(_newScene, _unloadPrev)) { return false; }
 
 		return true;
 	}
@@ -105,7 +105,7 @@ namespace scene {
 		}
 
 		auto it = scenes_.find(*active_scene_);
-		if(it == scenes_.end()){
+		if (it == scenes_.end()) {
 			GameLogError("[SceneManager] アクティブなシーンが存在しない。");
 			return false;
 		}
@@ -133,12 +133,11 @@ namespace scene {
 		//}
 
 		// Entityの破棄
+		// [ToDo] Scene遷移での削除する/しないをSceneで管理するべきなのかEntityで管理するべきなのか...たぶんScene側のほうが無駄なメモリは減らせるのかなぁ...
 		if (_destroyEntities) {
 			for (auto e : it->second.entities_) {
 				if (persistent_entities_.count(e)) { continue; }	// 永続化されているなら削除しない
-				if (_destroyEntities) {
-					ecs_.DestroyEntity(e);	// Entityの破棄
-				}
+				ecs_.DestroyEntity(e);	// Entityの破棄
 			}
 		}
 
@@ -324,7 +323,8 @@ namespace scene {
 
 					ImGui::EndTable();
 				}
-			} else {
+			}
+			else {
 				ImGui::TextUnformatted("Active scene is not loaded.");
 			}
 		}

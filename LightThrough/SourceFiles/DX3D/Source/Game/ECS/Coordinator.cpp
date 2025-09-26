@@ -39,9 +39,15 @@ namespace ecs {
 	 */
 	void Coordinator::DestroyEntity(Entity _e)
 	{
-		entity_manager_->Destroy(_e);
+		if (!_e.IsInitialized() || !entity_manager_ || !entity_manager_->IsValid(_e)) {
+			GameLogError("[ECS:Coordinator] Entityが未初期化 or すでに無効. Skip.");
+			return;
+		}
+		// Entityが破棄されたことをComponentManagerとSystemManagerに通知
+		// [ToDo] メソッド名が悪い
 		component_manager_->EntityDestroyed(_e);
 		system_manager_->EntityDestroyed(_e);
+		entity_manager_->Destroy(_e);
 	}
 
 	/**

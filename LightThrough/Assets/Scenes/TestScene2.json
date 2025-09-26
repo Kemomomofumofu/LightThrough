@@ -1,41 +1,41 @@
 {
-    "entities": [
-        {
-            "components": {
-                "Camera": {
-                    "aspectRatio": 1.7777777910232544,
-                    "farZ": 1000.0,
-                    "fovY": 60.0,
-                    "isActive": true,
-                    "isMain": true,
-                    "nearZ": 0.10000000149011612
-                },
-                "CameraController": {
-                    "mode": 0,
-                    "mouseSensitivity": 1.0,
-                    "moveSpeed": 5.0
-                },
-                "Transform": {
-                    "position": [
-                        -0.596676766872406,
-                        0.0,
-                        4.846796035766602
-                    ],
-                    "rotation": [
-                        0.0012079000007361174,
-                        -0.00151119998190552,
-                        0.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                }
-            },
-            "id": 1
+  "entities": [
+    {
+      "components": {
+        "Camera": {
+          "aspectRatio": 1.7777777910232544,
+          "farZ": 1000.0,
+          "fovY": 60.0,
+          "isActive": true,
+          "isMain": true,
+          "nearZ": 0.10000000149011612
+        },
+        "CameraController": {
+          "mode": 0,
+          "mouseSensitivity": 1.0,
+          "moveSpeed": 5.0
+        },
+        "Transform": {
+          "position": [
+            0.057171497493982315,
+            0.0,
+            6.185490131378174
+          ],
+          "rotation": [
+            -0.01764858514070511,
+            -0.046155739575624466,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
         }
-    ],
-    "sceneId": "TestScene2",
-    "sceneName": "TestScene2"
+      },
+      "id": 1
+    }
+  ],
+  "sceneId": "TestScene2",
+  "sceneName": "TestScene2"
 }

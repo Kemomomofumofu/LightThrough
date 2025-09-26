@@ -94,8 +94,11 @@ namespace scene {
 			throw std::runtime_error("[SceneSerializer] シーンファイルを開くのに失敗" + path);
 		}
 
-		json jScene;
-		ifs >> jScene;
+		// 例外処理付きでパース
+		json jScene = json::parse(ifs, /*callback=*/nullptr, /*allow_exceptions=*/false);
+		if (jScene.is_discarded()) {
+			throw std::runtime_error(std::string("[SceneSerializer] JSONパース失敗: ") + path);
+		}
 
 		SceneData scene;
 		scene.id_ = jScene["sceneId"].get<std::string>();
@@ -127,7 +130,7 @@ namespace scene {
 		if (_ecs.HasComponent<ecs::Transform>(_e)) {
 			const auto& t = _ecs.GetComponent<ecs::Transform>(_e);
 			jEntity["components"]["Transform"]["position"] = { t.position.x, t.position.y, t.position.z };
-			jEntity["components"]["Transform"]["rotation"] = { t.rotation.x, t.rotation.y, t.rotation.z };
+			jEntity["components"]["Transform"]["rotationQuat"] = { t.rotationQuat.x, t.rotationQuat.y, t.rotationQuat.z, t.rotationQuat.w };
 			jEntity["components"]["Transform"]["scale"] = { t.scale.x, t.scale.y, t.scale.z };
 		}
 
@@ -181,12 +184,12 @@ namespace scene {
 		if (comps.contains("Transform") && comps["Transform"].is_object()) {
 			const auto& jt = comps["Transform"];
 			if (jt.contains("position") && jt["position"].is_array() && jt["position"].size() == 3 &&
-				jt.contains("rotation") && jt["rotation"].is_array() && jt["rotation"].size() == 3 &&
+				jt.contains("rotationQuat") && jt["rotationQuat"].is_array() && jt["rotationQuat"].size() == 4 &&
 				jt.contains("scale") && jt["scale"].is_array() && jt["scale"].size() == 3) {
 
 				ecs::Transform t;
 				t.position = { jt["position"][0].get<float>(), jt["position"][1].get<float>(), jt["position"][2].get<float>() };
-				t.rotation = { jt["rotation"][0].get<float>(), jt["rotation"][1].get<float>(), jt["rotation"][2].get<float>() };
+				t.rotationQuat = { jt["rotationQuat"][0].get<float>(), jt["rotationQuat"][1].get<float>(), jt["rotationQuat"][2].get<float>(), jt["rotationQuat"][3].get<float>()};
 				t.scale = { jt["scale"][0].get<float>(),    jt["scale"][1].get<float>(),    jt["scale"][2].get<float>() };
 				ecs_.AddComponent(e, t);
 			}
