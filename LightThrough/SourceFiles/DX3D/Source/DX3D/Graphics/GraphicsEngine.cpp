@@ -14,7 +14,6 @@
 #include <DX3D/Graphics/SwapChain.h>
 #include <DX3D/Graphics/Buffers/VertexBuffer.h>
 #include <DX3D/Graphics/Buffers/IndexBuffer.h>
-#include <DX3D/Math/Vec3.h>
 
 /*---------- 名前空間 ----------*/
 using namespace dx3d;
@@ -27,49 +26,15 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 	auto& device = *graphics_device_;
 	device_context_ = device.CreateDeviceContext();
 
-	// デフォルトの頂点シェーダ読み込み
-	constexpr char vsFilePath[] = "SourceFiles/DX3D/Assets/Shaders/Vertex/VS_Instancing.hlsl";
-	std::ifstream vsStream(vsFilePath);
-	if (!vsStream) {
-		DX3DLogThrowError("VSファイルを開くのに失敗");
-	}
-	// シェーダーファイルの内容を文字列として読み込み
-	std::string vsFileData{
-		std::istreambuf_iterator<char>(vsStream),
-		std::istreambuf_iterator<char>()
-	};
-	auto vsSourceCode = vsFileData.c_str();
-	auto vsSourceCodeSize = vsFileData.length();
-
-	// シェーダーのコンパイルと頂点シグネチャの生成
-	auto vs = device.CompileShader({ vsFilePath, vsSourceCode, vsSourceCodeSize, "VSMain", ShaderType::VertexShader });
-	auto vsSig = device.CreateVertexShaderSignature({ vs });
-
-	// デフォルトのピクセルシェーダ読み込み
-	constexpr char psFilePath[] = "SourceFiles/DX3D/Assets/Shaders/Pixel/PS_Default.hlsl";
-	std::ifstream psStream(psFilePath);
-	if (!psStream) {
-		DX3DLogThrowError("PSファイルを開くのに失敗");
-	}
-	// シェーダーファイルの内容を文字列として読み込み
-	std::string psFileData{
-		std::istreambuf_iterator<char>(psStream),
-		std::istreambuf_iterator<char>()
-	};
-	auto psSourceCode = psFileData.c_str();
-	auto psSourceCodeSize = psFileData.length();
-
-	auto ps = device.CompileShader({ psFilePath, psSourceCode, psSourceCodeSize, "PSMain", ShaderType::PixelShader });
-
-	// グラフィックスパイプラインステートの生成
-	pipeline_ = device.CreateGraphicsPipelineState({ *vsSig, *ps });
-
 	// ラスタライザーステートの生成
 	rasterizer_ = device.CreateRasterizerState({
-		.fillMode = FillMode::Solid,
+		.fillMode = FillMode::Wireframe,
 		.cullMode = CullMode::Back,
 		});
 
+
+	// パイプラインキャッシュの生成
+	pipeline_cache_ = device.CreatePipelineCache({});
 
 }
 
@@ -101,8 +66,14 @@ void dx3d::GraphicsEngine::BeginFrame()
 
 void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib)
 {
-	device_context_->SetGraphicsPipelineState(*pipeline_);
-	device_context_->SetRasterizerState(*rasterizer_);
+	PipelineKey key{
+		VertexShaderKind::Default,
+		PixelShaderKind::Default,
+	};
+	auto pso = pipeline_cache_->GetOrCreate(key);
+
+	device_context_->SetGraphicsPipelineState(*pso);
+	device_context_->SetRasterizerState(*rasterizer_);	// [ToDo] pso で設定できるようにしたいね
 	device_context_->SetViewportSize(swap_chain_->GetSize());
 
 	device_context_->SetVertexBuffer(_vb);
@@ -110,9 +81,16 @@ void dx3d::GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib)
 	device_context_->DrawIndexed(_ib.GetIndexCount(), 0, 0);
 }
 
-void dx3d::GraphicsEngine::RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, ui32 _instanceCount, ui32 _startInstance)
+void dx3d::GraphicsEngine::RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance)
 {
-	device_context_->SetGraphicsPipelineState(*pipeline_);
+	PipelineKey key{
+		VertexShaderKind::Instanced,
+		PixelShaderKind::Default,
+	};
+	PromoteInstancing(key, _instanceCount);	// インスタンス数に応じてパイプラインキーを更新
+	auto pso = pipeline_cache_->GetOrCreate(key);
+
+	device_context_->SetGraphicsPipelineState(*pso);
 	device_context_->SetRasterizerState(*rasterizer_);
 	device_context_->SetViewportSize(swap_chain_->GetSize());
 

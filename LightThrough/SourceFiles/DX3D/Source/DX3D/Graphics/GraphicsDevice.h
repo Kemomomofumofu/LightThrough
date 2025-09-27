@@ -8,11 +8,16 @@
  */
 
  /*---------- インクルード ----------*/
-#include <DX3D/Graphics/GraphicsResource.h>
-#include <DX3D/Core/common.h>
-#include <DX3D/Core/Base.h>
+#include <memory>
+#include <vector>
 #include <d3d11.h>
 #include <wrl.h>
+#include <DX3D/Core/common.h>
+#include <DX3D/Core/Base.h>
+#include <DX3D/Graphics/GraphicsResource.h>
+#include <DX3D/Graphics/Buffers/InstanceData.h>
+#include <DX3D/Graphics/Inputlayout.h>
+#include <DX3D/Graphics/PipelineCache.h>
 
 namespace dx3d {
 	class GraphicsDevice final : public Base, public std::enable_shared_from_this<GraphicsDevice> {
@@ -22,13 +27,16 @@ namespace dx3d {
 
 		SwapChainPtr CreateSwapChain(const SwapChainDesc& _desc);
 		DeviceContextPtr CreateDeviceContext();
-		ShaderBinaryPtr CompileShader(const ShaderCompileDesc& _desc);
-		GraphicsPipelineStatePtr CreateGraphicsPipelineState(const GraphicsPipelineStateDesc& _desc);
+		ShaderBinaryPtr CompileShader(const ShaderCompileDesc& _desc) const;
+		GraphicsPipelineStatePtr CreateGraphicsPipelineState(const GraphicsPipelineStateDesc& _desc) const;
 		RasterizerStatePtr CreateRasterizerState(const RasterizerStateDesc& _desc = {});
-		VertexShaderSignaturePtr CreateVertexShaderSignature(const VertexShaderSignatureDesc& _desc);
+		VertexShaderSignaturePtr CreateVertexShaderSignature(const VertexShaderSignatureDesc& _desc) const;
+		InputLayoutPtr CreateInputLayout(const InputLayoutDesc& _desc) const;
 		VertexBufferPtr CreateVertexBuffer(const VertexBufferDesc& _desc);
 		IndexBufferPtr CreateIndexBuffer(const IndexBufferDesc& _desc);
 		ConstantBufferPtr CreateConstantBuffer(const ConstantBufferDesc& _desc);
+		auto CreateInstanceBuffer(const std::vector<InstanceData>& _data);
+		std::unique_ptr<PipelineCache> CreatePipelineCache(const PipelineCache::PipelineCacheDesc& _desc);
 
 		void ExecuteCommandList(DeviceContext& _context);
 

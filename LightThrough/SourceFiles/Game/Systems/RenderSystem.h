@@ -9,6 +9,7 @@
 // ---------- インクルード ---------- // 
 #include <DX3D/Core/Core.h>
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
+#include <DX3D/Graphics/Buffers/InstanceData.h>
 #include <Game/ECS/ISystem.h>
 
 // ---------- 前方宣言 ---------- //
@@ -17,15 +18,12 @@ namespace dx3d {
 }
 
 namespace ecs {
-	struct InstanceData {
-		DirectX::XMFLOAT4X4 world;
-	};
 
 	struct InstanceBatch {
 		dx3d::VertexBufferPtr vb{};
 		dx3d::IndexBufferPtr ib{};
 		uint32_t indexCount{};
-		std::vector<InstanceData> instances{};
+		std::vector<dx3d::InstanceData> instances{};
 		size_t instanceOffset = 0;
 	};
 

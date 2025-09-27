@@ -18,7 +18,7 @@ namespace dx3d {
 	struct Vertex {
 		DirectX::XMFLOAT3 position; // 頂点の位置
 		DirectX::XMFLOAT4 color;    // 頂点の色
-		DirectX::XMFLOAT2 uv;       // 頂点のUV座標
 		DirectX::XMFLOAT3 normal;   // 頂点の法線ベクトル
+		DirectX::XMFLOAT2 uv;       // 頂点のUV座標
 	};
 }

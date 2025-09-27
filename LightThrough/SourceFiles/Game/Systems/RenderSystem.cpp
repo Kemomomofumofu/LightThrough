@@ -100,7 +100,7 @@ namespace ecs {
 		};
 		std::unordered_map<Key, size_t, KeyHash> map;
 
-		// Entity一覧を走査してバッチ化
+		// Entity一覧を走査してバッチ化 // [ToDo] 毎フレーム全Entityに対して処理するのはあまりにも重すぎなので、差分更新とかにしたい。
 		for (auto& e : entities_) {
 			auto& mesh = ecs_.GetComponent<Mesh>(e);
 			auto& transform = ecs_.GetComponent<ecs::Transform>(e);
@@ -126,7 +126,7 @@ namespace ecs {
 			}
 
 			// インスタンスデータ追加
-			InstanceData d{};
+			dx3d::InstanceData d{};
 			DirectX::XMMATRIX wm = transform.GetWorldMatrix();
 			DirectX::XMStoreFloat4x4(&d.world, wm);		// 非転置
 			batches_[batchIndex].instances.emplace_back(d);
@@ -161,7 +161,7 @@ namespace ecs {
 		// インスタンスバッファの作成またはリサイズ
 		CreateOrResizeInstanceBuffer(totalInstance);
 
-		std::vector<InstanceData> instances;
+		std::vector<dx3d::InstanceData> instances;
 		instances.reserve(totalInstance);
 
 		size_t cursor = 0;
@@ -170,10 +170,7 @@ namespace ecs {
 		for (auto& b : batches_) {
 			b.instanceOffset = cursor;
 			for (auto& inst : b.instances) {
-				DirectX::XMMATRIX w = DirectX::XMLoadFloat4x4(&inst.world);
-				InstanceData d{};
-				DirectX::XMStoreFloat4x4(&d.world, DirectX::XMMatrixTranspose(w));
-				instances.emplace_back(d);
+				instances.emplace_back(inst);
 			}
 			cursor += b.instances.size();
 
@@ -183,8 +180,8 @@ namespace ecs {
 		{
 			dx3d::VertexBufferDesc desc{
 				.vertexList = instances.data(),
-				.vertexListSize = static_cast<uint32_t>(instances.size()),
-				.vertexSize = static_cast<uint32_t>(sizeof(InstanceData))
+				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceData)),
+				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceData))
 			};
 			instance_buffer_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
@@ -200,8 +197,8 @@ namespace ecs {
 				// インスタンスが1つだけなら通常描画
 				dx3d::CBPerObject obj{};
 				DirectX::XMMATRIX w = DirectX::XMLoadFloat4x4(&b.instances[0].world);
-				 obj.world = DirectX::XMMatrixTranspose(w);
-				//obj.world = w;	// 非転置
+				//obj.world = DirectX::XMMatrixTranspose(w);
+				obj.world = w;	// 非転置
 				cb_per_object_->Update(context, &obj, sizeof(obj));
 				context.VSSetConstantBuffer(1, *cb_per_object_);
 				engine_->Render(*b.vb, *b.ib);

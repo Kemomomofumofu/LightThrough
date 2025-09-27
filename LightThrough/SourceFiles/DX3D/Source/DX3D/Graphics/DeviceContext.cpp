@@ -26,9 +26,6 @@ namespace dx3d {
 		: GraphicsResource(_gDesc)
 	{
 		DX3DGraphicsLogThrowOnFail(device_.CreateDeferredContext(0, &context_), "CreateDeferredContext を 失敗しました");
-
-		ID3D11DeviceContext* imm = nullptr;
-		graphics_device_->GetD3DDevice()->GetImmediateContext(&imm);
 	}
 
 	/**
@@ -47,9 +44,9 @@ namespace dx3d {
 	 * @param _swapChain スワップチェイン
 	 * @param _color 初期化色
 	 */
-	void DeviceContext::ClearAndSetBackBuffer(const SwapChain& _swapChain, const Vec4& _color)
+	void DeviceContext::ClearAndSetBackBuffer(const SwapChain& _swapChain, const DirectX::XMFLOAT4& _color)
 	{
-		f32 fColor[] = { _color.x, _color.y, _color.z, _color.w };
+		float fColor[] = { _color.x, _color.y, _color.z, _color.w };
 		auto rtv = _swapChain.rtv_.Get();
 		context_->ClearRenderTargetView(rtv, fColor);
 		context_->OMSetRenderTargets(1, &rtv, nullptr);
@@ -94,11 +91,17 @@ namespace dx3d {
 	 * @param _buffers 頂点バッファの配列
 	 * @param _count 頂点バッファの数
 	 */
-	void DeviceContext::SetVertexBuffers(ui32 _startSlot, const VertexBuffer* const* _buffers, ui32 _count)
+	void DeviceContext::SetVertexBuffers(uint32_t _startSlot, const VertexBuffer* const* _buffers, uint32_t _count)
 	{
-		UINT strides[2] = { sizeof(Vertex), sizeof(InstanceData) };
-		UINT offsets[2] = { 0, 0 };
-		ID3D11Buffer* bufs[2] = { _buffers[0]->GetBuffer(), _buffers[1]->GetBuffer()};
+		ID3D11Buffer* bufs[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]{};
+		UINT strides[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]{};
+		UINT offsets[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]{};
+
+		for (uint32_t i = 0; i < _count; ++i) {
+			bufs[i] = _buffers[i]->GetBuffer();
+			strides[i] = _buffers[i]->vertex_size_;
+			offsets[i] = 0;
+		}
 		context_->IASetVertexBuffers(_startSlot, _count, bufs, strides, offsets);
 	}
 
@@ -111,6 +114,15 @@ namespace dx3d {
 	{
 		const VertexBuffer* arr[2] = { &_vb0, &_vb1 };
 		SetVertexBuffers(0, arr, 2);
+	}
+
+	/**
+	 * @brief 入力レイアウトをセットする
+	 * @param _layout 入力レイアウト
+	 */
+	void DeviceContext::SetInputLayout(const InputLayout& _layout)
+	{
+		context_->IASetInputLayout(_layout.Get());
 	}
 
 	/**
@@ -127,7 +139,7 @@ namespace dx3d {
 	 * @param _slot スロット
 	 * @param _buffer 定数バッファ
 	 */
-	void DeviceContext::VSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer)
+	void DeviceContext::VSSetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer)
 	{
 		ID3D11Buffer* buffer = _buffer.GetBuffer();
 		context_->VSSetConstantBuffers(_slot, 1, &buffer);
@@ -138,7 +150,7 @@ namespace dx3d {
 	 * @param _slot スロット
 	 * @param _buffer 定数バッファ
 	 */
-	void DeviceContext::PSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer)
+	void DeviceContext::PSSetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer)
 	{
 		ID3D11Buffer* buffer = _buffer.GetBuffer();
 		context_->PSSetConstantBuffers(_slot, 1, &buffer);
@@ -149,7 +161,7 @@ namespace dx3d {
 	 * @param _slot スロット
 	 * @param _buffer 定数バッファ
 	 */
-	void DeviceContext::SetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer)
+	void DeviceContext::SetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer)
 	{
 		VSSetConstantBuffer(_slot, _buffer);
 		PSSetConstantBuffer(_slot, _buffer);
@@ -162,8 +174,8 @@ namespace dx3d {
 	void dx3d::DeviceContext::SetViewportSize(const Rect& _size)
 	{
 		D3D11_VIEWPORT vp{};
-		vp.Width = static_cast<f32>(_size.width);
-		vp.Height = static_cast<f32>(_size.height);
+		vp.Width = static_cast<float>(_size.width);
+		vp.Height = static_cast<float>(_size.height);
 		vp.MinDepth = 0.0f;
 		vp.MaxDepth = 1.0f;
 		context_->RSSetViewports(1, &vp);
@@ -174,7 +186,7 @@ namespace dx3d {
 	 * @param _vertexCount 頂点数
 	 * @param _startVertexLocation 開始頂点位置
 	 */
-	void dx3d::DeviceContext::DrawTriangleList(ui32 _vertexCount, ui32 _startVertexLocation)
+	void dx3d::DeviceContext::DrawTriangleList(uint32_t _vertexCount, uint32_t _startVertexLocation)
 	{
 		context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context_->Draw(_vertexCount, _startVertexLocation);
@@ -186,7 +198,7 @@ namespace dx3d {
 	 * @param _startIndex	開始インデックス位置
 	 * @param _baseVertex	開始頂点位置
 	 */
-	void dx3d::DeviceContext::DrawIndexed(ui32 _indexCount, ui32 _startIndex, ui32 _baseVertex)
+	void dx3d::DeviceContext::DrawIndexed(uint32_t _indexCount, uint32_t _startIndex, uint32_t _baseVertex)
 	{
 		context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context_->DrawIndexed(_indexCount, _startIndex, _baseVertex);
@@ -200,7 +212,7 @@ namespace dx3d {
 	 * @param _baseVertex		開始頂点位置
 	 * @param _startInstance	開始インスタンス位置
 	 */
-	void DeviceContext::DrawIndexedInstanced(ui32 _indexCount, ui32 _instanceCount, ui32 _startIndex, ui32 _baseVertex, ui32 _startInstance)
+	void DeviceContext::DrawIndexedInstanced(uint32_t _indexCount, uint32_t _instanceCount, uint32_t _startIndex, uint32_t _baseVertex, uint32_t _startInstance)
 	{
 		context_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context_->DrawIndexedInstanced(_indexCount, _instanceCount, _startIndex, _baseVertex, _startInstance);

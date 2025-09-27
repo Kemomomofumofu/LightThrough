@@ -9,8 +9,8 @@
  /*---------- インクルード ----------*/
 #include <DX3D/Core/Core.h>
 #include <DX3D/Core/Base.h>
-#include <DX3D/Math/Vec3.h>
-#include <DX3D/Math/Vec4.h>
+#include <DX3D/Graphics/PipelineCache.h>
+#include <DX3D/Graphics/PipelineKey.h>
 
 
 /**
@@ -30,7 +30,7 @@ namespace dx3d {
 
 		void BeginFrame();
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib);
-		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, ui32 _instanceCount, ui32 _startInstance = 0);
+		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0);
 		void EndFrame();
 
 	private:
@@ -38,6 +38,8 @@ namespace dx3d {
 		DeviceContextPtr device_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
 		RasterizerStatePtr rasterizer_{};
+		InputLayoutPtr vs_layout_{};
+		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};
 	};
 }

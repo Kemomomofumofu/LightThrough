@@ -15,7 +15,7 @@ dx3d::IndexBuffer::IndexBuffer(const IndexBufferDesc& _desc, const GraphicsResou
 {
 	D3D11_BUFFER_DESC bd{};
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(ui32) * _desc.indexCount;
+	bd.ByteWidth = sizeof(uint32_t) * _desc.indexCount;
 	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
 	D3D11_SUBRESOURCE_DATA initData{};
@@ -33,7 +33,7 @@ ID3D11Buffer* dx3d::IndexBuffer::GetBuffer() const noexcept
 	return buffer_.Get();
 }
 
-dx3d::ui32 dx3d::IndexBuffer::GetIndexCount() const noexcept
+uint32_t dx3d::IndexBuffer::GetIndexCount() const noexcept
 {
 	return index_count_;
 }

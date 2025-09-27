@@ -14,19 +14,17 @@ namespace dx3d {
 	/**
 	 * @brief 頂点シェーダシグネチャクラス
 	 *
-	 * 頂点シェーダのバイナリデータからレイアウトの情報を解析して作成したりする。
+	 * 頂点データのInputLayoutを生成するために必要な情報を持つクラス
 	 */
-
+	
 	class VertexShaderSignature final : public GraphicsResource {
 	public :
 		VertexShaderSignature(const VertexShaderSignatureDesc& _desc, const GraphicsResourceDesc& _gDesc);
 		BinaryData GetShaderBinaryData() const noexcept;
-		BinaryData GetInputElementsData() const noexcept;
+		ID3D11ShaderReflection* GetReflection() const noexcept;
 
 	private:
 		ShaderBinaryPtr vs_binary_{};	// バイナリデータ
 		Microsoft::WRL::ComPtr<ID3D11ShaderReflection> shader_reflection_{};	// リフレクション
-		D3D11_INPUT_ELEMENT_DESC elements_[D3D11_STANDARD_VERTEX_ELEMENT_COUNT]{};	// インプットの情報
-		ui32 num_elements_{};	// エレメントの量
 	};
 }

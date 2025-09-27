@@ -33,11 +33,9 @@ namespace dx3d {
 	class IndexBuffer;
 	class ConstantBuffer;
 	class VertexShaderSignature;
-
-	using i32 = std::int32_t;
-	using ui32 = std::uint32_t;
-	using f32 = float;
-	using d64 = double;
+	class InputLayout;
+	class Texture;
+	class PipelineCache;
 
 	using SwapChainPtr = std::shared_ptr<SwapChain>;
 	using DeviceContextPtr = std::shared_ptr<DeviceContext>;
@@ -48,4 +46,6 @@ namespace dx3d {
 	using IndexBufferPtr = std::shared_ptr<IndexBuffer>;
 	using ConstantBufferPtr = std::shared_ptr<ConstantBuffer>;
 	using VertexShaderSignaturePtr = std::shared_ptr<VertexShaderSignature>;
+	using InputLayoutPtr = std::shared_ptr<InputLayout>;
+	using TexturePtr = std::shared_ptr<Texture>;
 }

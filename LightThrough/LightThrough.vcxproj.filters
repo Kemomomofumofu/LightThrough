@@ -90,12 +90,6 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\Game.h">
       <Filter>DX3D\Include\DX3D\Game</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Vec3.h">
-      <Filter>DX3D\Include\DX3D\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Vec4.h">
-      <Filter>DX3D\Include\DX3D\Math</Filter>
-    </ClInclude>
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Rect.h">
       <Filter>DX3D\Include\DX3D\Math</Filter>
     </ClInclude>
@@ -149,9 +143,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
@@ -198,6 +189,14 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\InstanceData.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Material.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Texture.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -280,18 +279,14 @@
     <ClCompile Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
     <None Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="SourceFiles\DX3D\Assets\Shaders\Vertex\VS_Instancing.hlsl" />
-    <FxCompile Include="SourceFiles\DX3D\Assets\Shaders\Pixel\PS_Default.hlsl" />
-    <FxCompile Include="SourceFiles\DX3D\Assets\Shaders\Vertex\VS_Default.hlsl">
-      <Filter>DX3D\Assets\Shaders</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

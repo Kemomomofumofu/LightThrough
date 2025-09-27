@@ -26,18 +26,18 @@ namespace dx3d {
 		{
 			// [ToDo] Normalñ¢í≤êÆ
 			const Vertex cubeVertices[] = {
-				{{-0.5f, -0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 0
-				{{ 0.5f, -0.5f, -0.5f}, DEFAULT_COLOR, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 1
-				{{ 0.5f,  0.5f, -0.5f}, DEFAULT_COLOR, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 2
-				{{-0.5f,  0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 3
+				{{-0.5f, -0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},	// 0
+				{{ 0.5f, -0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},	// 1
+				{{ 0.5f,  0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},	// 2
+				{{-0.5f,  0.5f, -0.5f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},	// 3
 
-				{{-0.5f, -0.5f,  0.5f}, DEFAULT_COLOR, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},	// 4
-				{{ 0.5f, -0.5f,  0.5f}, DEFAULT_COLOR, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},	// 5
-				{{ 0.5f,  0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},	// 6
-				{{-0.5f,  0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},	// 7
+				{{-0.5f, -0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},	// 4
+				{{ 0.5f, -0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},	// 5
+				{{ 0.5f,  0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},	// 6
+				{{-0.5f,  0.5f,  0.5f}, DEFAULT_COLOR, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},	// 7
 			};
 
-			const ui32 cubeIndices[] = {
+			const uint32_t cubeIndices[] = {
 				0,1,2, 0,2,3,	// ëO
 				5,4,7, 5,7,6,	// å„
 				4,0,3, 4,3,7,	// ç∂
@@ -46,7 +46,11 @@ namespace dx3d {
 				1,0,4, 1,4,5,	// â∫
 			};
 
-			g_cube.vb = _device.CreateVertexBuffer({ cubeVertices, std::size(cubeVertices), sizeof(Vertex) });
+			g_cube.vb = _device.CreateVertexBuffer({
+				cubeVertices,
+				static_cast<uint32_t>(std::size(cubeVertices) * sizeof(Vertex)),
+				static_cast<uint32_t>(sizeof(Vertex))
+				});
 			g_cube.ib = _device.CreateIndexBuffer({ cubeIndices, std::size(cubeIndices) });
 			g_cube.indexCount = std::size(cubeIndices);
 		}
@@ -67,17 +71,21 @@ namespace dx3d {
 		if (!g_quad.Valid())
 		{
 			const Vertex quadVertices[] = {
-				{{-0.5f, -0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 0
-				{{ 0.5f, -0.5f, 0.0f}, DEFAULT_COLOR, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},	// 1
-				{{ 0.5f,  0.5f, 0.0f}, DEFAULT_COLOR, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 2
-				{{-0.5f,  0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}},	// 3
+				{{-0.5f, -0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},	// 0
+				{{ 0.5f, -0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},	// 1
+				{{ 0.5f,  0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},	// 2
+				{{-0.5f,  0.5f, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},	// 3
 			};
-			const ui32 quadIndices[] = {
+			const uint32_t quadIndices[] = {
 				0, 1, 2,
 				0, 2, 3,
 			};
 
-			g_quad.vb = _device.CreateVertexBuffer({ quadVertices, std::size(quadVertices), sizeof(Vertex) });
+			g_quad.vb = _device.CreateVertexBuffer({
+				quadVertices,
+				static_cast<uint32_t>(std::size(quadVertices) * sizeof(Vertex)),
+				static_cast<uint32_t>(sizeof(Vertex))
+				});
 			g_quad.ib = _device.CreateIndexBuffer({ quadIndices, std::size(quadIndices) });
 			g_quad.indexCount = std::size(quadIndices);
 		}
@@ -92,7 +100,7 @@ namespace dx3d {
 	 * @param _radius îºåa
 	 * @return ê∂ê¨ÇµÇΩÉÅÉbÉVÉÖ
 	 */
-	ecs::Mesh PrimitiveFactory::CreateSphere(GraphicsDevice& _device, ui32 _slices, ui32 _stacks)
+	ecs::Mesh PrimitiveFactory::CreateSphere(GraphicsDevice& _device, uint32_t _slices, uint32_t _stacks)
 	{
 		using namespace DirectX;
 
@@ -114,7 +122,7 @@ namespace dx3d {
 		std::vector<Vertex> sphereVertices{};
 		// í∏ì_ê∂ê¨
 		// ñkã…
-		sphereVertices.push_back({ {0.0f, radius, 0.0f}, DEFAULT_COLOR, {0.0f, 0.0f }, {0.0f, 1.0f, 0.0f} });
+		sphereVertices.push_back({ {0.0f, radius, 0.0f}, DEFAULT_COLOR, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f } });
 
 		// íÜä‘
 		for (uint32_t i = 1; i <= _stacks; ++i) {
@@ -137,15 +145,15 @@ namespace dx3d {
 					phi / XM_PI,
 				};
 
-				sphereVertices.push_back({ pos, DEFAULT_COLOR, uv, normal });
+				sphereVertices.push_back({ pos, DEFAULT_COLOR, normal, uv });
 			}
 		}
 
 		// ìÏã…
-		sphereVertices.push_back({ {0.0f, -radius, 0.0f}, {1.0f, 1.0f, 1.0f, 0.75f}, {0.0f, 1.0f }, {0.0f, -1.0f, 0.0f} });
+		sphereVertices.push_back({ {0.0f, -radius, 0.0f},DEFAULT_COLOR, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f } });
 
 		// ñkã…
-		std::vector<ui32> sphereIndices{};
+		std::vector<uint32_t> sphereIndices{};
 		for (uint32_t i = 1; i <= _slices; ++i) {
 			sphereIndices.push_back(0);
 			sphereIndices.push_back(i);
@@ -171,17 +179,22 @@ namespace dx3d {
 		// ìÏã…
 		uint32_t southPoleIndex = (uint32_t)sphereVertices.size() - 1;
 		baseIndex = southPoleIndex - ringVertexCount;
-
+		
+		// [ToDo] Ç±Ç±ÇæÇØï`âÊÇ≥ÇÍÇƒÇ¢Ç»Ç¢ÅB
 		for (uint32_t i = 0; i < _slices; ++i) {
 			sphereIndices.push_back(southPoleIndex);
-			sphereIndices.push_back(baseIndex + i);
 			sphereIndices.push_back(baseIndex + i + 1);
+			sphereIndices.push_back(baseIndex + i);
 		}
 
 		CachedMesh cm;
-		cm.vb = _device.CreateVertexBuffer({ sphereVertices.data(), (ui32)sphereVertices.size(), (ui32)sizeof(Vertex) });
-		cm.ib = _device.CreateIndexBuffer({ sphereIndices.data(), (ui32)sphereIndices.size() });
-		cm.indexCount = (ui32)sphereIndices.size();
+		cm.vb = _device.CreateVertexBuffer({
+			sphereVertices.data(),
+			static_cast<uint32_t>(sphereVertices.size() * sizeof(Vertex)),
+			static_cast<uint32_t>(sizeof(Vertex))
+			});
+		cm.ib = _device.CreateIndexBuffer({ sphereIndices.data(), (uint32_t)sphereIndices.size() });
+		cm.indexCount = (uint32_t)sphereIndices.size();
 
 		auto [it, _] = g_spheres.emplace(key, std::move(cm));
 		return ecs::Mesh{ it->second.vb, it->second.ib, it->second.indexCount, 0 };

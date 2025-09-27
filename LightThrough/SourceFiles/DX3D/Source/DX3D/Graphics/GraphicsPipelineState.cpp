@@ -9,6 +9,7 @@
 #include <DX3D/Graphics/GraphicsPipelineState.h>
 #include <DX3D/Graphics/ShaderBinary.h>
 #include <DX3D/Graphics/VertexShaderSignature.h>
+#include <DX3D/Graphics/InputLayout.h>
 
 
 dx3d::GraphicsPipelineState::GraphicsPipelineState(const GraphicsPipelineStateDesc& _desc, const GraphicsResourceDesc& _gDesc)
@@ -17,30 +18,20 @@ dx3d::GraphicsPipelineState::GraphicsPipelineState(const GraphicsPipelineStateDe
 		DX3DLogThrowInvalidArg("ps Ç™ PixelShader Ç≈ÇÕ Ç†ÇËÇ‹ÇπÇÒ");
 	}
 
+	// VertexShader
 	auto vs = _desc.vs.GetShaderBinaryData();
-	auto ps = _desc.ps.GetData();
-	auto vsInputElements = _desc.vs.GetInputElementsData();
-	auto* elems = static_cast<const D3D11_INPUT_ELEMENT_DESC*>(vsInputElements.data);
-	UINT elemCount = static_cast<UINT>(vsInputElements.dataSize);
-
-	DX3DGraphicsLogThrowOnFail(
-		device_.CreateInputLayout(
-			elems,
-			elemCount,
-			vs.data,
-			vs.dataSize,
-			&layout_
-		),
-		"CreateInputLayer Ç é∏îsÇµÇ‹ÇµÇΩ"
-	);
-
 	DX3DGraphicsLogThrowOnFail(
 		device_.CreateVertexShader(vs.data, vs.dataSize, nullptr, &vs_),
 		"CreateVertexShader Ç é∏îsÇµÇ‹ÇµÇΩ"
 	);
 
+	// PixelShader
+	auto ps = _desc.ps.GetData();
 	DX3DGraphicsLogThrowOnFail(
 		device_.CreatePixelShader(ps.data, ps.dataSize, nullptr, &ps_),
 		"CreatePixelShader Ç é∏îsÇµÇ‹ÇµÇΩ"
 	);
+
+	// InputLayout
+	layout_ = _desc.inputLayout->Get();	// éQè∆Çï€éù
 }

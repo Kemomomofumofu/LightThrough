@@ -98,22 +98,19 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// Sceneの生成・読み込み・アクティベート
 	scene_manager_->ChangeScene("TestScene");
 
-	//// TitleSceneに
-	//ecs_coordinator_->RegisterSystem<ecs::TitleSceneSystem>(systemDesc);
-
 
 	// Entityの生成
-	// カメラ
-	//prefabSystem->CreateGameObject(LightThrough::GameObjectType::Camera);
 
 	// テストのメッシュ
-	for (int i = 0; i < 10; ++i) {
-		for (int j = 0; j < 10; ++j) {
-			auto e = ecs_coordinator_->CreateEntity();
-			ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.0f * i, 0.0f, 1.0f * j}});
-			auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
-			ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
-			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+	for (int i = 0; i < 100; ++i) {
+		for (int j = 0; j < 100; ++j) {
+			for(int k = 0; k < 1; ++k) {
+				auto e = ecs_coordinator_->CreateEntity();
+				ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 1.5f * k, 1.5f * j} });
+				auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
+				ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
+				scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+			}
 		}
 	}
 	DX3DLogInfo("ゲーム開始");

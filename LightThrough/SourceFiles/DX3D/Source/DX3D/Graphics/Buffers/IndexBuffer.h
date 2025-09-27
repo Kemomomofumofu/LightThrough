@@ -15,10 +15,10 @@ namespace dx3d {
 		IndexBuffer( const IndexBufferDesc& _desc, const GraphicsResourceDesc& _gDesc);
 
 		ID3D11Buffer* GetBuffer() const noexcept;
-		ui32 GetIndexCount() const noexcept;
+		uint32_t GetIndexCount() const noexcept;
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_{};
-		ui32 index_count_{};
+		uint32_t index_count_{};
 	};
 }

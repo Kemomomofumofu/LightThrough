@@ -21,7 +21,7 @@ namespace dx3d {
 		struct CachedMesh {
 			std::shared_ptr<VertexBuffer> vb;
 			std::shared_ptr<IndexBuffer> ib;
-			ui32 indexCount{};
+			uint32_t indexCount{};
 			bool Valid() const noexcept { return vb && ib && indexCount > 0; }
 		};
 
@@ -30,8 +30,8 @@ namespace dx3d {
 			CachedMesh g_quad;
 
 			struct SphereKey {
-				ui32 slices{};
-				ui32 stacks{};
+				uint32_t slices{};
+				uint32_t stacks{};
 				bool operator== (const SphereKey& o) const noexcept {
 					return slices == o.slices && stacks == o.stacks;
 				}
@@ -51,7 +51,7 @@ namespace dx3d {
 
 		ecs::Mesh CreateCube(GraphicsDevice& _device);
 		ecs::Mesh CreateQuad(GraphicsDevice& _device);
-		ecs::Mesh CreateSphere(GraphicsDevice& _device, ui32 _slices = 10, ui32 _stacks = 10);
+		ecs::Mesh CreateSphere(GraphicsDevice& _device, uint32_t _slices = 10, uint32_t _stacks = 10);
 		//ecs::Mesh CreateLine(GraphicsDevice& _device, DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end);
 
 	}

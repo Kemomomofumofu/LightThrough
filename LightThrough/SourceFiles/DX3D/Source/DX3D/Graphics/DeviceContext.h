@@ -7,8 +7,8 @@
  */
 
  /*---------- インクルード ----------*/
-#include<DX3D/Graphics/GraphicsResource.h>
-#include<DX3D/Math/Vec4.h>
+#include <DirectXMath.h>
+#include <DX3D/Graphics/GraphicsResource.h>
 
 
 /**
@@ -24,20 +24,21 @@ namespace dx3d {
 
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetDeviceContext() const noexcept;
 
-		void ClearAndSetBackBuffer(const SwapChain& _swapChain, const Vec4& _color);
+		void ClearAndSetBackBuffer(const SwapChain& _swapChain, const DirectX::XMFLOAT4& _color);
 		void SetGraphicsPipelineState(const GraphicsPipelineState& _pipepline);
 		void SetRasterizerState(const RasterizerState& _rasterizer);
 		void SetVertexBuffer(const VertexBuffer& _buffer);
-		void SetVertexBuffers(ui32 _startSlot, const VertexBuffer* const* _buffers, ui32 _count);	// 複数用
+		void SetVertexBuffers(uint32_t _startSlot, const VertexBuffer* const* _buffers, uint32_t _count);	// 複数用
 		void SetVertexBuffers(const VertexBuffer& _vb0, const VertexBuffer& _vb1);
+		void SetInputLayout(const InputLayout& _layout);
 		void SetIndexBuffer(const IndexBuffer& _buffer);
-		void VSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
-		void PSSetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
-		void SetConstantBuffer(ui32 _slot, const ConstantBuffer& _buffer);
+		void VSSetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer);
+		void PSSetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer);
+		void SetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer);
 		void SetViewportSize(const Rect& _size);
-		void DrawTriangleList(ui32 _vertexCount, ui32 _startVertexLocation);
-		void DrawIndexed(ui32 _indexCount, ui32 _startIndex, ui32 _baseVertex);
-		void DrawIndexedInstanced(ui32 _indexCount, ui32 _instanceCount, ui32 _startIndex, ui32 _baseVertex, ui32 _startInstance);
+		void DrawTriangleList(uint32_t _vertexCount, uint32_t _startVertexLocation);
+		void DrawIndexed(uint32_t _indexCount, uint32_t _startIndex, uint32_t _baseVertex);
+		void DrawIndexedInstanced(uint32_t _indexCount, uint32_t _instanceCount, uint32_t _startIndex, uint32_t _baseVertex, uint32_t _startInstance);
 	private:
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> context_{};
 

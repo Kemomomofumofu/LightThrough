@@ -148,6 +148,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\EntityManager.cpp" />
@@ -193,12 +196,19 @@
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\GameLogUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\Scene\SceneData.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\InstanceData.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Texture.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Material.h" />
     <ClInclude Include="SourceFiles\Game\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ISystem.h" />
     <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
@@ -218,7 +228,6 @@
     <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\BoxMesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\InputSystem\InputSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\All.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Core\Base.h" />
@@ -228,8 +237,6 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\Display.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Game\Game.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Rect.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Vec3.h" />
-    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Vec4.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Window\Window.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsDevice.h" />
@@ -254,31 +261,10 @@
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="SourceFiles\DX3D\Assets\Shaders\Vertex\VS_Default.hlsl">
-      <FileType>Document</FileType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
     <None Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="SourceFiles\DX3D\Assets\Shaders\Pixel\PS_Default.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="SourceFiles\DX3D\Assets\Shaders\Vertex\VS_Instancing.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

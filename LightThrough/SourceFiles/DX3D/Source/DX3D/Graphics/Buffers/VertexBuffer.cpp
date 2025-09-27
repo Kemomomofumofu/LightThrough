@@ -34,7 +34,7 @@ namespace dx3d
 
 		D3D11_BUFFER_DESC buffDesc{};
 		// 全体のサイズを計算
-		buffDesc.ByteWidth = _desc.vertexListSize * _desc.vertexSize;
+		buffDesc.ByteWidth = _desc.vertexListSize;
 		buffDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
 		D3D11_SUBRESOURCE_DATA initData{};
@@ -48,12 +48,12 @@ namespace dx3d
 		return buffer_.Get();
 	}
 
-	ui32 VertexBuffer::GetVertexSize() const noexcept
+	uint32_t VertexBuffer::GetVertexSize() const noexcept
 	{
 		return vertex_size_;
 	}
 
-	ui32 VertexBuffer::GetVertexListSize() const noexcept
+	uint32_t VertexBuffer::GetVertexListSize() const noexcept
 	{
 		return vertex_list_size_;
 	}

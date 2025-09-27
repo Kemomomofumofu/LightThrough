@@ -6,7 +6,10 @@
  * @date 2025-06-25
  */
 /*---------- インクルード ----------*/
+#include <vector>
+#include <string>
 #include <DirectXMath.h>
+#include <d3d11.h>
 #include <DX3D/Core/Core.h>
 #include <DX3D/Core/Logger.h>
 #include <DX3D/Math/Rect.h>
@@ -64,8 +67,10 @@ namespace dx3d {
 	struct GraphicsPipelineStateDesc {
 		const VertexShaderSignature& vs;
 		const ShaderBinary& ps;
+		InputLayoutPtr inputLayout{};
 	};
 
+	// [ToDo] 将来的にはPipelineStateKeyにまとめる
 	enum class FillMode {
 		Solid,
 		Wireframe,
@@ -85,27 +90,35 @@ namespace dx3d {
 		bool antiAliasedLineEnable = false;
 	};
 
+	/**
+	 * @brief インデックスバッファ構造体
+	 * 
+	 * indexList	: インデックスデータのポインタ
+	 * indexCount	: インデックス数
+	 */
 	struct IndexBufferDesc {
-		const ui32* indexList{};
-		ui32 indexCount{};
+		const uint32_t* indexList{};
+		uint32_t indexCount{};
 	};
 
+	/**
+	 * @brief 頂点バッファ構造体
+	 * @details
+	 * - \c vertexList		: 頂点データのポインタ
+	 * - \c vertexlistSize	: 頂点データのバイトサイズ
+	 * - \c vertexSize		: 1頂点あたりのバイトサイズ
+	 * @todo 頂点バッファの更新方法を指定できるようにする
+	 */
 	struct VertexBufferDesc {
 		const void* vertexList{};
-		ui32 vertexListSize{};
-		ui32 vertexSize{};
+		uint32_t vertexListSize{};
+		uint32_t vertexSize{};
 	};
 
 	struct ConstantBufferDesc {
-		ui32 byteWidth{};
+		uint32_t byteWidth{};
 		const void* initData{};
 	};
-
-	struct InstanceData {
-		DirectX::XMFLOAT4X4 world;
-		uint32_t materialId;	// [ToDo] 仮置き
-	};
-
 
 	struct GameDesc {
 		Rect windowSize{ 1280, 720 };
