@@ -37,12 +37,16 @@ namespace input {
 		bool IsKeyTrigger(int _key) const;	// キーが押された瞬間か
 		bool IsKeyRelease(int _key) const;	// キーが離された瞬間か
 		dx3d::Point GetMouseDelta();
+		float GetWheelDelta() const;
 
-		//void AddListener(InputListener* _listener);
-		//void RemoveListener(InputListener* _listener);
-
-		void LockMouse(bool _lock);		// マウスをロックするか
-		void SetFocus(bool _focused);	// フォーカス設定
+		void OnRawInput(LPARAM _lParam);
+		// RawInputの有効/無効
+		void EnableRawMouse(bool _enable);
+		bool IsRawMouseEnabled() const;
+		
+		// マウスフォーカス関連
+		void LockMouse(bool _lock);
+		void SetFocus(bool _focused);
 		// 入力の有効/無効
 		void SetInputEnabled(bool _enable);
 		bool IsInputEnabled() const;
@@ -54,15 +58,26 @@ namespace input {
 		InputSystem(const InputSystem&) = delete;
 		InputSystem& operator=(const InputSystem&) = delete;
 
+		void RegisterRawMouse();	// RawInputの登録
+		void ClearFrameMouse();		// フレーム開始処理
+
 	private:
-		//std::unordered_set<InputListener*> listeners_;	// 通知される方々
 		unsigned char keys_state_[256] = {};			// キーステート
 		unsigned char old_keys_state_[256] = {};		// 前回のキーステート
 		dx3d::Point mouse_delta_{};						// マウスの移動量
+		float wheel_delta_{};							// ホイールの移動量
+
 		bool first_time_ = true;
 		bool input_enabled_ = false; // 入力が有効か
 		bool mouse_locked_ = false; // マウスロックされているか
 		bool focused_ = true;		// ウィンドウにフォーカスが当たっているか
+
+		// RawInput
+		std::vector<uint8_t> raw_buffer_{};	// RawInputのバッファ
+		dx3d::Point raw_mouse_accum_{};	// マウス入力の累積値
+
+		bool raw_mouse_registered_ = false;
+		bool use_raw_mouse_ = true; // RawInputをを使うか
 
 		HWND hwnd_{};	// ウィンドウハンドル
 	};

@@ -12,7 +12,7 @@
                 },
                 "CameraController": {
                     "mode": 0,
-                    "mouseSensitivity": 0.2,
+                    "mouseSensitivity": 1.00,
                     "moveSpeed": 5.0
                 },
                 "Transform": {

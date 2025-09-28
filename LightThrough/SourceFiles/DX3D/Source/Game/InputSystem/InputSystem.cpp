@@ -8,6 +8,7 @@
  // ---------- インクルード ---------- // 
 #include <Game/InputSystem/InputSystem.h>
 #include <Windows.h>
+#include <hidusage.h>
 
 
 namespace input {
@@ -28,6 +29,9 @@ namespace input {
 	{
 		hwnd_ = _hwnd;
 
+		// RawInputの登録
+		RegisterRawMouse();
+
 		// マウスの初期状態
 		LockMouse(true);
 		input_enabled_ = true;
@@ -35,45 +39,51 @@ namespace input {
 
 	void InputSystem::Update()
 	{
-		if (!focused_) return;
+		if (!focused_ || !input_enabled_) {
+			mouse_delta_ = {};
+			return;
+		}
 
 		// ---------- キーボード ---------- //
 		::memcpy(old_keys_state_, keys_state_, sizeof(keys_state_));
-		if (::GetKeyboardState(keys_state_)) {
-			for (unsigned int i = 0; i < 256; ++i) {
-				bool nowDown = (keys_state_[i] & 0x80) != 0;
-				bool wasDown = (old_keys_state_[i] & 0x80) != 0;
-			}
-		}
+		::GetKeyboardState(keys_state_);
 
 		// ---------- マウス ---------- //
-		POINT current{};
-		::GetCursorPos(&current);
 
-		if (mouse_locked_) {
-			// ウィンドウの中心を取得
-			RECT clientRect{};
-			::GetClientRect(hwnd_, &clientRect);
-			POINT center{
-				(clientRect.right - clientRect.left) / 2,
-				(clientRect.bottom - clientRect.top) / 2
-			};
-			::ClientToScreen(hwnd_, &center);
-
-			// 相対移動量
-			mouse_delta_.x = current.x - center.x;
-			mouse_delta_.y = current.y - center.y;
-
-			// 中央に戻す
-			::SetCursorPos(center.x, center.y);
+		// RawInputが有効なら 
+		if (use_raw_mouse_) {
+			ClearFrameMouse();	// フレーム開始処理
 		}
+		// RawInputが無効なら
 		else {
-			// 非ロック時は前フレームとの差分をとる
-			static POINT prev{};
-			mouse_delta_.x = current.x - prev.x;
-			mouse_delta_.y = current.y - prev.y;
+			POINT current{};
+			::GetCursorPos(&current);
 
-			prev = current;
+			if (mouse_locked_) {
+				// ウィンドウの中心を取得
+				RECT clientRect{};
+				::GetClientRect(hwnd_, &clientRect);
+				POINT center{
+					(clientRect.right - clientRect.left) / 2,
+					(clientRect.bottom - clientRect.top) / 2
+				};
+				::ClientToScreen(hwnd_, &center);
+
+				// 相対移動量
+				mouse_delta_.x = current.x - center.x;
+				mouse_delta_.y = current.y - center.y;
+
+				// 中央に戻す
+				::SetCursorPos(center.x, center.y);
+			}
+			else {
+				// 非ロック時は前フレームとの差分をとる
+				static POINT prev{};
+				mouse_delta_.x = current.x - prev.x;
+				mouse_delta_.y = current.y - prev.y;
+
+				prev = current;
+			}
 		}
 	}
 
@@ -102,7 +112,7 @@ namespace input {
 	 * @brief キーが離されているか
 	 * @param _key	問い合わせるキー
 	 * @return 離されている: true, そうでない: false
-	 * 
+	 *
 	 * [ToDo] 実装しつつもIsKeyDownでよくないか...いちおう残しとくけど...
 	 */
 	bool InputSystem::IsKeyUp(int _key) const
@@ -139,11 +149,76 @@ namespace input {
 		return mouse_delta_;
 	}
 
+	/**
+	 * @brief ホイールの移動量を取得
+	 * @return ホイールの移動量
+	 */
+	float InputSystem::GetWheelDelta() const
+	{
+		return wheel_delta_;
+	}
+
+	void InputSystem::OnRawInput(LPARAM _lParam)
+	{
+		if (!use_raw_mouse_) { return; }
+
+		UINT size = 0;
+		if (::GetRawInputData(reinterpret_cast<HRAWINPUT>(_lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) != 0 || size == 0) { return; }	// サイズ取得失敗
+
+		raw_buffer_.resize(size);
+		if (::GetRawInputData(reinterpret_cast<HRAWINPUT>(_lParam), RID_INPUT, raw_buffer_.data(), &size, sizeof(RAWINPUTHEADER)) != size){ return; }	// データ取得失敗
+
+		auto* raw = reinterpret_cast<RAWINPUT*>(raw_buffer_.data());
+		if (raw->header.dwType != RIM_TYPEMOUSE) { return; }	// マウス入力でなければ無視
+
+		const auto& mouse = raw->data.mouse;
+
+		// 相対 or 絶対
+		if (!(mouse.usFlags & MOUSE_MOVE_ABSOLUTE)) {
+			raw_mouse_accum_.x += static_cast<float>(mouse.lLastX);
+			raw_mouse_accum_.y += static_cast<float>(mouse.lLastY);
+		}
+		else {
+			// [ToDo] 多分やらない。
+			// 絶対座標デバイス(タブレットなど)
+		}
+
+		// ホイール
+		if (mouse.usButtonFlags & RI_MOUSE_WHEEL) {
+			short wheel = static_cast<short>(mouse.usButtonData);
+			wheel_delta_ += static_cast<float>(wheel) / static_cast<float>(WHEEL_DELTA);
+		}
+	}
+
+	/**
+	 * @brief RawInputの有効/無効設定
+	 * @param _enable 有効にするか
+	 */
+	void InputSystem::EnableRawMouse(bool _enable)
+	{
+		if (use_raw_mouse_ == _enable) { return; }
+
+		use_raw_mouse_ = _enable;
+		// 有効にするなら
+		if (use_raw_mouse_) {
+			RegisterRawMouse();
+		}
+	}
+
+	/**
+	 * @brief RawInputが有効か
+	 * @return 有効: true, 無効: false
+	 */
+	bool InputSystem::IsRawMouseEnabled() const
+	{
+		return use_raw_mouse_;
+	}
+
 
 	/**
 	 * @brief マウス固定メソッド
 	 * @param _lock 固定するかしないか
-	 * 
+	 *
 	 * 	[ToDo] マウスカーソルの固定する、しない、をイベント形式にしたいが、
 	 *	WinProcのSetFocusで消す、KillFocusで戻す、だと、
 	 *	ゲームがメニュー画面でもマウスが消えてしまうので、今後考える。
@@ -163,8 +238,8 @@ namespace input {
 			::ShowCursor(FALSE);
 			// カーソルを中央に
 			POINT center = {
-				(rect.right  - rect.left) * 0.5f,
-				(rect.bottom - rect.top)  * 0.5f
+				(rect.right - rect.left) * 0.5f,
+				(rect.bottom - rect.top) * 0.5f
 			};
 			::ClientToScreen(hwnd_, &center);
 			// カーソルを中央に
@@ -236,93 +311,39 @@ namespace input {
 	{
 		return input_enabled_;
 	}
+
+	/**
+	 * @brief RawInputの登録
+	 */
+	void InputSystem::RegisterRawMouse()
+	{
+		if (raw_mouse_registered_) { return; }
+
+		RAWINPUTDEVICE rid{};
+		rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
+		rid.usUsage = HID_USAGE_GENERIC_MOUSE;
+		rid.dwFlags = RIDEV_NOLEGACY | /* RIDEV_INPUTSINK | */ RIDEV_CAPTUREMOUSE;	// フォーカス中でも取得したいならInputsinkをつける
+		rid.hwndTarget = hwnd_;
+
+		if (::RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
+			raw_mouse_registered_ = true;
+		}
+		else {
+			// 登録失敗
+			use_raw_mouse_ = false;
+		}
+	}
+
+	/**
+	 * @brief フレーム開始処理
+	 */
+	void InputSystem::ClearFrameMouse()
+	{
+		// マウスの移動量を更新
+		mouse_delta_ = raw_mouse_accum_;
+		// リセット
+		raw_mouse_accum_ = {};
+		wheel_delta_ = 0.0f;
+	}
+
 }
-
-
-///**
-// * @brief 更新処理
-// */
-//void InputSystem::Update()
-//{
-//	// フォーカスが当たっていなければ入力を取らない
-//	if (!focused_) return;
-//
-//	// ---------- キーボード ---------- // 
-//	::memcpy(old_keys_state_, keys_state_, sizeof(keys_state_));
-//	if (::GetKeyboardState(keys_state_)) {
-//		for (unsigned int i = 0; i < 256; ++i) {
-//			bool nowDown = (keys_state_[i] & 0x80) != 0;		// 今押されているか
-//			bool wasDown = (old_keys_state_[i] & 0x80) != 0;	// 前回押されていたか
-//
-//			// 押された瞬間だったら
-//			if (nowDown && !wasDown) {
-//				for (auto* l : listeners_) {
-//					l->OnKeyDown(i);	// 押されたキーを通知
-//				}
-//			}
-//			// 離された瞬間だったら
-//			else if (!nowDown && wasDown) {
-//				for (auto* l : listeners_) {
-//					l->OnKeyUp(i);		// 離されたキーを通知
-//				}
-//			}
-//		}
-//	}
-//
-//	// ---------- マウス ---------- //
-//	// マウスが固定されている場合
-//	if (mouse_locked_) {
-//		// カーソルを中央固定にして相対移動だけ渡す
-//		POINT current{};
-//		::GetCursorPos(&current);
-//
-//		// ウィンドウの中心を計算
-//		RECT clientRect{};
-//		::GetClientRect(hwnd_, &clientRect);
-//		POINT center{
-//			(clientRect.right - clientRect.left) * 0.5f,
-//			(clientRect.bottom - clientRect.top) * 0.5f
-//		};
-//		// クライアント座標からスクリーン座標に変換
-//		::ClientToScreen(hwnd_, &center);
-//
-//		// 移動量
-//		dx3d::Point delta{ current.x - center.x, current.y - center.y };
-//		if (delta.x || delta.y) {
-//			for (auto* l : listeners_) {
-//				l->OnMouseMove(delta);
-//			}
-//		}
-//		// カーソルを中央に戻す
-//		::SetCursorPos(center.x, center.y);
-//	}
-//	// マウスが固定されていない場合
-//	else {
-//		POINT current{};
-//		::GetCursorPos(&current);
-//		// スクリーン座標からクライアント座標に変換
-//		::ScreenToClient(hwnd_, &current);
-//
-//		for (auto* l : listeners_) {
-//			l->OnMouseMove({ current.x, current.y });
-//		}
-//	}
-//}
-//
-///**
-// * @brief リスナー追加
-// * @param _listener 追加するリスナー
-// */
-//void InputSystem::AddListener(InputListener* _listener)
-//{
-//	listeners_.insert(_listener);
-//}
-//
-///**
-// * @brief リスナー削除
-// * @param _listener 削除するリスナー
-// */
-//void InputSystem::RemoveListener(InputListener* _listener)
-//{
-//	listeners_.erase(_listener);
-//}

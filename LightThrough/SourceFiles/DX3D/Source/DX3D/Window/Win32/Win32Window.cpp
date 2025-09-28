@@ -23,7 +23,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
  * @param _hwnd		ウィンドウハンドル
  * @return 領域内: true, 領域外: false
  */
-static bool IsCursorInClient(HWND _hwnd) {
+static bool IsCursorInClient(HWND _hwnd)
+{
 	POINT p{};
 	::GetCursorPos(&p);
 	POINT client = p;
@@ -34,21 +35,42 @@ static bool IsCursorInClient(HWND _hwnd) {
 	return ::PtInRect(&rc, client);
 }
 
-static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam) {
-	if (ImGui_ImplWin32_WndProcHandler(_hwnd, _msg, _wparam, _lparam)) { return true; }	// ImGuiがイベントを消費したらスキップ
+/**
+ * @brief ImGuiの入力キャプチャを適用
+ *
+ * ImGuiの操作中はゲームに対する入力を無効化する
+ *
+ * @param _inputSys	インプットシステム
+ */
+static void ApplyImGuiInputCapture(input::InputSystem& _inputSys)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	// UI 操作中
+	if (io.WantCaptureMouse) {
+		_inputSys.SetInputEnabled(false);
+	}
+	// UI 操作外
+	else {
+		_inputSys.SetInputEnabled(true);
+	}
+}
 
 
-	// [ToDo] ImGui操作時はゲームに対する入力を無効化したい
+static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam)
+{
+	if (ImGui_ImplWin32_WndProcHandler(_hwnd, _msg, _wparam, _lparam)) { return 0; }	// ImGuiがイベントを消費したらスキップ
+
 	auto& inputSystem = input::InputSystem::Get();
-
 
 	switch (_msg)
 	{
-		// フォーカスが当たった
+	// フォーカスが当たった
 	case WM_SETFOCUS:
 	{
+		inputSystem.SetFocus(true);
+		ApplyImGuiInputCapture(inputSystem);
 
-		break;
+		return 0;
 	}
 	// フォーカスが外れた
 	case WM_KILLFOCUS:
@@ -57,59 +79,101 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 			inputSystem.LockMouse(false);
 		}
 		inputSystem.SetFocus(false);
-		break;
+		::ClipCursor(nullptr);
+		::ShowCursor(TRUE);
+
+		return 0;;
 	}
+	// RawInput
+	case WM_INPUT:
+	{
+		inputSystem.OnRawInput(_lparam);
+
+		return 0;
+	}
+	// マウスホイール
+	case WM_MOUSEWHEEL:
+	{
+		// [ToDo] RawInput無効時の場合でも入力取りたいならここに書く
+		return 0;
+	}
+	// 左クリック
 	case WM_LBUTTONDOWN:
 	{
-		inputSystem.SetFocus(true);
+		ApplyImGuiInputCapture(inputSystem);
 
-		// ImGuiがマウスをキャプチャしているならスキップ
 		ImGuiIO& io = ImGui::GetIO();
-		if (io.WantCaptureMouse) { break; }
-
-		static bool wasPressed = false;
-		bool isPressed = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
-
-		// クライアント領域内か
-		if (IsCursorInClient(_hwnd) && !inputSystem.IsMouseLocked()) {
-			// 押された瞬間か
-			if (isPressed && !wasPressed) {
-				inputSystem.LockMouse(true);	// マウスロック
-			}
+		if (io.WantCaptureMouse) {
+			// UI 操作中
+			return 0;
 		}
 
-		wasPressed = isPressed;
-		break;
+		// ゲーム内操作開始トリガー：クリックでロック
+		if (!inputSystem.IsMouseLocked() && IsCursorInClient(_hwnd)) {
+			inputSystem.LockMouse(true);
+		}
+		inputSystem.SetFocus(true);
+		return 0;
 	}
+	// 右クリック
+	case WM_RBUTTONDOWN:
+	{
+		return 0;
+	}
+	// キー
 	case WM_KEYDOWN:
 	{
-		// ESCキーが押された
+		// ESC: ロック解除
 		if (_wparam == VK_ESCAPE) {
 			if (inputSystem.IsMouseLocked()) {
 				inputSystem.LockMouse(false);	// マウスロック解除
+				::ClipCursor(nullptr);
+				::ShowCursor(TRUE);
 			}
-			inputSystem.SetFocus(false);
+			return 0;
 		}
-		break;
+
+		// F1: ロックトグル
+		if (_wparam == VK_F1) {
+			if (inputSystem.IsMouseLocked()) {
+				inputSystem.LockMouse(false);
+				::ClipCursor(nullptr);
+				::ShowCursor(TRUE);
+			}
+			else {
+				inputSystem.LockMouse(true);
+			}
+			return 0;
+		}
+		return 0;
 	}
 	// ウィンドウが閉じられた
 	case WM_CLOSE:
 	{
 		PostQuitMessage(0);
-		break;
+		return 0;;
 	}
 	default:
-		return DefWindowProc(_hwnd, _msg, _wparam, _lparam);
+		break;
 	}
-	return 0;
+
+	return ::DefWindowProc(_hwnd, _msg, _wparam, _lparam);
 }
 
-dx3d::Window::Window(const WindowDesc& _desc) : Base(_desc.base), size_(_desc.size) {
-	auto registerWindowClassFunction = []() {
+dx3d::Window::Window(const WindowDesc& _desc) : Base(_desc.base), size_(_desc.size)
+{
+	HINSTANCE hInstance = ::GetModuleHandle(nullptr);
+
+	auto registerWindowClassFunction = [hInstance]() {
 		WNDCLASSEX wc{};
 		wc.cbSize = sizeof(WNDCLASSEX);
-		wc.lpszClassName = "LIGHT THROUGH";
+		wc.style = CS_HREDRAW | CS_VREDRAW;
 		wc.lpfnWndProc = &WindowProcedure;
+		wc.hInstance = hInstance;
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hIcon == LoadIcon(NULL, IDI_APPLICATION);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+		wc.lpszClassName = "LIGHT THROUGH";
 		return RegisterClassEx(&wc);
 		};
 
@@ -119,22 +183,33 @@ dx3d::Window::Window(const WindowDesc& _desc) : Base(_desc.base), size_(_desc.si
 		DX3DLogThrowError("RegisterClassEx を 失敗しました");
 	}
 
+	DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 	RECT rc{ 0, 0, size_.width, size_.height };
-	AdjustWindowRect(&rc, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, false);
+	::AdjustWindowRect(&rc, style, FALSE);
 
-	handle_ = CreateWindowEx(NULL, MAKEINTATOM(windowClassId), "Light Through",
-		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT,
-		rc.right - rc.left, rc.bottom - rc.top,
-		NULL, NULL, NULL, NULL);
+	handle_ = ::CreateWindowEx(
+		NULL,
+		MAKEINTATOM(windowClassId),
+		"Light Through",
+		style,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		rc.right - rc.left,
+		rc.bottom - rc.top,
+		NULL,
+		NULL,
+		hInstance,
+		NULL
+	);
 
 	if (!handle_) {
 		DX3DLogThrowError("CreateWindowEx を 失敗しました")
 	}
 
-	ShowWindow(static_cast<HWND>(handle_), SW_SHOW);
+	::ShowWindow(static_cast<HWND>(handle_), SW_SHOW);
+	::UpdateWindow(static_cast<HWND>(handle_));
 }
 
 
 dx3d::Window::~Window() {
-	DestroyWindow(static_cast<HWND>(handle_));
+	::DestroyWindow(static_cast<HWND>(handle_));
 }

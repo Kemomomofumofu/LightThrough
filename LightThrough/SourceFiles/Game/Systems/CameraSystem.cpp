@@ -86,8 +86,9 @@ namespace ecs {
 	{
 		using namespace DirectX;
 		auto& input = input::InputSystem::Get();
+
 		dx3d::Point delta = input.GetMouseDelta();	// 移動量
-		const float sensitivity = _controller.mouseSensitivity * _dt;		// 感度係数	
+		const float sensitivity = _controller.mouseSensitivity;		// 感度係数	
 		float dx = delta.x * sensitivity;
 		float dy = (_controller.invertY ? -delta.y : delta.y) * sensitivity;	// Y軸が反転しているかで変わる
 
@@ -138,7 +139,7 @@ namespace ecs {
 			_controller.orbitYaw += dx;
 			_controller.orbitPitch += dy;
 			// ピッチ制限
-			_controller.orbitPitch = std::clamp(_controller.pitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
+			_controller.orbitPitch = std::clamp(_controller.orbitPitch, -XM_PIDIV2 + 0.01f, XM_PIDIV2 - 0.01f);
 
 			// [ToDo] InputSystemにマウスホイールの実装が出来たら距離を変えられるようにする
 			//_controller.orbitDistance = std::clamp(_controller.orbitDistance - wheelDelta * 0.5f, 1.0f, 50.0f);
