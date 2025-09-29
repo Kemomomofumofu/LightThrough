@@ -12,6 +12,11 @@
 #include <DX3D/Math/Point.h>
 
 namespace input {
+	enum class MouseMode {
+		Camera,
+		Cursor,
+		Disabled,
+	};
 
 	/**
 	 * @brief インプットシステム
@@ -39,17 +44,31 @@ namespace input {
 		dx3d::Point GetMouseDelta();
 		float GetWheelDelta() const;
 
+		// RawInput
 		void OnRawInput(LPARAM _lParam);
-		// RawInputの有効/無効
 		void EnableRawMouse(bool _enable);
 		bool IsRawMouseEnabled() const;
+
+		// 相対モードフラグ
+		void SetRelativeMouseMode(bool _enable);
+		bool IsRelativeMouseMode() const;
+
+		void SetMouseMode(MouseMode _mode);
+		MouseMode GetMouseMode() const;
 		
 		// マウスフォーカス関連
-		void LockMouse(bool _lock);
+		void MouseLock(bool _lock);
 		void SetFocus(bool _focused);
 		// 入力の有効/無効
 		void SetInputEnabled(bool _enable);
 		bool IsInputEnabled() const;
+
+
+		void EnterGameplay(bool _relative);
+		void ReleaseToDesktop();
+		bool IsDesktopReleased()const { return !input_enabled_; }
+
+		void UpdateCursorClip(); // カーソルのクリップ更新
 
 	private:
 		InputSystem() = default;
@@ -58,8 +77,10 @@ namespace input {
 		InputSystem(const InputSystem&) = delete;
 		InputSystem& operator=(const InputSystem&) = delete;
 
-		void RegisterRawMouse();	// RawInputの登録
+		void ReRegisterRawMouse(bool _gameplay);	// RawInputの登録
 		void ClearFrameMouse();		// フレーム開始処理
+
+		void ApplyModeState(); // mode適用
 
 	private:
 		unsigned char keys_state_[256] = {};			// キーステート
@@ -78,6 +99,10 @@ namespace input {
 
 		bool raw_mouse_registered_ = false;
 		bool use_raw_mouse_ = true; // RawInputをを使うか
+
+		bool relative_mouse_mode_ = false;	// 相対モード
+
+		MouseMode mouse_mode_ = MouseMode::Camera;	// マウスモード
 
 		HWND hwnd_{};	// ウィンドウハンドル
 	};

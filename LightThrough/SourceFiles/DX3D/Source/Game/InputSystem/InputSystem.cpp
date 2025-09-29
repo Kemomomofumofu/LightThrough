@@ -29,12 +29,8 @@ namespace input {
 	{
 		hwnd_ = _hwnd;
 
-		// RawInputの登録
-		RegisterRawMouse();
-
-		// マウスの初期状態
-		LockMouse(true);
-		input_enabled_ = true;
+		mouse_mode_ = MouseMode::Camera;
+		ApplyModeState();
 	}
 
 	void InputSystem::Update()
@@ -54,37 +50,11 @@ namespace input {
 		if (use_raw_mouse_) {
 			ClearFrameMouse();	// フレーム開始処理
 		}
-		// RawInputが無効なら
-		else {
-			POINT current{};
-			::GetCursorPos(&current);
 
-			if (mouse_locked_) {
-				// ウィンドウの中心を取得
-				RECT clientRect{};
-				::GetClientRect(hwnd_, &clientRect);
-				POINT center{
-					(clientRect.right - clientRect.left) / 2,
-					(clientRect.bottom - clientRect.top) / 2
-				};
-				::ClientToScreen(hwnd_, &center);
-
-				// 相対移動量
-				mouse_delta_.x = current.x - center.x;
-				mouse_delta_.y = current.y - center.y;
-
-				// 中央に戻す
-				::SetCursorPos(center.x, center.y);
-			}
-			else {
-				// 非ロック時は前フレームとの差分をとる
-				static POINT prev{};
-				mouse_delta_.x = current.x - prev.x;
-				mouse_delta_.y = current.y - prev.y;
-
-				prev = current;
-			}
+		if (mouse_mode_ == MouseMode::Cursor) {
+			
 		}
+
 	}
 
 
@@ -160,19 +130,18 @@ namespace input {
 
 	void InputSystem::OnRawInput(LPARAM _lParam)
 	{
-		if (!use_raw_mouse_) { return; }
+		if (!input_enabled_ || !use_raw_mouse_) { return; }
 
 		UINT size = 0;
 		if (::GetRawInputData(reinterpret_cast<HRAWINPUT>(_lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) != 0 || size == 0) { return; }	// サイズ取得失敗
 
 		raw_buffer_.resize(size);
-		if (::GetRawInputData(reinterpret_cast<HRAWINPUT>(_lParam), RID_INPUT, raw_buffer_.data(), &size, sizeof(RAWINPUTHEADER)) != size){ return; }	// データ取得失敗
+		if (::GetRawInputData(reinterpret_cast<HRAWINPUT>(_lParam), RID_INPUT, raw_buffer_.data(), &size, sizeof(RAWINPUTHEADER)) != size) { return; }	// データ取得失敗
 
 		auto* raw = reinterpret_cast<RAWINPUT*>(raw_buffer_.data());
 		if (raw->header.dwType != RIM_TYPEMOUSE) { return; }	// マウス入力でなければ無視
 
 		const auto& mouse = raw->data.mouse;
-
 		// 相対 or 絶対
 		if (!(mouse.usFlags & MOUSE_MOVE_ABSOLUTE)) {
 			raw_mouse_accum_.x += static_cast<float>(mouse.lLastX);
@@ -199,10 +168,6 @@ namespace input {
 		if (use_raw_mouse_ == _enable) { return; }
 
 		use_raw_mouse_ = _enable;
-		// 有効にするなら
-		if (use_raw_mouse_) {
-			RegisterRawMouse();
-		}
 	}
 
 	/**
@@ -215,6 +180,38 @@ namespace input {
 	}
 
 
+	void input::InputSystem::SetRelativeMouseMode(bool _enable)
+	{
+		if (relative_mouse_mode_ == _enable) { return; }
+		relative_mouse_mode_ = _enable;
+
+		if (_enable) {
+			SetMouseMode(MouseMode::Camera);
+		}
+		else {
+			if (mouse_mode_ == MouseMode::Camera) {
+				SetMouseMode(MouseMode::Cursor);
+			}
+		}
+	}
+
+	bool InputSystem::IsRelativeMouseMode() const
+	{
+		return relative_mouse_mode_;
+	}
+
+	void InputSystem::SetMouseMode(MouseMode _mode)
+	{
+		if (mouse_mode_ == _mode) { return; }
+		mouse_mode_ = _mode;
+		ApplyModeState();
+	}
+
+	MouseMode InputSystem::GetMouseMode() const
+	{
+		return mouse_mode_;
+	}
+
 	/**
 	 * @brief マウス固定メソッド
 	 * @param _lock 固定するかしないか
@@ -223,38 +220,21 @@ namespace input {
 	 *	WinProcのSetFocusで消す、KillFocusで戻す、だと、
 	 *	ゲームがメニュー画面でもマウスが消えてしまうので、今後考える。
 	 */
-	void InputSystem::LockMouse(bool _lock)
+	void InputSystem::MouseLock(bool _lock)
 	{
-		// 変化がなければ何もしない
 		if (_lock == mouse_locked_) return;
-
 		mouse_locked_ = _lock;
 
-		RECT rect{};
-		::GetClientRect(hwnd_, &rect);
-
-		// カーソルを非表示
-		if (mouse_locked_) {
+		if (mouse_locked_)
+		{
 			::ShowCursor(FALSE);
-			// カーソルを中央に
-			POINT center = {
-				(rect.right - rect.left) * 0.5f,
-				(rect.bottom - rect.top) * 0.5f
-			};
-			::ClientToScreen(hwnd_, &center);
-			// カーソルを中央に
-			::SetCursorPos(center.x, center.y);
-
-			// ウィンドウ内に制限
-			RECT clipRect{};
-			::GetClientRect(hwnd_, &clipRect);
-			::MapWindowPoints(hwnd_, nullptr, (POINT*)&clipRect, 2);
-			::ClipCursor(&clipRect);
+			UpdateCursorClip();
 		}
 		// カーソルを表示
 		else {
+			mouse_delta_ = {};
 			::ShowCursor(TRUE);
-			::ClipCursor(NULL); // 制限解除
+			::ClipCursor(NULL);
 		}
 	}
 
@@ -266,24 +246,24 @@ namespace input {
 	{
 		if (_focused == focused_) return;
 		focused_ = _focused;
+		::memset(keys_state_, 0, sizeof(keys_state_));
+		::memset(old_keys_state_, 0, sizeof(old_keys_state_));
+		mouse_delta_ = {};
 
-		// フォーカスが外れた時
+
 		if (!focused_) {
-			// 押されているキーを全て離す
-			::memset(keys_state_, 0, sizeof(keys_state_));
-			::memset(old_keys_state_, 0, sizeof(old_keys_state_));
-			// マウスデルタをリセット
-			mouse_delta_ = {};
+			if (mouse_locked_) {
+				MouseLock(false);
+			}
+			else {
+				// カメラモードはロック維持
+				if (mouse_mode_ == MouseMode::Camera && !mouse_locked_) {
+					MouseLock(true);
+				}
+			}
 		}
-		// フォーカスが当たった時
 		else {
-			// キーステートをリセット
-			::memset(keys_state_, 0, sizeof(keys_state_));
-			::memset(old_keys_state_, 0, sizeof(old_keys_state_));
-
-			// マウスデルタをリセット
-			mouse_delta_ = {};
-			first_time_ = true;
+			MouseLock(false);
 		}
 	}
 
@@ -298,7 +278,6 @@ namespace input {
 			// 押されているキーを全て離す
 			::memset(keys_state_, 0, sizeof(keys_state_));
 			::memset(old_keys_state_, 0, sizeof(old_keys_state_));
-			// マウスデルタをリセット
 			mouse_delta_ = {};
 		}
 	}
@@ -312,26 +291,101 @@ namespace input {
 		return input_enabled_;
 	}
 
+	void InputSystem::EnterGameplay(bool _relative)
+	{
+		SetInputEnabled(true);
+		SetFocus(true);
+		if (_relative) {
+			SetRelativeMouseMode(true);
+		}
+		else {
+			SetRelativeMouseMode(false);
+		}
+	}
+
+	void InputSystem::ReleaseToDesktop()
+	{
+		SetRelativeMouseMode(false);
+		SetInputEnabled(false);
+		SetFocus(false);
+		MouseLock(false);
+		::ClipCursor(nullptr);
+		::ShowCursor(TRUE);
+	}
+
+	void InputSystem::UpdateCursorClip()
+	{
+		if (!hwnd_) { return; }
+		if (!focused_ || !input_enabled_) {
+			::ClipCursor(nullptr);
+			return;
+		}
+
+		// クライアント領域
+		RECT rect{};
+		::GetClientRect(hwnd_, &rect);
+
+		switch(mouse_mode_)
+		{
+		case MouseMode::Camera:
+		{
+			// 画面中央にクリップ
+			POINT center = {
+				(rect.right - rect.left) * 0.5f,
+				(rect.bottom - rect.top) * 0.5f
+			};
+			::ClientToScreen(hwnd_, &center);
+
+			// 1px固定
+			RECT clip{ center.x, center.y, center.x + 1, center.y + 1 };
+			::ClipCursor(&clip);
+			break;
+		}
+		case MouseMode::Cursor:
+		{
+			// クライアント領域にクリップ
+			POINT tl{ rect.left, rect.top };
+			POINT br{ rect.right, rect.bottom };
+			::ClientToScreen(hwnd_, &tl);
+			::ClientToScreen(hwnd_, &br);
+			RECT clip{ tl.x, tl.y, br.x, br.y };
+			::ClipCursor(&clip);
+			break;
+		}
+		}
+	}
+
 	/**
 	 * @brief RawInputの登録
 	 */
-	void InputSystem::RegisterRawMouse()
+	void InputSystem::ReRegisterRawMouse(bool _gameplay)
 	{
-		if (raw_mouse_registered_) { return; }
+		// 既存の登録をいったん削除(必要かどうかはわからないが切り替えできるようになるのかな)
+		if (raw_mouse_registered_) {
+			RAWINPUTDEVICE remove{};
+			remove.usUsagePage = HID_USAGE_PAGE_GENERIC;
+			remove.usUsage = HID_USAGE_GENERIC_MOUSE;
+			remove.dwFlags = RIDEV_REMOVE;
+			remove.hwndTarget = nullptr;
+			::RegisterRawInputDevices(&remove, 1, sizeof(remove));
+			raw_mouse_registered_ = false;
+		}
+
+		if (!use_raw_mouse_) { return; }
 
 		RAWINPUTDEVICE rid{};
 		rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
 		rid.usUsage = HID_USAGE_GENERIC_MOUSE;
-		rid.dwFlags = RIDEV_NOLEGACY | /* RIDEV_INPUTSINK | */ RIDEV_CAPTUREMOUSE;	// フォーカス中でも取得したいならInputsinkをつける
 		rid.hwndTarget = hwnd_;
+		rid.dwFlags = _gameplay ? (RIDEV_NOLEGACY | RIDEV_CAPTUREMOUSE) : 0;
 
 		if (::RegisterRawInputDevices(&rid, 1, sizeof(rid))) {
 			raw_mouse_registered_ = true;
 		}
 		else {
-			// 登録失敗
 			use_raw_mouse_ = false;
 		}
+
 	}
 
 	/**
@@ -344,6 +398,54 @@ namespace input {
 		// リセット
 		raw_mouse_accum_ = {};
 		wheel_delta_ = 0.0f;
+	}
+
+	/**
+	 * @brief マウスモードに応じた状態を適用
+	 * 
+	 * - c/ Camera: 入力有効、フォーカス有効、RawInput有効、マウスロック
+	 * - c/ Cursor: 入力無効、フォーカス有効、RawInput無効、マウスロック解除
+	 * - c/ Disabled: すべて無効
+	 */
+	void InputSystem::ApplyModeState()
+	{
+		switch (mouse_mode_) {
+		case MouseMode::Camera:
+		{
+			input_enabled_ = true;
+			focused_ = true;
+			use_raw_mouse_ = true;
+			ReRegisterRawMouse(true);
+			MouseLock(true);
+			break;
+		}
+		case MouseMode::Cursor:
+		{
+			input_enabled_ = true;
+			focused_ = true;
+			use_raw_mouse_ = false;
+			ReRegisterRawMouse(false);
+			MouseLock(false);
+			break;
+		}
+		case MouseMode::Disabled:
+		{
+			input_enabled_ = false;
+			focused_ = false;
+			use_raw_mouse_ = false;
+			relative_mouse_mode_ = false;
+			ReRegisterRawMouse(false);
+			MouseLock(false);
+			break;
+		}
+		}
+		// 入力無効化時はバッファクリア
+		if (!input_enabled_) {
+			::memset(keys_state_, 0, sizeof(keys_state_));
+			::memset(old_keys_state_, 0, sizeof(old_keys_state_));
+			mouse_delta_ = {};
+			raw_mouse_accum_ = {};
+		}
 	}
 
 }

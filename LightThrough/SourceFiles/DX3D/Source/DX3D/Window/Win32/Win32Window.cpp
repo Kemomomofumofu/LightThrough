@@ -18,6 +18,13 @@
 // ImGuiのWin32用イベントハンドラ
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+namespace {
+	// ImGuiが初期化されているか
+	inline bool ImGuiReady() noexcept {
+		return ImGui::GetCurrentContext() != nullptr;
+	}
+}
+
 /**
  * @brief カーソルがクライアント領域内か
  * @param _hwnd		ウィンドウハンドル
@@ -32,7 +39,7 @@ static bool IsCursorInClient(HWND _hwnd)
 	RECT rc{};
 	::GetClientRect(_hwnd, &rc);
 
-	return ::PtInRect(&rc, client);
+	return ::PtInRect(&rc, client)  != 0;
 }
 
 /**
@@ -42,23 +49,31 @@ static bool IsCursorInClient(HWND _hwnd)
  *
  * @param _inputSys	インプットシステム
  */
-static void ApplyImGuiInputCapture(input::InputSystem& _inputSys)
+static void ApplyImGuiInputCapture(input::InputSystem& _inputSystem)
 {
+	// ImGuiが初期化されていなければ
+	if (!ImGuiReady()) {
+		return;
+	}
+
 	ImGuiIO& io = ImGui::GetIO();
 	// UI 操作中
 	if (io.WantCaptureMouse) {
-		_inputSys.SetInputEnabled(false);
+		_inputSystem.SetInputEnabled(false);
 	}
 	// UI 操作外
 	else {
-		_inputSys.SetInputEnabled(true);
+		_inputSystem.SetInputEnabled(true);
 	}
 }
 
 
 static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam)
 {
-	if (ImGui_ImplWin32_WndProcHandler(_hwnd, _msg, _wparam, _lparam)) { return 0; }	// ImGuiがイベントを消費したらスキップ
+	// ImGuiがイベントを消費したらスキップ
+	if (ImGuiReady()) {
+		if (ImGui_ImplWin32_WndProcHandler(_hwnd, _msg, _wparam, _lparam)) { return 0; }
+	}
 
 	auto& inputSystem = input::InputSystem::Get();
 
@@ -68,21 +83,14 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 	case WM_SETFOCUS:
 	{
 		inputSystem.SetFocus(true);
-		ApplyImGuiInputCapture(inputSystem);
-
 		return 0;
 	}
 	// フォーカスが外れた
 	case WM_KILLFOCUS:
 	{
-		if (inputSystem.IsMouseLocked()) {
-			inputSystem.LockMouse(false);
-		}
-		inputSystem.SetFocus(false);
-		::ClipCursor(nullptr);
-		::ShowCursor(TRUE);
+		inputSystem.SetMouseMode(input::MouseMode::Disabled);
 
-		return 0;;
+		return 0;
 	}
 	// RawInput
 	case WM_INPUT:
@@ -102,56 +110,52 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 	{
 		ApplyImGuiInputCapture(inputSystem);
 
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.WantCaptureMouse) {
-			// UI 操作中
-			return 0;
+		if (inputSystem.GetMouseMode() == input::MouseMode::Disabled) {
+			// [ToDo] 前回のモードを覚えておいて復帰させるようにする
+			inputSystem.SetMouseMode(input::MouseMode::Camera);
 		}
 
-		// ゲーム内操作開始トリガー：クリックでロック
-		if (!inputSystem.IsMouseLocked() && IsCursorInClient(_hwnd)) {
-			inputSystem.LockMouse(true);
-		}
-		inputSystem.SetFocus(true);
 		return 0;
 	}
 	// 右クリック
 	case WM_RBUTTONDOWN:
 	{
+
 		return 0;
 	}
 	// キー
 	case WM_KEYDOWN:
 	{
-		// ESC: ロック解除
-		if (_wparam == VK_ESCAPE) {
-			if (inputSystem.IsMouseLocked()) {
-				inputSystem.LockMouse(false);	// マウスロック解除
-				::ClipCursor(nullptr);
-				::ShowCursor(TRUE);
+		// F1: Cemera <-> Cursor
+		if (_wparam == VK_F1) {
+			if (inputSystem.GetMouseMode() == input::MouseMode::Camera) {
+				inputSystem.SetMouseMode(input::MouseMode::Cursor);
 			}
+			else if (inputSystem.GetMouseMode() == input::MouseMode::Cursor) {
+				inputSystem.SetMouseMode(input::MouseMode::Camera);
+			}
+
 			return 0;
 		}
 
-		// F1: ロックトグル
-		if (_wparam == VK_F1) {
-			if (inputSystem.IsMouseLocked()) {
-				inputSystem.LockMouse(false);
-				::ClipCursor(nullptr);
-				::ShowCursor(TRUE);
+		// ESC: Disabled
+		if (_wparam == VK_ESCAPE) {
+
+			if(inputSystem.GetMouseMode() != input::MouseMode::Disabled)
+			{
+				inputSystem.SetMouseMode(input::MouseMode::Disabled);
 			}
-			else {
-				inputSystem.LockMouse(true);
-			}
+
 			return 0;
 		}
+
 		return 0;
 	}
 	// ウィンドウが閉じられた
 	case WM_CLOSE:
 	{
 		PostQuitMessage(0);
-		return 0;;
+		return 0;
 	}
 	default:
 		break;
@@ -171,7 +175,7 @@ dx3d::Window::Window(const WindowDesc& _desc) : Base(_desc.base), size_(_desc.si
 		wc.lpfnWndProc = &WindowProcedure;
 		wc.hInstance = hInstance;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wc.hIcon == LoadIcon(NULL, IDI_APPLICATION);
+		wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wc.lpszClassName = "LIGHT THROUGH";
 		return RegisterClassEx(&wc);
