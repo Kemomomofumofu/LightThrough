@@ -39,7 +39,7 @@ static bool IsCursorInClient(HWND _hwnd)
 	RECT rc{};
 	::GetClientRect(_hwnd, &rc);
 
-	return ::PtInRect(&rc, client)  != 0;
+	return ::PtInRect(&rc, client) != 0;
 }
 
 /**
@@ -79,7 +79,7 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 
 	switch (_msg)
 	{
-	// フォーカスが当たった
+		// フォーカスが当たった
 	case WM_SETFOCUS:
 	{
 		inputSystem.SetFocus(true);
@@ -111,8 +111,10 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 		ApplyImGuiInputCapture(inputSystem);
 
 		if (inputSystem.GetMouseMode() == input::MouseMode::Disabled) {
-			// [ToDo] 前回のモードを覚えておいて復帰させるようにする
-			inputSystem.SetMouseMode(input::MouseMode::Camera);
+			if (IsCursorInClient(_hwnd)) {
+				// [ToDo] 前回のモードを覚えておいて復帰させるようにする
+				inputSystem.SetMouseMode(input::MouseMode::Camera);
+			}
 		}
 
 		return 0;
@@ -141,7 +143,7 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 		// ESC: Disabled
 		if (_wparam == VK_ESCAPE) {
 
-			if(inputSystem.GetMouseMode() != input::MouseMode::Disabled)
+			if (inputSystem.GetMouseMode() != input::MouseMode::Disabled)
 			{
 				inputSystem.SetMouseMode(input::MouseMode::Disabled);
 			}
