@@ -207,8 +207,11 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
+    <ClInclude Include="SourceFiles\Game\Collision\CollisionOBB.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
     <ClInclude Include="SourceFiles\Game\Components\Material.h" />
+    <ClInclude Include="SourceFiles\Game\Components\OBB.h" />
+    <ClInclude Include="SourceFiles\Game\Components\RuntimeCollider.h" />
     <ClInclude Include="SourceFiles\Game\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ISystem.h" />
     <ClInclude Include="SourceFiles\Game\GameObjectType.h" />

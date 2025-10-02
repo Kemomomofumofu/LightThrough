@@ -197,6 +197,9 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.h" />
+    <ClInclude Include="SourceFiles\Game\Components\OBB.h" />
+    <ClInclude Include="SourceFiles\Game\Components\RuntimeCollider.h" />
+    <ClInclude Include="SourceFiles\Game\Collision\CollisionOBB.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
