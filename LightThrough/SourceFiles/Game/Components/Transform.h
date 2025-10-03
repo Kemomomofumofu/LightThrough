@@ -10,24 +10,51 @@
 #include <DirectXMath.h>
 
 namespace ecs {
-	struct Transform {
-		DirectX::XMFLOAT3 position = {};					// 位置
-		DirectX::XMFLOAT4 rotationQuat = { 0.0f, 0.0f, 0.0f, 1.0f }; // 回転(クォータニオン)
-		DirectX::XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };	// スケール
+	using namespace DirectX;
 
+	struct Transform {
+		XMFLOAT3 position = {};					// 位置
+		XMFLOAT4 rotationQuat = { 0.0f, 0.0f, 0.0f, 1.0f }; // 回転(クォータニオン)
+		XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };	// スケール
+
+		// キャッシュ用
+		mutable XMFLOAT4X4 world{
+			1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		};
+
+		mutable bool dirty = true; // 変更フラグ
+		
+		// セッターを介して変更することで自動的にdirtyフラグを立てる
+		
+		/**
+		 * @brief 位置更新
+		 * @param _pos 更新後の位置
+		 */
+		inline void SetPosition(const XMFLOAT3& _pos) {
+			position = _pos;
+			dirty = true;
+		}
 
 		/**
-		 * @brief モデル行列を計算する
-		 * @return モデル行列
-		 * [ToDo] 値が変わったら計算するようにすると軽くなる
+		 * @brief 回転更新
+		 * @param _quat 更新後の回転(クォータニオン)
 		 */
-		DirectX::XMMATRIX GetWorldMatrix() const {
-			using namespace DirectX;
-			XMMATRIX S = XMMatrixScaling(scale.x, scale.y, scale.z);
-			XMMATRIX R = XMMatrixRotationQuaternion(XMLoadFloat4(&rotationQuat));
-			XMMATRIX T = XMMatrixTranslation(position.x, position.y, position.z);
-
-			return S * R * T;
+		inline void SetRotation(const XMFLOAT4& _quat) {
+			rotationQuat = _quat;
+			dirty = true;
 		}
+
+		/**
+		 * @brief スケール更新
+		 * @param _scale 更新後のスケール
+		 */
+		inline void SetScale(const XMFLOAT3& _scale) {
+			scale = _scale;
+			dirty = true;
+		}
+
 	};
 }

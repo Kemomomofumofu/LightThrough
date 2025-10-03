@@ -200,6 +200,7 @@
     <ClInclude Include="SourceFiles\Game\Components\OBB.h" />
     <ClInclude Include="SourceFiles\Game\Components\RuntimeCollider.h" />
     <ClInclude Include="SourceFiles\Game\Collision\CollisionOBB.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -285,6 +286,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
