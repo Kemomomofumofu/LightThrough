@@ -21,12 +21,14 @@
 #include <Game/Systems/CameraSystem.h>
 #include <Game/Systems/DebugRenderSystem.h>
 #include <Game/Systems/Scenes/TitleSceneSystem.h>
+#include <Game/Systems/Collisions/ColliderSyncSystem.h>
 
 #include <Game/Components/Mesh.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/Velocity.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
+#include <Game/Components/Collider.h>
 
 #include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
@@ -71,14 +73,11 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->RegisterComponent<ecs::Mesh>();
 	ecs_coordinator_->RegisterComponent<ecs::Camera>();
 	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
+	ecs_coordinator_->RegisterComponent<ecs::Collider>();
 
 
 	// SystemDescの準備
 	ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
-
-	// prefab
-	ecs_coordinator_->RegisterSystem<ecs::PrefabSystem>(systemDesc);
-	const auto& prefabSystem = ecs_coordinator_->GetSystem<ecs::PrefabSystem>();
 
 	// カメラシステム
 	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
@@ -94,6 +93,12 @@ dx3d::Game::Game(const GameDesc& _desc)
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
 	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
 	debugRenderSystem->Init();
+	// コライダー同期システム
+	ecs_coordinator_->RegisterSystem<ecs::ColliderSyncSystem>(systemDesc);
+	const auto& colliderSyncSystem = ecs_coordinator_->GetSystem<ecs::ColliderSyncSystem>();
+	colliderSyncSystem->Init();
+
+
 
 	// Sceneの生成・読み込み・アクティベート
 	scene_manager_->ChangeScene("TestScene");

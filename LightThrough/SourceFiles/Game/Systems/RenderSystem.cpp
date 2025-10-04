@@ -103,7 +103,7 @@ namespace ecs {
 		// Entity一覧を走査してバッチ化 // [ToDo] 毎フレーム全Entityに対して処理するのはあまりにも重すぎなので、差分更新とかにしたい。
 		for (auto& e : entities_) {
 			auto& mesh = ecs_.GetComponent<Mesh>(e);
-			auto& transform = ecs_.GetComponent<ecs::Transform>(e);
+			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
 			if (!mesh.vb || !mesh.ib) continue;
 
 			Key key{ mesh.vb.get(), mesh.ib.get() };
@@ -127,10 +127,8 @@ namespace ecs {
 
 			// インスタンスデータ追加
 			dx3d::InstanceData d{};
-			DirectX::XMMATRIX wm = transform.GetWorldMatrix();
-			DirectX::XMStoreFloat4x4(&d.world, wm);		// 非転置
+			d.world = tf.world;
 			batches_[batchIndex].instances.emplace_back(d);
-
 		}
 	}
 

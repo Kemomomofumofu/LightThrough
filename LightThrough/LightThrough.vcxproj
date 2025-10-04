@@ -184,6 +184,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Window\Win32\Win32Window.cpp" />
     <ClCompile Include="SourceFiles\Game\main.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\TransformSystem.cpp" />
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_demo.cpp" />
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.cpp" />
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.cpp" />
@@ -208,11 +209,10 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
-    <ClInclude Include="SourceFiles\Game\Collision\CollisionOBB.h" />
+    <ClInclude Include="SourceFiles\Game\Collisions\CollisionUtils.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Collider.h" />
     <ClInclude Include="SourceFiles\Game\Components\Material.h" />
-    <ClInclude Include="SourceFiles\Game\Components\OBB.h" />
-    <ClInclude Include="SourceFiles\Game\Components\RuntimeCollider.h" />
     <ClInclude Include="SourceFiles\Game\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ISystem.h" />
     <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
@@ -254,6 +254,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h" />
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.h" />

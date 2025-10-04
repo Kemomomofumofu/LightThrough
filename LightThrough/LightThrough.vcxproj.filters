@@ -197,10 +197,10 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.h" />
-    <ClInclude Include="SourceFiles\Game\Components\OBB.h" />
-    <ClInclude Include="SourceFiles\Game\Components\RuntimeCollider.h" />
-    <ClInclude Include="SourceFiles\Game\Collision\CollisionOBB.h" />
+    <ClInclude Include="SourceFiles\Game\Collisions\CollisionUtils.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Collider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -287,6 +287,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\TransformSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />

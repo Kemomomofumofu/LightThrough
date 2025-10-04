@@ -10,11 +10,15 @@
 
  // ---------- インクルード ---------- // 
 #include <Game/ECS/ISystem.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/OBB.h>
-#include <Game/Components/RuntimeCollider.h>
 
 namespace ecs {
+	struct Transform;
+	struct Collider;
+
+	/**
+	 * @brief コライダーの同期システム
+	 * @details Transformコンポーネントの変更を検知して、Colliderコンポーネントの形状を更新する
+	 */
 	class ColliderSyncSystem : public ISystem {
 	public:
 		explicit ColliderSyncSystem(const SystemDesc& _desc);
@@ -23,6 +27,7 @@ namespace ecs {
 		void Update(float _dt) override;
 
 	private:
-		uint64_t current_frame_{}; // 現在のフレーム
+		void BuildSphere(const Transform& _tf, Collider& _col);
+		void BuildOBB(const Transform& _tf, Collider& _com);
 	};
 }

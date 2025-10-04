@@ -27,8 +27,8 @@ namespace ecs {
 
 		mutable bool dirty = true; // 変更フラグ
 		
+
 		// セッターを介して変更することで自動的にdirtyフラグを立てる
-		
 		/**
 		 * @brief 位置更新
 		 * @param _pos 更新後の位置
@@ -56,5 +56,19 @@ namespace ecs {
 			dirty = true;
 		}
 
+		/**
+		 * @brief ワールド行列の更新
+		 */
+		inline void BuildWorld() const {
+			if (!dirty) { return; }
+
+			XMVECTOR s = XMLoadFloat3(&scale);
+			XMVECTOR r = XMLoadFloat4(&rotationQuat);
+			XMVECTOR t = XMLoadFloat3(&position);
+			XMMATRIX M = XMMatrixAffineTransformation(s, XMVectorZero(), r, t);
+
+			XMStoreFloat4x4(&world, M);
+			dirty = false;
+		}
 	};
 }
