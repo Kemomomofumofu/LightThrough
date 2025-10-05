@@ -61,8 +61,12 @@ namespace ecs {
 		auto& device = engine_->GetGraphicsDevice();
 
 		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
-		auto camEntity = ecs_.GetEntitiesWithComponent<Camera>()[0];	// とりあえず一番最初のカメラを取得しとく
-		auto& cam = ecs_.GetComponent<Camera>(camEntity);
+		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
+		if (camEntities.empty()) {
+			GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
+			return;
+		}
+		auto& cam = ecs_.GetComponent<Camera>(camEntities[0]);
 
 
 		dx3d::CBPerFrame cbPerFrameData{};

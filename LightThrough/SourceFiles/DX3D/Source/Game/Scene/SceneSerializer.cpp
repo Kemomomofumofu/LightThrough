@@ -12,6 +12,8 @@
 #include <Game/ECS/Coordinator.h>
 #include <Game/ECS/Entity.h>
 
+#include <Game/Serialization/ComponentReflection.h>
+
 #include <Game/Scene/SceneSerializer.h>
 #include <Game/Scene/SceneManager.h>
 
@@ -165,57 +167,23 @@ namespace scene {
 
 	/**
 	 * @brief JSONからEntityを復元する
-	 *
-	 * コンポーネントごとに読み込み内容を追記する必要あり。
-	 *
-	 * @param _j		対象のJSONオブジェクト
+	 * @param _j	対象のJSONオブジェクト
 	 * @return 復元したEntity
 	 */
 	ecs::Entity SceneSerializer::DeserializeEntity(const json& _j)
 	{
+		// Entity生成
 		ecs::Entity e = ecs_.CreateEntity();
+		// Componentsがなければ終了
+		if (!_j.contains("components") || !_j["components"].is_object()) { return e; }
 
-		if (!_j.contains("components") || !_j["components"].is_object()) {
-			return e;
-		}
 		const auto& comps = _j["components"];
-
-		// Transform
-		if (comps.contains("Transform") && comps["Transform"].is_object()) {
-			const auto& jt = comps["Transform"];
-			if (jt.contains("position") && jt["position"].is_array() && jt["position"].size() == 3 &&
-				jt.contains("rotationQuat") && jt["rotationQuat"].is_array() && jt["rotationQuat"].size() == 4 &&
-				jt.contains("scale") && jt["scale"].is_array() && jt["scale"].size() == 3) {
-
-				ecs::Transform t;
-				t.position = { jt["position"][0].get<float>(), jt["position"][1].get<float>(), jt["position"][2].get<float>() };
-				t.rotationQuat = { jt["rotationQuat"][0].get<float>(), jt["rotationQuat"][1].get<float>(), jt["rotationQuat"][2].get<float>(), jt["rotationQuat"][3].get<float>()};
-				t.scale = { jt["scale"][0].get<float>(),    jt["scale"][1].get<float>(),    jt["scale"][2].get<float>() };
-				ecs_.AddComponent(e, t);
-			}
-		}
-
-		// Camera
-		if (comps.contains("Camera") && comps["Camera"].is_object()) {
-			const auto& jc = comps["Camera"];
-			ecs::Camera c{};
-			if (jc.contains("fovY"))         c.fovY = jc["fovY"].get<float>();
-			if (jc.contains("aspectRatio"))  c.aspectRatio = jc["aspectRatio"].get<float>();
-			if (jc.contains("nearZ"))        c.nearZ = jc["nearZ"].get<float>();
-			if (jc.contains("farZ"))         c.farZ = jc["farZ"].get<float>();
-			if (jc.contains("isMain"))       c.isMain = jc["isMain"].get<bool>();
-			if (jc.contains("isActive"))     c.isActive = jc["isActive"].get<bool>();
-			ecs_.AddComponent(e, c);
-		}
-
-		// CameraController
-		if (comps.contains("CameraController") && comps["CameraController"].is_object()) {
-			const auto& jcc = comps["CameraController"];
-			ecs::CameraController cc{};
-			if (jcc.contains("mode"))             cc.mode = static_cast<ecs::CameraMode>(jcc["mode"].get<int>());
-			if (jcc.contains("moveSpeed"))        cc.moveSpeed = jcc["moveSpeed"].get<float>();
-			if (jcc.contains("mouseSensitivity")) cc.mouseSensitivity = jcc["mouseSensitivity"].get<float>();
-			ecs_.AddComponent(e, cc);
+		// ComponentRegistryの取得
+		auto& registry = ecs_serial::ComponentRegistry<ecs::Coordinator, ecs::Entity>::Get();
+		for (auto it = comps.begin(); it != comps.end(); ++it) {
+			// 存在するComponentなら追加
+			// 未登録なら何もしない [ToDo] Logに出せたらよいかも。
+			registry.AddIfExists(ecs_, e, it.key(), it.value());
 		}
 
 		return e;

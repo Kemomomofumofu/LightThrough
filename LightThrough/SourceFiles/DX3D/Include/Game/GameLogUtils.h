@@ -23,15 +23,6 @@ namespace game {
         {
             return std::format("Entity(id = {}, version = {})", _e.Index(), _e.Version());
         }
-
-        inline std::string ToString(const ecs::Transform& _t)
-        {
-            return std::format("Transform(Pos =({}, {}, {}), Rotation = ({}, {}, {}, {}), Scale = ({}, {}, {})",
-                _t.position.x, _t.position.y, _t.position.z,
-                _t.rotationQuat.x, _t.rotationQuat.y, _t.rotationQuat.z, _t.rotationQuat.w,
-                _t.scale.x, _t.scale.y, _t.scale.z
-            );
-        }
     }
 }
 

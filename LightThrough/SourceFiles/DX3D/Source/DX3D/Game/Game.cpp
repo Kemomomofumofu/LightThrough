@@ -14,8 +14,11 @@
 #include <DX3D/Graphics/PrimitiveFactory.h>
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
+#include <Game/Serialization/ComponentReflections.h>
+#include <Game/Serialization/ComponentReflection.h>
 
 #include <Game/Systems/Factorys/PrefabSystem.h>
+#include <Game/Systems/TransformSystem.h>
 #include <Game/Systems/MovementSystem.h>
 #include <Game/Systems/RenderSystem.h>
 #include <Game/Systems/CameraSystem.h>
@@ -74,11 +77,25 @@ dx3d::Game::Game(const GameDesc& _desc)
 	ecs_coordinator_->RegisterComponent<ecs::Camera>();
 	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 	ecs_coordinator_->RegisterComponent<ecs::Collider>();
-
+	// デシリアライズハンドラ登録
+	using Coord = ecs::Coordinator;
+	using Ent = ecs::Entity;
+	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Transform);
+	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Mesh);
+	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Camera);
+	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::CameraController);
+	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Collider);
 
 	// SystemDescの準備
 	ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
 
+	ecs_coordinator_->RegisterSystem<ecs::TransformSystem>(systemDesc);
+	const auto& transformSystem = ecs_coordinator_->GetSystem<ecs::TransformSystem>();
+	transformSystem->Init();
+	// コライダー同期システム
+	ecs_coordinator_->RegisterSystem<ecs::ColliderSyncSystem>(systemDesc);
+	const auto& colliderSyncSystem = ecs_coordinator_->GetSystem<ecs::ColliderSyncSystem>();
+	colliderSyncSystem->Init();
 	// カメラシステム
 	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
 	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
@@ -93,16 +110,9 @@ dx3d::Game::Game(const GameDesc& _desc)
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
 	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
 	debugRenderSystem->Init();
-	// コライダー同期システム
-	ecs_coordinator_->RegisterSystem<ecs::ColliderSyncSystem>(systemDesc);
-	const auto& colliderSyncSystem = ecs_coordinator_->GetSystem<ecs::ColliderSyncSystem>();
-	colliderSyncSystem->Init();
-
-
 
 	// Sceneの生成・読み込み・アクティベート
 	scene_manager_->ChangeScene("TestScene");
-
 
 	// Entityの生成
 
@@ -112,6 +122,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 				auto e = ecs_coordinator_->CreateEntity();
 				ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 1.5f * j} });
+				auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
 				auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
 				ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
 				scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);

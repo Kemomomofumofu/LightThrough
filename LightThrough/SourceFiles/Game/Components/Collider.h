@@ -9,6 +9,7 @@
  // ---------- インクルード ---------- //
 #include <Game/Collisions/CollisionUtils.h>
 
+
 namespace ecs {
 	/**
 	 * @brief コライダーコンポーネント
@@ -23,7 +24,7 @@ namespace ecs {
 		// キャッシュ
 		collision::WorldSphere worldSphere{};
 		collision::WorldOBB worldOBB{};
-
 		float broadPhaseRadius = 0.0f; // ブロードフェーズ用の半径
 	};
 }
+

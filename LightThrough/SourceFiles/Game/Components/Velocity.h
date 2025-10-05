@@ -9,6 +9,7 @@
  // ---------- インクルード ---------- //
 #include <DirectXMath.h>
 
+
 namespace ecs {
 	/**
 	 * @brief 速度コンポーネント

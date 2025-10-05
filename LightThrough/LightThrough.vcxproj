@@ -204,6 +204,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Texture.h" />
+    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflection.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
@@ -224,6 +225,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\EntityManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.h" />
+    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflections.h" />
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h" />

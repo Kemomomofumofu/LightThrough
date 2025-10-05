@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @file Camera.h
  * @brief カメラコンポーネント

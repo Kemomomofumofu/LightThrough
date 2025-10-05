@@ -201,6 +201,8 @@
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Collider.h" />
+    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflection.h" />
+    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflections.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
