@@ -45,6 +45,8 @@ namespace debug {
 	 */
 	void DebugUI::Render()
 	{
+		ImGui_ImplDX11_CreateDeviceObjects();	// なぜかこれを明示的に呼び出さないとフォントが崩れる
+
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -60,6 +62,7 @@ namespace debug {
 			func();
 		}
 		// 描画
+		ImGui::ShowMetricsWindow();
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
