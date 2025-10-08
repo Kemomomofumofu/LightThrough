@@ -81,8 +81,11 @@ namespace scene {
 		std::unique_ptr<SceneSerializer> serializer_{};
 
 
+
 	// ---------- デバッグ関連 ---------- // 
 	private:
 		void DebugCurrentScene();
+	private:
+		std::optional<ecs::Entity> debug_selected_entity_{};
 	};
 }
