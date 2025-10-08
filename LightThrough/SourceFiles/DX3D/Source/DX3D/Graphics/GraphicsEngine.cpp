@@ -28,7 +28,7 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 
 	// ラスタライザーステートの生成
 	rasterizer_ = device.CreateRasterizerState({
-		.fillMode = FillMode::Wireframe,
+		.fillMode = FillMode::Solid,
 		.cullMode = CullMode::Back,
 		});
 

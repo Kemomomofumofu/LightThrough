@@ -70,11 +70,11 @@ namespace ecs {
 	std::vector<Entity> Coordinator::GetEntitiesWithSignature(Signature _signature)
 	{
 		std::vector<Entity> result;
-		//for (auto e : entity_manager_->GetAllEntities()) {
-		//	if ((entity_manager_->GetSignature(e) & _signature) == _signature) {
-		//		result.push_back(e);	// ‚Á‚Ä‚¢‚é‚È‚ç’Ç‰Á
-		//	}
-		//}
+		for (auto e : entity_manager_->GetAllEntities()) {
+			if ((entity_manager_->GetSignature(e) & _signature) == _signature) {
+				result.push_back(e);	// ‚Á‚Ä‚¢‚é‚È‚ç’Ç‰Á
+			}
+		}
 		return result;
 	}
 }

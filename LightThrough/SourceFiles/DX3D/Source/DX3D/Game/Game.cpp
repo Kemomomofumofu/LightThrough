@@ -117,18 +117,16 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// Entityの生成
 
 	// テスト
-	for (int i = 0; i < 100; ++i) {
-		for (int j = 0; j < 10; ++j) {
-
-				auto e = ecs_coordinator_->CreateEntity();
-				ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 1.5f * j} });
-				auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
-				auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
-				ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
-				scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-
-		}
+	for (int i = 0; i < 2; ++i) {
+		auto e = ecs_coordinator_->CreateEntity();
+		ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 0.0f} });
+		auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
+		auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
+		ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
+		scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
 	}
+
+
 	DX3DLogInfo("ゲーム開始");
 }
 
