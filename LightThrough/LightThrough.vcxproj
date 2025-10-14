@@ -29,13 +29,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -48,7 +48,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.cpp" />
@@ -194,6 +195,7 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\GameLogUtils.h" />

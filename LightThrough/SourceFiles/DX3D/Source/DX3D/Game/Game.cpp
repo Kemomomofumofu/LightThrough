@@ -25,10 +25,11 @@
 #include <Game/Systems/DebugRenderSystem.h>
 #include <Game/Systems/Scenes/TitleSceneSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
+#include <Game/Systems/Collisions/CollisionResolveSystem.h>
 
 #include <Game/Components/Mesh.h>
 #include <Game/Components/Transform.h>
-#include <Game/Components/Velocity.h>
+//#include <Game/Components/Velocity.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 #include <Game/Components/Collider.h>
@@ -36,6 +37,50 @@
 #include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
 
+#pragma region ローカルメソッド
+namespace {
+	/**
+	 * @brief システムの登録
+	 * @param _ecs ECSのコーディネーター
+	 */
+	void RegisterAllSystems(ecs::SystemDesc& _desc, dx3d::GraphicsEngine& _engine)
+	{
+		auto& ecsCoordinator = _desc.ecs;
+
+		ecsCoordinator.RegisterSystem<ecs::TransformSystem>(_desc);
+		const auto& transformSystem = ecsCoordinator.GetSystem<ecs::TransformSystem>();
+		transformSystem->Init();
+
+		// コライダー同期システム
+		ecsCoordinator.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
+		const auto& colliderSyncSystem = ecsCoordinator.GetSystem<ecs::ColliderSyncSystem>();
+		colliderSyncSystem->Init();
+
+		ecsCoordinator.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
+		const auto& collisionResolveSystem = ecsCoordinator.GetSystem<ecs::CollisionResolveSystem>();
+		collisionResolveSystem->Init();
+
+		// カメラシステム
+		ecsCoordinator.RegisterSystem<ecs::CameraSystem>(_desc);
+		const auto& cameraSystem = ecsCoordinator.GetSystem<ecs::CameraSystem>();
+		cameraSystem->Init();
+
+		// 描画システム
+		ecsCoordinator.RegisterSystem<ecs::RenderSystem>(_desc);
+		const auto& renderSystem = ecsCoordinator.GetSystem<ecs::RenderSystem>();
+		renderSystem->SetGraphicsEngine(_engine);
+		renderSystem->Init();
+
+		// デバッグ描画システム
+		ecsCoordinator.RegisterSystem<ecs::DebugRenderSystem>(_desc);
+		const auto& debugRenderSystem = ecsCoordinator.GetSystem<ecs::DebugRenderSystem>();
+		debugRenderSystem->SetGraphicsEngine(_engine);
+		debugRenderSystem->Init();
+
+
+	}
+}
+#pragma endregion
 
 /**
  * @brief コンストラクタ
@@ -86,30 +131,9 @@ dx3d::Game::Game(const GameDesc& _desc)
 	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::CameraController);
 	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Collider);
 
-	// SystemDescの準備
+	// Systemの登録
 	ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
-
-	ecs_coordinator_->RegisterSystem<ecs::TransformSystem>(systemDesc);
-	const auto& transformSystem = ecs_coordinator_->GetSystem<ecs::TransformSystem>();
-	transformSystem->Init();
-	// コライダー同期システム
-	ecs_coordinator_->RegisterSystem<ecs::ColliderSyncSystem>(systemDesc);
-	const auto& colliderSyncSystem = ecs_coordinator_->GetSystem<ecs::ColliderSyncSystem>();
-	colliderSyncSystem->Init();
-	// カメラシステム
-	ecs_coordinator_->RegisterSystem<ecs::CameraSystem>(systemDesc);
-	const auto& cameraSystem = ecs_coordinator_->GetSystem<ecs::CameraSystem>();
-	cameraSystem->Init();
-	// 描画システム
-	ecs_coordinator_->RegisterSystem<ecs::RenderSystem>(systemDesc);
-	const auto& renderSystem = ecs_coordinator_->GetSystem<ecs::RenderSystem>();
-	renderSystem->SetGraphicsEngine(*graphics_engine_);
-	renderSystem->Init();
-	// デバッグ描画システム
-	ecs_coordinator_->RegisterSystem<ecs::DebugRenderSystem>(systemDesc);
-	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
-	debugRenderSystem->SetGraphicsEngine(*graphics_engine_);
-	debugRenderSystem->Init();
+	RegisterAllSystems(systemDesc, *graphics_engine_);
 
 	// Sceneの生成・読み込み・アクティベート
 	scene_manager_->ChangeScene("TestScene");
@@ -123,6 +147,12 @@ dx3d::Game::Game(const GameDesc& _desc)
 		auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
 		auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
 		ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
+		ecs::Collider col {
+		.type = collision::ShapeType::Box,
+		.shape = collision::BoxShape{ {0.5f, 0.5f, 0.5f} },
+		.isStatic = false,
+		};
+		ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
 		scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
 	}
 
@@ -143,8 +173,6 @@ dx3d::Game::~Game()
  */
 void dx3d::Game::OnInternalUpdate()
 {
-
-
 	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
 	// 入力の更新
 	input::InputSystem::Get().Update();
@@ -184,3 +212,4 @@ void dx3d::Game::OnInternalUpdate()
 	// 描画
 	graphics_engine_->EndFrame();
 }
+

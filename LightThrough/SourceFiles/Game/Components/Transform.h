@@ -28,13 +28,19 @@ namespace ecs {
 		mutable bool dirty = true; // 変更フラグ
 		
 
-		// セッターを介して変更することで自動的にdirtyフラグを立てる
+		// セッターを介して変更することで自動的にDirtyフラグを立てる
 		/**
 		 * @brief 位置更新
 		 * @param _pos 更新後の位置
 		 */
 		inline void SetPosition(const XMFLOAT3& _pos) {
 			position = _pos;
+			dirty = true;
+		}
+		inline void AddPosition(const XMFLOAT3& _pos) {
+			position.x += _pos.x;
+			position.y += _pos.y;
+			position.z += _pos.z;
 			dirty = true;
 		}
 
@@ -46,6 +52,13 @@ namespace ecs {
 			rotationQuat = _quat;
 			dirty = true;
 		}
+		inline void AddRotation(const XMFLOAT4& _quat) {
+			XMVECTOR r1 = XMLoadFloat4(&rotationQuat);
+			XMVECTOR r2 = XMLoadFloat4(&_quat);
+			XMVECTOR r = XMQuaternionMultiply(r2, r1);
+			XMStoreFloat4(&rotationQuat, r);
+			dirty = true;
+		}
 
 		/**
 		 * @brief スケール更新
@@ -53,6 +66,12 @@ namespace ecs {
 		 */
 		inline void SetScale(const XMFLOAT3& _scale) {
 			scale = _scale;
+			dirty = true;
+		}
+		inline void AddScale(const XMFLOAT3& _scale) {
+			scale.x += _scale.x;
+			scale.y += _scale.y;
+			scale.z += _scale.z;
 			dirty = true;
 		}
 

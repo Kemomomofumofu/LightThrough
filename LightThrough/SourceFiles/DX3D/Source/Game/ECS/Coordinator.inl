@@ -93,6 +93,8 @@ namespace ecs {
 	 * @param <Com> 確認するComponentの種類
 	 * @param _e 確認するEntity
 	 * @return true: 持っている, false: 持っていない
+	 * 
+	 * [ToDo] 直接ComponentArrayの中身を探しているので、Bitsetで管理するようにして高速化を図るべき
 	 */
 	template<typename Com>
 	bool Coordinator::HasComponent(Entity _e)

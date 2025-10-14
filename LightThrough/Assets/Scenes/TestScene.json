@@ -1,42 +1,42 @@
 {
-  "entities": [
-    {
-      "components": {
-        "ecs::Camera": {
-          "aspectRatio": 1.7777777910232544,
-          "farZ": 1000.0,
-          "fovY": 60.0,
-          "isActive": true,
-          "isMain": true,
-          "nearZ": 0.10000000149011612
-        },
-        "ecs::CameraController": {
-          "mode": 0,
-          "mouseSensitivity": 0.001,
-          "moveSpeed": 10.0
-        },
-        "ecs::Transform": {
-          "position": [
-            -10.672311782836914,
-            11.504505157470703,
-            7.592739582061768
-          ],
-          "rotationQuat": [
-            0.14272327721118927,
-            0.6888531446456909,
-            -0.14114508032798767,
-            0.696555495262146
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
+    "entities": [
+        {
+            "components": {
+                "ecs::Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 1000.0,
+                    "fovY": 60.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 0.10000000149011612
+                },
+                "ecs::CameraController": {
+                    "mode": 0,
+                    "mouseSensitivity": 0.0010000000474974513,
+                    "moveSpeed": 10.0
+                },
+                "ecs::Transform": {
+                    "position": [
+                        0.9962334632873535,
+                        1.108001947402954,
+                        6.300837516784668
+                    ],
+                    "rotationQuat": [
+                        0.00011604381143115461,
+                        0.9959967136383057,
+                        -0.08938069641590118,
+                        0.0012931120581924915
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            "id": 1
         }
-      },
-      "id": 1
-    }
-  ],
-  "sceneId": "TestScene",
-  "sceneName": "TestScene"
+    ],
+    "sceneId": "TestScene",
+    "sceneName": "TestScene"
 }

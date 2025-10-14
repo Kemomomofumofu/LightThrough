@@ -175,7 +175,7 @@ namespace collision {
 		XMFLOAT3 closest{
 			_obb.center.x + _obb.axis[0].x * lx + _obb.axis[1].x * ly + _obb.axis[2].x * lz,
 			_obb.center.y + _obb.axis[0].y * lx + _obb.axis[1].y * ly + _obb.axis[2].y * lz,
-			_obb.center.x + _obb.axis[0].x * lx + _obb.axis[1].x * ly + _obb.axis[2].x * lz,
+			_obb.center.z + _obb.axis[0].z * lx + _obb.axis[1].z * ly + _obb.axis[2].z * lz,
 		};
 		// 最近接点と球の中心の距離
 		XMFLOAT3 sep = Sub(_sphere.center, closest);
@@ -223,7 +223,7 @@ namespace collision {
 		constexpr float EPS = 1e-6f;	// 誤差範囲
 		XMFLOAT3 T = Sub(_obbB.center, _obbA.center); // AからBへのベクトル
 
-		XMFLOAT3 axes[15]; // テストする軸
+		XMFLOAT3 axes[15]{}; // テストする軸
 		int axisCount = 0;
 		for (int i = 0; i < 3; ++i) {
 			axes[axisCount++] = _obbA.axis[i];
@@ -236,9 +236,9 @@ namespace collision {
 		for (int i = 0; i < 3; ++i) {
 			for (int j = 0; j < 3; ++j) {
 				XMFLOAT3 cr{
-					_obbA.axis[i].y * _obbB.axis[j].z - _obbA.axis[i].z * _obbB.axis[j].y,
-					_obbA.axis[i].z * _obbB.axis[j].x - _obbA.axis[i].x * _obbB.axis[j].z,
-					_obbA.axis[i].x * _obbB.axis[j].y - _obbA.axis[i].y * _obbB.axis[j].x
+					_obbA.axis[i].x * _obbB.axis[j].z - _obbA.axis[i].z * _obbB.axis[j].y,
+					_obbA.axis[i].y * _obbB.axis[j].x - _obbA.axis[i].x * _obbB.axis[j].z,
+					_obbA.axis[i].z * _obbB.axis[j].y - _obbA.axis[i].y * _obbB.axis[j].x
 				};
 				float len2 = Dot(cr, cr);
 				// 誤差範囲より大きければ
@@ -288,4 +288,50 @@ namespace collision {
 
 		return ContactResult{ bestAxis, minPenetration };
 	}
+
+
+
+	/**
+	 * @brief 貫通解消量の計算
+	 * @param _contact		A->Bへの法線と貫通震度
+	 * @param _isStaticA	Aが静的か
+	 * @param _isStaticB	Bが静的か
+	 * @param _percent		解消割合(過補正対策 推奨は0.8f程度)
+	 * @param _slop			微小貫通を無視する閾値(推奨は0.01f程度)
+	 * @return {Aの移動量, Bの移動量} それぞれのTransformに加算するオフセット
+	 */
+	inline std::pair<XMFLOAT3, XMFLOAT3> ComputePushOut(
+		const ContactResult& _contact,
+		bool _isStaticA, bool _isStaticB,
+		float _percent = 0.8f, float _slop = 0.01f)
+	{
+		float corr = (std::max)(_contact.penetration - _slop, 0.0f) * _percent;
+
+		XMFLOAT3 n = Normalize(_contact.normal);
+		XMFLOAT3 dispA{ 0, 0, 0 };
+		XMFLOAT3 dispB{ 0, 0, 0 };
+
+		// どちらも静的
+		if (_isStaticA && _isStaticB) {
+			return { dispA, dispB };
+		}
+		// Aだけ静的
+		else if(_isStaticA && !_isStaticB){
+			dispB = { n.x * corr, n.y * corr, n.z * corr };
+		}
+		// Bだけ静的
+		else if (!_isStaticA && _isStaticB) {
+			dispA = { -n.x * corr, -n.y * corr, -n.z * corr };
+		}
+		// どちらも動的
+		else {
+			// 半分ずつ移動
+			float halfCorr = corr * 0.5f;
+			dispA = { -n.x * halfCorr, -n.y * halfCorr, -n.z * halfCorr };
+			dispB = { n.x * halfCorr, n.y * halfCorr, n.z * halfCorr };
+		}
+
+		return { dispA, dispB };
+	}
+
 }

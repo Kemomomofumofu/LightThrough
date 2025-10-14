@@ -7,7 +7,7 @@
 
  // ---------- インクルード ---------- //
 #include <Debug/DebugUI.h>
-
+#include <vector>
 
 namespace debug {
 	std::vector<std::function<void(void)>> debug::DebugUI::debug_functions_{};
