@@ -12,7 +12,7 @@
 #include <Game/Components/Transform.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Collider.h>
 
 

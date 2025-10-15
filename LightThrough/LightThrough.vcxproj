@@ -147,6 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
@@ -158,7 +160,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.cpp" />
     <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
@@ -195,6 +197,10 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\Mesh.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />
@@ -210,7 +216,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
     <ClInclude Include="SourceFiles\Game\Collisions\CollisionUtils.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
@@ -232,7 +238,7 @@
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\RenderSystem.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Mesh.h" />
+    <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.h" />

@@ -10,7 +10,7 @@
 #include <vector>
 #include <DirectXMath.h>
 #include <Game/ECS/ISystem.h>
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 
 
@@ -46,7 +46,7 @@ namespace ecs {
 	private:
 		// Command構造体
 		struct DebugCommand {
-			Mesh mesh;
+			MeshRenderer mesh;
 			XMMATRIX world;
 			XMFLOAT4 color;
 		};
@@ -57,8 +57,8 @@ namespace ecs {
 		dx3d::ConstantBufferPtr cb_per_object_{};
 
 		// Meshのキャッシュ
-		Mesh cube_mesh_{};
-		Mesh sphere_mesh_{};
-		Mesh line_mesh_{};
+		MeshRenderer cube_mesh_{};
+		MeshRenderer sphere_mesh_{};
+		MeshRenderer line_mesh_{};
 	};
 }

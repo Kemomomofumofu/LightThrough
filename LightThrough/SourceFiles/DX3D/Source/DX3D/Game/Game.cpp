@@ -9,9 +9,10 @@
 #include <DX3D/Game/Game.h>
 #include <DX3D/Window/Window.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
+#include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
-#include <DX3D/Graphics/PrimitiveFactory.h>
+#include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
 #include <Game/Serialization/ComponentReflections.h>
@@ -27,7 +28,7 @@
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
 
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Transform.h>
 //#include <Game/Components/Velocity.h>
 #include <Game/Components/Camera.h>
@@ -77,7 +78,6 @@ namespace {
 		debugRenderSystem->SetGraphicsEngine(_engine);
 		debugRenderSystem->Init();
 
-
 	}
 }
 #pragma endregion
@@ -118,7 +118,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// [ToDo] テスト用で動かしてみる
 	// [ToDo] 自動でComponentを登録する機能が欲しいかも。
 	ecs_coordinator_->RegisterComponent<ecs::Transform>();
-	ecs_coordinator_->RegisterComponent<ecs::Mesh>();
+	ecs_coordinator_->RegisterComponent<ecs::MeshRenderer>();
 	ecs_coordinator_->RegisterComponent<ecs::Camera>();
 	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 	ecs_coordinator_->RegisterComponent<ecs::Collider>();
@@ -126,7 +126,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	using Coord = ecs::Coordinator;
 	using Ent = ecs::Entity;
 	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Transform);
-	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Mesh);
+	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::MeshRenderer);
 	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Camera);
 	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::CameraController);
 	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Collider);
@@ -145,8 +145,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 		auto e = ecs_coordinator_->CreateEntity();
 		ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 0.0f} });
 		auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
-		auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
-		ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
+		auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
+		ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
 		ecs::Collider col {
 		.type = collision::ShapeType::Box,
 		.shape = collision::BoxShape{ {0.5f, 0.5f, 0.5f} },

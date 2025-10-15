@@ -12,12 +12,14 @@
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
+#include <DX3D/Graphics/Meshes/MeshRegistry.h>
+#include <DX3D/Graphics/Meshes/Mesh.h>
 #include <Game/ECS/Coordinator.h>
 #include <Game/Systems/RenderSystem.h>
 
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 
 
 namespace ecs {
@@ -34,7 +36,7 @@ namespace ecs {
 		// 必須コンポーネント
 		Signature signature;
 		signature.set(ecs_.GetComponentType<Transform>());
-		signature.set(ecs_.GetComponentType<Mesh>());
+		signature.set(ecs_.GetComponentType<MeshRenderer>());
 		ecs_.SetSystemSignature<RenderSystem>(signature);
 
 		// 初期化
@@ -106,11 +108,15 @@ namespace ecs {
 
 		// Entity一覧を走査してバッチ化 // [ToDo] 毎フレーム全Entityに対して処理するのはあまりにも重すぎなので、差分更新とかにしたい。
 		for (auto& e : entities_) {
-			auto& mesh = ecs_.GetComponent<Mesh>(e);
+			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
-			if (!mesh.vb || !mesh.ib) continue;
 
-			Key key{ mesh.vb.get(), mesh.ib.get() };
+			auto& mr = engine_->GetMeshRegistry();
+			auto meshData = mr.Get(mesh.handle);
+
+			if (!meshData) continue;
+
+			Key key{ meshData->vb.get(), meshData->ib.get() };
 			size_t batchIndex{};
 			// 既存のバッチ
 			if (auto it = map.find(key); it != map.end()) {
@@ -121,9 +127,9 @@ namespace ecs {
 				batchIndex = batches_.size();
 				map.emplace(key, batchIndex);
 				batches_.push_back(InstanceBatch{
-					.vb = mesh.vb,
-					.ib = mesh.ib,
-					.indexCount = mesh.indexCount,
+					.vb = meshData->vb,
+					.ib = meshData->ib,
+					.indexCount = meshData->indexCount,
 					.instances = {},
 					.instanceOffset = 0
 					});

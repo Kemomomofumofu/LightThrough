@@ -10,7 +10,8 @@
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/DeviceContext.h>
-#include <DX3D/Graphics/PrimitiveFactory.h>
+#include <DX3D/Graphics/Meshes/MeshRegistry.h>
+#include <DX3D/Graphics/Meshes/Mesh.h>
 #include <Game/ECS/Coordinator.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
@@ -35,12 +36,6 @@ namespace ecs {
 	void DebugRenderSystem::Init()
 	{
 		auto& device = engine_->GetGraphicsDevice();
-
-		// 初期化
-		// Meshを事前に生成しておく
-		cube_mesh_ = dx3d::PrimitiveFactory::CreateCube(device);
-		sphere_mesh_ = dx3d::PrimitiveFactory::CreateSphere(engine_->GetGraphicsDevice(), 16, 16);
-		//line_mesh_ = dx3d::PrimitiveFactory::CreateLine(engine_->GetGraphicsDevice(), {0,0,0}, {1,0,0});
 
 		cb_per_frame_ = device.CreateConstantBuffer({
 			sizeof(dx3d::CBPerFrame),
@@ -128,6 +123,8 @@ namespace ecs {
 		context.VSSetConstantBuffer(0, *cb_per_frame_);
 
 		for (auto& cmd : commands_) {
+			// メッシュの取得
+			auto mesh = engine_->GetMeshRegistry().Get(cmd.mesh.handle);
 			// ワールド座標行列の取得
 			// オブジェクト単位の定数バッファ更新
 			dx3d::CBPerObject cbPerObjectData{};
@@ -136,10 +133,7 @@ namespace ecs {
 			cb_per_object_->Update(context, &cbPerObjectData, sizeof(cbPerObjectData));
 			context.VSSetConstantBuffer(1, *cb_per_object_);
 
-			engine_->Render(*cmd.mesh.vb, *cmd.mesh.ib);
-
-
-
+			engine_->Render(*mesh->vb, *mesh->ib);
 		}
 		commands_.clear();
 	}

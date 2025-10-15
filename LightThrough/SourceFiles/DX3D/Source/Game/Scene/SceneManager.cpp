@@ -14,7 +14,7 @@
 #include <Game/Scene/SceneManager.h>
 
 #include <Game/Components/Transform.h>
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 //#include <Game/Components/Sprite.h>
@@ -64,7 +64,7 @@ namespace scene {
 	{
 		try {
 			SceneData scene = serializer_->DeserializeScene(_name);
-			auto id = scene.id_;	// moveの後で使うためキャッシュ
+			auto& id = scene.id_;	// moveの後で使うためキャッシュ
 			scenes_.emplace(scene.id_, std::move(scene));	// シーンの追加
 			active_scene_ = id;	// アクティブに
 			return true;
@@ -135,7 +135,7 @@ namespace scene {
 		// Entityの破棄
 		// [ToDo] Scene遷移での削除する/しないをSceneで管理するべきなのかEntityで管理するべきなのか...たぶんScene側のほうが無駄なメモリは減らせるのかなぁ...
 		if (_destroyEntities) {
-			for (auto e : it->second.entities_) {
+			for (auto& e : it->second.entities_) {
 				if (persistent_entities_.count(e)) { continue; }	// 永続化されているなら削除しない
 				ecs_.DestroyEntity(e);	// Entityの破棄
 			}
@@ -330,7 +330,7 @@ namespace scene {
 					ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 					ImGui::TableHeadersRow();
 
-					for (auto e : ents) {
+					for (auto& e : ents) {
 						ImGui::TableNextRow();
 						// Column 0: 選択されているEntity
 						ImGui::TableSetColumnIndex(0);
@@ -453,8 +453,8 @@ namespace scene {
 				if (!ecs_.HasComponent<ecs::Transform>(e) && ImGui::Selectable("Transform")) {
 					ecs_.AddComponent<ecs::Transform>(e, ecs::Transform{});
 				}
-				if (!ecs_.HasComponent<ecs::Mesh>(e) && ImGui::Selectable("Mesh")) {
-					ecs_.AddComponent<ecs::Mesh>(e, ecs::Mesh{});
+				if (!ecs_.HasComponent<ecs::MeshRenderer>(e) && ImGui::Selectable("Mesh")) {
+					ecs_.AddComponent<ecs::MeshRenderer>(e, ecs::MeshRenderer{});
 				}
 				if (!ecs_.HasComponent<ecs::Camera>(e) && ImGui::Selectable("Camera")) {
 					ecs_.AddComponent<ecs::Camera>(e, ecs::Camera{});

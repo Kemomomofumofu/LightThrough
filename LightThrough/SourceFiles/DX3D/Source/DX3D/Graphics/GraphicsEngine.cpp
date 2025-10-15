@@ -15,6 +15,8 @@
 #include <DX3D/Graphics/Buffers/VertexBuffer.h>
 #include <DX3D/Graphics/Buffers/IndexBuffer.h>
 
+#include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
+
 /*---------- 名前空間 ----------*/
 using namespace dx3d;
 
@@ -32,9 +34,17 @@ dx3d::GraphicsEngine::GraphicsEngine(const GraphicsEngineDesc& _desc)
 		.cullMode = CullMode::Back,
 		});
 
-
 	// パイプラインキャッシュの生成
 	pipeline_cache_ = device.CreatePipelineCache({});
+
+	// メッシュレジストリの生成
+	mesh_registry_ = std::make_unique<MeshRegistry>();
+
+	// Meshを事前に生成しておく
+	dx3d::PrimitiveFactory::CreateCube(device, *mesh_registry_);
+	dx3d::PrimitiveFactory::CreateSphere(device, *mesh_registry_);
+	//line_mesh_ = dx3d::PrimitiveFactory::CreateLine(engine_->GetGraphicsDevice(), {0,0,0}, {1,0,0});
+
 
 }
 
@@ -55,6 +65,11 @@ DeviceContext& dx3d::GraphicsEngine::GetDeviceContext() noexcept
 void dx3d::GraphicsEngine::SetSwapChain(SwapChain& _swapChain)
 {
 	swap_chain_ = &_swapChain;
+}
+
+MeshRegistry& dx3d::GraphicsEngine::GetMeshRegistry() noexcept
+{
+	return *mesh_registry_;
 }
 
 void dx3d::GraphicsEngine::BeginFrame()

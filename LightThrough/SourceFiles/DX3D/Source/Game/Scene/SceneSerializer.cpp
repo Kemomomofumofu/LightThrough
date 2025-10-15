@@ -20,9 +20,9 @@
 #include <Game/Components/Transform.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
-#include <Game/Components/Mesh.h>
+#include <Game/Components/Meshrenderer.h>
 
-#define SCENE_FILE_DIR "Assets/Scenes/"
+constexpr auto SCENE_FILE_DIR = "Assets/Scenes/";
 
 
 
@@ -155,11 +155,11 @@ namespace scene {
 			jEntity["components"]["CameraController"]["mouseSensitivity"] = cc.mouseSensitivity;
 		}
 
-		//// Mesh
-		//if (_ecs.HasComponent<ecs::Mesh>(_e)) {
-		//	const auto& m = _ecs.GetComponent<ecs::Mesh>(_e);
-		//	j["components"]["Mesh"]["meshType"] = m.meshType;
-		//}
+		// Mesh
+		if (_ecs.HasComponent<ecs::MeshRenderer>(_e)) {
+			const auto& m = _ecs.GetComponent<ecs::MeshRenderer>(_e);
+			jEntity["components"]["MeshRenderer"]["handle"] = m.handle.id;
+		}
 
 
 		return jEntity;
