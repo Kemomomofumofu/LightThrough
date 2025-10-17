@@ -7,7 +7,8 @@
 
  // ---------- インクルード ---------- //
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
-#include <DX3d/Graphics/Meshes/Mesh.h>
+#include <DX3D/Graphics/Meshes/Mesh.h>
+#include <Debug/Debug.h>
 
 namespace dx3d {
 
@@ -17,7 +18,7 @@ namespace dx3d {
      * @param _name メッシュの名前(重複不可)
      * @return 登録されたメッシュのハンドル
 	 */
-    MeshHandle dx3d::MeshRegistry::Register(std::shared_ptr<Mesh> _mesh, const std::string& _name)
+    MeshHandle MeshRegistry::Register(std::shared_ptr<Mesh> _mesh, const std::string& _name)
     {
         // 新しいIDを生成(0は無効値として取っておく)
         HandleType newId = static_cast<HandleType>(meshes_.size() + 1); 
@@ -35,9 +36,15 @@ namespace dx3d {
 	 */
     Mesh* MeshRegistry::Get(const MeshHandle& _handle)
     {
+        if (!_handle.IsValid()) {
+            return nullptr;
+        }
+
+        const size_t index = static_cast<size_t>(_handle.id - 1);
+
 		// IDが範囲内かチェック
-        if (_handle.id < meshes_.size()) {
-            return meshes_[_handle.id].get();
+        if (index < meshes_.size()) {
+			return meshes_[index].get();
         }
 
 		// 範囲外ならnullptrを返す
@@ -67,7 +74,13 @@ namespace dx3d {
     MeshHandle MeshRegistry::GetHandleByName(const std::string& _name)
     {
         auto it = name_to_handle_.find(_name);
-        return (it != name_to_handle_.end()) ? it->second : dx3d::MeshHandle{};
+
+        if (it != name_to_handle_.end()) {
+            return it->second;
+        }
+
+        
+		return dx3d::MeshHandle{}; // 無効なハンドルを返す
     }
 
 

@@ -37,6 +37,7 @@
 
 #include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
+#include <Debug/Debug.h>
 
 #pragma region ローカルメソッド
 namespace {
@@ -90,6 +91,9 @@ dx3d::Game::Game(const GameDesc& _desc)
 	: Base({ *std::make_unique<Logger>(_desc.logLevel).release() }),
 	logger_ptr_(&logger_)
 {
+	// デバッグログ初期化
+	debug::Debug::Init(true);
+
 
 	// 時間初期化
 	last_time_ = std::chrono::high_resolution_clock::now();
@@ -165,6 +169,9 @@ dx3d::Game::~Game()
 	// ImGuiの破棄
 	debug::DebugUI::DisposeUI();
 	DX3DLogInfo("ゲーム終了");
+
+	debug::Debug::Log(debug::Debug::LogLevel::LOG_INFO, "ゲーム終了処理中...");
+	debug::Debug::Shutdown();
 }
 
 
