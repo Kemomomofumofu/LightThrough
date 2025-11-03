@@ -28,6 +28,9 @@ constexpr auto SCENE_FILE_DIR = "Assets/Scenes/";
 
 using json = nlohmann::json;
 namespace nlohmann {
+	/**
+	 * @brief DirectX::XMFLOAT3 のJSON変換
+	 */
 	template <>
 	struct adl_serializer<DirectX::XMFLOAT3> {
 		static void to_json(json& _j, const DirectX::XMFLOAT3& _v) {
@@ -38,6 +41,22 @@ namespace nlohmann {
 			_j.at("x").get_to(_v.x);
 			_j.at("y").get_to(_v.y);
 			_j.at("z").get_to(_v.z);
+		}
+	};
+
+	/**
+	 * @brief DirectX::XMFLOAT4 のJSON変換
+	 */
+	template <>
+	struct adl_serializer<DirectX::XMFLOAT4> {
+		static void to_json(json& _j, const DirectX::XMFLOAT4& _v) {
+			_j = json{ {"x", _v.x}, {"y", _v.y}, {"z", _v.z}, {"w", _v.w} };
+		}
+		static void from_json(const json& _j, DirectX::XMFLOAT4& _v) {
+			_j.at("x").get_to(_v.x);
+			_j.at("y").get_to(_v.y);
+			_j.at("z").get_to(_v.z);
+			_j.at("w").get_to(_v.w);
 		}
 	};
 }
@@ -62,9 +81,15 @@ namespace scene {
 	{
 		const auto path = GetSceneFilePath(_scene.name_);
 
+		// 保存ディレクトリの確保
+		std::error_code ec;
+		std::filesystem::create_directories(SCENE_FILE_DIR, ec);
+
+
 		json jScene;
 		jScene["sceneId"] = _scene.id_;
 		jScene["sceneName"] = _scene.name_;
+		jScene["version"] = 1;	// [ToDo] バージョン管理用
 
 		// Entity一覧をJSON化
 		jScene["entities"] = json::array();
@@ -79,7 +104,7 @@ namespace scene {
 		}
 		ofs << jScene.dump(4);	// インデント
 
-		return true;
+		return static_cast<bool>(ofs);
 	}
 
 	/**

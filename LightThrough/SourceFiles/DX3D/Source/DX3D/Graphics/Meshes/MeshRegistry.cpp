@@ -79,7 +79,7 @@ namespace dx3d {
             return it->second;
         }
 
-        
+		debug::Debug::Log(debug::Debug::LogLevel::LOG_ERROR, "MeshRegistry::GetHandleByName: メッシュ名 '{}' が見つかりません。", _name);
 		return dx3d::MeshHandle{}; // 無効なハンドルを返す
     }
 

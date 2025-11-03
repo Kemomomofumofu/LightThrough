@@ -149,11 +149,11 @@ dx3d::Game::Game(const GameDesc& _desc)
 		auto e = ecs_coordinator_->CreateEntity();
 		ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 0.0f} });
 		auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
-		auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
+		auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Sphere");
 		ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
 		ecs::Collider col {
-		.type = collision::ShapeType::Box,
-		.shape = collision::BoxShape{ {0.5f, 0.5f, 0.5f} },
+		.type = collision::ShapeType::Sphere,
+		.shape = collision::SphereShape{},
 		.isStatic = false,
 		};
 		ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
