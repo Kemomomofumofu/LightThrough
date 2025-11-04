@@ -2,7 +2,7 @@
   "entities": [
     {
       "components": {
-        "Camera": {
+        "ecs::Camera": {
           "aspectRatio": 1.7777777910232544,
           "farZ": 1000.0,
           "fovY": 60.0,
@@ -10,21 +10,22 @@
           "isMain": true,
           "nearZ": 0.10000000149011612
         },
-        "CameraController": {
+        "ecs::CameraController": {
           "mode": 0,
-          "mouseSensitivity": 1.0,
-          "moveSpeed": 5.0
+          "mouseSensitivity": 0.0010000000474974513,
+          "moveSpeed": 10.0
         },
-        "Transform": {
+        "ecs::Transform": {
           "position": [
-            0.057171497493982315,
-            0.0,
-            6.185490131378174
+            0.9962334632873535,
+            1.108001947402954,
+            6.300837516784668
           ],
-          "rotation": [
-            -0.01764858514070511,
-            -0.046155739575624466,
-            0.0
+          "rotationQuat": [
+            0.00011604381143115461,
+            0.9959967136383057,
+            -0.08938069641590118,
+            0.0012931120581924915
           ],
           "scale": [
             1.0,
@@ -36,6 +37,6 @@
       "id": 1
     }
   ],
-  "sceneId": "TestScene2",
-  "sceneName": "TestScene2"
+  "sceneId": "TestScene",
+  "sceneName": "TestScene"
 }

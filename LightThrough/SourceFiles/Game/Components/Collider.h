@@ -8,7 +8,7 @@
 
  // ---------- インクルード ---------- //
 #include <Game/Collisions/CollisionUtils.h>
-
+#include <Game/Serialization/ComponentReflection.h>
 
 namespace ecs {
 	/**
@@ -28,3 +28,10 @@ namespace ecs {
 	};
 }
 
+
+ECS_REFLECT_BEGIN(ecs::Collider)
+ECS_REFLECT_FIELD(type),
+ECS_REFLECT_FIELD(shape),
+ECS_REFLECT_FIELD(isTrigger),
+ECS_REFLECT_FIELD(isStatic)
+ECS_REFLECT_END()

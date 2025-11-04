@@ -42,3 +42,17 @@ namespace ecs {
 		bool invertY = false;	// YŽ²”½“]
 	};
 }
+
+
+ECS_REFLECT_BEGIN(ecs::CameraController)
+ECS_REFLECT_FIELD(mode),
+ECS_REFLECT_FIELD(moveSpeed),
+ECS_REFLECT_FIELD(mouseSensitivity),
+ECS_REFLECT_FIELD(yaw),
+ECS_REFLECT_FIELD(pitch),
+ECS_REFLECT_FIELD(orbitTarget),
+ECS_REFLECT_FIELD(orbitDistance),
+ECS_REFLECT_FIELD(orbitYaw),
+ECS_REFLECT_FIELD(orbitPitch),
+ECS_REFLECT_FIELD(invertY)
+ECS_REFLECT_END()

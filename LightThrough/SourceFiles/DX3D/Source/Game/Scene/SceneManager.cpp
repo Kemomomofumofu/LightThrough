@@ -32,7 +32,7 @@ namespace scene {
 		, ecs_(_base.ecs)
 	{
 		// SceneSerializerの生成
-		serializer_ = std::make_unique<SceneSerializer>(ecs_);
+		serializer_ = std::make_unique<ecs_serial::SceneSerializer>(ecs_);
 
 		// デバッグメソッドの登録
 		debug::DebugUI::ResistDebugFunction([this]() { DebugCurrentScene(); });

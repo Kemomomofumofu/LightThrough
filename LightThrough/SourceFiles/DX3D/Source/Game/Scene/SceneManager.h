@@ -78,7 +78,7 @@ namespace scene {
 		std::unordered_map<SceneData::Id, SceneData> scenes_{};
 		std::optional<SceneData::Id> active_scene_{};
 		std::unordered_set<ecs::Entity> persistent_entities_{};
-		std::unique_ptr<SceneSerializer> serializer_{};
+		std::unique_ptr<ecs_serial::SceneSerializer> serializer_{};
 
 
 

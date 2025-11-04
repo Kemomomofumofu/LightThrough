@@ -20,7 +20,7 @@ namespace dx3d {
 
 namespace ecs {
 	// ---------- 名前空間 ---------- // 
-	using namespace DirectX;
+	struct Transform;
 
 	/**
 	 * @brief デバッグ描画システム
@@ -30,15 +30,13 @@ namespace ecs {
 	 */
 	class DebugRenderSystem : public ISystem {
 	public:
-		
-
 		DebugRenderSystem(const SystemDesc& _desc);
 		void Init();
 		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
-		void DrawLine(XMFLOAT3 _start, XMFLOAT3 _end, XMFLOAT4 _color);
-		void DrawCube(const Transform& _transform, XMFLOAT4 _color);
-		void DrawSphere(const Transform& _transform, XMFLOAT4 _color);
+		void DrawLine(DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end, DirectX::XMFLOAT4 _color);
+		void DrawCube(const Transform& _transform, DirectX::XMFLOAT4 _color);
+		void DrawSphere(const Transform& _transform, DirectX::XMFLOAT4 _color);
 
 		void Update(float _dt) override;
 
@@ -47,8 +45,8 @@ namespace ecs {
 		// Command構造体
 		struct DebugCommand {
 			MeshRenderer mesh;
-			XMMATRIX world;
-			XMFLOAT4 color;
+			DirectX::XMMATRIX world;
+			DirectX::XMFLOAT4 color;
 		};
 
 		dx3d::GraphicsEngine* engine_{};

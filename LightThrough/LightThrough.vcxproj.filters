@@ -198,7 +198,6 @@
     <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Collider.h" />
     <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflection.h" />
-    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflections.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\Mesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />

@@ -15,7 +15,7 @@
 #include <DX3D/Graphics/Meshes/MeshHandle.h>
 
 namespace dx3d {
-	class Mesh;
+	struct Mesh;
 	
 	class MeshRegistry {
 	public:

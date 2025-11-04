@@ -17,6 +17,8 @@
 
 #include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
 
+#include <Debug/Debug.h>
+
 /*---------- –¼‘O‹óŠÔ ----------*/
 using namespace dx3d;
 

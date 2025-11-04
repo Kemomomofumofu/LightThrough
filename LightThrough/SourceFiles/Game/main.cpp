@@ -8,13 +8,15 @@
 
 /*----- インクルード -----*/
 #include <DX3D/All.h>
+#include <Debug/Debug.h>
 
 
-//--------------------------------------------------
-// エントリポイント
-//--------------------------------------------------
+/**
+ * エントリポイント
+ */
 int main(void)
 {
+	DebugLogInfo("\n[main] Entry on main");
 #if defined(DEBUG) || defined(_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif	// DEBUG || _DEBUG
@@ -26,20 +28,19 @@ int main(void)
 			});
 		game.Run();	// ゲーム実行
 	}
-	catch (const std::runtime_error&) {
+	catch (const nlohmann::json::exception& _e) {
+		DebugLogError("[main] json exception: {}", _e.what());
 		return EXIT_FAILURE;
 	}
-	catch (const std::invalid_argument&) {
-		return EXIT_FAILURE;
-	}
-	catch (const std::exception&) {
+	catch (const std::exception& _e) {
+		DebugLogError("[main] std::exception: {}", _e.what());
 		return EXIT_FAILURE;
 	}
 	catch (...) {
+		DebugLogError("[main] unknown exception");
 		return EXIT_FAILURE;
 	}
 
-
-
+	DebugLogInfo("[main] normal exit\n");
 	return EXIT_SUCCESS;
 }

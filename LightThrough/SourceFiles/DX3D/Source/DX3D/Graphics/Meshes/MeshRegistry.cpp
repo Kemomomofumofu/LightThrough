@@ -8,6 +8,7 @@
  // ---------- インクルード ---------- //
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
 #include <DX3D/Graphics/Meshes/Mesh.h>
+
 #include <Debug/Debug.h>
 
 namespace dx3d {
@@ -79,7 +80,7 @@ namespace dx3d {
             return it->second;
         }
 
-		debug::Debug::Log(debug::Debug::LogLevel::LOG_ERROR, "MeshRegistry::GetHandleByName: メッシュ名 '{}' が見つかりません。", _name);
+		DebugLogWarning("MeshRegistry::GetHandleByName: メッシュ名 '{}' が見つかりません。", _name);
 		return dx3d::MeshHandle{}; // 無効なハンドルを返す
     }
 

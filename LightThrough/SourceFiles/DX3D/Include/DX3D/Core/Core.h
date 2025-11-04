@@ -11,11 +11,6 @@
 #include <memory>
 
 
-/**
- * @brief 前方宣言をまとめたファイル
- *
- * クラスの前方宣言をまとめてちゃうファイル。
- */
 namespace dx3d {
 	class Base;
 	class Window;

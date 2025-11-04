@@ -7,7 +7,9 @@
 
  // ---------- インクルード ---------- // 
 #include <fstream>
+#include <filesystem>
 #include <DirectXMath.h>
+#include <nlohmann/json.hpp>
 
 #include <Game/ECS/Coordinator.h>
 #include <Game/ECS/Entity.h>
@@ -21,6 +23,8 @@
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 #include <Game/Components/Meshrenderer.h>
+
+#include <Debug/Debug.h>
 
 constexpr auto SCENE_FILE_DIR = "Assets/Scenes/";
 
@@ -59,10 +63,27 @@ namespace nlohmann {
 			_j.at("w").get_to(_v.w);
 		}
 	};
-}
+} // nlohmann
+
+namespace {
+	inline std::string JsonSnippet(const json& _j, std::size_t max = 512) {
+		std::string s;
+		try {
+			s = _j.dump(2);
+			if (s.size() > max) {
+				s.resize(max);
+				s += "...";
+			}
+		}
+		catch (...) {
+			s = "<dump failed>";
+		}
+		return s;
+	}
+} // anonymous
 
 
-namespace scene {
+namespace ecs_serial {
 	/**
 	 * @brief コンストラクタ
 	 * @param _ecs		ECSのCoordinator
@@ -77,7 +98,7 @@ namespace scene {
 	 * @param _scene	対象のScene
 	 * @return 成功: true, 失敗: false
 	 */
-	bool SceneSerializer::SerializeScene(const SceneData& _scene)
+	bool SceneSerializer::SerializeScene(const scene::SceneData& _scene)
 	{
 		const auto path = GetSceneFilePath(_scene.name_);
 
@@ -93,17 +114,19 @@ namespace scene {
 
 		// Entity一覧をJSON化
 		jScene["entities"] = json::array();
-		for (auto e : _scene.entities_) {
+		for (auto& e : _scene.entities_) {
 			jScene["entities"].push_back(SerializeEntity(ecs_, e));
 		}
 
 		// 書き出し
 		std::ofstream ofs(path);
 		if (!ofs.is_open()) {
+			DebugLogError("[SceneSerializer] ファイルを開けませんでした: '{}'", path);
 			return false;
 		}
 		ofs << jScene.dump(4);	// インデント
 
+		DebugLogInfo("[SceneSerializer] SerializeScene done");
 		return static_cast<bool>(ofs);
 	}
 
@@ -112,13 +135,14 @@ namespace scene {
 	 * @param _path		読み込み元のパス
 	 * @return 復元したScene
 	 */
-	SceneData SceneSerializer::DeserializeScene(const std::string& _name)
+	scene::SceneData SceneSerializer::DeserializeScene(const std::string& _name)
 	{
 		const auto path = GetSceneFilePath(_name);
-
+		DebugLogInfo("[SceneSerializer] DeserializeScene: open '{}'", path);
+		// ファイルを開く
 		std::ifstream ifs(path);
 		if (!ifs.is_open()) {
-			throw std::runtime_error("[SceneSerializer] シーンファイルを開くのに失敗" + path);
+			throw std::runtime_error(std::string("[SceneSerializer] Fail to Open Scene File: ") + path);
 		}
 
 		// 例外処理付きでパース
@@ -127,15 +151,38 @@ namespace scene {
 			throw std::runtime_error(std::string("[SceneSerializer] JSONパース失敗: ") + path);
 		}
 
-		SceneData scene;
+
+		// Sceneの読み込み
+		scene::SceneData scene;
 		scene.id_ = jScene["sceneId"].get<std::string>();
 		scene.name_ = jScene["sceneName"].get<std::string>();
+		DebugLogInfo("[SceneSerializer] sceneId ='{}' sceneName = '{}'", scene.id_, scene.name_);
+		// Entityの復元
+		const auto& arr = jScene["entities"];
+		DebugLogInfo("[SceneSerializer] entities count = '{}'", arr.size());
 
-		for (auto& jEntity : jScene["entities"]) {
-			ecs::Entity e = DeserializeEntity(jEntity);
+		size_t idx = 0;
+		for (const auto& jEntity : arr) {
+			DebugLogInfo("\n[SceneSerializer] DeserializeEntity index={}", idx++);
+			ecs::Entity e{};
+			try {
+				e = DeserializeEntity(jEntity);
+			}
+			catch (const json::exception& _je) {
+				DebugLogError("[SceneSerializer] DeserializeEntity json::exception: {} Snippet={}", _je.what(), JsonSnippet(jEntity));
+				throw;
+			}
+			catch (const std::exception& _ex) {
+				const std::string msg = _ex.what();
+				DebugLogError("[SceneSerializer] DeserializeEntity std::exception: {} Snippet={}", _ex.what(), JsonSnippet(jEntity));
+				throw;
+			}
+
+
 			scene.entities_.push_back(e);
 		}
 
+		DebugLogInfo("[SceneSerializer] DeserializeScene done");
 		return scene;
 	}
 
@@ -153,38 +200,8 @@ namespace scene {
 		json jEntity;
 		jEntity["id"] = static_cast<int>(_e.id_);
 
-		// Transform
-		if (_ecs.HasComponent<ecs::Transform>(_e)) {
-			const auto& t = _ecs.GetComponent<ecs::Transform>(_e);
-			jEntity["components"]["Transform"]["position"] = { t.position.x, t.position.y, t.position.z };
-			jEntity["components"]["Transform"]["rotationQuat"] = { t.rotationQuat.x, t.rotationQuat.y, t.rotationQuat.z, t.rotationQuat.w };
-			jEntity["components"]["Transform"]["scale"] = { t.scale.x, t.scale.y, t.scale.z };
-		}
-
-		// Camera 
-		if (_ecs.HasComponent<ecs::Camera>(_e)) {
-			const auto& c = _ecs.GetComponent<ecs::Camera>(_e);
-			jEntity["components"]["Camera"]["fovY"] = c.fovY;
-			jEntity["components"]["Camera"]["aspectRatio"] = c.aspectRatio;
-			jEntity["components"]["Camera"]["nearZ"] = c.nearZ;
-			jEntity["components"]["Camera"]["farZ"] = c.farZ;
-			jEntity["components"]["Camera"]["isMain"] = c.isMain;
-			jEntity["components"]["Camera"]["isActive"] = c.isActive;
-		}
-
-		// CameraController
-		if (_ecs.HasComponent<ecs::CameraController>(_e)) {
-			const auto& cc = _ecs.GetComponent<ecs::CameraController>(_e);
-			jEntity["components"]["CameraController"]["mode"] = static_cast<int>(cc.mode);
-			jEntity["components"]["CameraController"]["moveSpeed"] = cc.moveSpeed;
-			jEntity["components"]["CameraController"]["mouseSensitivity"] = cc.mouseSensitivity;
-		}
-
-		// Mesh
-		if (_ecs.HasComponent<ecs::MeshRenderer>(_e)) {
-			const auto& m = _ecs.GetComponent<ecs::MeshRenderer>(_e);
-			jEntity["components"]["MeshRenderer"]["handle"] = m.handle.id;
-		}
+		auto& registry = ecs_serial::ComponentRegistry<ecs::Coordinator, ecs::Entity>::Get();
+		jEntity["components"] = registry.SerializeComponents(_ecs, _e);
 
 
 		return jEntity;
@@ -202,13 +219,20 @@ namespace scene {
 		// Componentsがなければ終了
 		if (!_j.contains("components") || !_j["components"].is_object()) { return e; }
 
+		// Component追加
 		const auto& comps = _j["components"];
-		// ComponentRegistryの取得
 		auto& registry = ecs_serial::ComponentRegistry<ecs::Coordinator, ecs::Entity>::Get();
 		for (auto it = comps.begin(); it != comps.end(); ++it) {
-			// 存在するComponentなら追加
-			// 未登録なら何もしない [ToDo] Logに出せたらよいかも。
-			registry.AddIfExists(ecs_, e, it.key(), it.value());
+			const std::string compName = it.key();
+			const json& compData = it.value();
+
+			DebugLogInfo("[SceneSerializer] Adding component '{}'", compName);
+
+
+			bool result = registry.AddIfExists(ecs_, e, it.key(), it.value());
+			if (!result) {
+				DebugLogWarning("[SceneSerializer] 未登録のコンポーネント: {} をスキップ"", ", compName);
+			}
 		}
 
 		return e;
@@ -224,4 +248,4 @@ namespace scene {
 		auto path = std::string(SCENE_FILE_DIR) + _name + ".json";
 		return path;
 	}
-}
+} // scene

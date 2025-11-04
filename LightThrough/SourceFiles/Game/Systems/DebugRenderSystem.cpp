@@ -71,10 +71,10 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
-		cmd.world = 
-			XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z) *
-			XMMatrixRotationRollPitchYaw(_transform.rotationQuat.x, _transform.rotationQuat.y, _transform.rotationQuat.z) *
-			XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
+		const auto S = XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z);
+		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform.rotationQuat));
+		const auto T = XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
+		cmd.world = S * R * T;
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -86,7 +86,7 @@ namespace ecs {
 	 */
 	void DebugRenderSystem::DrawSphere(const Transform& _transform, XMFLOAT4 _color)
 	{
-		// [ToDo] ”¼Œa‚Íscale.x / 2 ‚Æ‚µ‚Ä‚¨‚­
+		// [ToDo] ”¼Œa‚ÍScale.x / 2 ‚Æ‚µ‚Ä‚¨‚­
 		float radius = _transform.scale.x * 0.5f;
 
 		DebugCommand cmd;

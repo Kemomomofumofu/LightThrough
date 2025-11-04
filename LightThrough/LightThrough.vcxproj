@@ -42,8 +42,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -235,7 +235,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\EntityManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\Point.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.h" />
-    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflections.h" />
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h" />

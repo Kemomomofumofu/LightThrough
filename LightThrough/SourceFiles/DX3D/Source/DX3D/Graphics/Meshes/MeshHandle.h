@@ -8,6 +8,7 @@
 
  // ---------- インクルード ---------- //
 #include <cstdint>
+#include <Game/Serialization/ComponentReflection.h>
 
 namespace dx3d {
 	/**
@@ -21,5 +22,8 @@ namespace dx3d {
 		bool IsValid() const { return id != 0; }
 		auto operator<=>(const MeshHandle&) const = default;
 	};
-
 }
+
+ECS_REFLECT_BEGIN(dx3d::MeshHandle)
+ECS_REFLECT_FIELD(id)
+ECS_REFLECT_END()

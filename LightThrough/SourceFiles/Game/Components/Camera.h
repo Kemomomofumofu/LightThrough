@@ -8,7 +8,7 @@
 
  // ---------- インクルード ---------- //
 #include <DirectXMath.h>
-
+#include <Game/Serialization/ComponentReflection.h>
 
 namespace ecs {
 
@@ -30,3 +30,13 @@ namespace ecs {
 		DirectX::XMMATRIX proj{};	// プロジェクション行列
 	};
 }
+
+
+ECS_REFLECT_BEGIN(ecs::Camera)
+ECS_REFLECT_FIELD(fovY),
+ECS_REFLECT_FIELD(aspectRatio),
+ECS_REFLECT_FIELD(nearZ),
+ECS_REFLECT_FIELD(farZ),
+ECS_REFLECT_FIELD(isMain),
+ECS_REFLECT_FIELD(isActive)
+ECS_REFLECT_END()

@@ -17,7 +17,7 @@
 
 namespace dx3d {
 
-	class Mesh;
+	struct Mesh;
 	class MeshRegistry;
 	class GraphicsDevice;
 

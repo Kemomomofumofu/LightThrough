@@ -13,7 +13,7 @@
 #include <optional>
 #include <variant>
 #include <DirectXMath.h>
-
+#include <Game/Serialization/ComponentReflection.h>
 
 namespace collision {
 	using namespace DirectX;
@@ -136,7 +136,7 @@ namespace collision {
 	// ---------- 衝突判定関数 ---------- //
 	/**
 	 * @brief Sphere vs Sphere
-	 * @param _sphereA 
+	 * @param _sphereA
 	 * @param _sphereB
 	 * @return 衝突している: 衝突情報, していない: std::nullopt
 	 */
@@ -187,8 +187,8 @@ namespace collision {
 		XMFLOAT3 n{};
 		float penetration = 0;
 		// 2つの球の中心間の距離がほとんど0のとき
-		if(dist < 1e-6f){
-			n = {0, 1, 0};
+		if (dist < 1e-6f) {
+			n = { 0, 1, 0 };
 			penetration = _sphere.radius;
 		}
 		// そうでなければ
@@ -316,7 +316,7 @@ namespace collision {
 			return { dispA, dispB };
 		}
 		// Aだけ静的
-		else if(_isStaticA && !_isStaticB){
+		else if (_isStaticA && !_isStaticB) {
 			dispB = { n.x * corr, n.y * corr, n.z * corr };
 		}
 		// Bだけ静的
@@ -334,4 +334,92 @@ namespace collision {
 		return { dispA, dispB };
 	}
 
-}
+	inline constexpr const char* ToString(ShapeType _t)
+	{
+		switch (_t)
+		{
+		case ShapeType::Sphere: return "Sphere";
+		case ShapeType::Box:	return "Box";
+		default:				return "Unknown";
+		}
+	}
+
+	inline std::optional<ShapeType> ShapeTypeFromString(std::string_view _s)
+	{
+		if (_s == "Sphere") { return ShapeType::Sphere; }
+		if (_s == "Box") { return ShapeType::Box; }
+		return std::nullopt;
+	}
+
+} // namespace collision
+
+ECS_REFLECT_BEGIN(collision::SphereShape)
+ECS_REFLECT_FIELD(radius)
+ECS_REFLECT_END()
+
+ECS_REFLECT_BEGIN(collision::BoxShape)
+ECS_REFLECT_FIELD(halfExtents)
+ECS_REFLECT_END()
+
+
+
+// ShapeVariant 用のSerialize/Deserialize
+namespace ecs_serial
+{
+	template<>
+	inline json Serialize<collision::ShapeVariant>(const collision::ShapeVariant& _v)
+	{
+		json j = json::object();
+		std::visit([&](auto&& _s) {
+			using S = std::decay_t<decltype(_s)>;
+			// SphereShape
+			if constexpr (std::is_same_v<S, collision::SphereShape>) {
+				j["type"] = collision::ToString(collision::ShapeType::Sphere);
+				j["data"] = Serialize(_s);
+			}
+			// BoxShape
+			else if constexpr (std::is_same_v<S, collision::BoxShape>) {
+				j["type"] = collision::ToString(collision::ShapeType::Box);
+				j["data"] = Serialize(_s);
+			}
+		}, _v);
+		return j;
+	}
+
+	template<>
+	inline collision::ShapeVariant Deserialize<collision::ShapeVariant>(const json& _j)
+	{
+		// memo: 一応数値/文字列の両対応にしておく
+		collision::ShapeType type{};
+		if (_j.contains("type")) {
+			if (_j["type"].is_string()) {
+				auto t = collision::ShapeTypeFromString(_j["type"].get<std::string>());
+				if (!t) { throw std::runtime_error("[ShapeVariant] Unknown type string"); }
+				type = *t;
+			}
+			else {
+				type = static_cast<collision::ShapeType>(_j["type"].get<std::underlying_type_t<collision::ShapeType>>());
+			}
+		}
+		else {
+			throw std::runtime_error("[ShapeVariant Missing 'type']");
+		}
+
+		const json& data = _j.contains("data") ? _j.at("data") : json::object();
+
+		switch (type) {
+		case collision::ShapeType::Sphere:
+		{
+			auto s = Deserialize<collision::SphereShape>(data);
+			return collision::ShapeVariant{ s };
+		}
+		case collision::ShapeType::Box:
+		{
+			auto b = Deserialize<collision::BoxShape>(data);
+			return collision::ShapeVariant{ b };
+		}
+		default:
+			throw std::runtime_error("[ShapeVariant] Unsupported type");
+		}
+	}
+} // namespace ecs_serial
