@@ -6,6 +6,16 @@
  */
 
  /*--------------- インクルード ---------------*/
+#include <iostream>
+#include <chrono>
+#include <ctime>
+#include <sstream>
+#include <iomanip>
+#include <mutex>
+#include <fstream>
+#include <string>
+#include <filesystem>
+
 #include <Debug/Debug.h>
 
 namespace debug {
@@ -26,7 +36,7 @@ namespace debug {
 #if defined(DEBUG) || defined(_DEBUG)
 
 		// デバッグコンソールを表示
-		if (_showConsole)
+		if (_showConsole && !console_allocated_)
 		{
 			AllocConsole();
 			FILE* fp = nullptr;
@@ -54,7 +64,7 @@ namespace debug {
 		// ログを書き出すファイルの初期化
 		out_file_.open("DebugLog/DebugLog.txt", std::ios::out | std::ios::app);
 		if (!out_file_.is_open()) {
-			std::cout << "Failed to open DebugLog/DebugLog.txt" << std::endl;
+			std::cout << "Failed to open DebugLog/DebugLog.txt\n";
 			OutputDebugStringA("Failed to open DebugLog/DebugLog.txt\n");
 		}
 
@@ -75,7 +85,7 @@ namespace debug {
 				std::cin.get();	// キー入力待ち
 			}
 			// 必要に応じてコンソールを閉じる
-			// FreeConsole();
+			FreeConsole();
 		}
 
 		if (out_file_.is_open()) {
@@ -168,7 +178,7 @@ namespace debug {
 	void Debug::Write(LogLevel level, std::string_view message) {
 #if defined(DEBUG) || defined(_DEBUG)
 		// フィルタ
-		if (static_cast<int>(level) < static_cast<int>(level_threshold_)) {
+		if (level < level_threshold_.load(std::memory_order_relaxed)) {
 			return;
 		}
 

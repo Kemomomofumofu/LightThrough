@@ -344,28 +344,13 @@ template<> struct ecs_serial::TypeReflection<Type> { \
    */
 #define ECS_REFLECT_END() ); } };
 
-   /**
-	* @brief コンポーネント用デシリアライザ登録マクロ
-	*
-	* CoordinatorT::AddComponent<ComponentT>(entity, component) を呼び出す
-	* 事前に TypeReflection<ComponentT> が定義されている必要がある
-	*
-	* 呼び出しタイミング例:
-	*   void RegisterAll() {
-	*     REGISTER_COMPONENT_DESERIALIZER(Coordinator, Entity, Transform);
-	*     REGISTER_COMPONENT_DESERIALIZER(Coordinator, Entity, Camera);
-	*   }
-	*/
-#define REGISTER_COMPONENT_DESERIALIZER(CoordinatorT, EntityT, ComponentT) \
-	do { \
-		ecs_serial::ComponentRegistry<CoordinatorT, EntityT>::Get().Register( \
-			ecs_serial::TypeReflection<ComponentT>::Name(), \
-			[](CoordinatorT& _coord, EntityT _e, const nlohmann::json& _j){ \
-				const ComponentT temp = ecs_serial::Deserialize<ComponentT>(_j); \
-				_coord.AddComponent<ComponentT>(_e, temp); \
-			}); \
-	} while(0)
 
+/**
+ * @brief コンポーネントのリフレクション登録マクロ
+ * @tparam CoordinatorT	Coordinator型
+ * @tparam EntityT		エンティティ型
+ * @tparam ComponentT	コンポーネント型
+ */
 #define REGISTER_COMPONENT_REFLECTION(CoordinatorT, EntityT, ComponentT) \
 	do { \
 		ecs_serial::ComponentRegistry<CoordinatorT, EntityT>::Get().Register( \

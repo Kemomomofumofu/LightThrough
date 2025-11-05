@@ -22,6 +22,13 @@ namespace dx3d {
 		DirectX::XMFLOAT4 color;	// 色
 	};
 
+	// ライト用
+	struct LightingCB {
+		DirectX::XMFLOAT3 lightDirWS; float _pad0;
+		DirectX::XMFLOAT3 lightColor; float _pad1;
+		DirectX::XMFLOAT3 ambientColor; float _pad2;
+	};
+
 	class ConstantBuffer : public GraphicsResource {
 	public:
 		ConstantBuffer(const ConstantBufferDesc& _desc, const GraphicsResourceDesc& _gDesc)

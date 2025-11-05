@@ -9,7 +9,7 @@
 
  // ---------- インクルード ---------- // 
 #include <Game/ECS/ISystem.h>
-
+#include <DX3D/Core/Common.h>
 
 
 namespace ecs {

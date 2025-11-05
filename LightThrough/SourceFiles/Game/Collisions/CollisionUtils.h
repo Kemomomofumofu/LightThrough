@@ -7,7 +7,6 @@
  */
 
  // ---------- インクルード ---------- //
-#include <array>
 #include <cmath>
 #include <algorithm>
 #include <optional>

@@ -10,7 +10,6 @@
 #include <DX3D/All.h>
 #include <Debug/Debug.h>
 
-
 /**
  * エントリポイント
  */

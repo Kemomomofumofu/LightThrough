@@ -7,19 +7,12 @@
  */
 
  /*--------------- インクルード ---------------*/
-#include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
 #include <string_view>
-#include <format>
-#include <chrono>
-#include <ctime>
 #include <Windows.h>
-#include <iomanip>
 #include <mutex>
-#include <filesystem>
-#include <source_location>
+#include <atomic>
 
 namespace debug {
 
@@ -56,7 +49,7 @@ namespace debug {
 		static HANDLE console_handle_;			// コンソールハンドル
 		static WORD default_console_attr_;		// 起動時のコンソール既定属性
 		static std::mutex mutex_;				// 出力保護
-		static inline LogLevel level_threshold_ = LogLevel::LOG_INFO; // しきい値
+		static inline std::atomic<LogLevel> level_threshold_ = LogLevel::LOG_INFO; // しきい値
 	};
 
 	template<typename... Args>

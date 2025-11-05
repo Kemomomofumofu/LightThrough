@@ -203,6 +203,8 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />

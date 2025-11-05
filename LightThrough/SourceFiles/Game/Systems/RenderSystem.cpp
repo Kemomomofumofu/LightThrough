@@ -8,7 +8,7 @@
  // ---------- インクルード ---------- //
 #include <DirectXMath.h>
 
-#include <DX3D/Graphics/Buffers/Vertex.h>
+#include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
@@ -39,7 +39,7 @@ namespace ecs {
 		signature.set(ecs_.GetComponentType<MeshRenderer>());
 		ecs_.SetSystemSignature<RenderSystem>(signature);
 
-		// 初期化
+		// ConstantBuffer作成
 		cb_per_frame_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
 			sizeof(dx3d::CBPerFrame),
 			nullptr
@@ -47,6 +47,12 @@ namespace ecs {
 
 		cb_per_object_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
 			sizeof(dx3d::CBPerObject),
+			nullptr
+			});
+
+
+		cb_lighting_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
+			sizeof(dx3d::LightingCB),
 			nullptr
 			});
 
@@ -62,14 +68,14 @@ namespace ecs {
 		auto& context = engine_->GetDeviceContext();
 		auto& device = engine_->GetGraphicsDevice();
 
-		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
-		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
-		if (camEntities.empty()) {
-			GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
-			return;
-		}
+		// todo: Entity自体に有効かどうかを持たせるべきかも、そこで参照保持でUpdateでGet~~はしないようにしたい。
+			// CameraComponentを持つEntityを取得 memo: 現状カメラは一つだけを想定
+			auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
+			if (camEntities.empty()) {
+				GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
+				return;
+			}
 		auto& cam = ecs_.GetComponent<Camera>(camEntities[0]);
-
 
 		dx3d::CBPerFrame cbPerFrameData{};
 		cbPerFrameData.view = cam.view;
@@ -78,6 +84,16 @@ namespace ecs {
 		// 定数バッファ更新
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
+
+		dx3d::LightingCB cbLightingData{
+			.lightDirWS = { 0.5f, -1.0f, 0.2f },
+			.lightColor = { 1.0f, 1.0f, 1.0f },
+			.ambientColor = { 0.1f, 0.1f, 0.1f }
+		};
+
+
+		cb_lighting_->Update(context, &cbLightingData, sizeof(cbLightingData));
+		context.PSSetConstantBuffer(1, *cb_lighting_);	// ピクセルシェーダーのスロット1にセット
 
 		// バッチ処理
 		batches_.clear();	// バッチクリア

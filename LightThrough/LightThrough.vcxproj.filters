@@ -206,6 +206,8 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
