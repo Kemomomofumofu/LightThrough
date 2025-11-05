@@ -8,16 +8,18 @@
  // ---------- インクルード ---------- //
 #include <DirectXMath.h>
 
-#include <DX3D/Graphics/Buffers/Vertex.h>
+#include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
+#include <DX3D/Graphics/Meshes/MeshRegistry.h>
+#include <DX3D/Graphics/Meshes/Mesh.h>
 #include <Game/ECS/Coordinator.h>
 #include <Game/Systems/RenderSystem.h>
 
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 
 
 namespace ecs {
@@ -34,10 +36,10 @@ namespace ecs {
 		// 必須コンポーネント
 		Signature signature;
 		signature.set(ecs_.GetComponentType<Transform>());
-		signature.set(ecs_.GetComponentType<Mesh>());
+		signature.set(ecs_.GetComponentType<MeshRenderer>());
 		ecs_.SetSystemSignature<RenderSystem>(signature);
 
-		// 初期化
+		// ConstantBuffer作成
 		cb_per_frame_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
 			sizeof(dx3d::CBPerFrame),
 			nullptr
@@ -45,6 +47,12 @@ namespace ecs {
 
 		cb_per_object_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
 			sizeof(dx3d::CBPerObject),
+			nullptr
+			});
+
+
+		cb_lighting_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
+			sizeof(dx3d::LightingCB),
 			nullptr
 			});
 
@@ -60,14 +68,14 @@ namespace ecs {
 		auto& context = engine_->GetDeviceContext();
 		auto& device = engine_->GetGraphicsDevice();
 
-		// CameraComponentを持つEntityを取得 [ToDo] 現状カメラは一つだけを想定
-		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
-		if (camEntities.empty()) {
-			GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
-			return;
-		}
+		// todo: Entity自体に有効かどうかを持たせるべきかも、そこで参照保持でUpdateでGet~~はしないようにしたい。
+			// CameraComponentを持つEntityを取得 memo: 現状カメラは一つだけを想定
+			auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
+			if (camEntities.empty()) {
+				GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
+				return;
+			}
 		auto& cam = ecs_.GetComponent<Camera>(camEntities[0]);
-
 
 		dx3d::CBPerFrame cbPerFrameData{};
 		cbPerFrameData.view = cam.view;
@@ -76,6 +84,17 @@ namespace ecs {
 		// 定数バッファ更新
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
+
+		// memo: 今は定数。todo: ライトコンポーネントを持つオブジェクトから引っ張ってくる。
+		dx3d::LightingCB cbLightingData{
+			.lightDirWS = { 0.5f, -1.0f, 0.2f },
+			.lightColor = { 0.9f, 0.9f, 1.0f },
+			.ambientColor = { 0.175f, 0.25f, 0.2f }
+		};
+
+
+		cb_lighting_->Update(context, &cbLightingData, sizeof(cbLightingData));
+		context.PSSetConstantBuffer(1, *cb_lighting_);	// ピクセルシェーダーのスロット1にセット
 
 		// バッチ処理
 		batches_.clear();	// バッチクリア
@@ -106,11 +125,15 @@ namespace ecs {
 
 		// Entity一覧を走査してバッチ化 // [ToDo] 毎フレーム全Entityに対して処理するのはあまりにも重すぎなので、差分更新とかにしたい。
 		for (auto& e : entities_) {
-			auto& mesh = ecs_.GetComponent<Mesh>(e);
+			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
-			if (!mesh.vb || !mesh.ib) continue;
 
-			Key key{ mesh.vb.get(), mesh.ib.get() };
+			auto& mr = engine_->GetMeshRegistry();
+			auto meshData = mr.Get(mesh.handle);
+
+			if (!meshData) continue;
+
+			Key key{ meshData->vb.get(), meshData->ib.get() };
 			size_t batchIndex{};
 			// 既存のバッチ
 			if (auto it = map.find(key); it != map.end()) {
@@ -121,9 +144,9 @@ namespace ecs {
 				batchIndex = batches_.size();
 				map.emplace(key, batchIndex);
 				batches_.push_back(InstanceBatch{
-					.vb = mesh.vb,
-					.ib = mesh.ib,
-					.indexCount = mesh.indexCount,
+					.vb = meshData->vb,
+					.ib = meshData->ib,
+					.indexCount = meshData->indexCount,
 					.instances = {},
 					.instanceOffset = 0
 					});

@@ -9,12 +9,12 @@
 #include <DX3D/Game/Game.h>
 #include <DX3D/Window/Window.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
+#include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
-#include <DX3D/Graphics/PrimitiveFactory.h>
+#include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
-#include <Game/Serialization/ComponentReflections.h>
 #include <Game/Serialization/ComponentReflection.h>
 
 #include <Game/Systems/Factorys/PrefabSystem.h>
@@ -27,7 +27,7 @@
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
 
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Transform.h>
 //#include <Game/Components/Velocity.h>
 #include <Game/Components/Camera.h>
@@ -36,6 +36,7 @@
 
 #include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
+#include <Debug/Debug.h>
 
 #pragma region ローカルメソッド
 namespace {
@@ -77,7 +78,6 @@ namespace {
 		debugRenderSystem->SetGraphicsEngine(_engine);
 		debugRenderSystem->Init();
 
-
 	}
 }
 #pragma endregion
@@ -90,6 +90,10 @@ dx3d::Game::Game(const GameDesc& _desc)
 	: Base({ *std::make_unique<Logger>(_desc.logLevel).release() }),
 	logger_ptr_(&logger_)
 {
+	// デバッグログ初期化
+	debug::Debug::Init(true);
+
+	
 
 	// 時間初期化
 	last_time_ = std::chrono::high_resolution_clock::now();
@@ -99,63 +103,71 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 	// ウィンドウの生成
 	display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
+	try {
+		// ImGuiの初期化
+		ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
+		ID3D11DeviceContext* context = graphics_engine_->GetDeviceContext().GetDeviceContext().Get();
+		void* hwnd = display_->GetHandle();
+		debug::DebugUI::Init(device, context, hwnd);
 
-	// ImGuiの初期化
-	ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
-	ID3D11DeviceContext* context = graphics_engine_->GetDeviceContext().GetDeviceContext().Get();
-	void* hwnd = display_->GetHandle();
-	debug::DebugUI::Init(device, context, hwnd);
+		// InputSystem初期化
+		input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));
+		// ECSのコーディネーターの生成
+		ecs_coordinator_ = std::make_unique<ecs::Coordinator>(dx3d::BaseDesc{ logger_ });
+		ecs_coordinator_->Init();
 
-	// InputSystem初期化
-	input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));
-	// ECSのコーディネーターの生成
-	ecs_coordinator_ = std::make_unique<ecs::Coordinator>(dx3d::BaseDesc{ logger_ });
-	ecs_coordinator_->Init();
+		// SceneManagerの初期化
+		scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
 
-	// SceneManagerの初期化
-	scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
+		// [ToDo] テスト用で動かしてみる
+		// [ToDo] 自動でComponentを登録する機能が欲しいかも。
+		ecs_coordinator_->RegisterComponent<ecs::Transform>();
+		ecs_coordinator_->RegisterComponent<ecs::MeshRenderer>();
+		ecs_coordinator_->RegisterComponent<ecs::Camera>();
+		ecs_coordinator_->RegisterComponent<ecs::CameraController>();
+		ecs_coordinator_->RegisterComponent<ecs::Collider>();
 
-	// [ToDo] テスト用で動かしてみる
-	// [ToDo] 自動でComponentを登録する機能が欲しいかも。
-	ecs_coordinator_->RegisterComponent<ecs::Transform>();
-	ecs_coordinator_->RegisterComponent<ecs::Mesh>();
-	ecs_coordinator_->RegisterComponent<ecs::Camera>();
-	ecs_coordinator_->RegisterComponent<ecs::CameraController>();
-	ecs_coordinator_->RegisterComponent<ecs::Collider>();
-	// デシリアライズハンドラ登録
-	using Coord = ecs::Coordinator;
-	using Ent = ecs::Entity;
-	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Transform);
-	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Mesh);
-	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Camera);
-	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::CameraController);
-	REGISTER_COMPONENT_DESERIALIZER(Coord, Ent, ecs::Collider);
+		// Componentリフレクション登録 todo: 自動化したい。ComponentPool側でやるべき？
+		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Transform);
+		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::MeshRenderer);
+		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Camera);
+		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::CameraController);
+		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Collider);
+		
 
-	// Systemの登録
-	ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
-	RegisterAllSystems(systemDesc, *graphics_engine_);
+		// Systemの登録
+		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
+		RegisterAllSystems(systemDesc, *graphics_engine_);
 
-	// Sceneの生成・読み込み・アクティベート
-	scene_manager_->ChangeScene("TestScene");
+		// Sceneの生成・読み込み・アクティベート
+		scene_manager_->ChangeScene("TestScene");
 
-	// Entityの生成
+		// Entityの生成
 
-	// テスト
-	for (int i = 0; i < 2; ++i) {
-		auto e = ecs_coordinator_->CreateEntity();
-		ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 0.0f} });
-		auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
-		auto mesh = dx3d::PrimitiveFactory::CreateCube(graphics_engine_->GetGraphicsDevice());
-		ecs_coordinator_->AddComponent<ecs::Mesh>(e, mesh);
-		ecs::Collider col {
-		.type = collision::ShapeType::Box,
-		.shape = collision::BoxShape{ {0.5f, 0.5f, 0.5f} },
-		.isStatic = false,
-		};
-		ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
-		scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		//// テスト
+		//for (int i = 0; i < 2; ++i) {
+		//	auto e = ecs_coordinator_->CreateEntity();
+		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 0.0f} });
+		//	auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
+		//	auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
+		//	ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
+		//	ecs::Collider col{
+		//	.type = collision::ShapeType::Box,
+		//	.shape = collision::BoxShape{},
+		//	.isStatic = false,
+		//	};
+		//	ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
+		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		//}
 	}
-
+	catch (const std::exception& _e) {
+		OutputDebugStringA(("[Init] exception: " + std::string(_e.what()) + "\n").c_str());
+		__debugbreak();
+	}
+	catch (...) {
+		OutputDebugStringA("[Init] unknown exception\n");
+		__debugbreak();
+	}
 
 	DX3DLogInfo("ゲーム開始");
 }
@@ -165,6 +177,9 @@ dx3d::Game::~Game()
 	// ImGuiの破棄
 	debug::DebugUI::DisposeUI();
 	DX3DLogInfo("ゲーム終了");
+
+	debug::Debug::Log(debug::Debug::LogLevel::LOG_INFO, "ゲーム終了処理中...");
+	debug::Debug::Shutdown();
 }
 
 

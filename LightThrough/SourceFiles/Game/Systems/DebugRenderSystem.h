@@ -10,7 +10,7 @@
 #include <vector>
 #include <DirectXMath.h>
 #include <Game/ECS/ISystem.h>
-#include <Game/Components/Mesh.h>
+#include <Game/Components/MeshRenderer.h>
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 
 
@@ -20,7 +20,7 @@ namespace dx3d {
 
 namespace ecs {
 	// ---------- 名前空間 ---------- // 
-	using namespace DirectX;
+	struct Transform;
 
 	/**
 	 * @brief デバッグ描画システム
@@ -30,15 +30,13 @@ namespace ecs {
 	 */
 	class DebugRenderSystem : public ISystem {
 	public:
-		
-
 		DebugRenderSystem(const SystemDesc& _desc);
 		void Init();
 		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
-		void DrawLine(XMFLOAT3 _start, XMFLOAT3 _end, XMFLOAT4 _color);
-		void DrawCube(const Transform& _transform, XMFLOAT4 _color);
-		void DrawSphere(const Transform& _transform, XMFLOAT4 _color);
+		void DrawLine(DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end, DirectX::XMFLOAT4 _color);
+		void DrawCube(const Transform& _transform, DirectX::XMFLOAT4 _color);
+		void DrawSphere(const Transform& _transform, DirectX::XMFLOAT4 _color);
 
 		void Update(float _dt) override;
 
@@ -46,9 +44,9 @@ namespace ecs {
 	private:
 		// Command構造体
 		struct DebugCommand {
-			Mesh mesh;
-			XMMATRIX world;
-			XMFLOAT4 color;
+			MeshRenderer mesh;
+			DirectX::XMMATRIX world;
+			DirectX::XMFLOAT4 color;
 		};
 
 		dx3d::GraphicsEngine* engine_{};
@@ -57,8 +55,8 @@ namespace ecs {
 		dx3d::ConstantBufferPtr cb_per_object_{};
 
 		// Meshのキャッシュ
-		Mesh cube_mesh_{};
-		Mesh sphere_mesh_{};
-		Mesh line_mesh_{};
+		MeshRenderer cube_mesh_{};
+		MeshRenderer sphere_mesh_{};
+		MeshRenderer line_mesh_{};
 	};
 }

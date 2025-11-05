@@ -10,7 +10,8 @@
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/DeviceContext.h>
-#include <DX3D/Graphics/PrimitiveFactory.h>
+#include <DX3D/Graphics/Meshes/MeshRegistry.h>
+#include <DX3D/Graphics/Meshes/Mesh.h>
 #include <Game/ECS/Coordinator.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
@@ -35,12 +36,6 @@ namespace ecs {
 	void DebugRenderSystem::Init()
 	{
 		auto& device = engine_->GetGraphicsDevice();
-
-		// 初期化
-		// Meshを事前に生成しておく
-		cube_mesh_ = dx3d::PrimitiveFactory::CreateCube(device);
-		sphere_mesh_ = dx3d::PrimitiveFactory::CreateSphere(engine_->GetGraphicsDevice(), 16, 16);
-		//line_mesh_ = dx3d::PrimitiveFactory::CreateLine(engine_->GetGraphicsDevice(), {0,0,0}, {1,0,0});
 
 		cb_per_frame_ = device.CreateConstantBuffer({
 			sizeof(dx3d::CBPerFrame),
@@ -76,10 +71,10 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
-		cmd.world = 
-			XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z) *
-			XMMatrixRotationRollPitchYaw(_transform.rotationQuat.x, _transform.rotationQuat.y, _transform.rotationQuat.z) *
-			XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
+		const auto S = XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z);
+		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform.rotationQuat));
+		const auto T = XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
+		cmd.world = S * R * T;
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -91,7 +86,7 @@ namespace ecs {
 	 */
 	void DebugRenderSystem::DrawSphere(const Transform& _transform, XMFLOAT4 _color)
 	{
-		// [ToDo] 半径はscale.x / 2 としておく
+		// [ToDo] 半径はScale.x / 2 としておく
 		float radius = _transform.scale.x * 0.5f;
 
 		DebugCommand cmd;
@@ -128,6 +123,8 @@ namespace ecs {
 		context.VSSetConstantBuffer(0, *cb_per_frame_);
 
 		for (auto& cmd : commands_) {
+			// メッシュの取得
+			auto mesh = engine_->GetMeshRegistry().Get(cmd.mesh.handle);
 			// ワールド座標行列の取得
 			// オブジェクト単位の定数バッファ更新
 			dx3d::CBPerObject cbPerObjectData{};
@@ -136,10 +133,7 @@ namespace ecs {
 			cb_per_object_->Update(context, &cbPerObjectData, sizeof(cbPerObjectData));
 			context.VSSetConstantBuffer(1, *cb_per_object_);
 
-			engine_->Render(*cmd.mesh.vb, *cmd.mesh.ib);
-
-
-
+			engine_->Render(*mesh->vb, *mesh->ib);
 		}
 		commands_.clear();
 	}

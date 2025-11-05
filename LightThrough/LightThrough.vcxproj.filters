@@ -146,9 +146,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\Game\Components\Mesh.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceFiles\Game\Components\Transform.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -164,7 +161,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\GameLogUtils.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h">
       <Filter>Components</Filter>
@@ -202,8 +198,16 @@
     <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Collider.h" />
     <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflection.h" />
-    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflections.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\Mesh.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.h" />
+    <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
+    <ClInclude Include="SourceFiles\Debug\Debug.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -264,7 +268,6 @@
     </ClCompile>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\EntityManager.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PrimitiveFactory.cpp" />
     <ClCompile Include="SourceFiles\Game\Components\Camera.h">
       <Filter>Components</Filter>
     </ClCompile>
@@ -292,6 +295,10 @@
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\TransformSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.cpp" />
+    <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />

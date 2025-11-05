@@ -12,8 +12,8 @@
 #include <Game/Components/Transform.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
-#include <Game/Components/Mesh.h>
-#include <DX3D/Graphics/PrimitiveFactory.h>
+#include <Game/Components/MeshRenderer.h>
+#include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
 
 
 #include <Debug/DebugUI.h>

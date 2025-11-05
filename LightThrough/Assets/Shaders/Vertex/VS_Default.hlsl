@@ -21,7 +21,9 @@ struct VSIN
 struct VSOUT
 {
     float4 pos : SV_Position;
-    float4 col : COLOR0;
+    float4 color : COLOR0;
+    float3 normalWS : NORMAL0;
+    float2 uv : TEXCOORD0;
 };
 
 VSOUT VSMain(VSIN vin)

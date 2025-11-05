@@ -15,7 +15,6 @@
 #include <format>
 
 #include <Game/ECS/Entity.h>
-#include <Game/Components/Transform.h>
 
 namespace game {
     namespace GameLogUtils {

@@ -48,8 +48,26 @@ namespace dx3d {
 	{
 		float fColor[] = { _color.x, _color.y, _color.z, _color.w };
 		auto rtv = _swapChain.rtv_.Get();
+		auto dsv = _swapChain.dsv_.Get();
 		context_->ClearRenderTargetView(rtv, fColor);
-		context_->OMSetRenderTargets(1, &rtv, nullptr);
+		context_->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context_->OMSetRenderTargets(1, &rtv, dsv);
+
+		// todo: 仮。将来的にはパイプラインステートに持たせる。
+		static Microsoft::WRL::ComPtr<ID3D11DepthStencilState> s_depthState{};
+		if(!s_depthState){
+			D3D11_DEPTH_STENCIL_DESC desc{};
+			desc.DepthEnable = TRUE;
+			desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+			desc.StencilEnable = FALSE;
+			DX3DGraphicsLogThrowOnFail(
+				device_.CreateDepthStencilState(&desc, &s_depthState),
+				"CreateDepthStencilState に 失敗"
+			);
+		}
+
+		context_->OMSetDepthStencilState(s_depthState.Get(), 0);
 	}
 
 

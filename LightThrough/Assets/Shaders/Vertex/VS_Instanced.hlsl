@@ -25,6 +25,8 @@ struct VSOUT
 {
     float4 pos : SV_Position;
     float4 color : COLOR0;
+    float3 normalWS : NORMAL0;
+    float2 uv : TEXCOORD0;
 };
 
 VSOUT VSMain(VSVertex vin, VSInstance inst)
@@ -38,7 +40,11 @@ VSOUT VSMain(VSVertex vin, VSInstance inst)
     p = mul(p, viewMatrix);
     p = mul(p, projectionMatrix);
     vout.pos = p;
-
+    
+    float3 nWS = normalize(mul(vin.normal, (float3x3) worldMatrix));
+    vout.normalWS = nWS;
+    vout.uv = vin.uv;
     vout.color = vin.color * inst.color;
+    
     return vout;
 }

@@ -1,41 +1,139 @@
 {
-  "entities": [
-    {
-      "components": {
-        "Camera": {
-          "aspectRatio": 1.7777777910232544,
-          "farZ": 1000.0,
-          "fovY": 60.0,
-          "isActive": true,
-          "isMain": true,
-          "nearZ": 0.10000000149011612
+    "entities": [
+        {
+            "components": {
+                "ecs::Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 1000.0,
+                    "fovY": 60.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 0.10000000149011612
+                },
+                "ecs::CameraController": {
+                    "invertY": false,
+                    "mode": 0,
+                    "mouseSensitivity": 0.0010000000474974513,
+                    "moveSpeed": 10.0,
+                    "orbitDistance": 5.0,
+                    "orbitPitch": 0.30000001192092896,
+                    "orbitTarget": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "orbitYaw": 0.0,
+                    "pitch": 0.36579397320747375,
+                    "yaw": 5.899982929229736
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 2.616039514541626,
+                        "y": 1.3672242164611816,
+                        "z": -3.635514974594116
+                    },
+                    "rotationQuat": {
+                        "x": -0.17855072021484375,
+                        "y": 0.1872549057006836,
+                        "z": -0.03463542461395264
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 16777220
         },
-        "CameraController": {
-          "mode": 0,
-          "mouseSensitivity": 1.0,
-          "moveSpeed": 5.0
+        {
+            "components": {
+                "ecs::Collider": {
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "shape": {
+                        "data": {
+                            "halfExtents": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.5
+                            }
+                        },
+                        "type": "Box"
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 16777221
         },
-        "Transform": {
-          "position": [
-            0.057171497493982315,
-            0.0,
-            6.185490131378174
-          ],
-          "rotation": [
-            -0.01764858514070511,
-            -0.046155739575624466,
-            0.0
-          ],
-          "scale": [
-            1.0,
-            1.0,
-            1.0
-          ]
+        {
+            "components": {
+                "ecs::Collider": {
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "shape": {
+                        "data": {
+                            "halfExtents": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.5
+                            }
+                        },
+                        "type": "Box"
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 1.5,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 16777222
         }
-      },
-      "id": 1
-    }
-  ],
-  "sceneId": "TestScene2",
-  "sceneName": "TestScene2"
+    ],
+    "sceneId": "TestScene2",
+    "sceneName": "TestScene2",
+    "version": 1
 }

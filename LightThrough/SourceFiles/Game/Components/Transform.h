@@ -8,6 +8,7 @@
 
 // ---------- インクルード ---------- // 
 #include <DirectXMath.h>
+#include <Game/Serialization/ComponentReflection.h>
 
 namespace ecs {
 	using namespace DirectX;
@@ -91,3 +92,10 @@ namespace ecs {
 		}
 	};
 }
+
+
+ECS_REFLECT_BEGIN(ecs::Transform)
+ECS_REFLECT_FIELD(position),
+ECS_REFLECT_FIELD(rotationQuat),
+ECS_REFLECT_FIELD(scale)
+ECS_REFLECT_END()

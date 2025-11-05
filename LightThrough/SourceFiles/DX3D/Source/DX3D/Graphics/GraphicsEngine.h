@@ -11,6 +11,7 @@
 #include <DX3D/Core/Base.h>
 #include <DX3D/Graphics/PipelineCache.h>
 #include <DX3D/Graphics/PipelineKey.h>
+#include <DX3D/Graphics/Meshes/MeshRegistry.h>
 
 
 /**
@@ -27,6 +28,7 @@ namespace dx3d {
 		GraphicsDevice& GetGraphicsDevice() noexcept;
 		DeviceContext& GetDeviceContext() noexcept;
 		void SetSwapChain(SwapChain& _swapChain);
+		MeshRegistry& GetMeshRegistry() noexcept;
 
 		void BeginFrame();
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib);
@@ -41,5 +43,6 @@ namespace dx3d {
 		InputLayoutPtr vs_layout_{};
 		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};
+		std::unique_ptr<MeshRegistry> mesh_registry_{};
 	};
 }

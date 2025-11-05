@@ -7,6 +7,7 @@
 
 
  // ---------- インクルード ---------- // 
+#include <DirectXMath.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/ECS/Coordinator.h>
 

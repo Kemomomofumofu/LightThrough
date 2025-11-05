@@ -15,7 +15,7 @@ namespace ecs {
 	struct Entity;
 }
 
-namespace scene {
+namespace ecs_serial {
 	class SceneManager;
 	/**
 	 * @brief シーンのロード/セーブを行うクラス
@@ -24,8 +24,8 @@ namespace scene {
 	public:
 		SceneSerializer(ecs::Coordinator& _ecs);
 
-		bool SerializeScene(const SceneData& _scene);
-		SceneData DeserializeScene(const std::string& _path);
+		bool SerializeScene(const scene::SceneData& _scene);
+		scene::SceneData DeserializeScene(const std::string& _path);
 
 	private:
 		nlohmann::json SerializeEntity(ecs::Coordinator& _ecs, ecs::Entity _e);

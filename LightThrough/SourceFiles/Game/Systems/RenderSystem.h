@@ -8,7 +8,6 @@
 
 // ---------- インクルード ---------- // 
 #include <DX3D/Core/Core.h>
-#include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 #include <DX3D/Graphics/Buffers/InstanceData.h>
 #include <Game/ECS/ISystem.h>
 
@@ -46,13 +45,17 @@ namespace ecs {
 
 	private:
 		dx3d::GraphicsEngine* engine_{};
+
 		dx3d::ConstantBufferPtr cb_per_frame_{};
+		dx3d::ConstantBufferPtr cb_lighting_{};
 		dx3d::ConstantBufferPtr cb_per_object_{};	// [ToDo] 単体描画用/マテリアル毎とか？？？
+
 
 		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_{};
 		size_t instance_buffer_capacity_{};
 
 		std::vector<InstanceBatch> batches_{};
+
 	};
 
 }

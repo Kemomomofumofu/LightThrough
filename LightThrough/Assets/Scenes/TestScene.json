@@ -11,32 +11,129 @@
                     "nearZ": 0.10000000149011612
                 },
                 "ecs::CameraController": {
+                    "invertY": false,
                     "mode": 0,
                     "mouseSensitivity": 0.0010000000474974513,
-                    "moveSpeed": 10.0
+                    "moveSpeed": 10.0,
+                    "orbitDistance": 5.0,
+                    "orbitPitch": 0.30000001192092896,
+                    "orbitTarget": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "orbitYaw": 0.0,
+                    "pitch": 0.31279563903808594,
+                    "yaw": 6.6659979820251465
                 },
                 "ecs::Transform": {
-                    "position": [
-                        0.9962334632873535,
-                        1.108001947402954,
-                        6.300837516784668
-                    ],
-                    "rotationQuat": [
-                        0.00011604381143115461,
-                        0.9959967136383057,
-                        -0.08938069641590118,
-                        0.0012931120581924915
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
+                    "position": {
+                        "x": -0.709510862827301,
+                        "y": 0.7850232124328613,
+                        "z": -3.0062172412872314
+                    },
+                    "rotationQuat": {
+                        "x": -0.15291646122932434,
+                        "y": -0.18791773915290833,
+                        "z": 0.029631922021508217
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
                 }
             },
-            "id": 1
+            "id": 16777217
+        },
+        {
+            "components": {
+                "ecs::Collider": {
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "shape": {
+                        "data": {
+                            "halfExtents": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.5
+                            }
+                        },
+                        "type": "Box"
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 16777218
+        },
+        {
+            "components": {
+                "ecs::Collider": {
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "shape": {
+                        "data": {
+                            "halfExtents": {
+                                "x": 0.5,
+                                "y": 0.5,
+                                "z": 0.5
+                            }
+                        },
+                        "type": "Box"
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 1.5,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 16777219
         }
     ],
     "sceneId": "TestScene",
-    "sceneName": "TestScene"
+    "sceneName": "TestScene",
+    "version": 1
 }
