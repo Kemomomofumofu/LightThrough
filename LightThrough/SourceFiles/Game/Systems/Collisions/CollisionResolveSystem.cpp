@@ -117,7 +117,7 @@ namespace ecs {
 	 * @brief 更新処理
 	 * @param _dt 
 	 */
-	void CollisionResolveSystem::Update(float _dt)
+	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
 		// ペアごとに処理するためにベクターにコピー
 		std::vector<Entity> ents;

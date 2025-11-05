@@ -37,7 +37,7 @@ namespace ecs {
 	 * @brief ãÖå`èÛÇÃç\íz
 	 * @param _dt
 	 */
-	void ColliderSyncSystem::Update(float _dt)
+	void ColliderSyncSystem::FixedUpdate(float _fixedDt)
 	{
 		for (auto e : entities_) {
 			auto& tf = ecs_.GetComponent<Transform>(e);

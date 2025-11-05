@@ -24,7 +24,7 @@ namespace ecs {
 		explicit ColliderSyncSystem(const SystemDesc& _desc);
 
 		void Init();
-		void Update(float _dt) override;
+		void FixedUpdate(float _fixedDt) override;
 
 	private:
 		void BuildSphere(const Transform& _tf, Collider& _col);

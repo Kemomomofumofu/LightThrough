@@ -26,7 +26,7 @@ namespace ecs {
 	public:
 		explicit CollisionResolveSystem(const SystemDesc& _desc);
 		void Init();
-		void Update(float _dt) override;
+		void FixedUpdate(float _fixedDt) override;
 
 	private:
 		float solvePercent_ = 0.8f; // âè¡äÑçá

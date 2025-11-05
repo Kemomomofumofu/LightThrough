@@ -24,7 +24,8 @@ namespace ecs {
 			, ecs_(_desc.ecs){}
 
 		virtual ~ISystem() = default;
-		virtual void Update(float _dt) = 0;
+		virtual void Update(float _dt) {}
+		virtual void FixedUpdate(float _fixedDt) {}
 
 		std::set<Entity> entities_;	// ˆ—‘ÎÛ‚ÌEntity‚ÌW‡
 
