@@ -85,10 +85,11 @@ namespace ecs {
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
 
+		// memo: 今は定数。todo: ライトコンポーネントを持つオブジェクトから引っ張ってくる。
 		dx3d::LightingCB cbLightingData{
 			.lightDirWS = { 0.5f, -1.0f, 0.2f },
-			.lightColor = { 1.0f, 1.0f, 1.0f },
-			.ambientColor = { 0.1f, 0.1f, 0.1f }
+			.lightColor = { 0.9f, 0.9f, 1.0f },
+			.ambientColor = { 0.175f, 0.25f, 0.2f }
 		};
 
 
