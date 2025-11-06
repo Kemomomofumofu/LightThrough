@@ -19,8 +19,10 @@ namespace ecs {
 	{
 		std::type_index type = typeid(Sys);
 		assert(systems_.find(type) == systems_.end());
+		// “o˜^
 		auto system = std::make_shared<Sys>(_desc);
 		systems_[type] = system;
+		systems_in_order_.push_back(system);
 		return system;
 	}
 

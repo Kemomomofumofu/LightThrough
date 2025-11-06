@@ -62,6 +62,8 @@ namespace collision {
 	};
 
 
+	// todo: MathUtilsとかにしたほうが良いかもな。
+
 	/**
 	 * @brief 減算
 	 * @param _a ベクトルA
@@ -73,6 +75,13 @@ namespace collision {
 		return { _a.x - _b.x, _a.y - _b.y, _a.z - _b.z };
 	}
 
+	inline XMFLOAT3 Add(const XMFLOAT3& _a, const XMFLOAT3& _b)
+	{
+		return { _a.x + _b.x, _a.y + _b.y, _a.z + _b.z };
+	}
+
+
+
 	/**
 	 * @brief 内積
 	 * @param _a ベクトルA
@@ -83,6 +92,8 @@ namespace collision {
 	{
 		return (_a.x * _b.x) + (_a.y * _b.y) + (_a.z * _b.z);
 	}
+
+
 
 	/**
 	 * @brief ベクトルの長さ

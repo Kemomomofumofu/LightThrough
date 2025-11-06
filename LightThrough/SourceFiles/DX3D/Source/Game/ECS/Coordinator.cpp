@@ -51,12 +51,23 @@ namespace ecs {
 	}
 
 	/**
+	* @brief すべてのSystemを更新
+	* @param _dt デルタタイム
+	*/
+	void Coordinator::FixedUpdateAllSystems(float _fixedDt)
+	{
+		for (auto& system : system_manager_->GetAllSystemsInOrder()) {
+			system->FixedUpdate(_fixedDt);
+		}
+	}
+
+	/**
 	 * @brief すべてのSystemを更新
 	 * @param _dt デルタタイム
 	 */
 	void Coordinator::UpdateAllSystems(float _dt)
 	{
-		for (auto& [type, system] : system_manager_->GetAllSystems()) {
+		for (auto& system : system_manager_->GetAllSystemsInOrder()) {
 			system->Update(_dt);
 		}
 	}

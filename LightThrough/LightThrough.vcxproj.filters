@@ -149,12 +149,6 @@
     <ClInclude Include="SourceFiles\Game\Components\Transform.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\Game\Components\Velocity.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h">
-      <Filter>Systems</Filter>
-    </ClInclude>
     <ClInclude Include="SourceFiles\Game\Systems\RenderSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
@@ -201,13 +195,16 @@
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\Mesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
     <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
     <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Physics\Rigidbody.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -260,9 +257,6 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.cpp">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp">
-      <Filter>Systems</Filter>
-    </ClCompile>
     <ClCompile Include="SourceFiles\Game\Systems\RenderSystem.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
@@ -295,10 +289,12 @@
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\TransformSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />

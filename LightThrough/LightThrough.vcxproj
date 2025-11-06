@@ -43,7 +43,9 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
+    <VCToolsVersion>
+    </VCToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -71,12 +73,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\directxtk\lib\x64\Debug;C:\assimp\5.2.5\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\directxtk\lib\x64\Debug;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\directxtk\lib\x64\Release;C:\assimp\5.2.5\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\directxtk\lib\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -124,6 +126,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3dcompiler.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,8 +150,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
@@ -166,17 +170,19 @@
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\DebugRenderSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\RenderSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\MovementSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\InputSystem\InputSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Base.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Logger.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Display.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Game.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Game.cpp">
+      <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Game\Win32\Win32Game.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\GraphicsDevice.cpp" />
@@ -198,13 +204,15 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\Mesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshLoader.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
     <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Physics\Rigidbody.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />
@@ -226,7 +234,6 @@
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
     <ClInclude Include="SourceFiles\Game\Components\Collider.h" />
     <ClInclude Include="SourceFiles\Game\Components\Material.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Velocity.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ISystem.h" />
     <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.h" />
@@ -240,10 +247,10 @@
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\RenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\MovementSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\InputSystem\InputSystem.h" />

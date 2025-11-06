@@ -7,32 +7,30 @@
 
  /*---------- インクルード ----------*/
 #include <DX3D/Game/Game.h>
-#include <DX3D/Window/Window.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
-#include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
 #include <Game/Serialization/ComponentReflection.h>
 
-#include <Game/Systems/Factorys/PrefabSystem.h>
 #include <Game/Systems/TransformSystem.h>
-#include <Game/Systems/MovementSystem.h>
 #include <Game/Systems/RenderSystem.h>
 #include <Game/Systems/CameraSystem.h>
 #include <Game/Systems/DebugRenderSystem.h>
-#include <Game/Systems/Scenes/TitleSceneSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
+#include <Game/Systems/Physics/ForceAccumulationSystem.h>
+#include <Game/Systems/Physics/IntegrationSystem.h>
+#include <Game/Systems/Physics/ClearForcesSystem.h>
 
 #include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Transform.h>
-//#include <Game/Components/Velocity.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
 #include <Game/Components/Collider.h>
+#include <Game/Components/Physics/Rigidbody.h>
 
 #include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
@@ -48,11 +46,16 @@ namespace {
 	{
 		auto& ecsCoordinator = _desc.ecs;
 
-		ecsCoordinator.RegisterSystem<ecs::TransformSystem>(_desc);
-		const auto& transformSystem = ecsCoordinator.GetSystem<ecs::TransformSystem>();
-		transformSystem->Init();
 
-		// コライダー同期システム
+		// ---------- 衝突関係 ---------- // 
+		ecsCoordinator.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
+		const auto& forceAccumulationSystem = ecsCoordinator.GetSystem<ecs::ForceAccumulationSystem>();
+		forceAccumulationSystem->Init();
+
+		ecsCoordinator.RegisterSystem<ecs::IntegrationSystem>(_desc);
+		const auto& integrationSystem = ecsCoordinator.GetSystem<ecs::IntegrationSystem>();
+		integrationSystem->Init();
+
 		ecsCoordinator.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
 		const auto& colliderSyncSystem = ecsCoordinator.GetSystem<ecs::ColliderSyncSystem>();
 		colliderSyncSystem->Init();
@@ -61,10 +64,20 @@ namespace {
 		const auto& collisionResolveSystem = ecsCoordinator.GetSystem<ecs::CollisionResolveSystem>();
 		collisionResolveSystem->Init();
 
-		// カメラシステム
+		ecsCoordinator.RegisterSystem<ecs::ClearForcesSystem>(_desc);
+		const auto& clearForcesSystem = ecsCoordinator.GetSystem<ecs::ClearForcesSystem>();
+		clearForcesSystem->Init();
+
+
+		// カメラ
 		ecsCoordinator.RegisterSystem<ecs::CameraSystem>(_desc);
 		const auto& cameraSystem = ecsCoordinator.GetSystem<ecs::CameraSystem>();
 		cameraSystem->Init();
+
+		// 位置更新
+		ecsCoordinator.RegisterSystem<ecs::TransformSystem>(_desc);
+		const auto& transformSystem = ecsCoordinator.GetSystem<ecs::TransformSystem>();
+		transformSystem->Init();
 
 		// 描画システム
 		ecsCoordinator.RegisterSystem<ecs::RenderSystem>(_desc);
@@ -93,7 +106,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	// デバッグログ初期化
 	debug::Debug::Init(true);
 
-	
+
 
 	// 時間初期化
 	last_time_ = std::chrono::high_resolution_clock::now();
@@ -126,6 +139,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 		ecs_coordinator_->RegisterComponent<ecs::Camera>();
 		ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 		ecs_coordinator_->RegisterComponent<ecs::Collider>();
+		ecs_coordinator_->RegisterComponent<ecs::Rigidbody>();
 
 		// Componentリフレクション登録 todo: 自動化したい。ComponentPool側でやるべき？
 		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Transform);
@@ -133,7 +147,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Camera);
 		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::CameraController);
 		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Collider);
-		
+		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Rigidbody);
+
 
 		// Systemの登録
 		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
@@ -144,21 +159,23 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 		// Entityの生成
 
-		//// テスト
-		//for (int i = 0; i < 2; ++i) {
-		//	auto e = ecs_coordinator_->CreateEntity();
-		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ {1.5f * i, 0.0f, 0.0f} });
-		//	auto& tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
-		//	auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
-		//	ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
-		//	ecs::Collider col{
-		//	.type = collision::ShapeType::Box,
-		//	.shape = collision::BoxShape{},
-		//	.isStatic = false,
-		//	};
-		//	ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
-		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-		//}
+		// テスト
+		{
+			auto e = ecs_coordinator_->CreateEntity();
+			ecs_coordinator_->AddComponent<ecs::Transform>(e, {});
+			auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
+			ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
+			ecs::Collider col{
+				.type = collision::ShapeType::Box,
+				.shape = collision::BoxShape{}
+			};
+			ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
+			ecs_coordinator_->AddComponent<ecs::Rigidbody>(e, {});
+
+			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+
+		}
+
 	}
 	catch (const std::exception& _e) {
 		OutputDebugStringA(("[Init] exception: " + std::string(_e.what()) + "\n").c_str());
@@ -218,7 +235,14 @@ void dx3d::Game::OnInternalUpdate()
 		scene_manager_->ChangeScene("TestScene2");
 	}
 
+
+
 	// Systemの更新
+	accumulated_time_ += dt;
+	while (accumulated_time_ >= fixed_time_step_) {
+		ecs_coordinator_->FixedUpdateAllSystems(fixed_time_step_);
+		accumulated_time_ -= fixed_time_step_;
+	}
 	ecs_coordinator_->UpdateAllSystems(dt);
 
 	// デバッグUIの描画

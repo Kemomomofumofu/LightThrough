@@ -43,5 +43,8 @@ namespace dx3d {
 		std::unique_ptr<scene::SceneManager> scene_manager_{};
 		std::chrono::high_resolution_clock::time_point last_time_{};	// 時間管理用
 
+		float accumulated_time_ = 0.0f; // 固定更新用の累積時間
+		float fixed_time_step_ = 1.0f / 60.0f; // 固定更新の時間間隔
+
 	};
 }
