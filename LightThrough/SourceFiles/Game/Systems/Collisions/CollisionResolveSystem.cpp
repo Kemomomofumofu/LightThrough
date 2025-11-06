@@ -242,7 +242,7 @@ namespace ecs {
 
 					const XMFLOAT3 impulseT = Scale(t, jt);
 					if (pRbA) { pRbA->linearVelocity = collision::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
-					if (pRbB) { pRbB->linearVelocity = collision::Sub(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
+					if (pRbB) { pRbB->linearVelocity = collision::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
 				}
 			}
 		}
