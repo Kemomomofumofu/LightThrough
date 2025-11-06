@@ -16,6 +16,7 @@
 
 #include <Game/Components/Transform.h>
 #include <Game/Components/Collider.h>
+#include <Game/Components/Physics/Rigidbody.h>
 
 #include <Game/Collisions/CollisionUtils.h>
 
@@ -31,8 +32,8 @@ namespace ecs {
 
 		/**
 		 * @brief 当たり判定のディスパッチ
-		 * @param _a 
-		 * @param _b 
+		 * @param _a
+		 * @param _b
 		 * @return 衝突している: ContactResult、していない: nullopt
 		 */
 		std::optional<collision::ContactResult>
@@ -47,18 +48,18 @@ namespace ecs {
 					[&](const SphereShape&, const SphereShape&)->std::optional<collision::ContactResult> {
 						return collision::IntersectSphere(_a.worldSphere, _b.worldSphere);
 					},
-					// Sphere vs Box
-					[&](const SphereShape&, const BoxShape&)->std::optional<collision::ContactResult> {
-						return collision::IntersectSphereOBB(_a.worldSphere, _b.worldOBB);
-					},
-					// Box vs Sphere
-					[&](const BoxShape&, const SphereShape&)->std::optional<collision::ContactResult> {
-						return collision::IntersectSphereOBB(_b.worldSphere, _a.worldOBB);
-					},
-					// Box vs Box
-					[&](const BoxShape&, const BoxShape&)->std::optional<collision::ContactResult> {
-						return collision::IntersectOBB(_a.worldOBB, _b.worldOBB);
-					}
+				// Sphere vs Box
+				[&](const SphereShape&, const BoxShape&)->std::optional<collision::ContactResult> {
+					return collision::IntersectSphereOBB(_a.worldSphere, _b.worldOBB);
+				},
+				// Box vs Sphere
+				[&](const BoxShape&, const SphereShape&)->std::optional<collision::ContactResult> {
+					return collision::IntersectSphereOBB(_b.worldSphere, _a.worldOBB);
+				},
+				// Box vs Box
+				[&](const BoxShape&, const BoxShape&)->std::optional<collision::ContactResult> {
+					return collision::IntersectOBB(_a.worldOBB, _b.worldOBB);
+				}
 				},
 				_a.shape, _b.shape
 			);
@@ -66,8 +67,8 @@ namespace ecs {
 
 		/**
 		 * @brief 2点間の距離の二乗を計算
-		 * @param _a 
-		 * @param _b 
+		 * @param _a
+		 * @param _b
 		 * @return 距離の二乗
 		 */
 		float DistSq(const XMFLOAT3& _a, const XMFLOAT3& _b)
@@ -80,7 +81,7 @@ namespace ecs {
 
 		/**
 		 * @brief ほぼゼロベクトルかどうか
-		 * @param _v 
+		 * @param _v
 		 * @return ほぼゼロベクトル: true, そうでない: false
 		 */
 		inline bool IsZeroDisp(const XMFLOAT3& _v) noexcept
@@ -88,9 +89,12 @@ namespace ecs {
 			return std::fabs(_v.x) + std::fabs(_v.y) + std::fabs(_v.z) < 1e-8f;
 		}
 
-	}
+		inline XMFLOAT3 Scale(const XMFLOAT3& _v, float _s) noexcept
+		{
+			return { _v.x * _s, _v.y * _s, _v.z * _s };
+		}
 
-	
+	}
 
 
 	/**
@@ -115,7 +119,7 @@ namespace ecs {
 
 	/**
 	 * @brief 更新処理
-	 * @param _dt 
+	 * @param _dt
 	 */
 	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
@@ -126,11 +130,12 @@ namespace ecs {
 
 		const size_t n = ents.size();
 
+		const float baumgarte = 0.2; // バウムガルテ係数
+
 		for (size_t i = 0; i < n; ++i) {
 			const Entity eA = ents[i];
 			auto& tfA = ecs_.GetComponent<Transform>(eA);
 			auto& colA = ecs_.GetComponent<Collider>(eA);
-			if (colA.isStatic) { continue; } // Aがトリガーならスキップ
 
 			for (size_t j = i + 1; j < n; ++j) {
 				const Entity eB = ents[j];
@@ -145,26 +150,101 @@ namespace ecs {
 				// ナローフェーズ
 				const auto contact = DispatchContact(colA, colB);
 				if (!contact) { continue; }	// 衝突していないならスキップ
-				
+
 				if (contact->penetration <= 1e-6f) { continue; } // ほとんどゼロならスキップ
 
 				// 押し出し量の計算 (A->B 法線)
 				auto [dispA, dispB] = collision::ComputePushOut(
 					*contact,
 					colA.isStatic, colB.isStatic,
-					solvePercent_, solveSlop_);
+					solve_percent_, solve_slop_);
 
 				// 押し出し
 				if (!colA.isStatic && !IsZeroDisp(dispA)) {
 					tfA.AddPosition(dispA);
 					tfA.BuildWorld(); // ワールド行列更新
 				}
-				if(!colB.isStatic && !IsZeroDisp(dispB)) {
+				if (!colB.isStatic && !IsZeroDisp(dispB)) {
 					tfB.AddPosition(dispB);
 					tfB.BuildWorld(); // ワールド行列更新
+				}
+
+				// 反発
+				const XMFLOAT3 nAB = contact->normal;
+				float invMassA = 0.0f;
+				float invMassB = 0.0f;
+				Rigidbody* pRbA = nullptr;
+				Rigidbody* pRbB = nullptr;
+
+				// 質量の逆数を取得
+				if (!colA.isStatic && ecs_.HasComponent<Rigidbody>(eA)) {
+					auto& rbA = ecs_.GetComponent<Rigidbody>(eA);
+					if (!rbA.isStatic && !rbA.isKinematic && rbA.mass > 0.0f) {
+						invMassA = 1.0f / rbA.mass;
+						pRbA = &rbA;
+					}
+				}
+				if (!colB.isStatic && ecs_.HasComponent<Rigidbody>(eB)) {
+					auto& rbB = ecs_.GetComponent<Rigidbody>(eB);
+					if (!rbB.isStatic && !rbB.isKinematic && rbB.mass > 0.0f) {
+						invMassB = 1.0f / rbB.mass;
+						pRbB = &rbB;
+					}
+				}
+	
+				const float denom = invMassA + invMassB;
+				if (denom <= 0.0f) { continue; }	// 両方0ならスキップ
+
+				// 相対速度
+				XMFLOAT3 vA{};
+				XMFLOAT3 vB{};
+				if (pRbA) { vA = pRbA->linearVelocity; }
+				if (pRbB) { vB = pRbB->linearVelocity; }
+				const XMFLOAT3 vRel = collision::Sub(vB, vA);
+
+				// 法線方向の相対速度
+				const float vRelN = collision::Dot(vRel, nAB);
+
+				// 反発係数
+				float e = 0.0f;
+				if (pRbA) { e = (std::max)(e, std::clamp(pRbA->restitution, 0.0f, 1.0f)); }
+				if (pRbB) { e = (std::max)(e, std::clamp(pRbB->restitution, 0.0f, 1.0f)); }
+				// 侵入安定化バイアス(分離していても貫通があれば押し出し)
+				const float penetration = (std::max)(contact->penetration - solve_slop_, 0.0f);
+				const float bias = (penetration > 0.0f && _fixedDt > 0.0f) ? baumgarte * (penetration / _fixedDt) : 0.0f;
+
+				// 法線インパルス( vRelN < 0 の時は反発も付与。分離中は反発0、バイアスのみ)
+				float jn = -((vRelN < 0.0f ? (1.0f + e) * vRelN : vRelN) + bias) / denom;
+				if (jn < 0.0f) { jn = 0.0f; } // 負のインパルスは無し
+
+				const XMFLOAT3 impulseN = Scale(nAB, jn);
+
+				// 速度適用
+				if (pRbA) { pRbA->linearVelocity = collision::Sub(pRbA->linearVelocity, Scale(impulseN, invMassA)); }
+				if (pRbB) { pRbB->linearVelocity = collision::Add(pRbB->linearVelocity, Scale(impulseN, invMassB)); }
+
+				// クーロン摩擦の簡易モデル: (接触方向 t = normalize(vRel - vRelN * nAB))
+				XMFLOAT3 t = collision::Sub(vRel, Scale(nAB, vRelN));
+				const float tLen = collision::Length(t);
+				if (tLen > 1e-6f) {
+					t = Scale(t, 1.0f / tLen);
+					// 合成摩擦係数 memo: ここでは平均をとる
+					float mu = 0.0f;
+					if (pRbA) { mu += std::clamp(pRbA->friction, 0.0f, 1.0f); }
+					if (pRbB) { mu += std::clamp(pRbB->friction, 0.0f, 1.0f); }
+					mu = (pRbA && pRbB) ? (mu * 0.5f) : mu;
+
+					// 接触インパルス
+					float jt = -collision::Dot(vRel, t) / denom;
+					// クランプ ( |jt| <= mu * jn )
+					const float jtMax = mu * jn;
+					jt = std::clamp(jt, -jtMax, jtMax);
+
+					const XMFLOAT3 impulseT = Scale(t, jt);
+					if (pRbA) { pRbA->linearVelocity = collision::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
+					if (pRbB) { pRbB->linearVelocity = collision::Sub(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
 				}
 			}
 		}
 	}
-
 } // namespace ecs

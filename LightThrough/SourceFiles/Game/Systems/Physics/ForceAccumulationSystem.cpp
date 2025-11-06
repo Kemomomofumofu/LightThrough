@@ -15,12 +15,6 @@
 
 
 namespace ecs {
-	ForceAccumulationSystem::ForceAccumulationSystem(const SystemDesc& _desc)
-		: ISystem(_desc)
-	{
-
-	}
-
 	// 初期化
 	void ForceAccumulationSystem::Init()
 	{
@@ -34,16 +28,28 @@ namespace ecs {
 	// 更新
 	void ForceAccumulationSystem::FixedUpdate(float _fixedDt)
 	{
-		
 
-		for (auto e : entities_) {
-			auto& tf = ecs_.GetComponent<Transform>(e);
+
+		for (auto& e : entities_) {
 			auto& rb = ecs_.GetComponent<Rigidbody>(e);
+
+			if (rb.isStatic || rb.isKinematic) { continue; }
+
 
 			// 重力
 			if (rb.useGravity) {
 				rb.force.y += rb.mass * gravity_;
 			}
+
+			// 減衰
+			// memo: 簡易モデル: (Fd = -drag * v)
+			rb.force.x += -rb.drag * rb.linearVelocity.x;
+			rb.force.y += -rb.drag * rb.linearVelocity.y;
+			rb.force.z += -rb.drag * rb.linearVelocity.z;
+			// memo: 簡易モデル: (Td = -angularDrag * ω)
+			rb.torque.x += -rb.angularDrag * rb.angularVelocity.x;
+			rb.torque.y += -rb.angularDrag * rb.angularVelocity.y;
+			rb.torque.z += -rb.angularDrag * rb.angularVelocity.z;
 		}
 	}
 }

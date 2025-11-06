@@ -29,8 +29,7 @@ namespace ecs {
 		void FixedUpdate(float _fixedDt) override;
 
 	private:
-		float solvePercent_ = 0.8f; // ‰πΑ„‡
-		float solveSlop_ = 0.01f;   // ”χ¬Ρ’Κ‚π–³‹‚·‚ιθ‡’l
+		float solve_percent_ = 1.0f; // ‰πΑ„‡
+		float solve_slop_ = 0.01f;   // ”χ¬Ρ’Κ‚π–³‹‚·‚ιθ‡’l
 	};
-
 }

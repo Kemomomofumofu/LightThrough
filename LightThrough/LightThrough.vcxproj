@@ -43,7 +43,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <VCToolsVersion>
     </VCToolsVersion>
   </PropertyGroup>
@@ -150,6 +150,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.cpp" />
@@ -202,6 +204,8 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\Mesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />

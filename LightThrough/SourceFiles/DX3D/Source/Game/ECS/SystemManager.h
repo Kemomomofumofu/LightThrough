@@ -33,6 +33,7 @@ namespace ecs {
 		template<typename T>
 		std::shared_ptr<T> GetSystem();		// システムを取得
 		const std::unordered_map<std::type_index, std::shared_ptr<ISystem>>& GetAllSystems() const;
+		const std::vector<std::shared_ptr<ISystem>>& GetAllSystemsInOrder() const;
 
 		void EntitySignatureChanged(Entity _e, Signature _eSignature);	// EntityのSignatureが変わった時に呼び出す
 		void EntityDestroyed(Entity _e);	// Entityが破棄された時に呼び出す
@@ -41,6 +42,7 @@ namespace ecs {
 	private:
 		std::unordered_map<std::type_index, Signature> signature_;
 		std::unordered_map<std::type_index, std::shared_ptr<ISystem>> systems_;
+		std::vector<std::shared_ptr<ISystem>> systems_in_order_; // 更新順序
 	};
 }
 

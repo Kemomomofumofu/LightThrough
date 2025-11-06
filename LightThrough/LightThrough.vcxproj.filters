@@ -203,6 +203,8 @@
     <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\Rigidbody.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -291,6 +293,8 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />

@@ -22,6 +22,8 @@
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
 #include <Game/Systems/Physics/ForceAccumulationSystem.h>
+#include <Game/Systems/Physics/IntegrationSystem.h>
+#include <Game/Systems/Physics/ClearForcesSystem.h>
 
 #include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Transform.h>
@@ -44,12 +46,16 @@ namespace {
 	{
 		auto& ecsCoordinator = _desc.ecs;
 
-		// 外力システム
+
+		// ---------- 衝突関係 ---------- // 
 		ecsCoordinator.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
 		const auto& forceAccumulationSystem = ecsCoordinator.GetSystem<ecs::ForceAccumulationSystem>();
 		forceAccumulationSystem->Init();
 
-		// コライダー同期システム
+		ecsCoordinator.RegisterSystem<ecs::IntegrationSystem>(_desc);
+		const auto& integrationSystem = ecsCoordinator.GetSystem<ecs::IntegrationSystem>();
+		integrationSystem->Init();
+
 		ecsCoordinator.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
 		const auto& colliderSyncSystem = ecsCoordinator.GetSystem<ecs::ColliderSyncSystem>();
 		colliderSyncSystem->Init();
@@ -58,11 +64,17 @@ namespace {
 		const auto& collisionResolveSystem = ecsCoordinator.GetSystem<ecs::CollisionResolveSystem>();
 		collisionResolveSystem->Init();
 
-		// カメラシステム
+		ecsCoordinator.RegisterSystem<ecs::ClearForcesSystem>(_desc);
+		const auto& clearForcesSystem = ecsCoordinator.GetSystem<ecs::ClearForcesSystem>();
+		clearForcesSystem->Init();
+
+
+		// カメラ
 		ecsCoordinator.RegisterSystem<ecs::CameraSystem>(_desc);
 		const auto& cameraSystem = ecsCoordinator.GetSystem<ecs::CameraSystem>();
 		cameraSystem->Init();
 
+		// 位置更新
 		ecsCoordinator.RegisterSystem<ecs::TransformSystem>(_desc);
 		const auto& transformSystem = ecsCoordinator.GetSystem<ecs::TransformSystem>();
 		transformSystem->Init();
@@ -147,7 +159,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 		// Entityの生成
 
-		//// テスト
+		// テスト
 		{
 			auto e = ecs_coordinator_->CreateEntity();
 			ecs_coordinator_->AddComponent<ecs::Transform>(e, {});

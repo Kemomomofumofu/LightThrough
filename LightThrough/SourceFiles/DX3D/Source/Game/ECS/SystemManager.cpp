@@ -21,6 +21,11 @@ const std::unordered_map<std::type_index, std::shared_ptr<ecs::ISystem>>& ecs::S
 	return systems_;
 }
 
+const std::vector<std::shared_ptr<ecs::ISystem>>& ecs::SystemManager::GetAllSystemsInOrder() const
+{
+	return systems_in_order_;
+}
+
 void ecs::SystemManager::EntitySignatureChanged(Entity _e, Signature _eSignature)
 {
 	for (auto const& pair : systems_) {

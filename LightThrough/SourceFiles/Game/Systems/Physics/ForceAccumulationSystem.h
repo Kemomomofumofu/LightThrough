@@ -6,14 +6,15 @@
 
 
 
+ // ---------- インクルード ---------- // 
 #include <Game/ECS/ISystem.h>
 
 namespace ecs {
-
 	class ForceAccumulationSystem : public ISystem
 	{
 	public:
-		explicit ForceAccumulationSystem(const SystemDesc& _desc);
+		explicit ForceAccumulationSystem(const SystemDesc& _desc)
+			: ISystem(_desc) {}
 		
 		void Init();
 		void FixedUpdate(float _fixedDt) override;
