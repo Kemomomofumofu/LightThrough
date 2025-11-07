@@ -224,13 +224,13 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Texture.h" />
-    <ClInclude Include="SourceFiles\Game\Serialization\ComponentReflection.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\Game\Serialization\ComponentReflection.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
-    <ClInclude Include="SourceFiles\Game\Collisions\CollisionUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\Game\Collisions\CollisionUtils.h" />
     <ClInclude Include="SourceFiles\Game\Components\CameraController.h" />
     <ClInclude Include="SourceFiles\Game\Components\Collider.h" />
     <ClInclude Include="SourceFiles\Game\Components\Material.h" />

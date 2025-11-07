@@ -15,6 +15,14 @@
 #include <array>
 #include <nlohmann/json.hpp>
 
+
+#include <Debug/Debug.h>
+
+namespace ecs {
+	struct Entity;
+	class Coordinator;
+}
+
 namespace ecs_serial {
 	using json = nlohmann::json;
 
@@ -24,7 +32,8 @@ namespace ecs_serial {
 	 * @tparam MemberT	メンバ型
 	 */
 	template<class T, class MemberT>
-	struct FieldInfo {
+	struct FieldInfo
+	{
 		std::string_view name;	// jsonキー/フィールド名
 		MemberT T::* member;	// メンバポインタ
 	};
@@ -34,7 +43,8 @@ namespace ecs_serial {
 	 * @tparam T
 	 */
 	template<class T>
-	struct TypeReflection {
+	struct TypeReflection
+	{
 		static constexpr auto Fields() { return std::make_tuple(); }
 		static constexpr std::string_view Name() { return "Unknown"; }
 	};
@@ -45,15 +55,16 @@ namespace ecs_serial {
 	 *
 	 * SceneJsonに記録されたComponentNameから動的にAddComponentを呼ぶ
 	 */
-	template<class Coordinator, class Entity>
-	class ComponentRegistry {
+	class ComponentRegistry
+	{
 	public:
 		// 呼び出しラッパ
-		using AddFunc = std::function<void(Coordinator&, Entity, const json&)>;
-		using HasFunc = std::function<bool(Coordinator&, Entity)>;
-		using ToJsonFunc = std::function<json(Coordinator&, Entity)>;
+		using AddFunc = std::function<void(ecs::Coordinator&, ecs::Entity&, const json&)>;
+		using HasFunc = std::function<bool(ecs::Coordinator&, ecs::Entity&)>;
+		using ToJsonFunc = std::function<json(ecs::Coordinator&, ecs::Entity&)>;
 
-		struct Entry {
+		struct Entry
+		{
 			AddFunc add{};
 			HasFunc has{};
 			ToJsonFunc toJson{};
@@ -72,34 +83,34 @@ namespace ecs_serial {
 		/**
 		 * @brief 名前と追加関数を登録
 		 * @param _name コンポーネント名
-		 * @param _f AddComponent 実行ラムダ
+		 * @param _add AddComponent 実行ラムダ
+		 * @param _has HasComponent 実行ラムダ
+		 * @param _toJson ToJson 実行ラムダ
 		 */
-		void Register(std::string_view _name, AddFunc _f)
-		{
-			auto& e = registry_[std::string(_name)];
-			e.add = std::move(_f);
-		}
-
 		void Register(std::string_view _name, AddFunc _add, HasFunc _has, ToJsonFunc _toJson)
 		{
-			registry_[std::string(_name)] = Entry{ std::move(_add), std::move(_has), std::move(_toJson) };
+			assert(registry_.find(std::string(_name)) == registry_.end());
+			registry_[std::string(_name)] = Entry{std::move(_add), std::move(_has), std::move(_toJson)};
 		}
 
 		/**
 		* @brief 名前が存在すればコンポーネントを追加
 		* @return 追加できた: true, できない: false
 		*/
-		[[nodiscard]] bool AddIfExists(Coordinator& _coord, Entity _e, std::string_view _name, const json& _data)
+		[[nodiscard]] bool AddIfExists(ecs::Coordinator& _coord, ecs::Entity& _e, std::string_view _name, const json& _data)
 		{
 			auto it = registry_.find(std::string(_name));
-			if (it == registry_.end()) { return false; }
+			if (it == registry_.end()) {
+				DebugLogWarning("[ComponentReflection] 存在しないComponent: '{}'", _name);
+				return false;
+			}
 
 			it->second.add(_coord, _e, _data);
 
 			return true;
 		}
 
-		json SerializeComponents(Coordinator& _coord, Entity _e)
+		json SerializeComponents(ecs::Coordinator& _coord, ecs::Entity& _e)
 		{
 			json comps = json::object();
 			for (auto& [name, entry] : registry_) {
@@ -143,13 +154,15 @@ namespace ecs_serial {
 
 	// Vec3, Vec4 判定ヘルパー
 	template<class T>
-	concept Vec3Like = requires(T _v) {
+	concept Vec3Like = requires(T _v)
+	{
 		{ _v.x } -> std::convertible_to<float>;
 		{ _v.y } -> std::convertible_to<float>;
 		{ _v.z } -> std::convertible_to<float>;
 	};
 	template<class T>
-	concept Vec4Like = requires(T _v) {
+	concept Vec4Like = requires(T _v)
+	{
 		{ _v.w } -> std::convertible_to<float>;
 		{ _v.x } -> std::convertible_to<float>;
 		{ _v.y } -> std::convertible_to<float>;
@@ -182,7 +195,7 @@ namespace ecs_serial {
 		else if constexpr (std::is_array_v<T>) {
 			using Elem = std::remove_extent_t<T>;
 			for (size_t i = 0; i < std::extent_v<T>; ++i) {
-				assign_value(reinterpret_cast<Elem&>(_dst[i]), _j.at(i));
+				assign_value(_dst[i], _j.at(i));
 			}
 		}
 		// std::array
@@ -194,14 +207,14 @@ namespace ecs_serial {
 		// 要素が三つのもの
 		else if constexpr (Vec3Like<T>) {
 			if (_j.is_object()) {
-				_dst.x = _j.at("x").get<float>();
-				_dst.y = _j.at("y").get<float>();
-				_dst.z = _j.at("z").get<float>();
+				_dst.x = _j.value("x", 0.0f);
+				_dst.y = _j.value("y", 0.0f);
+				_dst.z = _j.value("z", 0.0f);
 			}
 			else {
-				_dst.x = _j.at(0).get<float>();
-				_dst.y = _j.at(1).get<float>();
-				_dst.z = _j.at(2).get<float>();
+				_dst.x = _j.size() > 0 ? _j.at(0).get<float>() : 0.0f;
+				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
+				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
 			}
 		}
 		// 要素が四つのもの
@@ -226,7 +239,7 @@ namespace ecs_serial {
 		}
 		// どれでもない
 		else {
-			static_assert(sizeof(T) == 0, "[ComponentReflection.h] 未対応の型があります");
+			static_assert(always_false_v<T>, "[ComponentReflection.h] 未対応の型があります");
 		}
 	}
 
@@ -275,12 +288,12 @@ namespace ecs_serial {
 			return Serialize(_src);
 		}
 		else {
-			static_assert(sizeof(T) == 0, "[ComponentReflection.h] 未対応の型があります");
+			static_assert(always_false_v<T>, "[ComponentReflection.h] 未対応の型があります");
 		}
 	}
 
 	/**
-	 * @brief JSON -> オブジェクト
+	 * @brief オブジェクト -> JSON
 	 */
 	template<class T>
 	json Serialize(const T& _obj)
@@ -312,7 +325,7 @@ namespace ecs_serial {
 		return obj;
 	}
 
-}
+} // namespace ecs_serial
 
 
 
@@ -347,22 +360,20 @@ template<> struct ecs_serial::TypeReflection<Type> { \
 
 /**
  * @brief コンポーネントのリフレクション登録マクロ
- * @tparam CoordinatorT	Coordinator型
- * @tparam EntityT		エンティティ型
  * @tparam ComponentT	コンポーネント型
  */
-#define REGISTER_COMPONENT_REFLECTION(CoordinatorT, EntityT, ComponentT) \
+#define REGISTER_COMPONENT_REFLECTION(ComponentT) \
 	do { \
-		ecs_serial::ComponentRegistry<CoordinatorT, EntityT>::Get().Register( \
+		ecs_serial::ComponentRegistry::Get().Register( \
 			ecs_serial::TypeReflection<ComponentT>::Name(), \
-			[](CoordinatorT& _coord, EntityT _e, const nlohmann::json& _j){ \
+			[](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
 				const ComponentT temp = ecs_serial::Deserialize<ComponentT>(_j); \
 				_coord.AddComponent<ComponentT>(_e, temp); \
 			}, \
-			[](CoordinatorT& _coord, EntityT _e) { \
+			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
 				return _coord.HasComponent<ComponentT>(_e); \
 			 }, \
-			[](CoordinatorT& _coord, EntityT _e) \
+			[](ecs::Coordinator& _coord, ecs::Entity _e) \
 			{ \
 				const auto& c = _coord.GetComponent<ComponentT>(_e); \
 				return ecs_serial::Serialize<ComponentT>(c); \
