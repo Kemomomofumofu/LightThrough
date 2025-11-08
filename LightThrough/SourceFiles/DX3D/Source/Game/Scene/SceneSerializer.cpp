@@ -26,44 +26,11 @@
 
 #include <Debug/Debug.h>
 
-constexpr auto SCENE_FILE_DIR = "Assets/Scenes/";
+constexpr std::string_view SCENE_FILE_DIR = "Assets/Scenes/";
 
 
 
 using json = nlohmann::json;
-namespace nlohmann {
-	/**
-	 * @brief DirectX::XMFLOAT3 ‚ÌJSON•ÏŠ·
-	 */
-	template <>
-	struct adl_serializer<DirectX::XMFLOAT3> {
-		static void to_json(json& _j, const DirectX::XMFLOAT3& _v) {
-			_j = json{ {"x", _v.x}, {"y", _v.y}, {"z", _v.z} };
-		}
-
-		static void from_json(const json& _j, DirectX::XMFLOAT3& _v) {
-			_j.at("x").get_to(_v.x);
-			_j.at("y").get_to(_v.y);
-			_j.at("z").get_to(_v.z);
-		}
-	};
-
-	/**
-	 * @brief DirectX::XMFLOAT4 ‚ÌJSON•ÏŠ·
-	 */
-	template <>
-	struct adl_serializer<DirectX::XMFLOAT4> {
-		static void to_json(json& _j, const DirectX::XMFLOAT4& _v) {
-			_j = json{ {"x", _v.x}, {"y", _v.y}, {"z", _v.z}, {"w", _v.w} };
-		}
-		static void from_json(const json& _j, DirectX::XMFLOAT4& _v) {
-			_j.at("x").get_to(_v.x);
-			_j.at("y").get_to(_v.y);
-			_j.at("z").get_to(_v.z);
-			_j.at("w").get_to(_v.w);
-		}
-	};
-} // nlohmann
 
 namespace {
 	inline std::string JsonSnippet(const json& _j, std::size_t max = 512) {
@@ -200,7 +167,7 @@ namespace ecs_serial {
 		json jEntity;
 		jEntity["id"] = static_cast<int>(_e.id_);
 
-		auto& registry = ecs_serial::ComponentRegistry<ecs::Coordinator, ecs::Entity>::Get();
+		auto& registry = ecs_serial::ComponentRegistry::Get();
 		jEntity["components"] = registry.SerializeComponents(_ecs, _e);
 
 
@@ -221,7 +188,7 @@ namespace ecs_serial {
 
 		// Component’Ç‰Á
 		const auto& comps = _j["components"];
-		auto& registry = ecs_serial::ComponentRegistry<ecs::Coordinator, ecs::Entity>::Get();
+		auto& registry = ecs_serial::ComponentRegistry::Get();
 		for (auto it = comps.begin(); it != comps.end(); ++it) {
 			const std::string compName = it.key();
 			const json& compData = it.value();

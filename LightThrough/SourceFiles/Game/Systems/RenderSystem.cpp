@@ -123,7 +123,7 @@ namespace ecs {
 		};
 		std::unordered_map<Key, size_t, KeyHash> map;
 
-		// Entity一覧を走査してバッチ化 // [ToDo] 毎フレーム全Entityに対して処理するのはあまりにも重すぎなので、差分更新とかにしたい。
+		// Entity一覧を走査してバッチ化 // todo: 毎フレーム全Entityに対して処理するのはあまりにも重すぎなので、差分更新とかにしたい。
 		for (auto& e : entities_) {
 			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
@@ -166,7 +166,7 @@ namespace ecs {
 	void RenderSystem::CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity)
 	{
 		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
-		instance_buffer_capacity_ = max(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
+		instance_buffer_capacity_ = (std::max)(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
 	}
 
 	/**
@@ -198,7 +198,6 @@ namespace ecs {
 				instances.emplace_back(inst);
 			}
 			cursor += b.instances.size();
-
 		}
 
 		// インスタンスバッファの作成

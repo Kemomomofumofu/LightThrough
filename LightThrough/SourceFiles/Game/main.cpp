@@ -15,7 +15,7 @@
  */
 int main(void)
 {
-	DebugLogInfo("\n[main] Entry on main");
+	DebugLogInfo("[main] Entry on main");
 #if defined(DEBUG) || defined(_DEBUG)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif	// DEBUG || _DEBUG

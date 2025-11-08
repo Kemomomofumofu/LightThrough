@@ -132,23 +132,13 @@ dx3d::Game::Game(const GameDesc& _desc)
 		// SceneManagerの初期化
 		scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
 
-		// [ToDo] テスト用で動かしてみる
-		// [ToDo] 自動でComponentを登録する機能が欲しいかも。
+		// todo: 自動でComponentを登録する機能が欲しいかも。
 		ecs_coordinator_->RegisterComponent<ecs::Transform>();
 		ecs_coordinator_->RegisterComponent<ecs::MeshRenderer>();
 		ecs_coordinator_->RegisterComponent<ecs::Camera>();
 		ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 		ecs_coordinator_->RegisterComponent<ecs::Collider>();
 		ecs_coordinator_->RegisterComponent<ecs::Rigidbody>();
-
-		// Componentリフレクション登録 todo: 自動化したい。ComponentPool側でやるべき？
-		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Transform);
-		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::MeshRenderer);
-		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Camera);
-		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::CameraController);
-		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Collider);
-		REGISTER_COMPONENT_REFLECTION(ecs::Coordinator, ecs::Entity, ecs::Rigidbody);
-
 
 		// Systemの登録
 		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };

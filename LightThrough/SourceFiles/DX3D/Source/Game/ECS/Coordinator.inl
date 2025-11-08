@@ -13,6 +13,7 @@
 #include <Game/ECS/EntityManager.h>
 #include <Game/ECS/ComponentManager.h>
 #include <Game/ECS/SystemManager.h>
+#include <Game/Serialization/ComponentReflection.h>
 
 namespace ecs {
 	/**
@@ -22,6 +23,9 @@ namespace ecs {
 	template<typename Com>
 	void Coordinator::RegisterComponent()
 	{
+		// ƒŠƒtƒŒƒNƒVƒ‡ƒ“‚Ì“o˜^
+		REGISTER_COMPONENT_REFLECTION(Com);
+		// ComponentManager‚É“o˜^
 		component_manager_->RegisterComponent<Com>();
 	}
 

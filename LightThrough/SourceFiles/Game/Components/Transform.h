@@ -19,14 +19,14 @@ namespace ecs {
 		XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };	// スケール
 
 		// キャッシュ用
-		mutable XMFLOAT4X4 world{
+		XMFLOAT4X4 world{
 			1.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
 
-		mutable bool dirty = true; // 変更フラグ
+		bool dirty = true; // 変更フラグ
 		
 
 		// セッターを介して変更することで自動的にDirtyフラグを立てる
@@ -79,7 +79,7 @@ namespace ecs {
 		/**
 		 * @brief ワールド行列の更新
 		 */
-		inline void BuildWorld() const {
+		inline void BuildWorld() {
 			if (!dirty) { return; }
 
 			XMVECTOR s = XMLoadFloat3(&scale);
