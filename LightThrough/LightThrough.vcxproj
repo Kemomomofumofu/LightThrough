@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\Game\Systems\PlayerControllerSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
@@ -204,14 +205,17 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\Game\Components\Gimmick\Flashlight.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\PlayerControllerSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\PlayerController.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\Mesh.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshHandle.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\MeshRegistry.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lighting\DirectionalLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lighting\EnvironmentLight.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\Rigidbody.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.h" />
     <ClInclude Include="SourceFiles\Debug\DebugUI.h" />

@@ -132,6 +132,7 @@ namespace ecs {
 	 * @param <Sys> Signature‚ğİ’è‚·‚éSystem‚Ìí—Ş
 	 * @param _signature İ’è‚·‚éSignature
 	 */
+	// todo: “o˜^‚·‚éÛ‚ÉA•’Ê‚ÉŠÔˆá‚¦‚ÄComponent“n‚·‰Â”\«‚ ‚é‚Ì•|‚¢B‘Îô‚·‚×‚«‚Å‚ÍH
 	template<typename Sys>
 	void Coordinator::SetSystemSignature(Signature& _signature)
 	{

@@ -107,7 +107,6 @@ dx3d::Game::Game(const GameDesc& _desc)
 	debug::Debug::Init(true);
 
 
-
 	// 時間初期化
 	last_time_ = std::chrono::high_resolution_clock::now();
 
@@ -149,22 +148,20 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 		// Entityの生成
 
-		// テスト
-		{
-			auto e = ecs_coordinator_->CreateEntity();
-			ecs_coordinator_->AddComponent<ecs::Transform>(e, {});
-			auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
-			ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
-			ecs::Collider col{
-				.type = collision::ShapeType::Box,
-				.shape = collision::BoxShape{}
-			};
-			ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
-			ecs_coordinator_->AddComponent<ecs::Rigidbody>(e, {});
-
-			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-
-		}
+		//// テスト
+		//{
+		//	auto e = ecs_coordinator_->CreateEntity();
+		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, {});
+		//	auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
+		//	ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
+		//	ecs::Collider col{
+		//		.type = collision::ShapeType::Box,
+		//		.shape = collision::BoxShape{}
+		//	};
+		//	ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
+		//	ecs_coordinator_->AddComponent<ecs::Rigidbody>(e, {});
+		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		//}
 
 	}
 	catch (const std::exception& _e) {

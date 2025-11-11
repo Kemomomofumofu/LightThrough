@@ -199,12 +199,15 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lighting\EnvironmentLight.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Lighting\DirectionalLight.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\Rigidbody.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\PlayerController.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\PlayerControllerSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Gimmick\Flashlight.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -295,6 +298,7 @@
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\PlayerControllerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
