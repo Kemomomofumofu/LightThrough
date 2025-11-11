@@ -1,5 +1,6 @@
 
-struct LightPacked {
+struct LightPacked
+{
     float4 pos_type; // xyz = pos, w = type
     float4 dir_range; // xyz = dir, w = range
     float4 color;
@@ -8,36 +9,71 @@ struct LightPacked {
 
 cbuffer LightBuffer : register(b1)
 {
-    int lightCount;          float3 _pad0;
+    int lightCount;
+    float3 _pad0;
     LightPacked lights[16];
 };
+
+
+float Lambert(float3 _n, float3 _l)
+{
+    return saturate(dot(_n, _l));
+}
+
+
 
 // ディレクショナルライトの計算
 float ComputeDirectional(LightPacked _light, float3 _normal)
 {
     float L = normalize(-_light.dir_range.xyz);
-    return saturate(dot(_normal, L));
+    return Lambert(_normal, L);
+
 }
 
 // スポットライトの計算
 float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
 {
     float3 L = _light.pos_type.xyz - _worldPos;
-    float dist = length(L);
-    if(dist > _light.dir_range.w) { return 0; }
-
-    L /= dist;
-    float dir = normalize(-_light.dir_range.xyz);
-    float angle = dot(L, dir);
-    if (angle < _light.spotAngles.y) { return 0; }
-    float spot = saturate((angle - _light.spotAngles.y) / (_light.spotAngles.x - _light.spotAngles.y));
     
-    return spot * saturate(dot(_normal, L)) * (1.0 - dist / _light.dir_range.w);
+    // 距離と範囲判定(早期リターン)
+    float range = _light.dir_range.w;
+    float dist2 = dot(L, L);
+    float range2 = range * range;
+    if (dist2 > range2)
+    {
+        return 0.0;
+    }
+    
+    // 距離減衰
+    float dist = sqrt(dist2);
+    L /= max(dist, 1e-4);
+    
+    // 裏側判定(早期リターン)
+    float ndotl = Lambert(_normal, L);
+    if (ndotl <= 0)
+    {
+        return 0.0;
+    }
+    
+    // スポット角度減衰
+    float3 dir = normalize(-_light.dir_range.xyz);
+    float angle = dot(L, dir);
+    float inner = _light.spotAngles.x;
+    float outer = _light.spotAngles.y;
+    if (angle < outer)
+    {
+        return 0.0;
+    }
+    float spot = saturate((angle - outer) / max((inner - outer), 1e-4));
+    
+    float atten = 1.0 - saturate(dist / max(range, 1e-4));
+    
+    return ndotl * spot * atten;
 }
 
 float ComputeLight(LightPacked _light, float3 _normal, float3 _worldPos)
 {
-    float type = _light.pos_type.w;
+    int type = (int) _light.pos_type.w;
     if (type == 0)
     {
         return ComputeDirectional(_light, _normal);

@@ -46,7 +46,7 @@ VSOUT VSMain(VSVertex _vin, VSInstance _inst)
     vout.pos = p;
     
     // 法線(ワールドスペース)
-    float3 nWS = normalize(mul(_vin.normal, (float3x3) worldMatrix));
+    float3 nWS = normalize(mul(_vin.normal, (float3x3)worldMatrix));
     vout.normalWS = nWS;
     
     // 色

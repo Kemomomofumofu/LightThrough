@@ -21,11 +21,7 @@ float4 PSMain(PSIN _pin) : SV_Target
         float li = ComputeLight(lights[i], N, _pin.worldPos);
         accum += li * lights[i].color.rgb;
     }
-    
-    float3 albedo = _pin.color.rgb;
-    float3 diffuse = albedo * accum;
-    
-    // “ñ’l‰»
+
     return float4(accum, 1.0);
     
 }

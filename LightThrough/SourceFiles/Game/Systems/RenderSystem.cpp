@@ -121,13 +121,32 @@ namespace ecs {
 
 		// memo: 今は定数。todo: ライトコンポーネントを持つオブジェクトから引っ張ってくる。
 		CBLight lightData{};
-		lightData.lightCount = 1;
+		lightData.lightCount = 2;
 
+		// memo: デバッグ用
+		// ディレクショナルライト
+		if (0)
 		{
 			auto& L = lightData.lights[0];
 			L.pos_type = { 0.0f, 5.0f, 0.0f, 0.0f };
 			L.dir_range = { -1.0f, -1.0f, 0.0f, 12.0f };
 			L.color = { 1.0f, 0.95f, 0.2f, 1.0f };
+		}
+		// スポットライト
+		else
+		{
+			auto& L01 = lightData.lights[0];
+			L01.pos_type = { -5.0f, 5.0f, 0.0f, 1.0f };
+			L01.dir_range = { 1.0f, -1.0f, 0.0f, 20.0f };
+			L01.color = { 1.0f, 0.95f, 0.2f, 1.0f };
+			L01.spotAngles = { 0.21f, 0.2f, 0, 0 };
+
+			auto& L02 = lightData.lights[1];
+			L02.pos_type = { 5.0f, 5.0f, 0.0f, 1.0f };
+			L02.dir_range = { -1.0f, -1.0f, 0.0f, 20.0f };
+			L02.color = { 0.0f, 0.95f, 0.5f, 1.0f };
+			L02.spotAngles = { 0.21f, 0.2f, 0, 0 };
+
 		}
 
 		cb_lighting_->Update(context, &lightData, sizeof(lightData));
