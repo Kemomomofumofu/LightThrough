@@ -1,34 +1,31 @@
+#include "../Common/Lighting.hlsli"
+
 
 struct PSIN
 {
     float4 pos : SV_Position;
     float4 color : COLOR0;
-    float3 normal : NORMAL0;
-    float2 uv : TEXCOORD0;
+    float3 normalWS : NORMAL0;
+    float3 worldPos : WORLDPOS;
 };
 
-cbuffer cbLight : register(b1)
+float4 PSMain(PSIN _pin) : SV_Target
 {
-    float3 lightDirWS; float _pad0;
-    float3 lightColor; float _pad1;
-    float3 ambientColor; float _pad2;
-}
-
-
-
-
-float4 PSMain(PSIN pin) : SV_Target
-{
-    float3 N = normalize(pin.normal);
-    float3 L = normalize(-lightDirWS);
+    float3 N = normalize(_pin.normalWS);
+    float3 accum = 0;
     
-    float NdotL = saturate(dot(N, L));
+    // ライト計算
+    [loop]
+    for (int i = 0; i < lightCount; ++i)
+    {
+        float li = ComputeLight(lights[i], N, _pin.worldPos);
+        accum += li * lights[i].color.rgb;
+    }
     
-    float3 albedo = pin.color.rgb;
-    float3 diffuse = albedo * lightColor * NdotL;
-    float3 ambient = albedo * ambientColor;
+    float3 albedo = _pin.color.rgb;
+    float3 diffuse = albedo * accum;
     
-    float3 color = diffuse + ambient;
+    // 二値化
+    return float4(accum, 1.0);
     
-    return float4(color, pin.color.a);
 }

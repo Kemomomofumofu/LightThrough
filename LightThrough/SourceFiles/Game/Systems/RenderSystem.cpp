@@ -21,6 +21,40 @@
 #include <Game/Components/Transform.h>
 #include <Game/Components/MeshRenderer.h>
 
+#ifndef MAX_LIGHTS
+#define MAX_LIGHTS 16
+#endif
+
+namespace {
+	struct CBPerFrame {
+		DirectX::XMMATRIX view;	// ビュー行列
+		DirectX::XMMATRIX proj;	// プロジェクション行列
+	};
+
+	struct CBPerObject {
+		DirectX::XMMATRIX world;	// ワールド行列
+		DirectX::XMFLOAT4 color;	// 色
+	};
+
+	// ライト用
+	struct LightCPU {
+		/* type */
+		// 0: Directional
+		// 1: Spot
+		DirectX::XMFLOAT4 pos_type; // xyz = pos, w = type
+		DirectX::XMFLOAT4 dir_range; // xyz = dir, w = range
+		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT4 spotAngles; // x = innerCos, y = outerCos, z,w 未使用
+	};
+
+	struct CBLight {
+		int lightCount; int _pad0[3];
+		LightCPU lights[MAX_LIGHTS];
+	};
+
+	static_assert(sizeof(LightCPU) == 64, "LightCPUのサイズが不正(4 * 16 bytes)");
+
+}
 
 namespace ecs {
 	/**
@@ -41,18 +75,18 @@ namespace ecs {
 
 		// ConstantBuffer作成
 		cb_per_frame_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
-			sizeof(dx3d::CBPerFrame),
+			sizeof(CBPerFrame),
 			nullptr
 			});
 
 		cb_per_object_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
-			sizeof(dx3d::CBPerObject),
+			sizeof(CBPerObject),
 			nullptr
 			});
 
 
 		cb_lighting_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
-			sizeof(dx3d::LightingCB),
+			sizeof(CBLight),
 			nullptr
 			});
 
@@ -70,14 +104,14 @@ namespace ecs {
 
 		// todo: Entity自体に有効かどうかを持たせるべきかも、そこで参照保持でUpdateでGet~~はしないようにしたい。
 			// CameraComponentを持つEntityを取得 memo: 現状カメラは一つだけを想定
-			auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
-			if (camEntities.empty()) {
-				GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
-				return;
-			}
+		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
+		if (camEntities.empty()) {
+			GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
+			return;
+		}
 		auto& cam = ecs_.GetComponent<Camera>(camEntities[0]);
 
-		dx3d::CBPerFrame cbPerFrameData{};
+		CBPerFrame cbPerFrameData{};
 		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
 
@@ -86,15 +120,18 @@ namespace ecs {
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
 
 		// memo: 今は定数。todo: ライトコンポーネントを持つオブジェクトから引っ張ってくる。
-		dx3d::LightingCB cbLightingData{
-			.lightDirWS = { 0.5f, -1.0f, 0.2f },
-			.lightColor = { 0.9f, 0.9f, 1.0f },
-			.ambientColor = { 0.175f, 0.25f, 0.2f }
-		};
+		CBLight lightData{};
+		lightData.lightCount = 1;
 
+		{
+			auto& L = lightData.lights[0];
+			L.pos_type = { 0.0f, 5.0f, 0.0f, 0.0f };
+			L.dir_range = { -1.0f, -1.0f, 0.0f, 12.0f };
+			L.color = { 1.0f, 0.95f, 0.2f, 1.0f };
+		}
 
-		cb_lighting_->Update(context, &cbLightingData, sizeof(cbLightingData));
-		context.PSSetConstantBuffer(1, *cb_lighting_);	// ピクセルシェーダーのスロット1にセット
+		cb_lighting_->Update(context, &lightData, sizeof(lightData));
+		context.PSSetConstantBuffer(1, *cb_lighting_); // スロット1
 
 		// バッチ処理
 		batches_.clear();	// バッチクリア
@@ -219,7 +256,7 @@ namespace ecs {
 
 			if (instanceCount == 1) {
 				// インスタンスが1つだけなら通常描画
-				dx3d::CBPerObject obj{};
+				CBPerObject obj{};
 				DirectX::XMMATRIX w = DirectX::XMLoadFloat4x4(&b.instances[0].world);
 				//obj.world = DirectX::XMMatrixTranspose(w);
 				obj.world = w;	// 非転置

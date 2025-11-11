@@ -45,7 +45,7 @@ dx3d::ShaderBinary::ShaderBinary(const ShaderCompileDesc& _desc, const GraphicsR
 			_desc.shaderSourceCodeSize,
 			_desc.shaderSourceName,
 			nullptr,
-			nullptr,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			_desc.shaderEntryPoint,
 			dx3d::GraphicsUtils::GetShaderModelTarget(_desc.shaderType),
 			compileFlags,

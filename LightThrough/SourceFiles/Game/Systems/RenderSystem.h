@@ -55,7 +55,6 @@ namespace ecs {
 		size_t instance_buffer_capacity_{};
 
 		std::vector<InstanceBatch> batches_{};
-
 	};
 
 }
