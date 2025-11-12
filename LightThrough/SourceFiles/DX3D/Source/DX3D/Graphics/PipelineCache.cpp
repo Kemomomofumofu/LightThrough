@@ -12,9 +12,6 @@
 #include <DX3D/Graphics/GraphicsDevice.h>
 
 
-
-
-
 namespace dx3d {
 	/**
 	 * @brief パイプラインステートオブジェクトを取得または生成
@@ -61,7 +58,7 @@ namespace dx3d {
 		}
 
 		// シェーダーのコンパイル
-		auto vsBin = CompileFile(file, "VSMain", ShaderType::VertexShader);
+		auto vsBin = CompileFile(file, "VSMain", ShaderBinary::Type::Vertex);
 		auto sig = graphics_device_->CreateVertexShaderSignature({ vsBin });
 		auto layout = graphics_device_->CreateInputLayout({ sig, "INSTANCE_"});
 
@@ -88,7 +85,7 @@ namespace dx3d {
 		}
 
 		// シェーダーのコンパイル
-		auto psBin = CompileFile(file, "PSMain", ShaderType::PixelShader);
+		auto psBin = CompileFile(file, "PSMain", ShaderBinary::Type::Pixel);
 		// キャッシュに保存してから返す
 		ps_cache_.emplace(_kind, psBin);
 		return psBin;
@@ -99,9 +96,9 @@ namespace dx3d {
 	 * @param _path		ファイルパス
 	 * @param _entry	エントリポイント
 	 * @param _type		Shaderの種類
-	 * @return ShederBinaryのポインタ
+	 * @return ShaderBinaryのポインタ
 	 */
-	ShaderBinaryPtr PipelineCache::CompileFile(const char* _path, const char* _entry, ShaderType _type)
+	ShaderBinaryPtr PipelineCache::CompileFile(const char* _path, const char* _entry, ShaderBinary::Type _type)
 	{
 		// ファイルの読み込み
 		auto src = LoadTextFile(_path);

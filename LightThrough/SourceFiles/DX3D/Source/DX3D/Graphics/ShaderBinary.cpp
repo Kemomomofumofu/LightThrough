@@ -66,7 +66,7 @@ dx3d::BinaryData dx3d::ShaderBinary::GetData() const noexcept
 	};
 }
 
-dx3d::ShaderType dx3d::ShaderBinary::GetType() const noexcept
+dx3d::ShaderBinary::Type dx3d::ShaderBinary::GetType() const noexcept
 {
 	return type_;
 }

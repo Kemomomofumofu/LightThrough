@@ -24,7 +24,7 @@ dx3d::VertexShaderSignature::VertexShaderSignature(const VertexShaderSignatureDe
 	if (!vs_binary_) {
 		DX3DLogThrowInvalidArg("[VertexShaderSignature] シェーダバイナリが存在しません");
 	}
-	if (vs_binary_->GetType() != ShaderType::VertexShader) {
+	if (vs_binary_->GetType() != ShaderBinary::Type::Vertex) {
 		DX3DLogThrowInvalidArg("[VertexShaderSignature] vsBinaryのタイプがVertexShaderではありません");
 	}
 

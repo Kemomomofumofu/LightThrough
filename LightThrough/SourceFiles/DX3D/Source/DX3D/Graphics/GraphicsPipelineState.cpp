@@ -14,7 +14,7 @@
 
 dx3d::GraphicsPipelineState::GraphicsPipelineState(const GraphicsPipelineStateDesc& _desc, const GraphicsResourceDesc& _gDesc)
 	:GraphicsResource(_gDesc) {
-	if (_desc.ps.GetType() != ShaderType::PixelShader) {
+	if (_desc.ps.GetType() != ShaderBinary::Type::Pixel) {
 		DX3DLogThrowInvalidArg("ps ‚ª PixelShader ‚Å‚Í ‚ ‚è‚Ü‚¹‚ñ");
 	}
 
