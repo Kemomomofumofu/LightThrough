@@ -18,12 +18,14 @@
 
 namespace debug {
 	class DebugUI {
+#ifdef _DEBUG || DEBUG
 		static std::vector<std::function<void(void)>> debug_functions_;
 	public:
 		static void Init(ID3D11Device* _device, ID3D11DeviceContext* _context, void* _hwnd);
 
-		static void ResistDebugFunction(std::function<void(void)> _func);	// デバッグ関数の登録
-		static void Render();		// デバッグUIの描画
-		static void DisposeUI();	// デバッグUIの破棄
+		static void ResistDebugFunction(std::function<void(void)> _func);	//! デバッグ関数の登録
+		static void Render();		//! デバッグUIの描画
+		static void DisposeUI();	//! デバッグUIの破棄
+#endif // _DEBUG || DEBUG
 	};
 }

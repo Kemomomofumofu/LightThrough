@@ -149,7 +149,7 @@
     <ClInclude Include="SourceFiles\Game\Components\Transform.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\Game\Systems\RenderSystem.h">
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\RenderSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
@@ -162,7 +162,7 @@
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\Game\Systems\DebugRenderSystem.h">
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\DebugRenderSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imconfig.h" />
@@ -199,12 +199,12 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Meshes\PrimitiveFactory.h" />
     <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Lights\EnvironmentLight.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Lights\DirectionalLight.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\Rigidbody.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Light.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\ShadowMapSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -257,7 +257,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.cpp">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\Game\Systems\RenderSystem.cpp">
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\RenderSystem.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
@@ -268,7 +268,7 @@
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\Game\Systems\DebugRenderSystem.cpp">
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\DebugRenderSystem.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui.cpp" />
@@ -295,11 +295,19 @@
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\ShadowMapSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
     <None Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Shadow.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl" />
   </ItemGroup>
 </Project>

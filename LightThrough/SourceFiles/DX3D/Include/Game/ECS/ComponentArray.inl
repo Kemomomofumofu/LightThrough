@@ -89,6 +89,7 @@ namespace ecs {
 		// ‚ ‚é‚È‚ç
 		if (Has(_e)) {
 			// íœ
+			
 			Remove(_e);
 		}
 	}

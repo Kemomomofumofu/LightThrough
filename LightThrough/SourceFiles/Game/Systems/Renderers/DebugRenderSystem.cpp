@@ -6,7 +6,7 @@
  */
 
 // ---------- インクルード ---------- // 
-#include <Game/Systems/DebugRenderSystem.h>
+#include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/DeviceContext.h>

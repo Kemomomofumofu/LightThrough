@@ -138,6 +138,8 @@ namespace ecs {
 		system_manager_->SetSignature<Sys>(_signature);
 	}
 
+
+
 	/**
 	 * @brief System‚ğæ“¾
 	 * @param <Sys> æ“¾‚·‚éSystem‚Ìí—Ş

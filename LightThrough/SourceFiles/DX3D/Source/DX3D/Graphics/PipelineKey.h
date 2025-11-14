@@ -17,6 +17,8 @@ namespace dx3d {
 	enum class VertexShaderKind : uint8_t {
 		Default = 0,
 		Instanced,
+		ShadowMap,
+		ShadowMapInstanced,
 		Max,
 	};
 
@@ -25,6 +27,7 @@ namespace dx3d {
 	 */
 	enum class PixelShaderKind : uint8_t {
 		Default = 0,
+		ShadowMap,
 		Max,
 	};
 
@@ -32,8 +35,9 @@ namespace dx3d {
 	// フラグビットの定義 [ToDo] 必要になったら拡張
 	namespace PipelineFlags {
 		constexpr uint8_t Instancing = 0x01;	// インスタンシング有効
-		// constexpr uint8_t Wireframw = 0x02;	// ワイヤーフレームモード
-		// constexpr uint8_t DisableDepth = 0x04;	// 深度テスト無効
+		constexpr uint8_t ShadowPass = 0x02;	// シャドウマップパス
+		//constexpr uint8_t AlphaTest = 0x04;	// アルファテスト有効
+
 	}
 
 	/**
@@ -105,6 +109,35 @@ namespace dx3d {
 			_key.SetVS(VertexShaderKind::Instanced);
 			_key.AddFlags(PipelineFlags::Instancing);
 		}
+	}
+
+	//! パスに応じたインスタンシングフラグの更新
+	inline void PromoteInstancingForPass(PipelineKey& _key, uint32_t _instanceCount) noexcept {
+		if (_instanceCount <= 1) { return; }
+		_key.AddFlags(PipelineFlags::Instancing);
+
+		if (_key.GetPS() == PixelShaderKind::ShadowMap || _key.GetVS() == VertexShaderKind::ShadowMap) {
+			_key.SetVS(VertexShaderKind::ShadowMapInstanced);
+		}
+		else {
+			_key.SetVS(VertexShaderKind::Instanced);
+		}
+	}
+
+	//! パイプラインキーの構築
+	inline PipelineKey BuildPipelineKey(bool _shadowPass, uint32_t _instanceCount) noexcept {
+		PipelineKey key{};
+		if (_shadowPass) {
+			key.SetVS(VertexShaderKind::ShadowMap);
+			key.SetPS(PixelShaderKind::ShadowMap);
+			key.AddFlags(PipelineFlags::ShadowPass);
+		}
+		else {
+			key.SetVS(VertexShaderKind::Default);
+			key.SetPS(PixelShaderKind::Default);
+		}
+
+		PromoteInstancingForPass(key, _instanceCount);
 	}
 
 	// 定義の静的アサート

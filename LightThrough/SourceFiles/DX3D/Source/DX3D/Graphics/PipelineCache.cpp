@@ -54,6 +54,7 @@ namespace dx3d {
 		switch (_kind) {
 		case VertexShaderKind::Default:		file = paths_.vsDefault; break;
 		case VertexShaderKind::Instanced:	file = paths_.vsInstanced; break;
+		case VertexShaderKind::ShadowMap:	file = paths_.vsShadow; break;
 		default: DX3DLogThrowError("[PipelineCache] 未対応の頂点シェーダー");
 		}
 
@@ -79,8 +80,10 @@ namespace dx3d {
 		if (auto it = ps_cache_.find(_kind); it != ps_cache_.end()) { return it->second; }
 
 		const char* file = nullptr;
+		
 		switch (_kind) {
 		case PixelShaderKind::Default: file = paths_.psDefault; break;
+		case PixelShaderKind::ShadowMap: file = paths_.psShadow; break;
 		default: DX3DLogThrowError("[PipelineCache] 未対応のピクセルシェーダー");
 		}
 

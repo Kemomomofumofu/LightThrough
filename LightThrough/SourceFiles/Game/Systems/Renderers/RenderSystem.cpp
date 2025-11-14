@@ -7,6 +7,8 @@
 
  // ---------- インクルード ---------- //
 #include <DirectXMath.h>
+#include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Renderers/ShadowMapSystem.h>
 
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
@@ -14,16 +16,13 @@
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
 #include <DX3D/Graphics/Meshes/Mesh.h>
+#include <DX3D/Graphics/GraphicslogUtils.h>
 #include <Game/ECS/Coordinator.h>
-#include <Game/Systems/RenderSystem.h>
 
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/MeshRenderer.h>
-
-#ifndef MAX_LIGHTS
-#define MAX_LIGHTS 16
-#endif
+#include <Game/Components/Light.h>
 
 namespace {
 	struct CBPerFrame {
@@ -35,25 +34,6 @@ namespace {
 		DirectX::XMMATRIX world;	// ワールド行列
 		DirectX::XMFLOAT4 color;	// 色
 	};
-
-	// ライト用
-	struct LightCPU {
-		/* type */
-		// 0: Directional
-		// 1: Spot
-		DirectX::XMFLOAT4 pos_type; // xyz = pos, w = type
-		DirectX::XMFLOAT4 dir_range; // xyz = dir, w = range
-		DirectX::XMFLOAT4 color;
-		DirectX::XMFLOAT4 spotAngles; // x = innerCos, y = outerCos, z,w 未使用
-	};
-
-	struct CBLight {
-		int lightCount; int _pad0[3];
-		LightCPU lights[MAX_LIGHTS];
-	};
-
-	static_assert(sizeof(LightCPU) == 64, "LightCPUのサイズが不正(4 * 16 bytes)");
-
 }
 
 namespace ecs {
@@ -73,44 +53,40 @@ namespace ecs {
 		signature.set(ecs_.GetComponentType<MeshRenderer>());
 		ecs_.SetSystemSignature<RenderSystem>(signature);
 
+		auto& device = engine_->GetGraphicsDevice();
 		// ConstantBuffer作成
-		cb_per_frame_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
+		cb_per_frame_ = device.CreateConstantBuffer({
 			sizeof(CBPerFrame),
 			nullptr
 			});
 
-		cb_per_object_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
+		cb_per_object_ = device.CreateConstantBuffer({
 			sizeof(CBPerObject),
 			nullptr
 			});
 
-
-		cb_lighting_ = engine_->GetGraphicsDevice().CreateConstantBuffer({
+		cb_lighting_ = device.CreateConstantBuffer({
 			sizeof(CBLight),
 			nullptr
 			});
-
 	}
 
 	/**
 	 * @brief 更新処理
-	 * @param _dt デルタタイム
 	 */
 	void RenderSystem::Update(float _dt)
 	{
-
 		auto& context = engine_->GetDeviceContext();
 		auto& device = engine_->GetGraphicsDevice();
 
-		// todo: Entity自体に有効かどうかを持たせるべきかも、そこで参照保持でUpdateでGet~~はしないようにしたい。
-			// CameraComponentを持つEntityを取得 memo: 現状カメラは一つだけを想定
+		// CameraComponentを持つEntityを取得 memo: 現状カメラは一つだけを想定
 		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
 		if (camEntities.empty()) {
 			GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
 			return;
 		}
+		// カメラ
 		auto& cam = ecs_.GetComponent<Camera>(camEntities[0]);
-
 		CBPerFrame cbPerFrameData{};
 		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
@@ -119,35 +95,45 @@ namespace ecs {
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
 
-		// memo: 今は定数。todo: ライトコンポーネントを持つオブジェクトから引っ張ってくる。
+		// ---------- ライト処理 ---------- // 
 		CBLight lightData{};
-		lightData.lightCount = 2;
+		int lightSum = 0;
+		// 共通処理
+		for (auto e : ecs_.GetEntitiesWithComponent<LightCommon>()) {
+			// ライトの総数が多すぎるなら
+			if (lightSum >= MAX_LIGHTS) { break; }
+			auto& common = ecs_.GetComponent<ecs::LightCommon>(e);
+			// 無効状態なら
+			if (!common.enabled) { continue; }
 
-		// memo: デバッグ用
-		// ディレクショナルライト
-		if (0)
-		{
-			auto& L = lightData.lights[0];
-			L.pos_type = { 0.0f, 5.0f, 0.0f, 0.0f };
-			L.dir_range = { -1.0f, -1.0f, 0.0f, 12.0f };
-			L.color = { 1.0f, 0.95f, 0.2f, 1.0f };
+			// 方向の取得
+			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
+			const XMFLOAT3& fwd = tf.GetForward();
+
+			auto& L = lightData.lights[lightSum++];
+			L.pos_type = { tf.position.x, tf.position.y, tf.position.z, 0.0f };
+			L.dir_range = { fwd.x, fwd.y, fwd.z, 0.0f };
+			L.color = {
+				common.color.x * common.intensity,
+				common.color.y * common.intensity,
+				common.color.z * common.intensity,
+				1.0f
+			};
+			L.spotAngles = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+			// スポットライト
+			if (ecs_.HasComponent<SpotLight>(e)) {
+				// スポットライト
+				auto& spot = ecs_.GetComponent<SpotLight>(e);
+				L.pos_type.w = 1.0f;
+				L.dir_range.w = spot.range;
+				L.spotAngles.x = spot.innerCos;
+				L.spotAngles.y = spot.outerCos;
+			}
+			//else if(ecs_.HasComponent<>(e)){}
 		}
-		// スポットライト
-		else
-		{
-			auto& L01 = lightData.lights[0];
-			L01.pos_type = { -5.0f, 5.0f, 0.0f, 1.0f };
-			L01.dir_range = { 1.0f, -1.0f, 0.0f, 20.0f };
-			L01.color = { 1.0f, 0.95f, 0.2f, 1.0f };
-			L01.spotAngles = { 0.21f, 0.2f, 0, 0 };
-
-			auto& L02 = lightData.lights[1];
-			L02.pos_type = { 5.0f, 5.0f, 0.0f, 1.0f };
-			L02.dir_range = { -1.0f, -1.0f, 0.0f, 20.0f };
-			L02.color = { 0.0f, 0.95f, 0.5f, 1.0f };
-			L02.spotAngles = { 0.21f, 0.2f, 0, 0 };
-
-		}
+		// 総数
+		lightData.lightCount = lightSum;
 
 		cb_lighting_->Update(context, &lightData, sizeof(lightData));
 		context.PSSetConstantBuffer(1, *cb_lighting_); // スロット1
@@ -155,7 +141,16 @@ namespace ecs {
 		// バッチ処理
 		batches_.clear();	// バッチクリア
 		CollectBatches();	// バッチ収集
-		UploadAndDrawBatches();	// バッチアップロード＆描画
+		// メインパス
+		UploadAndDrawBatches();
+	}
+
+	/**
+	 * @brief エンティティ破棄イベント
+	 */
+	void RenderSystem::OnEntityDestroyed(Entity _entity)
+	{
+
 	}
 
 	/**
@@ -179,7 +174,7 @@ namespace ecs {
 		};
 		std::unordered_map<Key, size_t, KeyHash> map;
 
-		// Entity一覧を走査してバッチ化 // todo: 毎フレーム全Entityに対して処理するのはあまりにも重すぎなので、差分更新とかにしたい。
+		// Entity一覧を走査してバッチ化 // todo: 毎フレーム全Entityに対して処理するのはあまりにも無駄なので、差分更新とかにしたい。
 		for (auto& e : entities_) {
 			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
@@ -189,7 +184,7 @@ namespace ecs {
 
 			if (!meshData) continue;
 
-			Key key{ meshData->vb.get(), meshData->ib.get() };
+			struct Key key { meshData->vb.get(), meshData->ib.get() };
 			size_t batchIndex{};
 			// 既存のバッチ
 			if (auto it = map.find(key); it != map.end()) {
@@ -224,6 +219,7 @@ namespace ecs {
 		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
 		instance_buffer_capacity_ = (std::max)(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
 	}
+
 
 	/**
 	 * @brief バッチアップロード＆描画

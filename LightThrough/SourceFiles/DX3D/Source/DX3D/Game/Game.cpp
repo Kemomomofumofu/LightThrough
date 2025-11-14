@@ -13,12 +13,12 @@
 #include <DX3D/Math/Point.h>
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
-#include <Game/Serialization/ComponentReflection.h>
 
 #include <Game/Systems/TransformSystem.h>
-#include <Game/Systems/RenderSystem.h>
 #include <Game/Systems/CameraSystem.h>
-#include <Game/Systems/DebugRenderSystem.h>
+#include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Renderers/ShadowMapSystem.h>
+#include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
 #include <Game/Systems/Physics/ForceAccumulationSystem.h>
@@ -31,8 +31,8 @@
 #include <Game/Components/CameraController.h>
 #include <Game/Components/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Light.h>
 
-#include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
 #include <Debug/Debug.h>
 
@@ -80,6 +80,11 @@ namespace {
 		transformSystem->Init();
 
 		// •`‰æƒVƒXƒeƒ€
+		//ecsCoordinator.RegisterSystem<ecs::ShadowMapSystem>(_desc);
+		//const auto& shadowMapSystem = ecsCoordinator.GetSystem<ecs::ShadowMapSystem>();
+		//shadowMapSystem->SetGraphicsEngine(_engine);
+		//shadowMapSystem->Init();
+
 		ecsCoordinator.RegisterSystem<ecs::RenderSystem>(_desc);
 		const auto& renderSystem = ecsCoordinator.GetSystem<ecs::RenderSystem>();
 		renderSystem->SetGraphicsEngine(_engine);
@@ -139,6 +144,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 		ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 		ecs_coordinator_->RegisterComponent<ecs::Collider>();
 		ecs_coordinator_->RegisterComponent<ecs::Rigidbody>();
+		ecs_coordinator_->RegisterComponent<ecs::LightCommon>();
+		ecs_coordinator_->RegisterComponent<ecs::SpotLight>();
 
 		// System‚Ì“o˜^
 		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
@@ -148,23 +155,21 @@ dx3d::Game::Game(const GameDesc& _desc)
 		scene_manager_->ChangeScene("TestScene");
 
 		// Entity‚Ì¶¬
-
 		// ƒeƒXƒg
 		{
 			auto e = ecs_coordinator_->CreateEntity();
-			ecs_coordinator_->AddComponent<ecs::Transform>(e, {});
-			auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
-			ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
-			ecs::Collider col{
-				.type = collision::ShapeType::Box,
-				.shape = collision::BoxShape{}
-			};
-			ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
-			ecs_coordinator_->AddComponent<ecs::Rigidbody>(e, {});
-
+			ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ { -5.0f, 50.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f} });
+			ecs::LightCommon lightCommon;
+			lightCommon.color = { 0.0f, 0.95f, 0.2f };
+			ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
+			ecs::SpotLight spotData{};
+			spotData.range = 100.0f;
+			spotData.innerCos = 0.9f;
+			spotData.outerCos = 0.8f;
+			ecs_coordinator_->AddComponent<ecs::SpotLight>(e, spotData);
 			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-
 		}
+
 
 	}
 	catch (const std::exception& _e) {
@@ -226,7 +231,6 @@ void dx3d::Game::OnInternalUpdate()
 	}
 
 
-
 	// System‚ÌXV
 	accumulated_time_ += dt;
 	while (accumulated_time_ >= fixed_time_step_) {
@@ -240,5 +244,19 @@ void dx3d::Game::OnInternalUpdate()
 
 	// •`‰æ
 	graphics_engine_->EndFrame();
+
+#ifdef defined(_DEBUG) || defined(DEBUG)
+
+	if (auto* dev = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get()) {
+		const HRESULT hr = dev->GetDeviceRemovedReason();
+		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || FAILED(hr)) {
+			char buf[256]{};
+			sprintf_s(buf, "DeviceRemovedReason=0x%08X\n", static_cast<unsigned>(hr));
+			OutputDebugStringA(buf);
+			__debugbreak();
+		}
+	}
+#endif // _DEBUG || DEBUG
+
 }
 
