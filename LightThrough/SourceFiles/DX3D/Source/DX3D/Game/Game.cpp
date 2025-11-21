@@ -17,7 +17,6 @@
 #include <Game/Systems/TransformSystem.h>
 #include <Game/Systems/CameraSystem.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
-#include <Game/Systems/Renderers/ShadowMapSystem.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
@@ -80,11 +79,6 @@ namespace {
 		transformSystem->Init();
 
 		// 描画システム
-		//ecsCoordinator.RegisterSystem<ecs::ShadowMapSystem>(_desc);
-		//const auto& shadowMapSystem = ecsCoordinator.GetSystem<ecs::ShadowMapSystem>();
-		//shadowMapSystem->SetGraphicsEngine(_engine);
-		//shadowMapSystem->Init();
-
 		ecsCoordinator.RegisterSystem<ecs::RenderSystem>(_desc);
 		const auto& renderSystem = ecsCoordinator.GetSystem<ecs::RenderSystem>();
 		renderSystem->SetGraphicsEngine(_engine);
@@ -156,9 +150,23 @@ dx3d::Game::Game(const GameDesc& _desc)
 
 		// Entityの生成
 		// テスト
+
 		{
 			auto e = ecs_coordinator_->CreateEntity();
-			ecs_coordinator_->AddComponent<ecs::Transform>(e, ecs::Transform{ { -5.0f, 50.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f} });
+			ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
+			tf.LookTo({ 0.0f, -1.0f, 0.0f });
+			ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
+			ecs::LightCommon lightCommon;
+			lightCommon.color = { 0.7f, 0.5f, 0.6f };
+			ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
+			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		}
+
+		{
+			auto e = ecs_coordinator_->CreateEntity();
+			ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
+			tf.LookTo({ 0.0f, -1.0f, 0.0f });
+			ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
 			ecs::LightCommon lightCommon;
 			lightCommon.color = { 0.0f, 0.95f, 0.2f };
 			ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
@@ -169,7 +177,6 @@ dx3d::Game::Game(const GameDesc& _desc)
 			ecs_coordinator_->AddComponent<ecs::SpotLight>(e, spotData);
 			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
 		}
-
 
 	}
 	catch (const std::exception& _e) {

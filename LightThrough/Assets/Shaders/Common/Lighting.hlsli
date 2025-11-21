@@ -7,7 +7,7 @@ struct LightPacked
     float4 spotAngles; // x = innerCos, y = outerCos, z,w 未使用
 };
 
-cbuffer LightBuffer : register(b1)
+cbuffer LightBuffer : register(b0)
 {
     int lightCount;
     float3 _pad0;
@@ -19,8 +19,6 @@ float Lambert(float3 _n, float3 _l)
 {
     return saturate(dot(_n, _l));
 }
-
-
 
 // ディレクショナルライトの計算
 float ComputeDirectional(LightPacked _light, float3 _normal)
@@ -56,8 +54,9 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
     }
     
     // スポット角度減衰
-    float3 dir = normalize(-_light.dir_range.xyz);
-    float angle = dot(L, dir);
+    float3 dir = normalize(_light.dir_range.xyz); // ライトの向き
+    float3 L_light_to_point = -L; // ライトからポイントへの方向
+    float angle = dot(L_light_to_point, dir);
     float inner = _light.spotAngles.x;
     float outer = _light.spotAngles.y;
     if (angle < outer)
@@ -73,7 +72,7 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
 
 float ComputeLight(LightPacked _light, float3 _normal, float3 _worldPos)
 {
-    int type = (int) _light.pos_type.w;
+    int type = (int)_light.pos_type.w;
     if (type == 0)
     {
         return ComputeDirectional(_light, _normal);

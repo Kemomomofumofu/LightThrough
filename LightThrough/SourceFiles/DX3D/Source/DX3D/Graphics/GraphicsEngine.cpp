@@ -74,49 +74,6 @@ namespace dx3d {
 		return *mesh_registry_;
 	}
 
-	////! @brief デプスクリア
-	//void GraphicsEngine::ClearDepth(ID3D11DepthStencilView* _dsv, float _depth, UINT8 _stencil)
-	//{
-	//	auto context = device_context_->GetDeviceContext();
-	//	UINT clearFlags = D3D11_CLEAR_DEPTH;
-	//	clearFlags |= D3D11_CLEAR_STENCIL;
-	//	context->ClearDepthStencilView(_dsv, clearFlags, _depth, _stencil);
-	//}
-	//! @brief ビューポート設定
-	//void GraphicsEngine::SetViewport(uint32_t _width, uint32_t _height)
-	//{
-	//	device_context_->SetViewportSize(Rect{ 0, 0, static_cast<int32_t>(_width), static_cast<int32_t>(_height) });
-	//}
-	////! @brief ラスタライザバイアス設定
-	//void GraphicsEngine::SetRasterizerBias(int _depthBias, float _slopeScaleBias, float _depthBiasClamp)
-	//{
-	//	// todo: RasterizerStateDescにバイアスの項目がないので一時的に直接設定する
-	//	D3D11_RASTERIZER_DESC rb{};
-	//	rb.FillMode = D3D11_FILL_SOLID;
-	//	rb.CullMode = D3D11_CULL_BACK;
-	//	rb.FrontCounterClockwise = TRUE;
-	//	rb.DepthClipEnable = TRUE;
-	//	rb.ScissorEnable = FALSE;
-	//	rb.MultisampleEnable = FALSE;
-	//	rb.AntialiasedLineEnable = FALSE;
-	//	rb.DepthBias = _depthBias;
-	//	rb.SlopeScaledDepthBias = _slopeScaleBias;
-	//	rb.DepthBiasClamp = _depthBiasClamp;
-
-	//	Microsoft::WRL::ComPtr<ID3D11RasterizerState> biasState;
-	//	auto d3d = graphics_device_->GetD3DDevice();
-	//	if (SUCCEEDED(d3d->CreateRasterizerState(&rb, &biasState)))
-	//	{
-	//		device_context_->GetDeviceContext()->RSSetState(biasState.Get());
-	//	}
-	//	// フォールバック
-	//	else {
-	//		device_context_->SetRasterizerState(*rasterizer_);	// 元に戻す
-	//	}
-	//}
-
-
-
 	//! @brief 描画開始処理
 	void GraphicsEngine::BeginFrame()
 	{
@@ -126,31 +83,21 @@ namespace dx3d {
 
 
 	//! @brief 描画処理
-	void GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib)
+	void GraphicsEngine::Render(VertexBuffer& _vb, IndexBuffer& _ib, PipelineKey _key)
 	{
-		PipelineKey key{
-			VertexShaderKind::Default,
-			PixelShaderKind::Default,
-		};
-		auto pso = pipeline_cache_->GetOrCreate(key);
+		auto pso = pipeline_cache_->GetOrCreate(_key);
 		device_context_->SetGraphicsPipelineState(*pso);
 		device_context_->SetRasterizerState(*rasterizer_);	// [ToDo] pso で設定できるようにしたいね
 		device_context_->SetViewportSize(swap_chain_->GetSize());
-
 		device_context_->SetVertexBuffer(_vb);
 		device_context_->SetIndexBuffer(_ib);
 		device_context_->DrawIndexed(_ib.GetIndexCount(), 0, 0);
 	}
 
 	//! @brief インスタンス描画処理
-	void dx3d::GraphicsEngine::RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance)
-	{
-		PipelineKey key{
-			VertexShaderKind::Instanced,
-			PixelShaderKind::Default,
-		};
-		PromoteInstancing(key, _instanceCount);	// インスタンス数に応じてパイプラインキーを更新
-		auto pso = pipeline_cache_->GetOrCreate(key);
+	void dx3d::GraphicsEngine::RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance, PipelineKey _key)
+	{	
+		auto pso = pipeline_cache_->GetOrCreate(_key);
 		device_context_->SetGraphicsPipelineState(*pso);
 		device_context_->SetRasterizerState(*rasterizer_);	// [ToDo] pso で設定できるようにしたいね
 		device_context_->SetViewportSize(swap_chain_->GetSize());

@@ -8,7 +8,7 @@
  // ---------- インクルード ---------- //
 #include <DirectXMath.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
-#include <Game/Systems/Renderers/ShadowMapSystem.h>
+#include <Game/Systems/Renderers/DebugRenderSystem.h>
 
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
@@ -17,6 +17,7 @@
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
 #include <DX3D/Graphics/Meshes/Mesh.h>
 #include <DX3D/Graphics/GraphicslogUtils.h>
+#include <DX3D/Graphics/PipelineKey.h>
 #include <Game/ECS/Coordinator.h>
 
 #include <Game/Components/Camera.h>
@@ -29,7 +30,6 @@ namespace {
 		DirectX::XMMATRIX view;	// ビュー行列
 		DirectX::XMMATRIX proj;	// プロジェクション行列
 	};
-
 	struct CBPerObject {
 		DirectX::XMMATRIX world;	// ワールド行列
 		DirectX::XMFLOAT4 color;	// 色
@@ -55,20 +55,36 @@ namespace ecs {
 
 		auto& device = engine_->GetGraphicsDevice();
 		// ConstantBuffer作成
-		cb_per_frame_ = device.CreateConstantBuffer({
+		cb_per_frame_ = device.CreateConstantBuffer({	// vsスロット0
 			sizeof(CBPerFrame),
 			nullptr
 			});
 
-		cb_per_object_ = device.CreateConstantBuffer({
+		cb_per_object_ = device.CreateConstantBuffer({	// vsスロット1
 			sizeof(CBPerObject),
 			nullptr
 			});
 
-		cb_lighting_ = device.CreateConstantBuffer({
+		cb_light_matrix_ = device.CreateConstantBuffer({	// vsスロット2
+			sizeof(CBLightMatrix),
+			nullptr
+			});
+
+		cb_lighting_ = device.CreateConstantBuffer({	// psスロット0
 			sizeof(CBLight),
 			nullptr
 			});
+
+		{
+			D3D11_SAMPLER_DESC sd{};
+			sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+			sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+			sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+			sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 1.0f;
+			engine_->GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, &shadow_sampler_);
+		}
+
+		CreateShadowResources(SHADOW_MAP_SIZE);
 	}
 
 	/**
@@ -79,7 +95,7 @@ namespace ecs {
 		auto& context = engine_->GetDeviceContext();
 		auto& device = engine_->GetGraphicsDevice();
 
-		// CameraComponentを持つEntityを取得 memo: 現状カメラは一つだけを想定
+		// Camera取得 memo: 現状カメラは一つだけを想定
 		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
 		if (camEntities.empty()) {
 			GameLogWarning("CameraComponentを持つEntityが存在しないため、描画をスキップ");
@@ -98,51 +114,71 @@ namespace ecs {
 		// ---------- ライト処理 ---------- // 
 		CBLight lightData{};
 		int lightSum = 0;
+
+		// memo: 仮で1つまで
+		Entity firstLight{};
+		XMMATRIX lightVP = XMMatrixIdentity();
+
 		// 共通処理
 		for (auto e : ecs_.GetEntitiesWithComponent<LightCommon>()) {
 			// ライトの総数が多すぎるなら
 			if (lightSum >= MAX_LIGHTS) { break; }
-			auto& common = ecs_.GetComponent<ecs::LightCommon>(e);
+			auto& common = ecs_.GetComponent<LightCommon>(e);
 			// 無効状態なら
 			if (!common.enabled) { continue; }
 
 			// 方向の取得
-			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
-			const XMFLOAT3& fwd = tf.GetForward();
-
-			auto& L = lightData.lights[lightSum++];
-			L.pos_type = { tf.position.x, tf.position.y, tf.position.z, 0.0f };
-			L.dir_range = { fwd.x, fwd.y, fwd.z, 0.0f };
-			L.color = {
-				common.color.x * common.intensity,
-				common.color.y * common.intensity,
-				common.color.z * common.intensity,
-				1.0f
-			};
-			L.spotAngles = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-			// スポットライト
+			auto& tf = ecs_.GetComponent<Transform>(e);
+#ifdef _DEBUG || DEBUG
+			auto debugRender = ecs_.GetSystem<DebugRenderSystem>();
+			debugRender->DrawCube(tf, { 1, 0, 0, 1 });
+#endif // _DEBUG || DEBUG
+			SpotLight* spotPtr = nullptr;
 			if (ecs_.HasComponent<SpotLight>(e)) {
-				// スポットライト
-				auto& spot = ecs_.GetComponent<SpotLight>(e);
-				L.pos_type.w = 1.0f;
-				L.dir_range.w = spot.range;
-				L.spotAngles.x = spot.innerCos;
-				L.spotAngles.y = spot.outerCos;
+				spotPtr = &ecs_.GetComponent<SpotLight>(e);
 			}
-			//else if(ecs_.HasComponent<>(e)){}
+
+			// パック
+			lightData.lights[lightSum++] = BuildLightCPU(tf, common, spotPtr);
+			lightVP = BuildLightViewProj(tf, spotPtr, 0.1f);
+
 		}
-		// 総数
 		lightData.lightCount = lightSum;
 
-		cb_lighting_->Update(context, &lightData, sizeof(lightData));
-		context.PSSetConstantBuffer(1, *cb_lighting_); // スロット1
+		// ライト行列CB（PS側でシャドウ計算に使用）
+		if (lightSum > 0) {
+			CBLightMatrix cbLM{};
+			cbLM.lightViewProj = lightVP; // 非転置
+			cb_light_matrix_->Update(context, &cbLM, sizeof(cbLM));
+			context.VSSetConstantBuffer(2, *cb_light_matrix_); // スロット2
+		}
+
 
 		// バッチ処理
 		batches_.clear();	// バッチクリア
 		CollectBatches();	// バッチ収集
-		// メインパス
-		UploadAndDrawBatches();
+		UpdateBatches();	// バッチ更新
+
+		// ---------- シャドウパス（深度のみ） ---------- //
+		if (lightSum > 0 && shadow_dsv_) {
+			RenderShadowPass(lightVP);
+
+			// メインパス用のカメラCBを復元
+			cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
+			context.VSSetConstantBuffer(0, *cb_per_frame_);
+
+			// PSへシャドウSRVをバインド
+			auto contextD3D = context.GetDeviceContext();
+			ID3D11ShaderResourceView* srvs[1] = { shadow_srv_.Get() };
+			contextD3D->PSSetShaderResources(0, 1, srvs);
+			// シャドウサンプラーセット
+			ID3D11SamplerState* samps[1] = { shadow_sampler_.Get() };
+			contextD3D->PSSetSamplers(0, 1, samps);
+		}
+
+		// ---------- メインパス ---------- //
+		RenderMainPass(lightData);
+
 	}
 
 	/**
@@ -210,23 +246,7 @@ namespace ecs {
 		}
 	}
 
-	/**
-	 * @brief インスタンスバッファの作成またはリサイズ
-	 * @param _requiredInstanceCapacity 必要なインスタンス数
-	 */
-	void RenderSystem::CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity)
-	{
-		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
-		instance_buffer_capacity_ = (std::max)(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
-	}
-
-
-	/**
-	 * @brief バッチアップロード＆描画
-	 *
-	 * 各バッチのインスタンスデータをインスタンスバッファにアップロードし、描画する
-	 */
-	void RenderSystem::UploadAndDrawBatches()
+	void RenderSystem::UpdateBatches()
 	{
 		// 総インスタンス数
 		size_t totalInstance = 0;
@@ -261,28 +281,117 @@ namespace ecs {
 			};
 			instance_buffer_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
+	}
 
+	void RenderSystem::RenderMainPass(CBLight& _lightData)
+	{
 		auto& context = engine_->GetDeviceContext();
+		
+		// ライティングCB更新
+		cb_lighting_->Update(context, &_lightData, sizeof(_lightData));
+		context.PSSetConstantBuffer(0, *cb_lighting_); // スロット0
 
 		// 描画
+		auto key = dx3d::BuildPipelineKey(false);
 		for (auto& b : batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
 
-			if (instanceCount == 1) {
-				// インスタンスが1つだけなら通常描画
-				CBPerObject obj{};
-				DirectX::XMMATRIX w = DirectX::XMLoadFloat4x4(&b.instances[0].world);
-				//obj.world = DirectX::XMMatrixTranspose(w);
-				obj.world = w;	// 非転置
-				cb_per_object_->Update(context, &obj, sizeof(obj));
-				context.VSSetConstantBuffer(1, *cb_per_object_);
-				engine_->Render(*b.vb, *b.ib);
-			}
-			else {
-				// インスタンスが複数ならインスタンス描画
-				engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset);
-			}
+			// 描画
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset, key);
 		}
+
+	}
+
+	/**
+	 * @brief インスタンスバッファの作成またはリサイズ
+	 * @param _requiredInstanceCapacity 必要なインスタンス数
+	 */
+	void RenderSystem::CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity)
+	{
+		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
+		instance_buffer_capacity_ = (std::max)(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
+	}
+
+	/**
+	 * @brief シャドウマップに必要なリソースの生成
+	 * @param _size: テクスチャのサイズ
+	 */
+	void RenderSystem::CreateShadowResources(uint32_t _size)
+	{
+		auto& device = engine_->GetGraphicsDevice();
+
+		// シャドウマップ用テクスチャ作成
+		D3D11_TEXTURE2D_DESC texDesc{};
+		texDesc.Width = _size;
+		texDesc.Height = _size;
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+		device.CreateTexture2D(&texDesc, nullptr, &shadow_depth_tex_);
+
+		// DSV 作成
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		device.CreateDepthStencilView(shadow_depth_tex_.Get(), &dsvDesc, &shadow_dsv_);
+
+		// SRV 作成
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		device.CreateShaderResourceView(shadow_depth_tex_.Get(), &srvDesc, &shadow_srv_);
+	}
+
+	void RenderSystem::RenderShadowPass(const DirectX::XMMATRIX& _lightViewProj)
+	{
+		auto& contextWrap = engine_->GetDeviceContext();
+		auto contextD3D = contextWrap.GetDeviceContext();
+
+		// SRVのアンバインド
+		{
+			ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+			contextD3D->PSSetShaderResources(0, 1, nullSRV);
+			contextD3D->VSSetShaderResources(0, 1, nullSRV);
+		}
+
+		// 現在のRTV、DSVを退避
+		ID3D11RenderTargetView* prevRTV = nullptr;
+		ID3D11DepthStencilView* prevDSV = nullptr;
+		contextD3D->OMGetRenderTargets(1, &prevRTV, &prevDSV);
+
+		// シャドウ用DSVをセット
+		contextD3D->OMSetRenderTargets(0, nullptr, shadow_dsv_.Get());
+		contextD3D->ClearDepthStencilView(shadow_dsv_.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+		contextWrap.SetViewportSize({ static_cast<int32_t>(SHADOW_MAP_SIZE), static_cast<int32_t>(SHADOW_MAP_SIZE) });
+
+		// ライト行列をセット
+		{
+			CBLightMatrix lm{};
+			lm.lightViewProj = _lightViewProj;
+			cb_light_matrix_->Update(contextWrap, &lm, sizeof(lm));
+			contextWrap.VSSetConstantBuffer(0, *cb_light_matrix_); // slot0
+		}
+
+		auto key = dx3d::BuildPipelineKey(true);
+		// 描画
+		for (auto& b : batches_) {
+			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
+			if (instanceCount == 0) { continue; }
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset, key);
+		}
+
+
+		{
+			contextD3D->OMSetRenderTargets(1, &prevRTV, prevDSV);
+			if (prevRTV) { prevRTV->Release(); }
+			if (prevDSV) { prevDSV->Release(); }
+		}
+
 	}
 }

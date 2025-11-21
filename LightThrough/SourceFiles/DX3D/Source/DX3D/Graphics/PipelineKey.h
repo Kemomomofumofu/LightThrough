@@ -15,10 +15,10 @@ namespace dx3d {
 	 * @brief 頂点シェーダの種類をまとめた列挙型
 	 */
 	enum class VertexShaderKind : uint8_t {
-		Default = 0,
+		None = 0,
+		Default,
 		Instanced,
 		ShadowMap,
-		ShadowMapInstanced,
 		Max,
 	};
 
@@ -26,8 +26,8 @@ namespace dx3d {
 	 * @brief ピクセルシェーダの種類をまとめた列挙型
 	 */
 	enum class PixelShaderKind : uint8_t {
-		Default = 0,
-		ShadowMap,
+		None = 0,
+		Default,
 		Max,
 	};
 
@@ -46,7 +46,7 @@ namespace dx3d {
 	 * パイプラインステートオブジェクトを識別するためのキー。
 	 * 頂点シェーダ、ピクセルシェーダ、フラグビットなどを組み合わせて一意に識別する。
 	 * 32bitに収まるように設計されている。
-	 * 
+	 *
 	 * bit構成:
 	 * 0-3: VertexShaderKind (Max 16種類)
 	 * 4-7: PixelShaderKind (Max 16種類)
@@ -96,48 +96,25 @@ namespace dx3d {
 		}
 	};
 
-	// ヘルパー
-	/**
-	 * @brief インスタンシングフラグの更新
-	 * @param _key 更新するパイプラインキー
-	 * @param instanceCount インスタンス数
-	 */
-	inline void PromoteInstancing(PipelineKey& _key, uint32_t instanceCount) noexcept {
-		// インスタンスの数が1より大きければ
-		if (instanceCount > 1) {
-			// インスタンス描画に切り替え
-			_key.SetVS(VertexShaderKind::Instanced);
-			_key.AddFlags(PipelineFlags::Instancing);
-		}
-	}
 
-	//! パスに応じたインスタンシングフラグの更新
-	inline void PromoteInstancingForPass(PipelineKey& _key, uint32_t _instanceCount) noexcept {
-		if (_instanceCount <= 1) { return; }
-		_key.AddFlags(PipelineFlags::Instancing);
-
-		if (_key.GetPS() == PixelShaderKind::ShadowMap || _key.GetVS() == VertexShaderKind::ShadowMap) {
-			_key.SetVS(VertexShaderKind::ShadowMapInstanced);
-		}
-		else {
-			_key.SetVS(VertexShaderKind::Instanced);
-		}
-	}
-
-	//! パイプラインキーの構築
-	inline PipelineKey BuildPipelineKey(bool _shadowPass, uint32_t _instanceCount) noexcept {
+	//! @brief パイプラインキーの構築
+	inline PipelineKey BuildPipelineKey(bool _shadowPass) noexcept {
 		PipelineKey key{};
+
+		key.AddFlags(PipelineFlags::Instancing);
+
+
 		if (_shadowPass) {
 			key.SetVS(VertexShaderKind::ShadowMap);
-			key.SetPS(PixelShaderKind::ShadowMap);
+			key.SetPS(PixelShaderKind::None);
 			key.AddFlags(PipelineFlags::ShadowPass);
 		}
 		else {
-			key.SetVS(VertexShaderKind::Default);
+			key.SetVS(VertexShaderKind::Instanced);
 			key.SetPS(PixelShaderKind::Default);
 		}
 
-		PromoteInstancingForPass(key, _instanceCount);
+		return key;
 	}
 
 	// 定義の静的アサート

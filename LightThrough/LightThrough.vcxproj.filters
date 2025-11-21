@@ -204,7 +204,6 @@
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Light.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\Renderers\ShadowMapSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -295,7 +294,6 @@
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\Renderers\ShadowMapSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
@@ -304,7 +302,6 @@
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Assets\Shaders\Pixel\PS_Shadow.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />

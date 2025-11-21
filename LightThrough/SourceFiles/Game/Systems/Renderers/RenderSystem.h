@@ -7,6 +7,7 @@
  */
 
  // ---------- インクルード ---------- // 
+#include <wrl/client.h>
 #include <DX3D/Core/Core.h>
 #include <DX3D/Graphics/Buffers/InstanceData.h>
 #include <Game/ECS/ISystem.h>
@@ -48,8 +49,10 @@ namespace ecs {
 	private:
 		//! @brief バッチ収集
 		void CollectBatches();
-		//! @brief バッチの更新、描画
-		void UploadAndDrawBatches();
+		//! @brief バッチ更新
+		void UpdateBatches();
+		//! @brief 描画
+		void RenderMainPass(struct CBLight& _lightData);
 		//! @brief インスタンスバッファの作成またはリサイズ
 		void CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity);
 
@@ -67,6 +70,21 @@ namespace ecs {
 		size_t instance_buffer_capacity_{};
 
 		std::vector<InstanceBatch> batches_{};
+
+	private:
+		// memo: シンプルな落ち影の実装
+			// シャドウマップ用リソース
+
+		void CreateShadowResources(uint32_t _size);
+		void RenderShadowPass(const DirectX::XMMATRIX& _lightViewProj);
+		const uint32_t SHADOW_MAP_SIZE = 1024;
+
+
+		// シャドウマップ用リソース
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> shadow_depth_tex_{};
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> shadow_dsv_{};
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadow_srv_{};
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> shadow_sampler_{};
 
 	};
 

@@ -31,8 +31,9 @@ namespace dx3d {
 		MeshRegistry& GetMeshRegistry() noexcept;
 
 		void BeginFrame();
-		void Render(VertexBuffer& _vb, IndexBuffer& _ib);
-		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0);
+		void Render(VertexBuffer& _vb, IndexBuffer& _ib, PipelineKey _key = { VertexShaderKind::Default,
+			PixelShaderKind::Default });
+		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0, PipelineKey _key = {VertexShaderKind::Instanced, PixelShaderKind::Default});
 		void EndFrame();
 
 	private:

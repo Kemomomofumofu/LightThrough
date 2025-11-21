@@ -60,6 +60,10 @@ namespace ecs {
 			nullptr
 			});
 
+		// ハンドルの取得
+		cube_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Cube");
+		sphere_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Sphere");
+
 
 	}
 
@@ -135,6 +139,7 @@ namespace ecs {
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);
 
+		// 描画
 		for (auto& cmd : commands_) {
 			// メッシュの取得
 			auto mesh = engine_->GetMeshRegistry().Get(cmd.mesh.handle);

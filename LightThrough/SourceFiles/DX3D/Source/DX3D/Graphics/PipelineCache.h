@@ -26,11 +26,10 @@ namespace dx3d {
 		// ---------- Vertex Shader ---------- //
 		const char* vsDefault = "Assets/Shaders/Vertex/VS_Default.hlsl";
 		const char* vsInstanced = "Assets/Shaders/Vertex/VS_Instanced.hlsl";
-		const char* vsShadow = "Assets/Shaders/Vertex/VS_Shadow.hlsl";
+		const char* vsSpriteShadow = "Assets/Shaders/Vertex/VS_Shadow.hlsl";
 
 		// ---------- Pixel Shader ---------- // 
 		const char* psDefault = "Assets/Shaders/Pixel/PS_Default.hlsl";
-		const char* psShadow = "Assets/Shaders/Pixel/PS_Shadow.hlsl";
 	};
 
 
