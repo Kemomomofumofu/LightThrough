@@ -1,34 +1,41 @@
+#include "../Common/Lighting.hlsli"
+
 
 struct PSIN
 {
     float4 pos : SV_Position;
     float4 color : COLOR0;
-    float3 normal : NORMAL0;
-    float2 uv : TEXCOORD0;
+    float3 normalWS : NORMAL0;
+    float3 worldPos : WORLDPOS;
+    float4 posLight : TEXCOORD0;
 };
 
-cbuffer cbLight : register(b1)
+
+Texture2D shadowMap : register(t0);
+SamplerComparisonState shadowSampler : register(s0);
+
+
+float4 PSMain(PSIN _pin) : SV_Target
 {
-    float3 lightDirWS; float _pad0;
-    float3 lightColor; float _pad1;
-    float3 ambientColor; float _pad2;
-}
-
-
-
-
-float4 PSMain(PSIN pin) : SV_Target
-{
-    float3 N = normalize(pin.normal);
-    float3 L = normalize(-lightDirWS);
+    float3 N = normalize(_pin.normalWS);
     
-    float NdotL = saturate(dot(N, L));
+    // ライト空間クリップ -> NDC
+    float3 shadowCoord = _pin.posLight.xyz / _pin.posLight.w;
+    float2 uv = float2(shadowCoord.x * 0.5f + 0.5f, -shadowCoord.y * 0.5f + 0.5f);
+    float depth = saturate(shadowCoord.z);
     
-    float3 albedo = pin.color.rgb;
-    float3 diffuse = albedo * lightColor * NdotL;
-    float3 ambient = albedo * ambientColor;
+    // 微小バイアスでアクネ軽減
+    float shadow = shadowMap.SampleCmpLevelZero(shadowSampler, uv, depth - 0.001f);
     
-    float3 color = diffuse + ambient;
+    // ライト計算
+    float3 accum = 0;
+    [loop]
+    for (int i = 0; i < lightCount; ++i)
+    {
+        float li = ComputeLight(lights[i], N, _pin.worldPos);
+        accum += li * lights[i].color.rgb;
+    }
+        
+    return float4(accum * shadow, 1.0);
     
-    return float4(color, pin.color.a);
 }

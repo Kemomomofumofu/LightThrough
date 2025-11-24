@@ -6,7 +6,7 @@
  */
 
 // ---------- インクルード ---------- // 
-#include <Game/Systems/DebugRenderSystem.h>
+#include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <DX3D/Graphics/GraphicsEngine.h>
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/DeviceContext.h>
@@ -15,6 +15,19 @@
 #include <Game/ECS/Coordinator.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/Transform.h>
+
+
+namespace {
+	struct CBPerFrame {
+		DirectX::XMMATRIX view;	// ビュー行列
+		DirectX::XMMATRIX proj;	// プロジェクション行列
+	};
+
+	struct CBPerObject {
+		DirectX::XMMATRIX world;	// ワールド行列
+		DirectX::XMFLOAT4 color;	// 色
+	};
+}
 
 
 namespace ecs {
@@ -38,14 +51,18 @@ namespace ecs {
 		auto& device = engine_->GetGraphicsDevice();
 
 		cb_per_frame_ = device.CreateConstantBuffer({
-			sizeof(dx3d::CBPerFrame),
+			sizeof(CBPerFrame),
 			nullptr
 			});
 
 		cb_per_object_ = device.CreateConstantBuffer({
-			sizeof(dx3d::CBPerObject),
+			sizeof(CBPerObject),
 			nullptr
 			});
+
+		// ハンドルの取得
+		cube_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Cube");
+		sphere_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Sphere");
 
 
 	}
@@ -115,19 +132,20 @@ namespace ecs {
 		auto& cam = ecs_.GetComponent<Camera>(camEntities[0]);
 		// 定数バッファ更新
 		// フレーム単位の定数バッファ更新
-		dx3d::CBPerFrame cbPerFrameData{};
+		CBPerFrame cbPerFrameData{};
 		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
 
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);
 
+		// 描画
 		for (auto& cmd : commands_) {
 			// メッシュの取得
 			auto mesh = engine_->GetMeshRegistry().Get(cmd.mesh.handle);
 			// ワールド座標行列の取得
 			// オブジェクト単位の定数バッファ更新
-			dx3d::CBPerObject cbPerObjectData{};
+			CBPerObject cbPerObjectData{};
 			cbPerObjectData.world = cmd.world;
 			cbPerObjectData.color = cmd.color;
 			cb_per_object_->Update(context, &cbPerObjectData, sizeof(cbPerObjectData));

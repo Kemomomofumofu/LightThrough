@@ -10,7 +10,6 @@
 #include <memory>
 #include <chrono>
 #include <DX3D/Core/Base.h>
-#include <DX3D/Core/Core.h>
 #include <Game/ECS/Coordinator.h>
 #include <Game/Scene/SceneManager.h>
 

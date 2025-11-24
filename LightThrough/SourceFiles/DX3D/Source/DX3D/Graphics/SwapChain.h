@@ -10,6 +10,8 @@
 #include <DX3D/Graphics/GraphicsResource.h>
 
 namespace dx3d {
+	class DeviceContext;
+
 	class SwapChain final : public GraphicsResource{
 	public:
 		SwapChain(const SwapChainDesc& _desc, const GraphicsResourceDesc& _gDesc);
@@ -17,7 +19,9 @@ namespace dx3d {
 
 		void Present(bool _vsync = false);
 
-
+		void Clear(DeviceContext& _context, const DirectX::XMFLOAT4& _color);
+		void ClearAndBind(DeviceContext& _context, const DirectX::XMFLOAT4& _color);
+		void BindBackBuffer(DeviceContext& _context);
 
 		//25-11-05 todo: 仮でここに置いとく。最終的にはPipelineStateに統合するのが丸そう。
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> depth_tex_{};

@@ -42,19 +42,6 @@ namespace dx3d {
 		Rect winSize{};
 	};
 
-	enum class ShaderType {
-		VertexShader = 0,
-		PixelShader
-	};
-	
-	struct ShaderCompileDesc {
-		const char* shaderSourceName{};
-		const  void* shaderSourceCode{};
-		size_t shaderSourceCodeSize{};
-		const char* shaderEntryPoint{};
-		ShaderType shaderType{};
-	};
-
 	struct VertexShaderSignatureDesc {
 		const ShaderBinaryPtr& vsBinary;
 	};
@@ -66,7 +53,7 @@ namespace dx3d {
 
 	struct GraphicsPipelineStateDesc {
 		const VertexShaderSignature& vs;
-		const ShaderBinary& ps;
+		const ShaderBinary* ps;
 		InputLayoutPtr inputLayout{};
 	};
 

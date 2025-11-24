@@ -13,12 +13,11 @@
 #include <DX3D/Math/Point.h>
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
-#include <Game/Serialization/ComponentReflection.h>
 
 #include <Game/Systems/TransformSystem.h>
-#include <Game/Systems/RenderSystem.h>
 #include <Game/Systems/CameraSystem.h>
-#include <Game/Systems/DebugRenderSystem.h>
+#include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
 #include <Game/Systems/Physics/ForceAccumulationSystem.h>
@@ -31,8 +30,8 @@
 #include <Game/Components/CameraController.h>
 #include <Game/Components/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Light.h>
 
-#include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
 #include <Debug/Debug.h>
 
@@ -107,6 +106,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	debug::Debug::Init(true);
 
 
+
 	// 時間初期化
 	last_time_ = std::chrono::high_resolution_clock::now();
 
@@ -138,6 +138,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 		ecs_coordinator_->RegisterComponent<ecs::CameraController>();
 		ecs_coordinator_->RegisterComponent<ecs::Collider>();
 		ecs_coordinator_->RegisterComponent<ecs::Rigidbody>();
+		ecs_coordinator_->RegisterComponent<ecs::LightCommon>();
+		ecs_coordinator_->RegisterComponent<ecs::SpotLight>();
 
 		// Systemの登録
 		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
@@ -147,21 +149,34 @@ dx3d::Game::Game(const GameDesc& _desc)
 		scene_manager_->ChangeScene("TestScene");
 
 		// Entityの生成
+		// テスト
 
-		//// テスト
-		//{
-		//	auto e = ecs_coordinator_->CreateEntity();
-		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, {});
-		//	auto handle = graphics_engine_->GetMeshRegistry().GetHandleByName("Cube");
-		//	ecs_coordinator_->AddComponent<ecs::MeshRenderer>(e, { handle });
-		//	ecs::Collider col{
-		//		.type = collision::ShapeType::Box,
-		//		.shape = collision::BoxShape{}
-		//	};
-		//	ecs_coordinator_->AddComponent<ecs::Collider>(e, col);
-		//	ecs_coordinator_->AddComponent<ecs::Rigidbody>(e, {});
-		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-		//}
+		{
+			auto e = ecs_coordinator_->CreateEntity();
+			ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
+			tf.LookTo({ 0.0f, -1.0f, 0.0f });
+			ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
+			ecs::LightCommon lightCommon;
+			lightCommon.color = { 0.7f, 0.5f, 0.6f };
+			ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
+			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		}
+
+		{
+			auto e = ecs_coordinator_->CreateEntity();
+			ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
+			tf.LookTo({ 0.0f, -1.0f, 0.0f });
+			ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
+			ecs::LightCommon lightCommon;
+			lightCommon.color = { 0.0f, 0.95f, 0.2f };
+			ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
+			ecs::SpotLight spotData{};
+			spotData.range = 100.0f;
+			spotData.innerCos = 0.9f;
+			spotData.outerCos = 0.8f;
+			ecs_coordinator_->AddComponent<ecs::SpotLight>(e, spotData);
+			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		}
 
 	}
 	catch (const std::exception& _e) {
@@ -223,7 +238,6 @@ void dx3d::Game::OnInternalUpdate()
 	}
 
 
-
 	// Systemの更新
 	accumulated_time_ += dt;
 	while (accumulated_time_ >= fixed_time_step_) {
@@ -237,5 +251,19 @@ void dx3d::Game::OnInternalUpdate()
 
 	// 描画
 	graphics_engine_->EndFrame();
+
+#ifdef defined(_DEBUG) || defined(DEBUG)
+
+	if (auto* dev = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get()) {
+		const HRESULT hr = dev->GetDeviceRemovedReason();
+		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || FAILED(hr)) {
+			char buf[256]{};
+			sprintf_s(buf, "DeviceRemovedReason=0x%08X\n", static_cast<unsigned>(hr));
+			OutputDebugStringA(buf);
+			__debugbreak();
+		}
+	}
+#endif // _DEBUG || DEBUG
+
 }
 

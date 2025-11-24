@@ -74,9 +74,12 @@ namespace dx3d {
 	 * @param _desc シェーダの定義
 	 * @return コンパイルされたシェーダのSharedPtr
 	 */
-	ShaderBinaryPtr GraphicsDevice::CompileShader(const ShaderCompileDesc& _desc) const
+	ShaderBinaryPtr GraphicsDevice::CompileShader(const ShaderBinary::ShaderCompileDesc& _desc) const
 	{
-		return std::make_shared<ShaderBinary>(_desc, GetGraphicsResourceDesc());
+		if (_desc.shaderSourceCode == nullptr)
+			return nullptr;
+		else
+			return std::make_shared<ShaderBinary>(_desc, GetGraphicsResourceDesc());
 	}
 
 	/**
@@ -129,12 +132,12 @@ namespace dx3d {
 	 * @param _data インスタンスのデータ群
 	 * @return 頂点バッファとしてまとめられたインスタンスバッファ
 	 */
-	auto GraphicsDevice::CreateInstanceBuffer(const std::vector<InstanceData>& _data)
+	auto GraphicsDevice::CreateInstanceBuffer(const std::vector<InstanceDataMain>& _data)
 	{
 		VertexBufferDesc desc{
 			.vertexList = _data.data(),
-			.vertexListSize = static_cast<uint32_t>(_data.size() * sizeof(InstanceData)),
-			.vertexSize = sizeof(InstanceData),
+			.vertexListSize = static_cast<uint32_t>(_data.size() * sizeof(InstanceDataMain)),
+			.vertexSize = sizeof(InstanceDataMain),
 		};
 
 		return CreateVertexBuffer(desc);
@@ -143,6 +146,21 @@ namespace dx3d {
 	std::unique_ptr<PipelineCache> GraphicsDevice::CreatePipelineCache(const PipelineCache::PipelineCacheDesc& _desc)
 	{
 		return std::make_unique<PipelineCache>(_desc, GetGraphicsResourceDesc());
+	}
+
+	HRESULT GraphicsDevice::CreateTexture2D(const D3D11_TEXTURE2D_DESC* _desc, const D3D11_SUBRESOURCE_DATA* _initialData, ID3D11Texture2D** _texture) const noexcept
+	{
+		return d3d_device_->CreateTexture2D(_desc, _initialData, _texture);
+	}
+
+	HRESULT GraphicsDevice::CreateDepthStencilView(ID3D11Resource* _resource, const D3D11_DEPTH_STENCIL_VIEW_DESC* _desc, ID3D11DepthStencilView** _dvs) const noexcept
+	{
+		return d3d_device_->CreateDepthStencilView(_resource, _desc, _dvs);
+	}
+
+	HRESULT GraphicsDevice::CreateShaderResourceView(ID3D11Resource* _resource, const D3D11_SHADER_RESOURCE_VIEW_DESC* _desc, ID3D11ShaderResourceView** _srv) const noexcept
+	{
+		return d3d_device_->CreateShaderResourceView(_resource, _desc, _srv);
 	}
 
 

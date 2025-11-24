@@ -14,8 +14,7 @@
 #include <DX3D/Graphics/VertexShaderSignature.h>
 #include <DX3D/Graphics/InputLayout.h>
 #include <DX3D/Graphics/PipelineKey.h>
-
-
+#include <DX3D/Graphics/ShaderBinary.h>
 
 namespace dx3d {
 	/**
@@ -27,6 +26,7 @@ namespace dx3d {
 		// ---------- Vertex Shader ---------- //
 		const char* vsDefault = "Assets/Shaders/Vertex/VS_Default.hlsl";
 		const char* vsInstanced = "Assets/Shaders/Vertex/VS_Instanced.hlsl";
+		const char* vsSpriteShadow = "Assets/Shaders/Vertex/VS_Shadow.hlsl";
 
 		// ---------- Pixel Shader ---------- // 
 		const char* psDefault = "Assets/Shaders/Pixel/PS_Default.hlsl";
@@ -60,7 +60,8 @@ namespace dx3d {
 		VSCacheEntry& GetOrCreateVS(VertexShaderKind _kind);
 		ShaderBinaryPtr GetOrCreatePS(PixelShaderKind _kind);
 
-		ShaderBinaryPtr CompileFile(const char* _path, const char* _entity, ShaderType _type);
+
+		ShaderBinaryPtr CompileFile(const char* _path, const char* _entity, ShaderBinary::Type _type);
 
 		std::string LoadTextFile(const char* _path);
 	private:

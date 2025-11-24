@@ -19,19 +19,6 @@ dx3d::ShaderBinary::ShaderBinary(const ShaderCompileDesc& _desc, const GraphicsR
 	: GraphicsResource(_gDesc),
 	type_(_desc.shaderType)
 {
-	if (!_desc.shaderSourceName) {
-		DX3DLogThrowInvalidArg("ShaderSourceName В™ СґНЁВµВ№ВєВс");
-	}
-	if (!_desc.shaderSourceCode) {
-		DX3DLogThrowInvalidArg("ShaderSourceCode В™ СґНЁВµВ№ВєВс");
-	}
-	if (!_desc.shaderSourceCodeSize) {
-		DX3DLogThrowInvalidArg("ShaderSourceCodeSize В™ СґНЁВµВ№ВєВс");
-	}
-	if (!_desc.shaderEntryPoint) {
-		DX3DLogThrowInvalidArg("ShaderEntryPoint В™ СґНЁВµВ№ВєВс");
-	}
-
 	UINT compileFlags{};
 
 #ifdef _DEBUG
@@ -45,13 +32,13 @@ dx3d::ShaderBinary::ShaderBinary(const ShaderCompileDesc& _desc, const GraphicsR
 			_desc.shaderSourceCodeSize,
 			_desc.shaderSourceName,
 			nullptr,
-			nullptr,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			_desc.shaderEntryPoint,
 			dx3d::GraphicsUtils::GetShaderModelTarget(_desc.shaderType),
 			compileFlags,
 			0,
-			&blob_,
-			&errorBlob
+			blob_.GetAddressOf(),
+			errorBlob.GetAddressOf()
 		),
 		errorBlob.Get()
 	);
@@ -66,7 +53,7 @@ dx3d::BinaryData dx3d::ShaderBinary::GetData() const noexcept
 	};
 }
 
-dx3d::ShaderType dx3d::ShaderBinary::GetType() const noexcept
+dx3d::ShaderBinary::Type dx3d::ShaderBinary::GetType() const noexcept
 {
 	return type_;
 }

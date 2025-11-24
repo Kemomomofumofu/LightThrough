@@ -28,13 +28,16 @@ namespace dx3d {
 	}
 }
 
-#define DX3DGraphicsLogThrowOnFail(_hr, _message){\
-			auto res = (_hr);\
-			if(FAILED(res))\
-				DX3DLogThrowError(_message);\
-		}
+#define DX3DGraphicsLogThrowOnFail(_hr, _message) \
+    do { \
+        const HRESULT _dx3d_res = (_hr); \
+        if (FAILED(_dx3d_res)) { \
+            DX3DLogThrowError(_message); \
+        } \
+    } while(0)
 
-#define DX3DGraphicsCheckShaderCompile(_hr, _errorBlob){\
-			auto res = (_hr);\
-			dx3d::GraphicsLogUtils::CheckShaderCompile(GetLogger(), res, _errorBlob);\
-		}
+#define DX3DGraphicsCheckShaderCompile(_hr, _errorBlob) \
+    do { \
+        const HRESULT _dx3d_res = (_hr); \
+        dx3d::GraphicsLogUtils::CheckShaderCompile(GetLogger(), _dx3d_res, _errorBlob); \
+    } while(0)

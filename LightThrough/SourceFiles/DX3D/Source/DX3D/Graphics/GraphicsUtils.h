@@ -11,6 +11,8 @@
 #include <d3d11.h>
 #include <bit>
 
+#include <DX3D/Graphics/ShaderBinary.h>
+
 /**
  * @brief GraphicsUtils
  *
@@ -18,10 +20,10 @@
  */
 namespace dx3d {
 	namespace GraphicsUtils {
-		inline const char* GetShaderModelTarget(ShaderType _type) {
+		inline const char* GetShaderModelTarget(ShaderBinary::Type _type) {
 			switch (_type) {
-			case ShaderType::VertexShader:	return "vs_5_0";
-			case ShaderType::PixelShader:	return "ps_5_0";
+			case ShaderBinary::Type::Vertex:	return "vs_5_0";
+			case ShaderBinary::Type::Pixel:		return "ps_5_0";
 			default:						return "";
 			}
 		}

@@ -12,22 +12,6 @@
 #include <DX3D/Graphics/DeviceContext.h>
 
 namespace dx3d {
-	struct CBPerFrame {
-		DirectX::XMMATRIX view;	// ビュー行列
-		DirectX::XMMATRIX proj;	// プロジェクション行列
-	};
-
-	struct CBPerObject {
-		DirectX::XMMATRIX world;	// ワールド行列
-		DirectX::XMFLOAT4 color;	// 色
-	};
-
-	// ライト用
-	struct LightingCB {
-		DirectX::XMFLOAT3 lightDirWS; float _pad0;
-		DirectX::XMFLOAT3 lightColor; float _pad1;
-		DirectX::XMFLOAT3 ambientColor; float _pad2;
-	};
 
 	class ConstantBuffer : public GraphicsResource {
 	public:

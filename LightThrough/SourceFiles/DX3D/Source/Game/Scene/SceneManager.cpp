@@ -6,6 +6,7 @@
  */
 
  // ---------- インクルード ---------- // 
+#include <limits>
 #include <fstream>
 #include <sstream>
 #include <cassert>
@@ -17,14 +18,142 @@
 #include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Camera.h>
 #include <Game/Components/CameraController.h>
-//#include <Game/Components/Sprite.h>
+#include <Game/Components/Collider.h>
+#include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Light.h>
+
 
 #include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
 
 // JSONライブラリ
 using json = nlohmann::json;
+using namespace DirectX;
+// ---------------- 追加ヘルパ ---------------- //
+namespace {
 
+	template<class T>
+	bool DrawValueWidget(const char* _label, T& _value, float _speed = 0.05f)
+	{
+		// bool
+		if constexpr (std::is_same_v<T, bool>) {
+			return ImGui::Checkbox(_label, &_value);
+		}
+		// 浮動小数
+		else if constexpr (std::is_same_v<T, float>) {
+			return ImGui::DragFloat(_label, &_value, _speed);
+		}
+		// 整数
+		else if constexpr (std::is_same_v<T, int>) {
+			return ImGui::DragInt(_label, &_value, static_cast<int>(_speed * 10.0f));
+		}
+		else if constexpr (std::is_same_v<T, uint32_t>) {
+			int tmp = static_cast<int>(_value);
+			bool ch = ImGui::DragInt(_label, &tmp, static_cast<int>(_speed * 10.0f), 0);
+			if (ch) { _value = static_cast<uint32_t>((std::max)(tmp, 0)); }
+			return ch;
+		}
+		// 文字列
+		else if constexpr (std::is_same_v<T, std::string>) {
+			char buf[256];
+			std::snprintf(buf, sizeof(buf), "%s", _value.c_str());
+			if (ImGui::InputText(_label, buf, sizeof(buf))) {
+				_value = buf;
+				return true;
+			}
+			return false;
+		}
+		// enum (整数として編集)
+		else if constexpr (std::is_enum_v<T>) {
+			using UT = std::underlying_type_t<T>;
+			int tmp = static_cast<int>(static_cast<UT>(_value));
+			bool ch = ImGui::DragInt(_label, &tmp, 1, (std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)());
+			if (ch) { _value = static_cast<T>(static_cast<UT>(tmp)); }
+			return ch;
+		}
+		// Vec3Like
+		else if constexpr (ecs_serial::Vec3Like<T>) {
+			float arr[3]{ _value.x, _value.y, _value.z };
+			if (ImGui::DragFloat3(_label, arr, _speed)) {
+				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2];
+				return true;
+			}
+			return false;
+		}
+		// Vec4Like
+		else if constexpr (ecs_serial::Vec4Like<T>) {
+			float arr[4]{ _value.x, _value.y, _value.z, _value.w };
+			if (ImGui::DragFloat4(_label, arr, _speed)) {
+				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2]; _value.w = arr[3];
+				return true;
+			}
+			return false;
+		}
+		// 未対応
+		else {
+			ImGui::TextDisabled("%s (unsupported type)", _label);
+			return false;
+		}
+	}
+
+	template<class Comp>
+	void DrawReflectedComponentFields(Comp& comp, float speed)
+	{
+		auto fields = ecs_serial::TypeReflection<Comp>::Fields();
+		ecs_serial::for_each(fields, [&](auto&& fieldInfo) {
+			auto& member = comp.*(fieldInfo.member);
+			const char* fname = fieldInfo.name.data();
+			DrawValueWidget(fname, member, speed);
+			});
+	}
+
+	template<>
+	void DrawReflectedComponentFields<ecs::Transform>(ecs::Transform& _tf, float _speed)
+	{
+		// position
+		{
+			XMFLOAT3 tmp = _tf.position;
+			if (DrawValueWidget("Position", tmp, _speed)) {
+				_tf.SetPosition(tmp);
+			}
+		}
+		// scale
+		{
+			XMFLOAT3 tmp = _tf.scale;
+			if (DrawValueWidget("Scale", tmp, _speed)) {
+				_tf.SetScale(tmp);
+			}
+		}
+		// rotation (quat + euler)
+		{
+			XMFLOAT4 qtmp = _tf.rotationQuat;
+			if (DrawValueWidget("Rotation (Quat)", qtmp, _speed * 0.5f)) {
+				XMVECTOR q = XMVectorSet(qtmp.x, qtmp.y, qtmp.z, qtmp.w);
+				q = XMQuaternionNormalize(q);
+				XMFLOAT4 norm; XMStoreFloat4(&norm, q);
+				_tf.SetRotation(norm);
+			}
+			_tf.SyncEulerFromQuat();
+			auto euler = _tf.GetRotationEulerDeg();
+			float deg[3]{ euler.x, euler.y, euler.z };
+			if (ImGui::DragFloat3("Rotation (deg)", deg, 0.5f)) {
+				_tf.SetRotationEulerDeg({ deg[0], deg[1], deg[2] });
+			}
+		}
+
+		ImGui::Separator();
+		// 方向ベクトル確認表示
+		{
+			auto f = _tf.GetForward();
+			auto r = _tf.GetRight();
+			auto u = _tf.GetUp();
+			ImGui::Text("Fwd:(%.2f %.2f %.2f)", f.x, f.y, f.z);
+			ImGui::Text("Right:(%.2f %.2f %.2f)", r.x, r.y, r.z);
+			ImGui::Text("Up:(%.2f %.2f %.2f)", u.x, u.y, u.z);
+		}
+	}
+
+} // unnamed namespace
 
 namespace scene {
 	SceneManager::SceneManager(const SceneManagerDesc& _base)
@@ -379,73 +508,40 @@ namespace scene {
 			}
 			ImGui::Separator();
 
-			// ---------- Transform ---------- //
-			if (ecs_.HasComponent<ecs::Transform>(e)) {
-				auto& t = ecs_.GetComponent<ecs::Transform>(e);
-				if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+			// 調整速度 (Ctrl / Shift)
+			float baseSpeed = 0.05f;
+			const ImGuiIO& io = ImGui::GetIO();
+			if (io.KeyCtrl)  baseSpeed *= 0.2f;
+			if (io.KeyShift) baseSpeed *= 4.0f;
 
-					// 調整速度 (Ctrlで細かく / Shiftで大きく)
-					float baseSpeed = 0.05f;
-					const ImGuiIO& io = ImGui::GetIO();
-					if (io.KeyCtrl)  baseSpeed *= 0.2f;
-					if (io.KeyShift) baseSpeed *= 4.0f;
+			// ここで列挙したい全コンポーネント型タプル
+			using AllComponents = std::tuple<
+				ecs::Transform,
+				ecs::MeshRenderer,
+				ecs::Camera,
+				ecs::CameraController,
+				ecs::Collider,
+				ecs::Rigidbody,
+				ecs::LightCommon,
+				ecs::SpotLight
+			>;
 
-					float pos[3] = { t.position.x, t.position.y, t.position.z };
-					float rot[4] = { t.rotationQuat.x, t.rotationQuat.y, t.rotationQuat.z, t.rotationQuat.w };
-					float scale[3] = { t.scale.x,     t.scale.y,     t.scale.z };
-
-					// Position
-					if (ImGui::DragFloat3("Position", pos, baseSpeed, -10000.0f, 10000.0f, "%.3f")) {
-						t.SetPosition({ pos[0], pos[1], pos[2] });
+			// メタループ
+			ecs_serial::for_each(AllComponents{}, [&](auto&& dummyComp) {
+				using CompT = std::decay_t<decltype(dummyComp)>;
+				if (ecs_.HasComponent<CompT>(e)) {
+					auto& comp = ecs_.GetComponent<CompT>(e);
+					const char* compName = ecs_serial::TypeReflection<CompT>::Name().data();
+					ImGui::PushID(compName);
+					if (ImGui::CollapsingHeader(compName, ImGuiTreeNodeFlags_DefaultOpen)) {
+						DrawReflectedComponentFields(comp, baseSpeed);
 					}
-
-					// Rotation (Quaternion直接) - 正規化込み
-					if (ImGui::DragFloat4("Rotation (quat)", rot, baseSpeed * 0.5f, -1.0f, 1.0f, "%.4f")) {
-						float len = std::sqrt(rot[0] * rot[0] + rot[1] * rot[1] + rot[2] * rot[2] + rot[3] * rot[3]);
-						if (len > 0.00001f) {
-							rot[0] /= len; rot[1] /= len; rot[2] /= len; rot[3] /= len;
-						}
-						else {
-							rot[0] = rot[1] = rot[2] = 0.0f; rot[3] = 1.0f;
-						}
-						t.SetRotation({ rot[0], rot[1], rot[2], rot[3] });
-					}
-
-					// Scale (負値許容するなら下限制限外す)
-					if (ImGui::DragFloat3("Scale", scale, baseSpeed, -1000.0f, 1000.0f, "%.3f")) {
-						t.SetScale({ scale[0], scale[1], scale[2] });
-					}
-
-					// 個別リセットボタンを横並び
-					if (ImGui::BeginTable("TrButtons", 3, ImGuiTableFlags_SizingStretchSame)) {
-						ImGui::TableNextColumn();
-						if (ImGui::SmallButton("Reset Pos")) {
-							t.SetPosition(decltype(t.position){0.0f, 0.0f, 0.0f});
-						}
-						ImGui::TableNextColumn();
-						if (ImGui::SmallButton("Reset Rot")) {
-							t.SetRotation(decltype(t.rotationQuat){0.0f, 0.0f, 0.0f, 1.0f});
-						}
-						ImGui::TableNextColumn();
-						if (ImGui::SmallButton("Reset Scale")) {
-							t.SetScale(decltype(t.scale){1.0f, 1.0f, 1.0f});
-						}
-						ImGui::EndTable();
-					}
-
+					ImGui::PopID();
 					ImGui::Separator();
-
-					// 一括リセット
-					if (ImGui::Button("Reset Transform")) {
-						t.position = decltype(t.position){0.0f, 0.0f, 0.0f};
-						t.rotationQuat = decltype(t.rotationQuat){0.0f, 0.0f, 0.0f, 1.0f};
-						t.scale = decltype(t.scale){1.0f, 1.0f, 1.0f};
-					}
 				}
-			}
-			ImGui::Separator();
+				});
 
-			// Add Component ボタン（よく使うものを列挙）
+			// Add Component Popup (既存を流用)
 			if (ImGui::Button("Add Component")) {
 				ImGui::OpenPopup("AddCompPopup");
 			}
@@ -453,7 +549,7 @@ namespace scene {
 				if (!ecs_.HasComponent<ecs::Transform>(e) && ImGui::Selectable("Transform")) {
 					ecs_.AddComponent<ecs::Transform>(e, ecs::Transform{});
 				}
-				if (!ecs_.HasComponent<ecs::MeshRenderer>(e) && ImGui::Selectable("Mesh")) {
+				if (!ecs_.HasComponent<ecs::MeshRenderer>(e) && ImGui::Selectable("MeshRenderer")) {
 					ecs_.AddComponent<ecs::MeshRenderer>(e, ecs::MeshRenderer{});
 				}
 				if (!ecs_.HasComponent<ecs::Camera>(e) && ImGui::Selectable("Camera")) {
@@ -461,6 +557,18 @@ namespace scene {
 				}
 				if (!ecs_.HasComponent<ecs::CameraController>(e) && ImGui::Selectable("CameraController")) {
 					ecs_.AddComponent<ecs::CameraController>(e, ecs::CameraController{});
+				}
+				if (!ecs_.HasComponent<ecs::Collider>(e) && ImGui::Selectable("Collider")) {
+					ecs_.AddComponent<ecs::Collider>(e, ecs::Collider{});
+				}
+				if (!ecs_.HasComponent<ecs::Rigidbody>(e) && ImGui::Selectable("Rigidbody")) {
+					ecs_.AddComponent<ecs::Rigidbody>(e, ecs::Rigidbody{});
+				}
+				if (!ecs_.HasComponent<ecs::LightCommon>(e) && ImGui::Selectable("LightCommon")) {
+					ecs_.AddComponent<ecs::LightCommon>(e, ecs::LightCommon{});
+				}
+				if (!ecs_.HasComponent<ecs::SpotLight>(e) && ImGui::Selectable("SpotLight")) {
+					ecs_.AddComponent<ecs::SpotLight>(e, ecs::SpotLight{});
 				}
 				ImGui::EndPopup();
 			}

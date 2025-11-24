@@ -18,6 +18,7 @@
 #include <DX3D/Graphics/Buffers/InstanceData.h>
 #include <DX3D/Graphics/Inputlayout.h>
 #include <DX3D/Graphics/PipelineCache.h>
+#include <DX3D/Graphics/ShaderBinary.h>
 
 namespace dx3d {
 	class GraphicsDevice final : public Base, public std::enable_shared_from_this<GraphicsDevice> {
@@ -27,7 +28,7 @@ namespace dx3d {
 
 		SwapChainPtr CreateSwapChain(const SwapChainDesc& _desc);
 		DeviceContextPtr CreateDeviceContext();
-		ShaderBinaryPtr CompileShader(const ShaderCompileDesc& _desc) const;
+		ShaderBinaryPtr CompileShader(const ShaderBinary::ShaderCompileDesc& _desc) const;
 		GraphicsPipelineStatePtr CreateGraphicsPipelineState(const GraphicsPipelineStateDesc& _desc) const;
 		RasterizerStatePtr CreateRasterizerState(const RasterizerStateDesc& _desc = {});
 		VertexShaderSignaturePtr CreateVertexShaderSignature(const VertexShaderSignatureDesc& _desc) const;
@@ -35,8 +36,12 @@ namespace dx3d {
 		VertexBufferPtr CreateVertexBuffer(const VertexBufferDesc& _desc);
 		IndexBufferPtr CreateIndexBuffer(const IndexBufferDesc& _desc);
 		ConstantBufferPtr CreateConstantBuffer(const ConstantBufferDesc& _desc);
-		auto CreateInstanceBuffer(const std::vector<InstanceData>& _data);
+		auto CreateInstanceBuffer(const std::vector<InstanceDataMain>& _data);
 		std::unique_ptr<PipelineCache> CreatePipelineCache(const PipelineCache::PipelineCacheDesc& _desc);
+
+		HRESULT CreateTexture2D(const D3D11_TEXTURE2D_DESC* _desc, const D3D11_SUBRESOURCE_DATA* _initialData, ID3D11Texture2D** _texture)const noexcept;
+		HRESULT CreateDepthStencilView(ID3D11Resource* _resource, const D3D11_DEPTH_STENCIL_VIEW_DESC* _desc, ID3D11DepthStencilView** _dvs) const noexcept;
+		HRESULT CreateShaderResourceView(ID3D11Resource* _resource, const D3D11_SHADER_RESOURCE_VIEW_DESC* _desc, ID3D11ShaderResourceView** _srv) const noexcept;
 
 		void ExecuteCommandList(DeviceContext& _context);
 

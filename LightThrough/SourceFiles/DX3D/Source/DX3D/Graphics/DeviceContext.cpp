@@ -175,6 +175,16 @@ namespace dx3d {
 	}
 
 	/**
+	 * @brief ピクセルシェーダーのシェーダーリソースビューをセットする
+	 * @param _slot スロット
+	 * @param _srv シェーダーリソースビュー
+	 */
+	void DeviceContext::PSSetShaderResource(uint32_t _slot, ID3D11ShaderResourceView* _srv)
+	{
+		context_->PSSetShaderResources(_slot, 1, &_srv);
+	}
+
+	/**
 	 * @brief 頂点シェーダーとピクセルシェーダーの定数バッファをセットする
 	 * @param _slot スロット
 	 * @param _buffer 定数バッファ

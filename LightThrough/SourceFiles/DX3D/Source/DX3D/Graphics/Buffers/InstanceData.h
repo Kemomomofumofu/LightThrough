@@ -16,8 +16,13 @@ namespace dx3d {
 	 *
 	 * インスタンスレンダリング用のデータ構造体
 	 */
-	struct InstanceData {
+	struct InstanceDataMain {
 		DirectX::XMFLOAT4X4 world;	// ワールド行列
 		DirectX::XMFLOAT4 color{1, 1, 1, 1};	// インスタンスカラー
+	};
+
+	//! @brief シャドウマップ用インスタンスデータ
+	struct InstanceDataShadow {
+		DirectX::XMFLOAT4X4 world;	// ワールド行列
 	};
 }

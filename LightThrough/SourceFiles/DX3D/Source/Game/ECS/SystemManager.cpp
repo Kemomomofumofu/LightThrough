@@ -21,11 +21,13 @@ const std::unordered_map<std::type_index, std::shared_ptr<ecs::ISystem>>& ecs::S
 	return systems_;
 }
 
+//! システム群の取得（更新順）
 const std::vector<std::shared_ptr<ecs::ISystem>>& ecs::SystemManager::GetAllSystemsInOrder() const
 {
 	return systems_in_order_;
 }
 
+//! エンティティのシグネチャが変わったときの処理
 void ecs::SystemManager::EntitySignatureChanged(Entity _e, Signature _eSignature)
 {
 	for (auto const& pair : systems_) {
@@ -42,9 +44,12 @@ void ecs::SystemManager::EntitySignatureChanged(Entity _e, Signature _eSignature
 	}
 }
 
+//! エンティティが破棄されたときの処理
 void ecs::SystemManager::EntityDestroyed(Entity _e)
 {
 	for (auto const& pair : systems_) {
+
+		pair.second->OnEntityDestroyed(_e);
 		pair.second->entities_.erase(_e);
 	}
 }
