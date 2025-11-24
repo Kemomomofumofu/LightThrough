@@ -26,12 +26,21 @@ namespace ecs {
 	class RenderSystem : public ISystem {
 	public:
 
-		// @brief インスタンス描画用バッチ構造体
-		struct InstanceBatch {
+		//! @brief インスタンス描画用バッチ構造体
+		// mainPass
+		struct InstanceBatchMain {
 			dx3d::VertexBufferPtr vb{};
 			dx3d::IndexBufferPtr ib{};
 			uint32_t indexCount{};
-			std::vector<dx3d::InstanceData> instances{};
+			std::vector<dx3d::InstanceDataMain> instances{};
+			size_t instanceOffset = 0;
+		};
+		// shadowPass
+		struct InstanceBatchShadow {
+			dx3d::VertexBufferPtr vb{};
+			dx3d::IndexBufferPtr ib{};
+			uint32_t indexCount{};
+			std::vector<dx3d::InstanceDataShadow> instances{};
 			size_t instanceOffset = 0;
 		};
 
@@ -47,6 +56,8 @@ namespace ecs {
 		//! @brief 破棄イベント
 		void OnEntityDestroyed(Entity _entity) override;
 	private:
+		//! @brief バッチクリア
+		void ClearBatches();
 		//! @brief バッチ収集
 		void CollectBatches();
 		//! @brief バッチ更新
@@ -69,12 +80,13 @@ namespace ecs {
 		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_{};
 		size_t instance_buffer_capacity_{};
 
-		std::vector<InstanceBatch> batches_{};
+		std::vector<InstanceBatchMain> main_batches_{}; // メインパスのバッチ
+		std::vector<InstanceBatchShadow> shadow_batches_{}; // シャドウパスのバッチ
 
 	private:
 		// memo: シンプルな落ち影の実装
-			// シャドウマップ用リソース
-
+		// todo: リソース管理は別クラスにて行いたい
+		// シャドウマップ用リソース
 		void CreateShadowResources(uint32_t _size);
 		void RenderShadowPass(const DirectX::XMMATRIX& _lightViewProj);
 		const uint32_t SHADOW_MAP_SIZE = 1024;

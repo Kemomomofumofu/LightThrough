@@ -21,7 +21,7 @@ float4 PSMain(PSIN _pin) : SV_Target
     
     // ライト空間クリップ -> NDC
     float3 shadowCoord = _pin.posLight.xyz / _pin.posLight.w;
-    float2 uv = shadowCoord.xy * 0.5f + 0.5f;
+    float2 uv = float2(shadowCoord.x * 0.5f + 0.5f, -shadowCoord.y * 0.5f + 0.5f);
     float depth = saturate(shadowCoord.z);
     
     // 微小バイアスでアクネ軽減
@@ -36,6 +36,6 @@ float4 PSMain(PSIN _pin) : SV_Target
         accum += li * lights[i].color.rgb;
     }
         
-    return float4(accum, 1.0);
+    return float4(accum * shadow, 1.0);
     
 }

@@ -23,11 +23,13 @@ dx3d::GraphicsPipelineState::GraphicsPipelineState(const GraphicsPipelineStateDe
 	);
 
 	// PixelShader
-	auto ps = _desc.ps.GetData();
-	DX3DGraphicsLogThrowOnFail(
-		device_.CreatePixelShader(ps.data, ps.dataSize, nullptr, &ps_),
-		"CreatePixelShader ‚ğ ¸”s‚µ‚Ü‚µ‚½"
-	);
+	if (_desc.ps != nullptr) {
+		auto ps = _desc.ps->GetData();
+		DX3DGraphicsLogThrowOnFail(
+			device_.CreatePixelShader(ps.data, ps.dataSize, nullptr, &ps_),
+			"CreatePixelShader ‚ğ ¸”s‚µ‚Ü‚µ‚½"
+		);
+	}
 
 	// InputLayout
 	layout_ = _desc.inputLayout->Get();	// QÆ‚ğ•Û

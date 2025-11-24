@@ -41,9 +41,7 @@ VSOUT VSMain(VSVertex _vin, VSInstance _inst)
     float4 wp = mul(float4(_vin.pos, 1.0f), worldMatrix);
     
     // クリップ座標
-    float4 p = mul(wp, viewMatrix);
-    p = mul(p, projectionMatrix);
-    vout.pos = p;    
+    vout.pos = mul(wp, lightViewProj);
 
     return vout;
 }

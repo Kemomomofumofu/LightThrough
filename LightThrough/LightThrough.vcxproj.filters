@@ -301,10 +301,4 @@
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl" />
-    <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl" />
-    <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
-    <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl" />
-  </ItemGroup>
 </Project>

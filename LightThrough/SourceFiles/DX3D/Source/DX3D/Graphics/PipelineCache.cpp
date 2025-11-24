@@ -23,13 +23,17 @@ namespace dx3d {
 	{
 		// 既に存在するならそれを返す
 		if (auto it = pso_cache_.find(_key); it != pso_cache_.end()) { return it->second; }
-		auto& vsEntry = GetOrCreateVS(_key.GetVS());
-		auto psBin = GetOrCreatePS(_key.GetPS());
 
+
+		auto& vsEntry = GetOrCreateVS(_key.GetVS());
+		ShaderBinaryPtr psBin = nullptr;
+		if ((_key.GetFlags() & PipelineFlags::ShadowPass) == 0) {
+			psBin = GetOrCreatePS(_key.GetPS());
+		}
 		// パイプラインステートの定義
 		GraphicsPipelineStateDesc psoDesc{
 			.vs = *vsEntry.signature,
-			.ps = *psBin,
+			.ps = psBin.get(),
 			.inputLayout = vsEntry.layout,
 		};
 
@@ -53,7 +57,7 @@ namespace dx3d {
 
 		const char* file = nullptr;
 		switch (_kind) {
-		case VertexShaderKind::None:		DX3DLogThrowError("[PipelineCache] VS が未割り当て"); break;
+		case VertexShaderKind::None:		file = nullptr; break;
 		case VertexShaderKind::Default:		file = paths_.vsDefault; break;
 		case VertexShaderKind::Instanced:	file = paths_.vsInstanced; break;
 		case VertexShaderKind::ShadowMap:	file = paths_.vsSpriteShadow; break;
@@ -64,7 +68,7 @@ namespace dx3d {
 		auto vsBin = CompileFile(file, "VSMain", ShaderBinary::Type::Vertex);
 		auto sig = graphics_device_->CreateVertexShaderSignature({ vsBin });
 		InputLayoutPtr layout = nullptr;
-		if (_kind == VertexShaderKind::Instanced)
+		if (_kind == VertexShaderKind::Instanced || _kind == VertexShaderKind::ShadowMap)
 		{
 			layout = graphics_device_->CreateInputLayout({ sig, "INSTANCE_" });
 		}
@@ -84,6 +88,7 @@ namespace dx3d {
 	 */
 	ShaderBinaryPtr PipelineCache::GetOrCreatePS(PixelShaderKind _kind)
 	{
+
 		// 既に存在するならそれを返す
 		if (auto it = ps_cache_.find(_kind); it != ps_cache_.end()) { return it->second; }
 
@@ -111,34 +116,35 @@ namespace dx3d {
 	 */
 	ShaderBinaryPtr PipelineCache::CompileFile(const char* _path, const char* _entry, ShaderBinary::Type _type)
 	{
-		// ファイルパスがnullptrなら、組み込みのダミーシェーダーをコンパイルする
+		// パスが無い場合はダミーシェーダー
 		if (_path == nullptr)
 		{
-			std::string dummySrc;
-			switch (_type)
-			{
-			case ShaderBinary::Type::Pixel:
-				// 黒を返すPS
-				dummySrc.reserve(96);
-				dummySrc += "float4 ";
-				dummySrc += _entry ? _entry : "PSMain";
-				dummySrc += "() : SV_Target { return float4(0, 0, 0, 0); }";
-				break;
-			case ShaderBinary::Type::Vertex:
-				// 最小限の頂点シェーダ（固定位置を返す）
-				dummySrc.reserve(192);
-				dummySrc += "struct VSOut { float4 pos : SV_Position; }; VSOut ";
-				dummySrc += _entry ? _entry : "VSMain";
-				dummySrc += "(uint vertexId : SV_VertexID) { VSOut o; o.pos = float4(0, 0, 0, 1); return o; }";
-				break;
-			default:
-				DX3DLogThrowError("[PipelineCache] 未対応のシェーダタイプ");
+			const char* srcVS =
+				"float4 VSMain(uint id : SV_VertexID) : SV_Position { return float4(0,0,0,1); }";
+
+			const char* srcPS =
+				"float4 PSMain() : SV_Target { return float4(0,0,0,1); }";
+
+			const char* src = nullptr;
+
+			// どちらの種類か判定
+			if (_type == ShaderBinary::Type::Vertex) {
+				src = srcVS;
+			}
+			else {
+				src = srcPS;
 			}
 
-			return graphics_device_->CompileShader(
-				{ "DummyShader", dummySrc.c_str(), dummySrc.size(), _entry, _type }
-			);
+			// そのままコンパイル
+			return graphics_device_->CompileShader({
+				"<dummy>",          // パスの代わり（ログ用）
+				src,                // ソース
+				std::strlen(src),
+				_entry,             // VSMain or PSMain
+				_type
+				});
 		}
+
 
 		// ファイルの読み込み
 		auto src = LoadTextFile(_path);

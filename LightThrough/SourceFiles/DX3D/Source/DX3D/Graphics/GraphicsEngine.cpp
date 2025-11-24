@@ -96,12 +96,14 @@ namespace dx3d {
 
 	//! @brief インスタンス描画処理
 	void dx3d::GraphicsEngine::RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance, PipelineKey _key)
-	{	
+	{
 		auto pso = pipeline_cache_->GetOrCreate(_key);
 		device_context_->SetGraphicsPipelineState(*pso);
 		device_context_->SetRasterizerState(*rasterizer_);	// [ToDo] pso で設定できるようにしたいね
-		device_context_->SetViewportSize(swap_chain_->GetSize());
 
+		if (!(_key.GetFlags() & PipelineFlags::ShadowPass)) {
+			device_context_->SetViewportSize(swap_chain_->GetSize());
+		}
 		device_context_->SetVertexBuffers(_vb, _instanceVB);
 		device_context_->SetIndexBuffer(_ib);
 		device_context_->DrawIndexedInstanced(_ib.GetIndexCount(), _instanceCount, 0, 0, _startInstance);

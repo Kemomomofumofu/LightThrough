@@ -76,7 +76,10 @@ namespace dx3d {
 	 */
 	ShaderBinaryPtr GraphicsDevice::CompileShader(const ShaderBinary::ShaderCompileDesc& _desc) const
 	{
-		return std::make_shared<ShaderBinary>(_desc, GetGraphicsResourceDesc());
+		if (_desc.shaderSourceCode == nullptr)
+			return nullptr;
+		else
+			return std::make_shared<ShaderBinary>(_desc, GetGraphicsResourceDesc());
 	}
 
 	/**
@@ -129,12 +132,12 @@ namespace dx3d {
 	 * @param _data インスタンスのデータ群
 	 * @return 頂点バッファとしてまとめられたインスタンスバッファ
 	 */
-	auto GraphicsDevice::CreateInstanceBuffer(const std::vector<InstanceData>& _data)
+	auto GraphicsDevice::CreateInstanceBuffer(const std::vector<InstanceDataMain>& _data)
 	{
 		VertexBufferDesc desc{
 			.vertexList = _data.data(),
-			.vertexListSize = static_cast<uint32_t>(_data.size() * sizeof(InstanceData)),
-			.vertexSize = sizeof(InstanceData),
+			.vertexListSize = static_cast<uint32_t>(_data.size() * sizeof(InstanceDataMain)),
+			.vertexSize = sizeof(InstanceDataMain),
 		};
 
 		return CreateVertexBuffer(desc);

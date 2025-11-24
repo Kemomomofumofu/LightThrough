@@ -155,7 +155,7 @@ namespace ecs {
 
 
 		// バッチ処理
-		batches_.clear();	// バッチクリア
+		ClearBatches();		// バッチクリア
 		CollectBatches();	// バッチ収集
 		UpdateBatches();	// バッチ更新
 
@@ -187,6 +187,16 @@ namespace ecs {
 	void RenderSystem::OnEntityDestroyed(Entity _entity)
 	{
 
+	}
+
+
+	/**
+	 * @brief バッチクリア
+	 */
+	void RenderSystem::ClearBatches()
+	{
+		main_batches_.clear();
+		shadow_batches_.clear();
 	}
 
 	/**
@@ -228,21 +238,36 @@ namespace ecs {
 			}
 			// 新しいバッチ
 			else {
-				batchIndex = batches_.size();
+				batchIndex = main_batches_.size();
 				map.emplace(key, batchIndex);
-				batches_.push_back(InstanceBatch{
+				main_batches_.push_back(InstanceBatchMain{
 					.vb = meshData->vb,
 					.ib = meshData->ib,
 					.indexCount = meshData->indexCount,
 					.instances = {},
 					.instanceOffset = 0
 					});
+				shadow_batches_.push_back(InstanceBatchShadow{
+					.vb = meshData->vb,
+					.ib = meshData->ib,
+					.indexCount = meshData->indexCount,
+					.instances = {},
+					.instanceOffset = 0
+					});
+
 			}
 
 			// インスタンスデータ追加
-			dx3d::InstanceData d{};
-			d.world = tf.world;
-			batches_[batchIndex].instances.emplace_back(d);
+			// main
+			dx3d::InstanceDataMain dm{};
+			dm.world = tf.world;
+			dm.color = { 1, 1, 1, 0.5f };	// todo: 色実装次第、参照するように
+			main_batches_[batchIndex].instances.emplace_back(dm);
+			// shadow
+			dx3d::InstanceDataShadow ds{};
+			ds.world = tf.world;
+			shadow_batches_[batchIndex].instances.emplace_back(ds);
+
 		}
 	}
 
@@ -250,7 +275,7 @@ namespace ecs {
 	{
 		// 総インスタンス数
 		size_t totalInstance = 0;
-		for (auto& b : batches_) {
+		for (auto& b : main_batches_) {
 			totalInstance += b.instances.size();
 		}
 		if (totalInstance == 0) { return; } // 描画するものがない
@@ -258,13 +283,13 @@ namespace ecs {
 		// インスタンスバッファの作成またはリサイズ
 		CreateOrResizeInstanceBuffer(totalInstance);
 
-		std::vector<dx3d::InstanceData> instances;
+		std::vector<dx3d::InstanceDataMain> instances;
 		instances.reserve(totalInstance);
 
 		size_t cursor = 0;
 
 		// インスタンスデータをインスタンスバッファ用に変換して格納
-		for (auto& b : batches_) {
+		for (auto& b : main_batches_) {
 			b.instanceOffset = cursor;
 			for (auto& inst : b.instances) {
 				instances.emplace_back(inst);
@@ -276,8 +301,8 @@ namespace ecs {
 		{
 			dx3d::VertexBufferDesc desc{
 				.vertexList = instances.data(),
-				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceData)),
-				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceData))
+				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceDataMain)),
+				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceDataMain))
 			};
 			instance_buffer_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
@@ -293,7 +318,7 @@ namespace ecs {
 
 		// 描画
 		auto key = dx3d::BuildPipelineKey(false);
-		for (auto& b : batches_) {
+		for (auto& b : main_batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
 
@@ -375,12 +400,13 @@ namespace ecs {
 			CBLightMatrix lm{};
 			lm.lightViewProj = _lightViewProj;
 			cb_light_matrix_->Update(contextWrap, &lm, sizeof(lm));
-			contextWrap.VSSetConstantBuffer(0, *cb_light_matrix_); // slot0
+			contextWrap.VSSetConstantBuffer(2, *cb_light_matrix_); // slot2
 		}
+
 
 		auto key = dx3d::BuildPipelineKey(true);
 		// 描画
-		for (auto& b : batches_) {
+		for (auto& b : shadow_batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
 			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset, key);

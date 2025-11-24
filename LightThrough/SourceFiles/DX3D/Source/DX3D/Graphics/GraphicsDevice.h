@@ -36,7 +36,7 @@ namespace dx3d {
 		VertexBufferPtr CreateVertexBuffer(const VertexBufferDesc& _desc);
 		IndexBufferPtr CreateIndexBuffer(const IndexBufferDesc& _desc);
 		ConstantBufferPtr CreateConstantBuffer(const ConstantBufferDesc& _desc);
-		auto CreateInstanceBuffer(const std::vector<InstanceData>& _data);
+		auto CreateInstanceBuffer(const std::vector<InstanceDataMain>& _data);
 		std::unique_ptr<PipelineCache> CreatePipelineCache(const PipelineCache::PipelineCacheDesc& _desc);
 
 		HRESULT CreateTexture2D(const D3D11_TEXTURE2D_DESC* _desc, const D3D11_SUBRESOURCE_DATA* _initialData, ID3D11Texture2D** _texture)const noexcept;
