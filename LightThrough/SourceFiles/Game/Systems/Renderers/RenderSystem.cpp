@@ -8,6 +8,7 @@
  // ---------- インクルード ---------- //
 #include <DirectXMath.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Renderers/LightDepthRenderSystem.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
 
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
@@ -17,7 +18,6 @@
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
 #include <DX3D/Graphics/Meshes/Mesh.h>
 #include <DX3D/Graphics/GraphicslogUtils.h>
-#include <DX3D/Graphics/PipelineKey.h>
 #include <Game/ECS/Coordinator.h>
 
 #include <Game/Components/Camera.h>
@@ -34,6 +34,7 @@ namespace {
 		DirectX::XMMATRIX world;	// ワールド行列
 		DirectX::XMFLOAT4 color;	// 色
 	};
+
 }
 
 namespace ecs {
@@ -65,26 +66,11 @@ namespace ecs {
 			nullptr
 			});
 
-		cb_light_matrix_ = device.CreateConstantBuffer({	// vsスロット2
-			sizeof(CBLightMatrix),
-			nullptr
-			});
-
 		cb_lighting_ = device.CreateConstantBuffer({	// psスロット0
 			sizeof(CBLight),
 			nullptr
 			});
 
-		{
-			D3D11_SAMPLER_DESC sd{};
-			sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-			sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-			sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-			sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 1.0f;
-			engine_->GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, &shadow_sampler_);
-		}
-
-		CreateShadowResources(SHADOW_MAP_SIZE);
 	}
 
 	/**
@@ -111,72 +97,68 @@ namespace ecs {
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
 
+
+		// 他システムからライト深度情報を取得
+		auto shadowSystem = ecs_.GetSystem<LightDepthRenderSystem>();
+		auto shadowSRV = shadowSystem->GetShadowMapSRV();
+		auto shadowSampler = shadowSystem->GetShadowSampler();
+
+		// PSにリソースをバインド
+		if (shadowSRV) {
+			ID3D11ShaderResourceView* srvs[1] = { shadowSRV };
+			context.PSSetShaderResources(0, 1, srvs);	// t0
+			ID3D11SamplerState* samps[1] = { shadowSampler };
+			context.PSSetSamplers(0, 1, samps);			// s0
+		}
+
 		// ---------- ライト処理 ---------- // 
+		// 共通処理
 		CBLight lightData{};
 		int lightSum = 0;
+		for (auto& e : ecs_.GetEntitiesWithComponent<LightCommon>()) {
+			if (lightSum >= MAX_LIGHTS) { break; }	// ライトの総数が多すぎるなら
 
-		// memo: 仮で1つまで
-		Entity firstLight{};
-		XMMATRIX lightVP = XMMatrixIdentity();
-
-		// 共通処理
-		for (auto e : ecs_.GetEntitiesWithComponent<LightCommon>()) {
-			// ライトの総数が多すぎるなら
-			if (lightSum >= MAX_LIGHTS) { break; }
 			auto& common = ecs_.GetComponent<LightCommon>(e);
-			// 無効状態なら
-			if (!common.enabled) { continue; }
+			if (!common.enabled) { continue; }	// 無効状態なら
 
-			// 方向の取得
-			auto& tf = ecs_.GetComponent<Transform>(e);
-#ifdef _DEBUG || DEBUG
-			auto debugRender = ecs_.GetSystem<DebugRenderSystem>();
-			debugRender->DrawCube(tf, { 1, 0, 0, 1 });
-#endif // _DEBUG || DEBUG
 			SpotLight* spotPtr = nullptr;
 			if (ecs_.HasComponent<SpotLight>(e)) {
 				spotPtr = &ecs_.GetComponent<SpotLight>(e);
 			}
 
-			// パック
-			lightData.lights[lightSum++] = BuildLightCPU(tf, common, spotPtr);
-			lightVP = BuildLightViewProj(tf, spotPtr, 0.1f);
+			// 方向の取得
+			auto& tf = ecs_.GetComponent<Transform>(e);
+#ifdef _DEBUG || DEBUG
+			// ライトの位置に丸を描画。
+			auto debugRender = ecs_.GetSystem<DebugRenderSystem>();
+			debugRender->DrawSphere(tf, { 1, 0, 0, 1 });
+#endif // _DEBUG || DEBUG
 
+			// パック
+			lightData.lights[lightSum] = BuildLightCPU(tf, common, spotPtr);
+
+			int shadowIndex = -1;
+			DirectX::XMMATRIX lightMatrix;
+			if (shadowSystem->GetShadowInfo(e, shadowIndex, lightMatrix)) {
+				lightData.lights[lightSum].spotAngles_shadowIndex.z = shadowIndex;
+				lightData.lightViewProj[lightSum] = lightMatrix;
+			}
+			else {
+				lightData.lights[lightSum].spotAngles_shadowIndex.z = -1.0f;	// シャドウマップなし
+			}
+
+			++lightSum;
 		}
 		lightData.lightCount = lightSum;
 
-		// ライト行列CB（PS側でシャドウ計算に使用）
-		if (lightSum > 0) {
-			CBLightMatrix cbLM{};
-			cbLM.lightViewProj = lightVP; // 非転置
-			cb_light_matrix_->Update(context, &cbLM, sizeof(cbLM));
-			context.VSSetConstantBuffer(2, *cb_light_matrix_); // スロット2
-		}
-
-
 		// バッチ処理
-		ClearBatches();		// バッチクリア
-		CollectBatches();	// バッチ収集
+		opaque_batches_.clear();	// バッチクリア
+		transparent_batches_.clear();
+		auto camPos = ecs_.GetComponent<Transform>(camEntities[0]).position;
+		CollectBatches(camPos);	// バッチ収集
 		UpdateBatches();	// バッチ更新
 
-		// ---------- シャドウパス（深度のみ） ---------- //
-		if (lightSum > 0 && shadow_dsv_) {
-			RenderShadowPass(lightVP);
-
-			// メインパス用のカメラCBを復元
-			cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
-			context.VSSetConstantBuffer(0, *cb_per_frame_);
-
-			// PSへシャドウSRVをバインド
-			auto contextD3D = context.GetDeviceContext();
-			ID3D11ShaderResourceView* srvs[1] = { shadow_srv_.Get() };
-			contextD3D->PSSetShaderResources(0, 1, srvs);
-			// シャドウサンプラーセット
-			ID3D11SamplerState* samps[1] = { shadow_sampler_.Get() };
-			contextD3D->PSSetSamplers(0, 1, samps);
-		}
-
-		// ---------- メインパス ---------- //
+		// メインパス
 		RenderMainPass(lightData);
 
 	}
@@ -191,31 +173,26 @@ namespace ecs {
 
 
 	/**
-	 * @brief バッチクリア
-	 */
-	void RenderSystem::ClearBatches()
-	{
-		main_batches_.clear();
-		shadow_batches_.clear();
-	}
-
-	/**
 	 * @brief バッチ収集
 	 *
 	 * Meshの頂点バッファとインデックスバッファが同じものをまとめてバッチ化する
 	 * インスタンスデータは各EntityのTransformからワールド行列を取得して格納する
 	 */
-	void RenderSystem::CollectBatches()
+	void RenderSystem::CollectBatches(const DirectX::XMFLOAT3& _camPos)
 	{
 		struct Key {
 			dx3d::VertexBuffer* vb{};
 			dx3d::IndexBuffer* ib{};
+			dx3d::PipelineKey psoKey{};
 			bool operator==(const Key& o) const noexcept { return vb == o.vb && ib == o.ib; }
 		};
 
 		struct KeyHash {
-			size_t operator()(const Key& k) const noexcept {
-				return std::hash<void*>()(k.vb) ^ (std::hash<void*>()(k.ib) << 1);
+			size_t operator()(const Key& _k) const noexcept {
+				size_t h1 = std::hash<void*>()(_k.vb);
+				size_t h2 = std::hash<void*>()(_k.ib);
+				size_t h3 = dx3d::PipelineKeyHash()(_k.psoKey);
+				return h1 ^ (h2 << 1) ^ (h3 << 2);
 			}
 		};
 		std::unordered_map<Key, size_t, KeyHash> map;
@@ -228,9 +205,22 @@ namespace ecs {
 			auto& mr = engine_->GetMeshRegistry();
 			auto meshData = mr.Get(mesh.handle);
 
+			// todo: マテリアルからpsoを取得するつくりにする
+			// auto& material = ecs_.GetComponent<Material>(e);
+			auto psoKey = dx3d::BuildPipelineKey(false, dx3d::BlendMode::Alpha);
+
 			if (!meshData) continue;
 
-			struct Key key { meshData->vb.get(), meshData->ib.get() };
+
+			std::vector<InstanceBatchMain>* targetBatches = nullptr;
+			if (psoKey.GetBlend() == dx3d::BlendMode::Opaque) {
+				targetBatches = &opaque_batches_;
+			}
+			else {
+				targetBatches = &transparent_batches_;
+			}
+
+			struct Key key { meshData->vb.get(), meshData->ib.get(), psoKey };
 			size_t batchIndex{};
 			// 既存のバッチ
 			if (auto it = map.find(key); it != map.end()) {
@@ -238,35 +228,31 @@ namespace ecs {
 			}
 			// 新しいバッチ
 			else {
-				batchIndex = main_batches_.size();
+				batchIndex = targetBatches->size();
 				map.emplace(key, batchIndex);
-				main_batches_.push_back(InstanceBatchMain{
+				targetBatches->push_back(InstanceBatchMain{
 					.vb = meshData->vb,
 					.ib = meshData->ib,
 					.indexCount = meshData->indexCount,
 					.instances = {},
-					.instanceOffset = 0
+					.instanceOffset = 0,
+					.key = psoKey,
 					});
-				shadow_batches_.push_back(InstanceBatchShadow{
-					.vb = meshData->vb,
-					.ib = meshData->ib,
-					.indexCount = meshData->indexCount,
-					.instances = {},
-					.instanceOffset = 0
-					});
-
 			}
 
 			// インスタンスデータ追加
-			// main
 			dx3d::InstanceDataMain dm{};
 			dm.world = tf.world;
 			dm.color = { 1, 1, 1, 0.5f };	// todo: 色実装次第、参照するように
-			main_batches_[batchIndex].instances.emplace_back(dm);
-			// shadow
-			dx3d::InstanceDataShadow ds{};
-			ds.world = tf.world;
-			shadow_batches_[batchIndex].instances.emplace_back(ds);
+			(*targetBatches)[batchIndex].instances.emplace_back(dm);
+
+			// 半透明なら
+			if(psoKey.GetBlend() == dx3d::BlendMode::Alpha) {
+				DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&tf.position);
+				DirectX::XMVECTOR camPos = DirectX::XMLoadFloat3(&_camPos);
+				float distance = DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(DirectX::XMVectorSubtract(pos, camPos)));
+				(*targetBatches)[batchIndex].sortKey = distance;
+			}
 
 		}
 	}
@@ -275,7 +261,10 @@ namespace ecs {
 	{
 		// 総インスタンス数
 		size_t totalInstance = 0;
-		for (auto& b : main_batches_) {
+		for (auto& b : opaque_batches_) {
+			totalInstance += b.instances.size();
+		}
+		for (auto& b : transparent_batches_) {
 			totalInstance += b.instances.size();
 		}
 		if (totalInstance == 0) { return; } // 描画するものがない
@@ -289,11 +278,14 @@ namespace ecs {
 		size_t cursor = 0;
 
 		// インスタンスデータをインスタンスバッファ用に変換して格納
-		for (auto& b : main_batches_) {
+		for (auto& b : opaque_batches_) {
 			b.instanceOffset = cursor;
-			for (auto& inst : b.instances) {
-				instances.emplace_back(inst);
-			}
+			instances.insert(instances.end(), b.instances.begin(), b.instances.end());
+			cursor += b.instances.size();
+		}
+		for (auto& b : transparent_batches_) {
+			b.instanceOffset = cursor;
+			instances.insert(instances.end(), b.instances.begin(), b.instances.end());
 			cursor += b.instances.size();
 		}
 
@@ -311,20 +303,35 @@ namespace ecs {
 	void RenderSystem::RenderMainPass(CBLight& _lightData)
 	{
 		auto& context = engine_->GetDeviceContext();
-		
+
 		// ライティングCB更新
 		cb_lighting_->Update(context, &_lightData, sizeof(_lightData));
 		context.PSSetConstantBuffer(0, *cb_lighting_); // スロット0
 
+		// 不透明オブジェクトのソート
+		std::sort(opaque_batches_.begin(), opaque_batches_.end(),
+			[](const auto& _a, const auto& _b) {
+				return _a.key < _b.key;
+			});
 		// 描画
-		auto key = dx3d::BuildPipelineKey(false);
-		for (auto& b : main_batches_) {
-			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
-			if (instanceCount == 0) { continue; }
+		for (auto& b : opaque_batches_) {
+			if (b.instances.empty()) { continue; }
 
 			// 描画
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset, key);
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, b.instances.size(), b.instanceOffset, b.key);
 		}
+
+		// 透明オブジェクトのソート（カメラから遠い順）
+		std::sort(transparent_batches_.begin(), transparent_batches_.end(),
+			[](const auto& _a, const auto& _b) {
+				return _a.sortKey > _b.sortKey; // 降順ソート
+			});
+		for (auto& b : transparent_batches_) {
+			if (b.instances.empty()) { continue; }
+			// 描画
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, b.instances.size(), b.instanceOffset, b.key);
+		}
+
 
 	}
 
@@ -336,88 +343,5 @@ namespace ecs {
 	{
 		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
 		instance_buffer_capacity_ = (std::max)(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
-	}
-
-	/**
-	 * @brief シャドウマップに必要なリソースの生成
-	 * @param _size: テクスチャのサイズ
-	 */
-	void RenderSystem::CreateShadowResources(uint32_t _size)
-	{
-		auto& device = engine_->GetGraphicsDevice();
-
-		// シャドウマップ用テクスチャ作成
-		D3D11_TEXTURE2D_DESC texDesc{};
-		texDesc.Width = _size;
-		texDesc.Height = _size;
-		texDesc.MipLevels = 1;
-		texDesc.ArraySize = 1;
-		texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-		texDesc.SampleDesc.Count = 1;
-		texDesc.Usage = D3D11_USAGE_DEFAULT;
-		texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-		device.CreateTexture2D(&texDesc, nullptr, &shadow_depth_tex_);
-
-		// DSV 作成
-		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
-		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		device.CreateDepthStencilView(shadow_depth_tex_.Get(), &dsvDesc, &shadow_dsv_);
-
-		// SRV 作成
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.MipLevels = 1;
-		device.CreateShaderResourceView(shadow_depth_tex_.Get(), &srvDesc, &shadow_srv_);
-	}
-
-	void RenderSystem::RenderShadowPass(const DirectX::XMMATRIX& _lightViewProj)
-	{
-		auto& contextWrap = engine_->GetDeviceContext();
-		auto contextD3D = contextWrap.GetDeviceContext();
-
-		// SRVのアンバインド
-		{
-			ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
-			contextD3D->PSSetShaderResources(0, 1, nullSRV);
-			contextD3D->VSSetShaderResources(0, 1, nullSRV);
-		}
-
-		// 現在のRTV、DSVを退避
-		ID3D11RenderTargetView* prevRTV = nullptr;
-		ID3D11DepthStencilView* prevDSV = nullptr;
-		contextD3D->OMGetRenderTargets(1, &prevRTV, &prevDSV);
-
-		// シャドウ用DSVをセット
-		contextD3D->OMSetRenderTargets(0, nullptr, shadow_dsv_.Get());
-		contextD3D->ClearDepthStencilView(shadow_dsv_.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-		contextWrap.SetViewportSize({ static_cast<int32_t>(SHADOW_MAP_SIZE), static_cast<int32_t>(SHADOW_MAP_SIZE) });
-
-		// ライト行列をセット
-		{
-			CBLightMatrix lm{};
-			lm.lightViewProj = _lightViewProj;
-			cb_light_matrix_->Update(contextWrap, &lm, sizeof(lm));
-			contextWrap.VSSetConstantBuffer(2, *cb_light_matrix_); // slot2
-		}
-
-
-		auto key = dx3d::BuildPipelineKey(true);
-		// 描画
-		for (auto& b : shadow_batches_) {
-			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
-			if (instanceCount == 0) { continue; }
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset, key);
-		}
-
-
-		{
-			contextD3D->OMSetRenderTargets(1, &prevRTV, prevDSV);
-			if (prevRTV) { prevRTV->Release(); }
-			if (prevDSV) { prevDSV->Release(); }
-		}
-
 	}
 }

@@ -10,7 +10,6 @@
 #include <DX3D/Graphics/GraphicsDevice.h>
 #include <DX3D/Graphics/SwapChain.h>
 #include <DX3D/Graphics/GraphicsPipelineState.h>
-#include <DX3D/Graphics/RasterizerState.h>
 #include <DX3D/Graphics/Buffers/Vertex.h>
 #include <DX3D/Graphics/Buffers/VertexBuffer.h>
 #include <DX3D/Graphics/Buffers/IndexBuffer.h>
@@ -80,15 +79,8 @@ namespace dx3d {
 		context_->IASetInputLayout(_pipeline.layout_.Get());
 		context_->VSSetShader(_pipeline.vs_.Get(), nullptr, 0);
 		context_->PSSetShader(_pipeline.ps_.Get(), nullptr, 0);
-	}
-
-	/**
-	 * @brief ラスタライザーステートをセットする
-	 * @param _rasterizer
-	 */
-	void DeviceContext::SetRasterizerState(const RasterizerState& _rasterizer)
-	{
-		context_->RSSetState(_rasterizer.rast_state_.Get());
+		context_->RSSetState(_pipeline.rast_state_.Get());
+		context_->OMSetBlendState(_pipeline.blend_state_.Get(), nullptr, 0xffffffff);
 	}
 
 	/**
@@ -176,12 +168,25 @@ namespace dx3d {
 
 	/**
 	 * @brief ピクセルシェーダーのシェーダーリソースビューをセットする
-	 * @param _slot スロット
+	 * @param _slot 開始スロット
+	 * @param _numResources リソース数
 	 * @param _srv シェーダーリソースビュー
 	 */
-	void DeviceContext::PSSetShaderResource(uint32_t _slot, ID3D11ShaderResourceView* _srv)
+	void DeviceContext::PSSetShaderResources(uint32_t _startSlot, uint32_t _numResources, ID3D11ShaderResourceView* const* _ppSrv)
 	{
-		context_->PSSetShaderResources(_slot, 1, &_srv);
+		context_->PSSetShaderResources(_startSlot, _numResources, _ppSrv);
+	}
+
+
+	/**
+	 * @brief ピクセルシェーダーのサンプラーをセットする
+	 * @param _slot 開始スロット
+	 * @param _numSamplers サンプラー数
+	 * @param _sampler サンプラー
+	 */
+	void DeviceContext::PSSetSamplers(uint32_t _startSlot, uint32_t _numSamplers, ID3D11SamplerState* const* _ppSampler)
+	{
+		context_->PSSetSamplers(_startSlot, _numSamplers, _ppSampler);
 	}
 
 	/**

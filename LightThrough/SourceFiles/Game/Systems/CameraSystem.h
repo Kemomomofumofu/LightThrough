@@ -24,7 +24,7 @@ namespace ecs {
 	class CameraSystem : public ISystem {
 	public:
 		CameraSystem(const SystemDesc& _desc);
-		void Init();
+		void Init() override;
 		void Update(float _dt) override;
 
 	private:

@@ -24,6 +24,7 @@ namespace ecs {
 			, ecs_(_desc.ecs){}
 
 		virtual ~ISystem() = default;
+		virtual void Init() {}
 		virtual void Update(float _dt) {}
 		virtual void FixedUpdate(float _fixedDt) {}
 		virtual void OnEntityDestroyed(Entity _e) {}

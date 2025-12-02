@@ -26,8 +26,6 @@ namespace dx3d {
 
 		void ClearAndSetBackBuffer(const SwapChain& _swapChain, const DirectX::XMFLOAT4& _color);
 		void SetGraphicsPipelineState(const GraphicsPipelineState& _pipepline);
-		void SetRasterizerState(const RasterizerState& _rasterizer);
-
 		void SetVertexBuffer(const VertexBuffer& _buffer);
 		void SetVertexBuffers(uint32_t _startSlot, const VertexBuffer* const* _buffers, uint32_t _count);	// ï°êîóp
 		void SetVertexBuffers(const VertexBuffer& _vb0, const VertexBuffer& _vb1);
@@ -35,7 +33,8 @@ namespace dx3d {
 		void SetIndexBuffer(const IndexBuffer& _buffer);
 		void VSSetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer);
 		void PSSetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer);
-		void PSSetShaderResource(uint32_t _slot, ID3D11ShaderResourceView* _srv);
+		void PSSetShaderResources(uint32_t _startSlot, uint32_t _numResources, ID3D11ShaderResourceView* const* _ppSrv);
+		void PSSetSamplers(uint32_t _startSlot, uint32_t _numSamplers, ID3D11SamplerState* const* _ppSampler);
 
 		void SetConstantBuffer(uint32_t _slot, const ConstantBuffer& _buffer);
 		void SetViewportSize(const Rect& _size);

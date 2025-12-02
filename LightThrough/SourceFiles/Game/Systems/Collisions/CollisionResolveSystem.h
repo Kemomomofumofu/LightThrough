@@ -25,7 +25,7 @@ namespace ecs {
 	{
 	public:
 		explicit CollisionResolveSystem(const SystemDesc& _desc);
-		void Init();
+		void Init() override;
 		void FixedUpdate(float _fixedDt) override;
 
 	private:

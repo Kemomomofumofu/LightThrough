@@ -56,6 +56,7 @@ namespace ecs {
 		template<typename Sys>
 		std::shared_ptr<Sys> GetSystem();	// System‚Ìæ“¾
 		
+		void InitAllSystems();	// “o˜^‚³‚ê‚½System‚Ì‰Šú‰»
 		void FixedUpdateAllSystems(float _fixedDt); // “o˜^‚³‚ê‚½System‚ÌŒÅ’èXV
 		void UpdateAllSystems(float _dt);	// “o˜^‚³‚ê‚½System‚ÌXV
 		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // w’è‚µ‚½Signature‚ğ‚Á‚Ä‚¢‚éEntity‚Ìˆê——‚ğæ“¾

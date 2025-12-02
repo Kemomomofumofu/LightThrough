@@ -51,6 +51,16 @@ namespace ecs {
 	}
 
 	/**
+	* @brief すべてのSystemを初期化
+	*/
+	void Coordinator::InitAllSystems()
+	{
+		for (auto& system : system_manager_->GetAllSystemsInOrder()) {
+			system->Init();
+		}
+	}
+
+	/**
 	* @brief すべてのSystemを更新
 	* @param _dt デルタタイム
 	*/

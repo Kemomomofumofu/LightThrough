@@ -20,8 +20,13 @@
  * Ç»ÇÒÇ©ï`âÊÇ∑ÇÈä¥Ç∂ÅH
  */
 namespace dx3d {
+	struct GraphicsEngineDesc {
+		BaseDesc base;
+	};
+
 	class GraphicsEngine final : public Base {
 	public:
+
 		explicit GraphicsEngine(const GraphicsEngineDesc& _desc);
 		virtual ~GraphicsEngine() override;
 
@@ -40,7 +45,6 @@ namespace dx3d {
 		std::shared_ptr<GraphicsDevice> graphics_device_{};
 		DeviceContextPtr device_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
-		RasterizerStatePtr rasterizer_{};
 		InputLayoutPtr vs_layout_{};
 		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};

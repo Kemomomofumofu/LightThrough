@@ -25,15 +25,9 @@ namespace dx3d {
 		: Base(_desc.base)
 	{
 		graphics_device_ = std::make_shared<GraphicsDevice>(GraphicsDeviceDesc{ logger_ });
-
+		
 		auto& device = *graphics_device_;
 		device_context_ = device.CreateDeviceContext();
-
-		// @brief ラスタライザーステートの生成
-		rasterizer_ = device.CreateRasterizerState({
-			.fillMode = FillMode::Solid,
-			.cullMode = CullMode::Back,
-			});
 
 		// @brief パイプラインキャッシュの生成
 		pipeline_cache_ = device.CreatePipelineCache({});
@@ -42,11 +36,10 @@ namespace dx3d {
 		mesh_registry_ = std::make_unique<MeshRegistry>();
 
 		// @briefMeshを事前に生成しておく
-		dx3d::PrimitiveFactory::CreateCube(device, *mesh_registry_);
-		dx3d::PrimitiveFactory::CreateSphere(device, *mesh_registry_);
-		//line_mesh_ = dx3d::PrimitiveFactory::CreateLine(engine_->GetGraphicsDevice(), {0,0,0}, {1,0,0});
-
-
+		PrimitiveFactory::CreateCube(device, *mesh_registry_);
+		PrimitiveFactory::CreateSphere(device, *mesh_registry_);
+		PrimitiveFactory::CreateQuad(device, *mesh_registry_);
+		//PrimitiveFactory::CreateLine(device, *mesh_registry_);
 	}
 	//! @brief デストラクタ
 	GraphicsEngine::~GraphicsEngine()
@@ -78,7 +71,7 @@ namespace dx3d {
 	void GraphicsEngine::BeginFrame()
 	{
 		auto& context = *device_context_;
-		context.ClearAndSetBackBuffer(*swap_chain_, { 0.27f, 0.39f, 0.55f, 1.0f });	// 初期色でクリア
+		context.ClearAndSetBackBuffer(*swap_chain_, { 0.0f, 0.0f, 0.0f, 1.0f });	// 初期色でクリア
 	}
 
 
@@ -87,7 +80,6 @@ namespace dx3d {
 	{
 		auto pso = pipeline_cache_->GetOrCreate(_key);
 		device_context_->SetGraphicsPipelineState(*pso);
-		device_context_->SetRasterizerState(*rasterizer_);	// [ToDo] pso で設定できるようにしたいね
 		device_context_->SetViewportSize(swap_chain_->GetSize());
 		device_context_->SetVertexBuffer(_vb);
 		device_context_->SetIndexBuffer(_ib);
@@ -99,7 +91,6 @@ namespace dx3d {
 	{
 		auto pso = pipeline_cache_->GetOrCreate(_key);
 		device_context_->SetGraphicsPipelineState(*pso);
-		device_context_->SetRasterizerState(*rasterizer_);	// [ToDo] pso で設定できるようにしたいね
 
 		if (!(_key.GetFlags() & PipelineFlags::ShadowPass)) {
 			device_context_->SetViewportSize(swap_chain_->GetSize());

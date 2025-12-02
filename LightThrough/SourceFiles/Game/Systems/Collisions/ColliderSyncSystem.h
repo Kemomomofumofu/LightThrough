@@ -23,7 +23,7 @@ namespace ecs {
 	public:
 		explicit ColliderSyncSystem(const SystemDesc& _desc);
 
-		void Init();
+		void Init() override;
 		void FixedUpdate(float _fixedDt) override;
 
 	private:

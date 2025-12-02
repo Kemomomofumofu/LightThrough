@@ -16,7 +16,7 @@ namespace ecs {
 		explicit ForceAccumulationSystem(const SystemDesc& _desc)
 			: ISystem(_desc) {}
 		
-		void Init();
+		void Init() override;
 		void FixedUpdate(float _fixedDt) override;
 
 	private:

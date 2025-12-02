@@ -12,7 +12,6 @@
 #include <DX3D/Graphics/DeviceContext.h>
 #include <DX3D/Graphics/ShaderBinary.h>
 #include <DX3D/Graphics/GraphicsPipelineState.h>
-#include <DX3D/Graphics/RasterizerState.h>
 #include <DX3D/Graphics/VertexShaderSignature.h>
 #include <DX3D/Graphics/Buffers/VertexBuffer.h>
 #include <DX3D/Graphics/Buffers/IndexBuffer.h>
@@ -90,11 +89,6 @@ namespace dx3d {
 	GraphicsPipelineStatePtr GraphicsDevice::CreateGraphicsPipelineState(const GraphicsPipelineStateDesc& _desc) const
 	{
 		return std::make_shared<GraphicsPipelineState>(_desc, GetGraphicsResourceDesc());
-	}
-
-	RasterizerStatePtr GraphicsDevice::CreateRasterizerState(const RasterizerStateDesc& _desc)
-	{
-		return std::make_shared<RasterizerState>(_desc, GetGraphicsResourceDesc());
 	}
 
 	/**

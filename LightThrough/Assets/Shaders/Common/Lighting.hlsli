@@ -4,7 +4,7 @@ struct LightPacked
     float4 pos_type; // xyz = pos, w = type
     float4 dir_range; // xyz = dir, w = range
     float4 color;
-    float4 spotAngles; // x = innerCos, y = outerCos, z,w 未使用
+    float4 spotAngles_shadowIndex; // x = innerCos, y = outerCos, z = shadowMapIndex, w 未使用
 };
 
 cbuffer LightBuffer : register(b0)
@@ -12,6 +12,7 @@ cbuffer LightBuffer : register(b0)
     int lightCount;
     float3 _pad0;
     LightPacked lights[16];
+    row_major matrix lightViewProjs[16];
 };
 
 
@@ -57,8 +58,8 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
     float3 dir = normalize(_light.dir_range.xyz); // ライトの向き
     float3 L_light_to_point = -L; // ライトからポイントへの方向
     float angle = dot(L_light_to_point, dir);
-    float inner = _light.spotAngles.x;
-    float outer = _light.spotAngles.y;
+    float inner = _light.spotAngles_shadowIndex.x;
+    float outer = _light.spotAngles_shadowIndex.y;
     if (angle < outer)
     {
         return 0.0;

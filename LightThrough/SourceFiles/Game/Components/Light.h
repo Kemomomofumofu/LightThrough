@@ -25,7 +25,7 @@ namespace ecs {
 		DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };	// 色
 		float intensity = 1.0f;									// 乗算係数
 		bool enabled = true;									// 有効フラグ
-		uint32_t _pad0[3];
+		uint32_t _pad0[3]{};
 	};
 
 	//! 平行光源
@@ -56,12 +56,13 @@ namespace ecs {
 		DirectX::XMFLOAT4 pos_type{}; // xyz = pos, w = type
 		DirectX::XMFLOAT4 dir_range{}; // xyz = dir, w = range
 		DirectX::XMFLOAT4 color{};
-		DirectX::XMFLOAT4 spotAngles{}; // x = innerCos, y = outerCos, z,w 未使用
+		DirectX::XMFLOAT4 spotAngles_shadowIndex{}; // x = innerCos, y = outerCos, z = shadowMapIndex ,w 未使用
 	};
 
 	struct CBLight {
 		int lightCount; uint32_t _pad0[3];
 		LightCPU lights[MAX_LIGHTS];
+		DirectX::XMMATRIX lightViewProj[MAX_LIGHTS]; // 各ライトのビュー射影行列
 	};
 
 	struct CBLightMatrix {
@@ -86,13 +87,13 @@ namespace ecs {
 			_common.color.z * _common.intensity,
 			1.0f
 		};
-		L.spotAngles = { 0.0f, 0.0f, 0.0f, 0.0f };
+		L.spotAngles_shadowIndex = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 		if (_spot) {
 			L.pos_type.w = 1.0f; // Spot
 			L.dir_range.w = _spot->range;
-			L.spotAngles.x = _spot->innerCos;
-			L.spotAngles.y = _spot->outerCos;
+			L.spotAngles_shadowIndex.x = _spot->innerCos;
+			L.spotAngles_shadowIndex.y = _spot->outerCos;
 		}
 
 		return L;
@@ -104,7 +105,7 @@ namespace ecs {
 		const XMMATRIX V = _tf.MakeLookToLH();
 		if (_spot) {
 			const float fovY = _spot->CulcFovYRadians();
-			const float farZ = (std::max)(0.0f, _spot->range);
+			const float farZ = (std::max)(1.0f, _spot->range);
 			const XMMATRIX P = XMMatrixPerspectiveFovLH(fovY, 1.0f, _nearZ, farZ);
 
 			return XMMatrixMultiply(V, P);

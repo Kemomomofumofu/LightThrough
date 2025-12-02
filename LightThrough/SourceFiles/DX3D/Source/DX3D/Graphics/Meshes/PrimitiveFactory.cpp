@@ -27,43 +27,43 @@ namespace dx3d {
 		// 24頂点（6面×4）: 各面で頂点を分離し、面法線を設定
 		const Vertex cubeVertices[] = {
 			// Front (-Z)
-			{{-0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {0,1}},
-			{{ 0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {1,1}},
-			{{ 0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {1,0}},
-			{{-0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {0,0}},
+			{{-0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {0,1}}, // 0
+			{{ 0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {1,1}}, // 1
+			{{ 0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {1,0}}, // 2
+			{{-0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 0,-1}, {0,0}}, // 3
 
 			// Back (+Z)
-			{{-0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {0,1}},
-			{{ 0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {1,1}},
-			{{ 0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {1,0}},
-			{{-0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {0,0}},
+			{{-0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {0,1}}, // 4
+			{{ 0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {1,1}}, // 5
+			{{ 0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {1,0}}, // 6
+			{{-0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 0, 1}, {0,0}}, // 7
 
 			// Left (-X)
-			{{-0.5f,-0.5f, 0.5f}, {1,1,1,1}, {-1, 0, 0}, {0,1}},
-			{{-0.5f,-0.5f,-0.5f}, {1,1,1,1}, {-1, 0, 0}, {1,1}},
-			{{-0.5f, 0.5f,-0.5f}, {1,1,1,1}, {-1, 0, 0}, {1,0}},
-			{{-0.5f, 0.5f, 0.5f}, {1,1,1,1}, {-1, 0, 0}, {0,0}},
+			{{-0.5f,-0.5f, 0.5f}, {1,1,1,1}, {-1, 0, 0}, {0,1}}, // 8
+			{{-0.5f,-0.5f,-0.5f}, {1,1,1,1}, {-1, 0, 0}, {1,1}}, // 9
+			{{-0.5f, 0.5f,-0.5f}, {1,1,1,1}, {-1, 0, 0}, {1,0}}, // 10
+			{{-0.5f, 0.5f, 0.5f}, {1,1,1,1}, {-1, 0, 0}, {0,0}}, // 11
 
 			// Right (+X)
-			{{ 0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 1, 0, 0}, {0,1}},
-			{{ 0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 1, 0, 0}, {1,1}},
-			{{ 0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 1, 0, 0}, {1,0}},
-			{{ 0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 1, 0, 0}, {0,0}},
+			{{ 0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 1, 0, 0}, {0,1}}, // 12
+			{{ 0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 1, 0, 0}, {1,1}}, // 13
+			{{ 0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 1, 0, 0}, {1,0}}, // 14
+			{{ 0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 1, 0, 0}, {0,0}}, // 15
 
 			// Top (+Y)
-			{{-0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 1, 0}, {0,1}},
-			{{ 0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 1, 0}, {1,1}},
-			{{ 0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 1, 0}, {1,0}},
-			{{-0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 1, 0}, {0,0}},
+			{{-0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 1, 0}, {0,1}}, // 16
+			{{ 0.5f, 0.5f,-0.5f}, {1,1,1,1}, { 0, 1, 0}, {1,1}}, // 17
+			{{ 0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 1, 0}, {1,0}}, // 18
+			{{-0.5f, 0.5f, 0.5f}, {1,1,1,1}, { 0, 1, 0}, {0,0}}, // 19
 
 			// Bottom (-Y)
-			{{-0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0,-1, 0}, {0,1}},
-			{{ 0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0,-1, 0}, {1,1}},
-			{{ 0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0,-1, 0}, {1,0}},
-			{{-0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0,-1, 0}, {0,0}},
+			{{-0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0,-1, 0}, {0,1}}, // 20
+			{{ 0.5f,-0.5f, 0.5f}, {1,1,1,1}, { 0,-1, 0}, {1,1}}, // 21
+			{{ 0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0,-1, 0}, {1,0}}, // 22
+			{{-0.5f,-0.5f,-0.5f}, {1,1,1,1}, { 0,-1, 0}, {0,0}}, // 23
 		};
 
-		// 36インデックス（各面2三角形）
+		// 36インデックス（各面2三角形） - 反時計回り(CCW)に修正
 		const uint32_t cubeIndices[] = {
 			// 前
 			0, 1, 2,  0, 2, 3,
@@ -98,29 +98,29 @@ namespace dx3d {
 	 */
 	MeshHandle PrimitiveFactory::CreateQuad(GraphicsDevice& _device, MeshRegistry& _registry)
 	{
-			const Vertex quadVertices[] = {
-				{{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},	// 0
-				{{ 0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},	// 1
-				{{ 0.5f,  0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},	// 2
-				{{-0.5f,  0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},	// 3
-			};
-			const uint32_t quadIndices[] = {
-				0, 1, 2,
-				0, 2, 3,
-			};
+		const Vertex quadVertices[] = {
+			{{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},	// 0
+			{{ 0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},	// 1
+			{{ 0.5f,  0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},	// 2
+			{{-0.5f,  0.5f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},	// 3
+		};
+		const uint32_t quadIndices[] = {
+			0, 1, 2,
+			0, 2, 3,
+		};
 
-			// メッシュの作成
-			auto mesh = std::make_shared<Mesh>();
-			mesh->vb = _device.CreateVertexBuffer({
-				quadVertices,
-				static_cast<uint32_t>(std::size(quadVertices) * sizeof(Vertex)),
-				static_cast<uint32_t>(sizeof(Vertex))
-				});
-			mesh->ib = _device.CreateIndexBuffer({ quadIndices, std::size(quadIndices) });
-			mesh->indexCount = std::size(quadIndices);
+		// メッシュの作成
+		auto mesh = std::make_shared<Mesh>();
+		mesh->vb = _device.CreateVertexBuffer({
+			quadVertices,
+			static_cast<uint32_t>(std::size(quadVertices) * sizeof(Vertex)),
+			static_cast<uint32_t>(sizeof(Vertex))
+			});
+		mesh->ib = _device.CreateIndexBuffer({ quadIndices, std::size(quadIndices) });
+		mesh->indexCount = std::size(quadIndices);
 
 
-			return _registry.Register(mesh, "Quad");
+		return _registry.Register(mesh, "Quad");
 	}
 
 	/**
@@ -137,7 +137,7 @@ namespace dx3d {
 		using namespace DirectX;
 
 		if (_slices < 3) { _slices = 3; }
-		if (_stacks < 3) { _stacks = 3; }
+		if (_stacks < 2) { _stacks = 2; }
 
 
 		// 半径
@@ -147,10 +147,10 @@ namespace dx3d {
 		std::vector<Vertex> sphereVertices{};
 		// 頂点生成
 		// 北極
-		sphereVertices.push_back({ {0.0f, radius, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}});
+		sphereVertices.push_back({ {0.0f, radius, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.5f, 0.0f} });
 
 		// 中間
-		for (uint32_t i = 1; i <= _stacks; ++i) {
+		for (uint32_t i = 1; i < _stacks; ++i) {
 			float phi = XM_PI * i / _stacks; // 緯度角
 
 			for (uint32_t j = 0; j <= _slices; ++j) {
@@ -166,8 +166,8 @@ namespace dx3d {
 				XMStoreFloat3(&normal, XMVector3Normalize(XMLoadFloat3(&pos)));
 
 				XMFLOAT2 uv{
-					theta / (2.0f * XM_PI),
-					phi / XM_PI,
+					(float)j / _slices,
+					(float)i / _stacks,
 				};
 
 				sphereVertices.push_back({ pos, {1.0f, 1.0f, 1.0f, 1.0f}, normal, uv });
@@ -175,14 +175,14 @@ namespace dx3d {
 		}
 
 		// 南極
-		sphereVertices.push_back({ {0.0f, -radius, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f } });
+		sphereVertices.push_back({ {0.0f, -radius, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {0.5f, 1.0f } });
 
-		// 北極
 		std::vector<uint32_t> sphereIndices{};
-		for (uint32_t i = 1; i <= _slices; ++i) {
+		// 北極
+		for (uint32_t i = 0; i < _slices; ++i) {
 			sphereIndices.push_back(0);
-			sphereIndices.push_back(i);
 			sphereIndices.push_back(i + 1);
+			sphereIndices.push_back(i + 2);
 		}
 
 		// 中間
@@ -205,7 +205,6 @@ namespace dx3d {
 		uint32_t southPoleIndex = (uint32_t)sphereVertices.size() - 1;
 		baseIndex = southPoleIndex - ringVertexCount;
 
-		// [ToDo] ここだけ描画されていない。
 		for (uint32_t i = 0; i < _slices; ++i) {
 			sphereIndices.push_back(southPoleIndex);
 			sphereIndices.push_back(baseIndex + i + 1);

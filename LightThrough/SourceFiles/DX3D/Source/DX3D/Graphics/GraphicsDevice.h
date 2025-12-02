@@ -30,7 +30,6 @@ namespace dx3d {
 		DeviceContextPtr CreateDeviceContext();
 		ShaderBinaryPtr CompileShader(const ShaderBinary::ShaderCompileDesc& _desc) const;
 		GraphicsPipelineStatePtr CreateGraphicsPipelineState(const GraphicsPipelineStateDesc& _desc) const;
-		RasterizerStatePtr CreateRasterizerState(const RasterizerStateDesc& _desc = {});
 		VertexShaderSignaturePtr CreateVertexShaderSignature(const VertexShaderSignatureDesc& _desc) const;
 		InputLayoutPtr CreateInputLayout(const InputLayoutDesc& _desc) const;
 		VertexBufferPtr CreateVertexBuffer(const VertexBufferDesc& _desc);

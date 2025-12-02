@@ -31,12 +31,20 @@ namespace dx3d {
 		Max,
 	};
 
+	//! brief ブレンドモード
+	enum class BlendMode : uint8_t {
+		Opaque,
+		Alpha,
+		Add,
+		Max
+	};
+
 
 	// フラグビットの定義 [ToDo] 必要になったら拡張
 	namespace PipelineFlags {
 		constexpr uint8_t Instancing = 0x01;	// インスタンシング有効
 		constexpr uint8_t ShadowPass = 0x02;	// シャドウマップパス
-		//constexpr uint8_t AlphaTest = 0x04;	// アルファテスト有効
+		constexpr uint8_t AlphaTest = 0x04;	// アルファテスト有効
 
 	}
 
@@ -50,18 +58,19 @@ namespace dx3d {
 	 * bit構成:
 	 * 0-3: VertexShaderKind (Max 16種類)
 	 * 4-7: PixelShaderKind (Max 16種類)
-	 * 8-14: Flags (7bit)
-	 * 15-31: Reserved (17bit) 拡張用
+	 * 8-11: BlendMode (Max 16種類)
+	 * 12-18: Flags (7bit)
+	 * 19-31: Reserved (13bit) 拡張用
 	 */
 	union PipelineKey {
 		struct Fields {
 			uint32_t vs : 4;
 			uint32_t ps : 4;
-			// uint32_t blend : 4;	// [ToDo] 将来必要になりそう
-			// uint32_t depth : 3;
+			uint32_t blend : 4;
+			// uint32_t depth : 3;	// [ToDo] 将来必要になりそう
 			// uint32_t raster : 3;
 			// uint32_t topology : 3;
-			uint32_t flags : 7;
+			uint32_t flags : 3;
 			uint32_t reserved : 17;
 		} f;
 		uint32_t value{ 0 };
@@ -70,6 +79,7 @@ namespace dx3d {
 		PipelineKey(VertexShaderKind _vs, PixelShaderKind _ps, uint32_t _flags = 0) {
 			f.vs = static_cast<uint32_t>(_vs);
 			f.ps = static_cast<uint32_t>(_ps);
+			f.blend = static_cast<uint32_t>(BlendMode::Opaque);
 			f.flags = _flags & 0x7F;
 			f.reserved = 0;
 		}
@@ -80,10 +90,13 @@ namespace dx3d {
 
 		VertexShaderKind GetVS() const noexcept { return static_cast<VertexShaderKind>(f.vs); }
 		PixelShaderKind  GetPS() const noexcept { return static_cast<PixelShaderKind>(f.ps); }
+		BlendMode        GetBlend() const noexcept { return static_cast<BlendMode>(f.blend); }
 		uint32_t GetFlags() const noexcept { return f.flags; }
 
 		void SetVS(VertexShaderKind _vs) noexcept { f.vs = static_cast<uint32_t>(_vs); }
 		void SetPS(PixelShaderKind _ps) noexcept { f.ps = static_cast<uint32_t>(_ps); }
+		void SetDepthMode(uint32_t _depth) noexcept { /*f.depth = _depth & 0x7;*/ }
+		void SetBlend(BlendMode _blend) noexcept { f.blend = static_cast<uint32_t>(_blend); }
 		void SetFlags(uint32_t _flags) noexcept { f.flags = _flags & 0x7F; }
 		void AddFlags(uint32_t _flags) noexcept { f.flags = (f.flags | _flags) & 0x7F; }
 		void ClearFlags(uint32_t _flags) noexcept { f.flags = (f.flags & ~_flags) & 0x7F; }
@@ -98,11 +111,10 @@ namespace dx3d {
 
 
 	//! @brief パイプラインキーの構築
-	inline PipelineKey BuildPipelineKey(bool _shadowPass) noexcept {
+	inline PipelineKey BuildPipelineKey(bool _shadowPass, BlendMode _blend = BlendMode::Opaque) noexcept {
 		PipelineKey key{};
 
 		key.AddFlags(PipelineFlags::Instancing);
-
 
 		if (_shadowPass) {
 			key.SetVS(VertexShaderKind::ShadowMap);
@@ -112,6 +124,8 @@ namespace dx3d {
 		else {
 			key.SetVS(VertexShaderKind::Instanced);
 			key.SetPS(PixelShaderKind::Default);
+			key.SetBlend(_blend);
+
 		}
 
 		return key;
@@ -120,10 +134,11 @@ namespace dx3d {
 	// 定義の静的アサート
 	static_assert(static_cast<uint32_t>(VertexShaderKind::Max) <= 16, "[PipelineKey] VertexShaderKindの種類が多すぎます");
 	static_assert(static_cast<uint32_t>(PixelShaderKind::Max) <= 16, "[PipelineKey] PixelShaderKindの種類が多すぎます");
+	static_assert(static_cast<uint32_t>(BlendMode::Max) <= 16, "[PipelineKey] BlendModeの種類が多すぎます");
+	
 }
 
 // 将来必要になりそうなものをメモ
-//enum class BlendMode : uint8_t { Opaque, Alpha, Add, Max };
 //enum class DepthMode : uint8_t { Default, ReadOnly, Disable, Max };
 //enum class RasterMode : uint8_t { SolidBack, SolidNone, Wireframe, Max };
 //enum class TopologyKind : uint8_t { Triangles, Lines, Points, Max };

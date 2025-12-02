@@ -11,7 +11,6 @@ struct VSInstance
     float4 row1 : INSTANCE_ROW1;
     float4 row2 : INSTANCE_ROW2;
     float4 row3 : INSTANCE_ROW3;
-    float4 color : INSTANCE_COLOR;
 };
 
 struct VSOUT
@@ -25,7 +24,7 @@ cbuffer cbperFrame : register(b0)
     row_major float4x4 projectionMatrix;
 };
 
-cbuffer cbLightMatrix : register(b2)
+cbuffer cbLightMatrix : register(b1)
 {
     row_major float4x4 lightViewProj;
 }

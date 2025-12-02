@@ -35,6 +35,7 @@ namespace dx3d {
 			.vs = *vsEntry.signature,
 			.ps = psBin.get(),
 			.inputLayout = vsEntry.layout,
+			.blendMode = _key.GetBlend()
 		};
 
 		// パイプラインステートオブジェクトの生成
