@@ -2,8 +2,6 @@
 /**
  * @file CollisionResolveSystem.h
  * @brief 押し出しを行うシステム
- * @author Arima Keita
- * @date 2025-10-10 4:00 有馬啓太 作成
  */
 
 
@@ -15,6 +13,7 @@
 namespace ecs {
 	struct Transform;
 	struct Collider;
+	class ShadowTestSystem;
 
 	/**
 	 * @brief 衝突時の押出処理システム

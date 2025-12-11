@@ -191,7 +191,7 @@ namespace ecs {
 						pRbB = &rbB;
 					}
 				}
-	
+
 				const float denom = invMassA + invMassB;
 				if (denom <= 0.0f) { continue; }	// 両方0ならスキップ
 
@@ -200,10 +200,10 @@ namespace ecs {
 				XMFLOAT3 vB{};
 				if (pRbA) { vA = pRbA->linearVelocity; }
 				if (pRbB) { vB = pRbB->linearVelocity; }
-				const XMFLOAT3 vRel = collision::Sub(vB, vA);
+				const XMFLOAT3 vRel = math::Sub(vB, vA);
 
 				// 法線方向の相対速度
-				const float vRelN = collision::Dot(vRel, nAB);
+				const float vRelN = math::Dot(vRel, nAB);
 
 				// 反発係数
 				float e = 0.0f;
@@ -220,12 +220,12 @@ namespace ecs {
 				const XMFLOAT3 impulseN = Scale(nAB, jn);
 
 				// 速度適用
-				if (pRbA) { pRbA->linearVelocity = collision::Sub(pRbA->linearVelocity, Scale(impulseN, invMassA)); }
-				if (pRbB) { pRbB->linearVelocity = collision::Add(pRbB->linearVelocity, Scale(impulseN, invMassB)); }
+				if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseN, invMassA)); }
+				if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseN, invMassB)); }
 
 				// クーロン摩擦の簡易モデル: (接触方向 t = normalize(vRel - vRelN * nAB))
-				XMFLOAT3 t = collision::Sub(vRel, Scale(nAB, vRelN));
-				const float tLen = collision::Length(t);
+				XMFLOAT3 t = math::Sub(vRel, Scale(nAB, vRelN));
+				const float tLen = math::Length(t);
 				if (tLen > 1e-6f) {
 					t = Scale(t, 1.0f / tLen);
 					// 合成摩擦係数 memo: ここでは平均をとる
@@ -235,14 +235,14 @@ namespace ecs {
 					mu = (pRbA && pRbB) ? (mu * 0.5f) : mu;
 
 					// 接触インパルス
-					float jt = -collision::Dot(vRel, t) / denom;
+					float jt = -(math::Dot(vRel, t) / denom);
 					// クランプ ( |jt| <= mu * jn )
 					const float jtMax = mu * jn;
 					jt = std::clamp(jt, -jtMax, jtMax);
 
 					const XMFLOAT3 impulseT = Scale(t, jt);
-					if (pRbA) { pRbA->linearVelocity = collision::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
-					if (pRbB) { pRbB->linearVelocity = collision::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
+					if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
+					if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
 				}
 			}
 		}

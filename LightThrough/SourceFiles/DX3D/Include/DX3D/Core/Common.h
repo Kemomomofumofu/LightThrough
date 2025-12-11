@@ -77,6 +77,22 @@ namespace dx3d {
 		const void* initData{};
 	};
 
+	struct StructuredBufferDesc {
+		uint32_t elementSize{};
+		uint32_t elementCount{};
+		const void* initData{};
+	};
+
+	struct RWStructuredBufferDesc {
+		uint32_t elementSize{};
+		uint32_t elementCount{};
+	};
+
+	struct StagingBufferDesc {
+		uint32_t elementSize{};
+		uint32_t elementCount{};
+	};
+
 	struct GameDesc {
 		Rect windowSize{ 1280, 720 };
 		Logger::LogLevel logLevel = Logger::LogLevel::Error;

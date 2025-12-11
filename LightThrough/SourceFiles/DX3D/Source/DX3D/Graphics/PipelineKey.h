@@ -11,9 +11,7 @@
 #include <tuple>
 
 namespace dx3d {
-	/**
-	 * @brief 頂点シェーダの種類をまとめた列挙型
-	 */
+	//! @brief 頂点シェーダの種類をまとめた列挙型
 	enum class VertexShaderKind : uint8_t {
 		None = 0,
 		Default,
@@ -22,16 +20,23 @@ namespace dx3d {
 		Max,
 	};
 
-	/**
-	 * @brief ピクセルシェーダの種類をまとめた列挙型
-	 */
+	
+	//! @brief ピクセルシェーダの種類をまとめた列挙型
 	enum class PixelShaderKind : uint8_t {
 		None = 0,
 		Default,
 		Max,
 	};
 
-	//! brief ブレンドモード
+	// memo: pipelineとはまた別のくくりだと思うので場所を変えたほうが適切かも？
+	//! @brief コンピュートシェーダの種類をまとめた列挙型
+	enum class ComputeShaderKind : uint8_t {
+		None = 0,
+		ShadowTest,
+		Max,
+	};
+
+	//! @brief ブレンドモード
 	enum class BlendMode : uint8_t {
 		Opaque,
 		Alpha,
