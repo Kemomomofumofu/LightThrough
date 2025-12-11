@@ -9,6 +9,7 @@
  /*---------- インクルード ----------*/
 #include <DX3D/Core/Core.h>
 #include <DX3D/Core/Base.h>
+#include <DX3D/Graphics/ShaderCache.h>
 #include <DX3D/Graphics/PipelineCache.h>
 #include <DX3D/Graphics/PipelineKey.h>
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
@@ -46,6 +47,7 @@ namespace dx3d {
 		DeviceContextPtr device_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
 		InputLayoutPtr vs_layout_{};
+		std::unique_ptr<ShaderCache> shader_cache_{};
 		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};
 		std::unique_ptr<MeshRegistry> mesh_registry_{};

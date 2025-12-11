@@ -47,12 +47,8 @@ namespace dx3d {
 	{
 	}
 
-
-
 	/**
 	 * @brief スワップチェーンを生成する
-	 * @param _desc スワップチェーンの定義
-	 * @return 戻り値の説明スワップチェーンのSharedPtr
 	 */
 	SwapChainPtr GraphicsDevice::CreateSwapChain(const SwapChainDesc& _desc)
 	{
@@ -61,7 +57,6 @@ namespace dx3d {
 
 	/**
 	 * @brief デバイスコンテキストを生成
-	 * @return デバイスコンテキストのSharedPtr
 	 */
 	DeviceContextPtr GraphicsDevice::CreateDeviceContext()
 	{
@@ -70,8 +65,6 @@ namespace dx3d {
 
 	/**
 	 * @brief シェーダをコンパイル
-	 * @param _desc シェーダの定義
-	 * @return コンパイルされたシェーダのSharedPtr
 	 */
 	ShaderBinaryPtr GraphicsDevice::CompileShader(const ShaderBinary::ShaderCompileDesc& _desc) const
 	{
@@ -82,9 +75,7 @@ namespace dx3d {
 	}
 
 	/**
-	 * @brief
-	 * @param _desc
-	 * @return PipelineStateのSharedPtr
+	 * @brief PSOを生成
 	 */
 	GraphicsPipelineStatePtr GraphicsDevice::CreateGraphicsPipelineState(const GraphicsPipelineStateDesc& _desc) const
 	{
@@ -93,8 +84,6 @@ namespace dx3d {
 
 	/**
 	 * @brief VertexBufferを生成する
-	 * @param _desc VertexBufferの定義
-	 * @return VertexBufferのSharedPtr
 	 */
 	VertexBufferPtr GraphicsDevice::CreateVertexBuffer(const VertexBufferDesc& _desc)
 	{
@@ -103,8 +92,6 @@ namespace dx3d {
 
 	/**
 	 * @brief IndexBufferを生成する
-	 * @param _desc IndexBufferの定義
-	 * @return IndexBufferのSharedPtr
 	 */
 	IndexBufferPtr GraphicsDevice::CreateIndexBuffer(const IndexBufferDesc& _desc)
 	{
@@ -113,19 +100,28 @@ namespace dx3d {
 
 	/**
 	 * @brief ConstantBuffer生成する
-	 * @param _desc ConstantBufferの定義
-	 * @return ConstantBufferのSharedPtr
 	 */
 	ConstantBufferPtr GraphicsDevice::CreateConstantBuffer(const ConstantBufferDesc& _desc)
 	{
 		return std::make_shared<ConstantBuffer>(_desc, GetGraphicsResourceDesc());
 	}
 
-	/**
-	 * @brief Instancingで使うバッファの生成
-	 * @param _data インスタンスのデータ群
-	 * @return 頂点バッファとしてまとめられたインスタンスバッファ
-	 */
+	//! @brief StructuredBuffer生成する
+	StructuredBufferPtr GraphicsDevice::CreateStructuredBuffer(const StructuredBufferDesc& _desc)
+	{
+		return std::make_shared<StructuredBuffer>(_desc, GetGraphicsResourceDesc());
+	}
+	RWStructuredBufferPtr GraphicsDevice::CreateRWStructuredBuffer(const RWStructuredBufferDesc& _desc)
+	{
+		return std::make_shared<RWStructuredBuffer>(_desc, GetGraphicsResourceDesc());
+	}
+	StagingBufferPtr GraphicsDevice::CreateStagingBuffer(const StagingBufferDesc& _desc)
+	{
+		return std::make_shared<StagingBuffer>(_desc, GetGraphicsResourceDesc());
+	}
+
+
+	//! @brief Instancingで使うバッファの生成
 	auto GraphicsDevice::CreateInstanceBuffer(const std::vector<InstanceDataMain>& _data)
 	{
 		VertexBufferDesc desc{
@@ -137,6 +133,13 @@ namespace dx3d {
 		return CreateVertexBuffer(desc);
 	}
 
+	//! @brief シェーダキャッシュの生成
+	std::unique_ptr<ShaderCache> GraphicsDevice::CreateShaderCache(const ShaderCache::ShaderCacheDesc& _desc)
+	{
+		return std::make_unique<ShaderCache>(_desc, GetGraphicsResourceDesc());
+	}
+
+	//! @brief パイプラインキャッシュの生成
 	std::unique_ptr<PipelineCache> GraphicsDevice::CreatePipelineCache(const PipelineCache::PipelineCacheDesc& _desc)
 	{
 		return std::make_unique<PipelineCache>(_desc, GetGraphicsResourceDesc());

@@ -29,18 +29,22 @@ namespace dx3d {
 		auto& device = *graphics_device_;
 		device_context_ = device.CreateDeviceContext();
 
-		// @brief パイプラインキャッシュの生成
-		pipeline_cache_ = device.CreatePipelineCache({});
+		// シェーダーキャッシュの生成
+		shader_cache_ = device.CreateShaderCache({});
 
-		// @brief メッシュレジストリの生成
+		// パイプラインキャッシュの生成
+		pipeline_cache_ = device.CreatePipelineCache({*shader_cache_});
+
+		// メッシュレジストリの生成
 		mesh_registry_ = std::make_unique<MeshRegistry>();
 
-		// @briefMeshを事前に生成しておく
+		// Meshを事前に生成しておく
 		PrimitiveFactory::CreateCube(device, *mesh_registry_);
 		PrimitiveFactory::CreateSphere(device, *mesh_registry_);
 		PrimitiveFactory::CreateQuad(device, *mesh_registry_);
 		//PrimitiveFactory::CreateLine(device, *mesh_registry_);
 	}
+
 	//! @brief デストラクタ
 	GraphicsEngine::~GraphicsEngine()
 	{
@@ -71,7 +75,11 @@ namespace dx3d {
 	void GraphicsEngine::BeginFrame()
 	{
 		auto& context = *device_context_;
-		context.ClearAndSetBackBuffer(*swap_chain_, { 0.0f, 0.0f, 0.0f, 1.0f });	// 初期色でクリア
+		DirectX::XMFLOAT4 clearColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+#ifdef _DEBUG || DEBUG
+		clearColor = { 0.2, 0.3f, 0.5f, 1.0f };
+#endif
+		context.ClearAndSetBackBuffer(*swap_chain_, clearColor);	// 初期色でクリア
 	}
 
 

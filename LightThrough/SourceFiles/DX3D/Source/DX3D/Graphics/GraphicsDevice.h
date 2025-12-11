@@ -17,8 +17,10 @@
 #include <DX3D/Graphics/GraphicsResource.h>
 #include <DX3D/Graphics/Buffers/InstanceData.h>
 #include <DX3D/Graphics/Inputlayout.h>
+#include <DX3D/Graphics/ShaderCache.h>
 #include <DX3D/Graphics/PipelineCache.h>
 #include <DX3D/Graphics/ShaderBinary.h>
+#include <DX3D/Graphics/Buffers/StructuredBuffers.h>
 
 namespace dx3d {
 	class GraphicsDevice final : public Base, public std::enable_shared_from_this<GraphicsDevice> {
@@ -35,7 +37,11 @@ namespace dx3d {
 		VertexBufferPtr CreateVertexBuffer(const VertexBufferDesc& _desc);
 		IndexBufferPtr CreateIndexBuffer(const IndexBufferDesc& _desc);
 		ConstantBufferPtr CreateConstantBuffer(const ConstantBufferDesc& _desc);
+		StructuredBufferPtr CreateStructuredBuffer(const StructuredBufferDesc& _desc);
+		RWStructuredBufferPtr CreateRWStructuredBuffer(const RWStructuredBufferDesc& _desc);
+		StagingBufferPtr CreateStagingBuffer(const StagingBufferDesc& _desc);
 		auto CreateInstanceBuffer(const std::vector<InstanceDataMain>& _data);
+		std::unique_ptr<ShaderCache> CreateShaderCache(const ShaderCache::ShaderCacheDesc& _desc);
 		std::unique_ptr<PipelineCache> CreatePipelineCache(const PipelineCache::PipelineCacheDesc& _desc);
 
 		HRESULT CreateTexture2D(const D3D11_TEXTURE2D_DESC* _desc, const D3D11_SUBRESOURCE_DATA* _initialData, ID3D11Texture2D** _texture)const noexcept;

@@ -24,7 +24,7 @@ namespace dx3d {
 		);
 
 		// PixelShader
-		if (_desc.ps != nullptr) {
+		if (_desc.ps) {
 			auto ps = _desc.ps->GetData();
 			DX3DGraphicsLogThrowOnFail(
 				device_.CreatePixelShader(ps.data, ps.dataSize, nullptr, &ps_),

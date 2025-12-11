@@ -37,7 +37,7 @@ namespace dx3d {
 
 	struct GraphicsPipelineStateDesc {
 		const VertexShaderSignature& vs;
-		const ShaderBinary* ps;
+		const ShaderBinary* ps{};
 		InputLayoutPtr inputLayout{};
 		RasterizerStateDesc rasterizerState;
 		BlendMode blendMode = BlendMode::Opaque;

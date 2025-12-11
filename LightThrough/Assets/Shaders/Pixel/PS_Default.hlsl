@@ -41,7 +41,7 @@ float CalcShadowFactor(float3 _worldPos, int _shadowIndex, matrix _lightVP)
     for (int y = -1; y <= 1; ++y)
     {
         [unroll]
-        for (int x = -1; x <= 1; ++x)
+        for (int x = -1; x <= 1; x += 2)
         {
             float2 offset = float2(x, y) * texel;
             result += shadowMap.SampleCmpLevelZero(
@@ -63,8 +63,6 @@ float4 PSMain(PSIN _pin) : SV_Target
     
     float3 color = float3(0.0f, 0.0f, 0.0f);
     float alpha = 0.0f;
-    // îpä¸ÉtÉâÉO
-    bool discardFlag = true;
     [unroll]
     for (int i = 0; i < lightCount; ++i)
     {
@@ -76,30 +74,19 @@ float4 PSMain(PSIN _pin) : SV_Target
         float shadowFactor = CalcShadowFactor(_pin.worldPos, shadowIndex, lightViewProjs[i]);
         
         float effectiveLight = li * shadowFactor;
-        
-        if (discardFlag)
-        {
-            // è∆ÇÁÇ≥ÇÍÇƒÇ¢ÇÈ Ç©Ç¬ âAÇ…Ç»Ç¡ÇƒÇ¢Ç»Ç¢
-            if (effectiveLight > 0.0f)
-            {
-                discardFlag = false;
-            }
-        }
-        
+       
         // êFâ¡éZ
         color += effectiveLight * lights[i].color.rgb;
         alpha += effectiveLight;
-
     }
     
-    if (discardFlag)
+    if (alpha <= 0.0f)
     {
         discard;
     }
     
     color *= _pin.color.rgb;
-    alpha *= _pin.color.a;
+    alpha = saturate(alpha + 0.1f) * _pin.color.a;
     
-    return float4(saturate(color), saturate(alpha));
-    
+    return float4(saturate(color), alpha);
 }

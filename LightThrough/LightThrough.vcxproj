@@ -151,6 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
@@ -205,6 +207,8 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
     <ClInclude Include="SourceFiles\Game\Components\Light.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
@@ -287,10 +291,41 @@
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\Common\common.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Assets\Shaders\Common\Lighting.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
     <None Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\Compute\CS_ShadowTest.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
