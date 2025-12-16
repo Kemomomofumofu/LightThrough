@@ -37,7 +37,7 @@ namespace dx3d {
 
 		void Update(DeviceContext& _cxt, const void* _data, size_t _size)
 		{
-			auto context = _cxt.GetDeviceContext().Get();
+			auto context = _cxt.GetDeferredContext().Get();
 
 			D3D11_MAPPED_SUBRESOURCE mapped{};
 			DX3DGraphicsLogThrowOnFail(

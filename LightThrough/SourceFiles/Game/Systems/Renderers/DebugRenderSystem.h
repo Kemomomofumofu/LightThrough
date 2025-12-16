@@ -31,7 +31,7 @@ namespace ecs {
 	class DebugRenderSystem : public ISystem {
 	public:
 		DebugRenderSystem(const SystemDesc& _desc);
-		void Init();
+		void Init() override;
 		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
 		void DrawLine(DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end, DirectX::XMFLOAT4 _color);

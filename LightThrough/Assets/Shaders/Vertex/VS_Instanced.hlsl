@@ -29,11 +29,6 @@ cbuffer cbperFrame : register(b0)
     row_major float4x4 projectionMatrix;
 };
 
-cbuffer cbLightMatrix : register(b2)
-{
-    row_major float4x4 lightViewProj;
-}
-
 
 VSOUT VSMain(VSVertex _vin, VSInstance _inst)
 {
@@ -56,8 +51,6 @@ VSOUT VSMain(VSVertex _vin, VSInstance _inst)
     
     // êF
     vout.color = _vin.color * _inst.color;
-    
-    vout.posLight = mul(wp, lightViewProj);
 
     return vout;
 }

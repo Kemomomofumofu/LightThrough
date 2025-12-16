@@ -29,10 +29,6 @@ namespace dx3d {
 		GraphicsDevice& graphicsDevice;
 	};
 
-	struct GraphicsEngineDesc {
-		BaseDesc base;
-	};
-
 	struct GraphicsDeviceDesc {
 		BaseDesc base;
 	};
@@ -51,32 +47,6 @@ namespace dx3d {
 		size_t dataSize{};
 	};
 
-	struct GraphicsPipelineStateDesc {
-		const VertexShaderSignature& vs;
-		const ShaderBinary* ps;
-		InputLayoutPtr inputLayout{};
-	};
-
-	// [ToDo] 将来的にはPipelineStateKeyにまとめる
-	enum class FillMode {
-		Solid,
-		Wireframe,
-	};
-	enum class CullMode {
-		None,
-		Front,
-		Back,
-	};
-	struct RasterizerStateDesc {
-		FillMode fillMode = FillMode::Solid;
-		CullMode cullMode = CullMode::Back;
-		bool frontCounterClockwise = true;
-		bool depthClipEnable = true;
-		bool scissorEnable = false;
-		bool multiSampleEnable = false;
-		bool antiAliasedLineEnable = false;
-	};
-
 	/**
 	 * @brief インデックスバッファ構造体
 	 * 
@@ -92,7 +62,7 @@ namespace dx3d {
 	 * @brief 頂点バッファ構造体
 	 * @details
 	 * - \c vertexList		: 頂点データのポインタ
-	 * - \c vertexlistSize	: 頂点データのバイトサイズ
+	 * - \c vertexListSize	: 頂点データのバイトサイズ
 	 * - \c vertexSize		: 1頂点あたりのバイトサイズ
 	 * @todo 頂点バッファの更新方法を指定できるようにする
 	 */
@@ -105,6 +75,22 @@ namespace dx3d {
 	struct ConstantBufferDesc {
 		uint32_t byteWidth{};
 		const void* initData{};
+	};
+
+	struct StructuredBufferDesc {
+		uint32_t elementSize{};
+		uint32_t elementCount{};
+		const void* initData{};
+	};
+
+	struct RWStructuredBufferDesc {
+		uint32_t elementSize{};
+		uint32_t elementCount{};
+	};
+
+	struct StagingBufferDesc {
+		uint32_t elementSize{};
+		uint32_t elementCount{};
 	};
 
 	struct GameDesc {

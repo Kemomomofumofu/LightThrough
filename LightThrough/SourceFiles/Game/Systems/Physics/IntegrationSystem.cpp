@@ -52,7 +52,7 @@ namespace ecs {
 			};
 			tf.AddPosition(add);
 
-			// 角運動 todo: 慣性テンソル未実装なので、現状は角加速度は未計算
+			// 角運動 memo: 慣性テンソル未実装なので、現状は角加速度は未計算
 			// 各速度ベクトルから微小回転Δqを作り、 q <- Δq * q を計算して回転を更新する。
 			{
 				XMVECTOR w = XMLoadFloat3(&rb.angularVelocity);

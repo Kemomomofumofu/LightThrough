@@ -16,7 +16,9 @@
 
 #include <Game/Systems/TransformSystem.h>
 #include <Game/Systems/CameraSystem.h>
+#include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Renderers/LightDepthRenderSystem.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
@@ -43,53 +45,42 @@ namespace {
 	 */
 	void RegisterAllSystems(ecs::SystemDesc& _desc, dx3d::GraphicsEngine& _engine)
 	{
-		auto& ecsCoordinator = _desc.ecs;
+		auto& ecs = _desc.ecs;
 
 
 		// ---------- 衝突関係 ---------- // 
-		ecsCoordinator.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
-		const auto& forceAccumulationSystem = ecsCoordinator.GetSystem<ecs::ForceAccumulationSystem>();
-		forceAccumulationSystem->Init();
+		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
+		ecs.RegisterSystem<ecs::IntegrationSystem>(_desc);
+		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
+		
+		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_desc);
+		const auto& lightDepthRenderSystem = ecs.GetSystem<ecs::LightDepthRenderSystem>();
+		lightDepthRenderSystem->SetGraphicsEngine(_engine);
 
-		ecsCoordinator.RegisterSystem<ecs::IntegrationSystem>(_desc);
-		const auto& integrationSystem = ecsCoordinator.GetSystem<ecs::IntegrationSystem>();
-		integrationSystem->Init();
+		ecs.RegisterSystem<ecs::ShadowTestSystem>(_desc);
+		const auto& shadowTest = ecs.GetSystem<ecs::ShadowTestSystem>();
+		shadowTest->SetGraphicsEngine(_engine);
 
-		ecsCoordinator.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
-		const auto& colliderSyncSystem = ecsCoordinator.GetSystem<ecs::ColliderSyncSystem>();
-		colliderSyncSystem->Init();
-
-		ecsCoordinator.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
-		const auto& collisionResolveSystem = ecsCoordinator.GetSystem<ecs::CollisionResolveSystem>();
-		collisionResolveSystem->Init();
-
-		ecsCoordinator.RegisterSystem<ecs::ClearForcesSystem>(_desc);
-		const auto& clearForcesSystem = ecsCoordinator.GetSystem<ecs::ClearForcesSystem>();
-		clearForcesSystem->Init();
-
+		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
+		ecs.RegisterSystem<ecs::ClearForcesSystem>(_desc);
 
 		// カメラ
-		ecsCoordinator.RegisterSystem<ecs::CameraSystem>(_desc);
-		const auto& cameraSystem = ecsCoordinator.GetSystem<ecs::CameraSystem>();
-		cameraSystem->Init();
-
+		ecs.RegisterSystem<ecs::CameraSystem>(_desc);
 		// 位置更新
-		ecsCoordinator.RegisterSystem<ecs::TransformSystem>(_desc);
-		const auto& transformSystem = ecsCoordinator.GetSystem<ecs::TransformSystem>();
-		transformSystem->Init();
+		ecs.RegisterSystem<ecs::TransformSystem>(_desc);
 
 		// 描画システム
-		ecsCoordinator.RegisterSystem<ecs::RenderSystem>(_desc);
-		const auto& renderSystem = ecsCoordinator.GetSystem<ecs::RenderSystem>();
+		ecs.RegisterSystem<ecs::RenderSystem>(_desc);
+		const auto& renderSystem = ecs.GetSystem<ecs::RenderSystem>();
 		renderSystem->SetGraphicsEngine(_engine);
-		renderSystem->Init();
 
 		// デバッグ描画システム
-		ecsCoordinator.RegisterSystem<ecs::DebugRenderSystem>(_desc);
-		const auto& debugRenderSystem = ecsCoordinator.GetSystem<ecs::DebugRenderSystem>();
+		ecs.RegisterSystem<ecs::DebugRenderSystem>(_desc);
+		const auto& debugRenderSystem = ecs.GetSystem<ecs::DebugRenderSystem>();
 		debugRenderSystem->SetGraphicsEngine(_engine);
-		debugRenderSystem->Init();
 
+		// 全システム初期化
+		ecs.InitAllSystems();
 	}
 }
 #pragma endregion
@@ -118,7 +109,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	try {
 		// ImGuiの初期化
 		ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
-		ID3D11DeviceContext* context = graphics_engine_->GetDeviceContext().GetDeviceContext().Get();
+		ID3D11DeviceContext* context = graphics_engine_->GetDeferredContext().GetDeferredContext().Get();
 		void* hwnd = display_->GetHandle();
 		debug::DebugUI::Init(device, context, hwnd);
 
@@ -131,7 +122,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 		// SceneManagerの初期化
 		scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
 
-		// todo: 自動でComponentを登録する機能が欲しいかも。
+		// todo: 自動でComponentを登録する機能が欲しいかも。システム登録段階で、コンポーネントマネージャの中にすでに登録してあったらそのシグネチャを使い、なければ新たにとか...
 		ecs_coordinator_->RegisterComponent<ecs::Transform>();
 		ecs_coordinator_->RegisterComponent<ecs::MeshRenderer>();
 		ecs_coordinator_->RegisterComponent<ecs::Camera>();
@@ -151,32 +142,32 @@ dx3d::Game::Game(const GameDesc& _desc)
 		// Entityの生成
 		// テスト
 
-		{
-			auto e = ecs_coordinator_->CreateEntity();
-			ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
-			tf.LookTo({ 0.0f, -1.0f, 0.0f });
-			ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
-			ecs::LightCommon lightCommon;
-			lightCommon.color = { 0.7f, 0.5f, 0.6f };
-			ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
-			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-		}
+		//{
+		//	auto e = ecs_coordinator_->CreateEntity();
+		//	ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
+		//	tf.LookTo({ 0.0f, -1.0f, 0.0f });
+		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
+		//	ecs::LightCommon lightCommon;
+		//	lightCommon.color = { 0.7f, 0.5f, 0.6f };
+		//	ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
+		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		//}
 
-		{
-			auto e = ecs_coordinator_->CreateEntity();
-			ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
-			tf.LookTo({ 0.0f, -1.0f, 0.0f });
-			ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
-			ecs::LightCommon lightCommon;
-			lightCommon.color = { 0.0f, 0.95f, 0.2f };
-			ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
-			ecs::SpotLight spotData{};
-			spotData.range = 100.0f;
-			spotData.innerCos = 0.9f;
-			spotData.outerCos = 0.8f;
-			ecs_coordinator_->AddComponent<ecs::SpotLight>(e, spotData);
-			scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-		}
+		//{
+		//	auto e = ecs_coordinator_->CreateEntity();
+		//	ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
+		//	tf.LookTo({ 0.0f, -1.0f, 0.0f });
+		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
+		//	ecs::LightCommon lightCommon;
+		//	lightCommon.color = { 0.0f, 0.95f, 0.2f };
+		//	ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
+		//	ecs::SpotLight spotData{};
+		//	spotData.range = 100.0f;
+		//	spotData.innerCos = 0.9f;
+		//	spotData.outerCos = 0.8f;
+		//	ecs_coordinator_->AddComponent<ecs::SpotLight>(e, spotData);
+		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		//}
 
 	}
 	catch (const std::exception& _e) {

@@ -24,12 +24,13 @@ namespace ecs {
 			, ecs_(_desc.ecs){}
 
 		virtual ~ISystem() = default;
+		virtual void Init() {}
 		virtual void Update(float _dt) {}
 		virtual void FixedUpdate(float _fixedDt) {}
 		virtual void OnEntityDestroyed(Entity _e) {}
 		std::set<Entity> entities_;	// ˆ—‘ÎÛ‚ÌEntity‚ÌW‡
 
 	protected:
-		::ecs::Coordinator& ecs_; // ecs::Coordinator‚Ö‚ÌQÆ
+		ecs::Coordinator& ecs_; // ecs::Coordinator‚Ö‚ÌQÆ
 	};
 }

@@ -152,7 +152,6 @@
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\RenderSystem.h">
       <Filter>Systems</Filter>
     </ClInclude>
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\ConstantBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\GameLogUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\Vertex.h" />
@@ -204,6 +203,12 @@
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Light.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\LightDepthRenderSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Gimmicks\ShadowState.h" />
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\MathUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -259,7 +264,6 @@
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\RenderSystem.cpp">
       <Filter>Systems</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\EntityManager.cpp" />
     <ClCompile Include="SourceFiles\Game\Components\Camera.h">
       <Filter>Components</Filter>
@@ -294,11 +298,24 @@
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\LightDepthRenderSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
     <None Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
+    <None Include="Assets\Shaders\Common\Lighting.hlsli" />
+    <None Include="Assets\Shaders\Common\common.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\Compute\CS_ShadowTest.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
   </ItemGroup>
 </Project>

@@ -127,6 +127,7 @@ namespace ecs {
 		system_manager_->RegisterSystem<Sys>(_desc);
 	}
 
+
 	/**
 	 * @brief System‚ÌSignature‚ğİ’è
 	 * @param <Sys> Signature‚ğİ’è‚·‚éSystem‚Ìí—Ş

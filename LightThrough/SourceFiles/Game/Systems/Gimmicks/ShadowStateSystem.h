@@ -1,6 +1,6 @@
 #pragma once
 /**
- * @file CameraSystem.h
+ * @file ShadowStateSystem.h
  * @brief カメラシステム
  * @author Arima Keita
  * @date 2025-09-05
@@ -10,20 +10,19 @@
 #include <Game/ECS/ISystem.h>
 
 
-namespace ecs {	
+namespace ecs {
 	class Coordinator;
 	struct CameraController;
 	struct Transform;
 	/**
-	 * @brief カメラ
+	 * @brief 影ステート更新
 	 *
-	 * カメラの挙動
-	 * 必須：<Transform>, <Camera>
-	 * 任意：<CameraController>
+	 * 影の中にいるかどうかを判定、更新する
+	 * 必須：<Transform>, <Collider>, <ShadowState>
 	 */
-	class CameraSystem : public ISystem {
+	class ShadowStateSystem : public ISystem {
 	public:
-		CameraSystem(const SystemDesc& _desc);
+		ShadowStateSystem(const SystemDesc& _desc);
 		void Init() override;
 		void Update(float _dt) override;
 

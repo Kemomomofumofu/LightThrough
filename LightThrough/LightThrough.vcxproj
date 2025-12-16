@@ -151,6 +151,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
@@ -172,9 +175,9 @@
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\DebugRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\LightDepthRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\RenderSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\InputSystem\InputSystem.cpp" />
@@ -205,7 +208,12 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\MathUtils.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Gimmicks\ShadowState.h" />
     <ClInclude Include="SourceFiles\Game\Components\Light.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
@@ -248,9 +256,9 @@
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\DebugRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\LightDepthRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\RenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\MeshRenderer.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\RasterizerState.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\InputSystem\InputSystem.h" />
@@ -287,10 +295,67 @@
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Shaders\Common\common.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Assets\Shaders\Common\Lighting.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
     <None Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\Compute\CS_ShadowTest.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

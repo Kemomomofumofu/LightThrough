@@ -20,7 +20,6 @@ namespace ecs {
 	public:
 		PrefabSystem(const ecs::SystemDesc& _desc)
 			: ISystem(_desc){ }
-
 		void Update(float _dt) override;
 
 		ecs::Entity CreateGameObject(LightThrough::GameObjectType _type);	// ゲームオブジェクトを生成する

@@ -1,8 +1,6 @@
 /**
  * @file CollisionResolveSystem.cpp
  * @brief 押し出しを行うシステム
- * @author Arima Keita
- * @date 2025-10-10 4:00 有馬啓太 作成
  */
 
  // ---------- インクルード ---------- //
@@ -13,6 +11,8 @@
 
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
 #include <Game/ECS/Coordinator.h>
+
+#include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 
 #include <Game/Components/Transform.h>
 #include <Game/Components/Collider.h>
@@ -115,6 +115,9 @@ namespace ecs {
 		sig.set(ecs_.GetComponentType<Transform>());
 		sig.set(ecs_.GetComponentType<Collider>());
 		ecs_.SetSystemSignature<CollisionResolveSystem>(sig);
+
+		// 影テストシステムの取得
+		shadow_test_system_ = ecs_.GetSystem<ShadowTestSystem>();
 	}
 
 	/**
@@ -123,6 +126,8 @@ namespace ecs {
 	 */
 	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
+		auto shadowTestSystem = shadow_test_system_.lock();
+
 		// ペアごとに処理するためにベクターにコピー
 		std::vector<Entity> ents;
 		ents.reserve(entities_.size());
@@ -152,6 +157,20 @@ namespace ecs {
 				if (!contact) { continue; }	// 衝突していないならスキップ
 
 				if (contact->penetration <= 1e-6f) { continue; } // ほとんどゼロならスキップ
+
+
+				// 影判定
+				if (shadow_collision_enabled_ && shadowTestSystem) {
+					// 衝突ペアを登録
+					// memo: 次フレームの判定になる
+					XMFLOAT3 contactPoint = math::Scale(math::Add(tfA.position, tfB.position), 0.5f);
+					shadowTestSystem->RegisterCollisionPair(eA, eB, contactPoint);
+
+					// 前フレームの結果を確認
+					// memo: 前フレームの判定を取得する
+					if (shadowTestSystem->AreBothInShadow(eA, eB)) { continue; }
+				}
+
 
 				// 押し出し量の計算 (A->B 法線)
 				auto [dispA, dispB] = collision::ComputePushOut(
@@ -191,7 +210,7 @@ namespace ecs {
 						pRbB = &rbB;
 					}
 				}
-	
+
 				const float denom = invMassA + invMassB;
 				if (denom <= 0.0f) { continue; }	// 両方0ならスキップ
 
@@ -200,10 +219,10 @@ namespace ecs {
 				XMFLOAT3 vB{};
 				if (pRbA) { vA = pRbA->linearVelocity; }
 				if (pRbB) { vB = pRbB->linearVelocity; }
-				const XMFLOAT3 vRel = collision::Sub(vB, vA);
+				const XMFLOAT3 vRel = math::Sub(vB, vA);
 
 				// 法線方向の相対速度
-				const float vRelN = collision::Dot(vRel, nAB);
+				const float vRelN = math::Dot(vRel, nAB);
 
 				// 反発係数
 				float e = 0.0f;
@@ -220,12 +239,12 @@ namespace ecs {
 				const XMFLOAT3 impulseN = Scale(nAB, jn);
 
 				// 速度適用
-				if (pRbA) { pRbA->linearVelocity = collision::Sub(pRbA->linearVelocity, Scale(impulseN, invMassA)); }
-				if (pRbB) { pRbB->linearVelocity = collision::Add(pRbB->linearVelocity, Scale(impulseN, invMassB)); }
+				if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseN, invMassA)); }
+				if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseN, invMassB)); }
 
 				// クーロン摩擦の簡易モデル: (接触方向 t = normalize(vRel - vRelN * nAB))
-				XMFLOAT3 t = collision::Sub(vRel, Scale(nAB, vRelN));
-				const float tLen = collision::Length(t);
+				XMFLOAT3 t = math::Sub(vRel, Scale(nAB, vRelN));
+				const float tLen = math::Length(t);
 				if (tLen > 1e-6f) {
 					t = Scale(t, 1.0f / tLen);
 					// 合成摩擦係数 memo: ここでは平均をとる
@@ -235,14 +254,14 @@ namespace ecs {
 					mu = (pRbA && pRbB) ? (mu * 0.5f) : mu;
 
 					// 接触インパルス
-					float jt = -collision::Dot(vRel, t) / denom;
+					float jt = -(math::Dot(vRel, t) / denom);
 					// クランプ ( |jt| <= mu * jn )
 					const float jtMax = mu * jn;
 					jt = std::clamp(jt, -jtMax, jtMax);
 
 					const XMFLOAT3 impulseT = Scale(t, jt);
-					if (pRbA) { pRbA->linearVelocity = collision::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
-					if (pRbB) { pRbB->linearVelocity = collision::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
+					if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
+					if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
 				}
 			}
 		}

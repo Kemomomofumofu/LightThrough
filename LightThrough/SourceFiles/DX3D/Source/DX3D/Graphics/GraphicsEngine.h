@@ -9,6 +9,7 @@
  /*---------- インクルード ----------*/
 #include <DX3D/Core/Core.h>
 #include <DX3D/Core/Base.h>
+#include <DX3D/Graphics/ShaderCache.h>
 #include <DX3D/Graphics/PipelineCache.h>
 #include <DX3D/Graphics/PipelineKey.h>
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
@@ -20,15 +21,24 @@
  * なんか描画する感じ？
  */
 namespace dx3d {
+	struct GraphicsEngineDesc {
+		BaseDesc base;
+	};
+
 	class GraphicsEngine final : public Base {
 	public:
+
 		explicit GraphicsEngine(const GraphicsEngineDesc& _desc);
 		virtual ~GraphicsEngine() override;
 
 		GraphicsDevice& GetGraphicsDevice() noexcept;
-		DeviceContext& GetDeviceContext() noexcept;
-		void SetSwapChain(SwapChain& _swapChain);
+		DeviceContext& GetDeferredContext() noexcept;
+		//! @brief メッシュレジストリ取得
 		MeshRegistry& GetMeshRegistry() noexcept;
+		//! @brief シェーダーキャッシュ取得
+		ShaderCache& GetShaderCache() noexcept { return *shader_cache_; };
+
+		void SetSwapChain(SwapChain& _swapChain);
 
 		void BeginFrame();
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib, PipelineKey _key = { VertexShaderKind::Default,
@@ -38,10 +48,10 @@ namespace dx3d {
 
 	private:
 		std::shared_ptr<GraphicsDevice> graphics_device_{};
-		DeviceContextPtr device_context_{};
+		DeviceContextPtr deferred_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
-		RasterizerStatePtr rasterizer_{};
 		InputLayoutPtr vs_layout_{};
+		std::unique_ptr<ShaderCache> shader_cache_{};
 		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};
 		std::unique_ptr<MeshRegistry> mesh_registry_{};

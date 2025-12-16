@@ -17,7 +17,7 @@ namespace ecs {
 		public:
 		explicit ClearForcesSystem(const SystemDesc& _desc)
 			: ISystem(_desc) {}
-		void Init();
+		void Init() override;
 		void FixedUpdate(float _fixedDt) override;
 	};
 }

@@ -7,35 +7,86 @@ struct PSIN
     float4 color : COLOR0;
     float3 normalWS : NORMAL0;
     float3 worldPos : WORLDPOS;
-    float4 posLight : TEXCOORD0;
 };
 
 
-Texture2D shadowMap : register(t0);
+Texture2DArray<float> shadowMap : register(t0);
 SamplerComparisonState shadowSampler : register(s0);
+
+// シャドウの計算
+float CalcShadowFactor(float3 _worldPos, int _shadowIndex, matrix _lightVP)
+{
+    // シャドウマップ未使用
+    if (_shadowIndex < 0)
+    {
+        return 0.0f;
+    }
+    
+    float4 lightPos = mul(float4(_worldPos, 1), _lightVP);
+    float3 uvw = lightPos.xyz / lightPos.w;
+    
+    // UV変換
+    uvw = uvw * float3(0.5f, -0.5f, 1.0f) + float3(0.5f, 0.5f, 0.0f);
+
+    // 影外チェック
+    if (uvw.x < 0 || uvw.x > 1 || uvw.y < 0 || uvw.y > 1)
+    {
+        return 0.0; // 光側
+    }
+    
+    // PCFサンプリング
+    float2 texel = 1.0f / float2(2048.0f, 2048.0f);
+    float result = 0.0f;
+    [unroll]
+    for (int y = -1; y <= 1; ++y)
+    {
+        [unroll]
+        for (int x = -1; x <= 1; ++x)
+        {
+            float2 offset = float2(x, y) * texel;
+            result += shadowMap.SampleCmpLevelZero(
+            shadowSampler,
+            float3(uvw.xy + offset, _shadowIndex),
+            uvw.z
+            );
+        }
+    }
+
+    
+    return result / 9.0;
+}
 
 
 float4 PSMain(PSIN _pin) : SV_Target
 {
     float3 N = normalize(_pin.normalWS);
     
-    // ライト空間クリップ -> NDC
-    float3 shadowCoord = _pin.posLight.xyz / _pin.posLight.w;
-    float2 uv = float2(shadowCoord.x * 0.5f + 0.5f, -shadowCoord.y * 0.5f + 0.5f);
-    float depth = saturate(shadowCoord.z);
-    
-    // 微小バイアスでアクネ軽減
-    float shadow = shadowMap.SampleCmpLevelZero(shadowSampler, uv, depth - 0.001f);
-    
-    // ライト計算
-    float3 accum = 0;
-    [loop]
+    float3 color = float3(0.0f, 0.0f, 0.0f);
+    float alpha = 0.0f;
+    [unroll]
     for (int i = 0; i < lightCount; ++i)
     {
+        // ライティング計算
         float li = ComputeLight(lights[i], N, _pin.worldPos);
-        accum += li * lights[i].color.rgb;
-    }
         
-    return float4(accum * shadow, 1.0);
+        // シャドウ計算
+        int shadowIndex = (int) lights[i].spotAngles_shadowIndex.z;
+        float shadowFactor = CalcShadowFactor(_pin.worldPos, shadowIndex, lightViewProjs[i]);
+        
+        float effectiveLight = li * shadowFactor;
+       
+        // 色加算
+        color += effectiveLight * lights[i].color.rgb;
+        alpha += effectiveLight;
+    }
     
+    if (alpha <= 0.0f)
+    {
+        discard;
+    }
+    
+    color *= _pin.color.rgb;
+    alpha = saturate(alpha + 0.1f) * _pin.color.a;
+    
+    return float4(saturate(color), alpha);
 }
