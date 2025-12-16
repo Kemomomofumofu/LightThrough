@@ -62,7 +62,7 @@ namespace dx3d {
 			, paths_(_desc.paths) {
 		}
 
-		// 各シェーダーの取得
+		//! @brief 各シェーダーの取得
 		VSEntry& GetVS(VertexShaderKind _kind);
 		ShaderBinaryPtr GetPS(PixelShaderKind _kind);
 		CSEntry& GetCS(ComputeShaderKind _kind);

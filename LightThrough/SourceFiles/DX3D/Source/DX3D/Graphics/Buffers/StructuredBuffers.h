@@ -9,8 +9,18 @@ namespace dx3d {
     {
     public:
         StructuredBuffer(const StructuredBufferDesc& _desc, const GraphicsResourceDesc& _gDesc);
+		// @brief シェーダーリソースビューを取得
         ID3D11ShaderResourceView* GetSRV() const { return srv_.Get(); }
+		// @brief バッファを取得
         ID3D11Buffer* GetBuffer() const { return buffer_.Get(); }
+
+        /**
+         * @brief バッファ更新
+         * @param _context: コンテキスト
+		 * @param _data: 更新データ
+		 * @param _size: データサイズ
+         */
+        void Update(DeviceContext& _context, const void* _data, size_t _size);
 
     private:
         Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_;
@@ -35,7 +45,10 @@ namespace dx3d {
         StagingBuffer(const StagingBufferDesc& _desc, const GraphicsResourceDesc& _gDesc);
         ID3D11Buffer* GetBuffer() const { return buffer_.Get(); }
 
+		void* Map();
+		void Unmap();
     private:
         Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_;
+        ID3D11DeviceContext* immediate_{};
     };
 }

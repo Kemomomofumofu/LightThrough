@@ -27,8 +27,14 @@ namespace ecs {
 		void Init() override;
 		void FixedUpdate(float _fixedDt) override;
 
+		//! @brief ‰e‚Μ’†‚Ε‚ΜΥ“Λ‰πΑ‚π—Lψ‚Ι‚·‚ι‚©
+		void SetShadowCollisionEnabled(bool _enabled) { shadow_collision_enabled_ = _enabled; }
+
 	private:
+		std::weak_ptr<ShadowTestSystem> shadow_test_system_{};
+
 		float solve_percent_ = 1.0f; // ‰πΑ„‡
 		float solve_slop_ = 0.01f;   // ”χ¬Ρ’Κ‚π–³‹‚·‚ιθ‡’l
+		bool shadow_collision_enabled_ = true;	// ‰e‚Ε‚ΜΥ“Λ‰πΑ‚π—Lψ‚Ι‚·‚ι‚©
 	};
 }

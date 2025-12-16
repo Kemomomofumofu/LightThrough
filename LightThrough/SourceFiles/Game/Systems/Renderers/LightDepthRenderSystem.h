@@ -50,6 +50,9 @@ namespace ecs {
 		ID3D11ShaderResourceView* GetShadowMapSRV() const { return shadow_srv_.Get(); }
 		ID3D11SamplerState* GetShadowSampler() const { return shadow_sampler_.Get(); }
 
+		uint32_t GetShadowMapWidth() const { return SHADOW_MAP_WIDTH; }
+		uint32_t GetShadowMapHeight() const { return SHADOW_MAP_HEIGHT; }
+
 		//! @brief ライトEntityからシャドウ情報を取得
 		bool GetShadowInfo(Entity _lightEntity, int& _outIndex, DirectX::XMMATRIX& _outMatrix) const;
 	private:
@@ -61,17 +64,18 @@ namespace ecs {
 		//! @brief インスタンスバッファの作成またはリサイズ
 		void CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity);
 		// シャドウマップ用リソースの作成
-		void CreateShadowResources(uint32_t _texSize, uint32_t _arraySize);
+		void CreateShadowResources(uint32_t _texHeight, uint32_t _texWidth, uint32_t _arraySize);
 
 
 	private:
 		static const uint32_t MAX_SHADOW_LIGHTS = 16;
-		const uint32_t SHADOW_MAP_SIZE = 2048;
+		const uint32_t SHADOW_MAP_WIDTH = 2048;
+		const uint32_t SHADOW_MAP_HEIGHT = 2048;
 
 		std::vector<InstanceBatchShadow> shadow_batches_{}; // シャドウパスのバッチ
 		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_{};
 		size_t instance_buffer_capacity_{};
-		
+
 		dx3d::ConstantBufferPtr cb_light_matrix_{};	// 定数バッファ
 
 		// シャドウマップ用リソース

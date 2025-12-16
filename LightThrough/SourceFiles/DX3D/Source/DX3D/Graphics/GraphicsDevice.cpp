@@ -34,7 +34,7 @@ namespace dx3d {
 #endif
 
 		// デバイスの生成
-		DX3DGraphicsLogThrowOnFail(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, NULL, 0, D3D11_SDK_VERSION, &d3d_device_, &featureLevel, &d3d_context_), "Direct3D11の初期化に失敗");
+		DX3DGraphicsLogThrowOnFail(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, NULL, 0, D3D11_SDK_VERSION, &d3d_device_, &featureLevel, &immediate_context_), "Direct3D11の初期化に失敗");
 		// DXGIデバイスを取得
 		DX3DGraphicsLogThrowOnFail(d3d_device_->QueryInterface(IID_PPV_ARGS(&dxgi_device_)), "IDXGIDeviceの取得に失敗");
 		// 使用中のGPUアダプタを取得
@@ -179,9 +179,9 @@ namespace dx3d {
 	{
 		Microsoft::WRL::ComPtr<ID3D11CommandList> list{};
 		// コマンドをリストにまとめて取得
-		DX3DGraphicsLogThrowOnFail(_context.context_->FinishCommandList(false, &list), "FinishCommandListが失敗");
+		DX3DGraphicsLogThrowOnFail(_context.deferred_context_->FinishCommandList(false, &list), "FinishCommandListが失敗");
 		// 取得したコマンドリストを実行
-		d3d_context_->ExecuteCommandList(list.Get(), false);
+		immediate_context_->ExecuteCommandList(list.Get(), false);
 	}
 
 
@@ -191,7 +191,7 @@ namespace dx3d {
 	 */
 	GraphicsResourceDesc GraphicsDevice::GetGraphicsResourceDesc() const noexcept
 	{
-		return { {logger_}, shared_from_this(), *d3d_device_.Get(), *dxgi_factory_.Get() };
+		return { {logger_}, shared_from_this(), *d3d_device_.Get(), *dxgi_factory_.Get(), immediate_context_.Get()};
 	}
 
 }

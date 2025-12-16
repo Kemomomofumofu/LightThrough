@@ -39,7 +39,7 @@ namespace dx3d {
 		using ShapeVariant = std::variant<SphereShape, BoxShape>;
 
 		/**
-		 * @brief OBBのローカル情報
+		 * @brief
 		 */
 		struct WorldSphere {
 			XMFLOAT3 center{};
@@ -286,6 +286,55 @@ namespace dx3d {
 
 			return { dispA, dispB };
 		}
+
+		/**
+		 * @brief OBBの8頂点を取得
+		 * @param _obb OBB情報
+		 * @param _outCorners 8頂点の出力先配列
+		 */
+		inline void GetOBBCorners(const WorldOBB& _obb, XMFLOAT3 _outCorners[8])
+		{
+			const auto& c = _obb.center;
+			const auto& ax = _obb.axis;
+			const auto& h = _obb.half;
+
+			// 各軸方向へのオフセット
+			XMFLOAT3 extX = math::Scale(_obb.axis[0], _obb.half.x);
+			XMFLOAT3 extY = math::Scale(_obb.axis[1], _obb.half.y);
+			XMFLOAT3 extZ = math::Scale(_obb.axis[2], _obb.half.z);
+
+			// 8頂点の計算
+			_outCorners[0] = math::Sub(math::Sub(math::Sub(c, extX), extY), extZ);
+			_outCorners[1] = math::Sub(math::Sub(math::Add(c, extX), extY), extZ);
+			_outCorners[2] = math::Sub(math::Add(math::Sub(c, extX), extY), extZ);
+			_outCorners[3] = math::Sub(math::Add(math::Add(c, extX), extY), extZ);
+			_outCorners[4] = math::Add(math::Sub(math::Sub(c, extX), extY), extZ);
+			_outCorners[5] = math::Add(math::Sub(math::Add(c, extX), extY), extZ);
+			_outCorners[6] = math::Add(math::Add(math::Sub(c, extX), extY), extZ);
+			_outCorners[7] = math::Add(math::Add(math::Add(c, extX), extY), extZ);
+		}
+
+		/**
+		 * @brief 球のサンプルポイントを取得
+		 * @param _sphere 球情報
+		 * @param _outPoints 出力先配列
+		 * @param _includeAxes 軸方向のポイントも含めるか
+		 */
+		inline void GetSphereSamplePoints(const WorldSphere& _sphere, std::vector<XMFLOAT3>& _outPoints, bool _includeAxes = false)
+		{
+			_outPoints.push_back(_sphere.center);
+
+			if (_includeAxes) {
+				float r = _sphere.radius;
+				_outPoints.push_back({ _sphere.center.x + r, _sphere.center.y, _sphere.center.z });
+				_outPoints.push_back({ _sphere.center.x - r, _sphere.center.y, _sphere.center.z });
+				_outPoints.push_back({ _sphere.center.x, _sphere.center.y + r, _sphere.center.z });
+				_outPoints.push_back({ _sphere.center.x, _sphere.center.y - r, _sphere.center.z });
+				_outPoints.push_back({ _sphere.center.x, _sphere.center.y, _sphere.center.z + r });
+				_outPoints.push_back({ _sphere.center.x, _sphere.center.y, _sphere.center.z - r });
+			}
+		}
+
 
 		inline constexpr const char* ToString(ShapeType _t)
 		{

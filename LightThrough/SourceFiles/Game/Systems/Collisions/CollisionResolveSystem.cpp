@@ -1,8 +1,6 @@
 /**
  * @file CollisionResolveSystem.cpp
  * @brief 押し出しを行うシステム
- * @author Arima Keita
- * @date 2025-10-10 4:00 有馬啓太 作成
  */
 
  // ---------- インクルード ---------- //
@@ -13,6 +11,8 @@
 
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
 #include <Game/ECS/Coordinator.h>
+
+#include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 
 #include <Game/Components/Transform.h>
 #include <Game/Components/Collider.h>
@@ -115,6 +115,9 @@ namespace ecs {
 		sig.set(ecs_.GetComponentType<Transform>());
 		sig.set(ecs_.GetComponentType<Collider>());
 		ecs_.SetSystemSignature<CollisionResolveSystem>(sig);
+
+		// 影テストシステムの取得
+		shadow_test_system_ = ecs_.GetSystem<ShadowTestSystem>();
 	}
 
 	/**
@@ -123,6 +126,8 @@ namespace ecs {
 	 */
 	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
+		auto shadowTestSystem = shadow_test_system_.lock();
+
 		// ペアごとに処理するためにベクターにコピー
 		std::vector<Entity> ents;
 		ents.reserve(entities_.size());
@@ -152,6 +157,20 @@ namespace ecs {
 				if (!contact) { continue; }	// 衝突していないならスキップ
 
 				if (contact->penetration <= 1e-6f) { continue; } // ほとんどゼロならスキップ
+
+
+				// 影判定
+				if (shadow_collision_enabled_ && shadowTestSystem) {
+					// 衝突ペアを登録
+					// memo: 次フレームの判定になる
+					XMFLOAT3 contactPoint = math::Scale(math::Add(tfA.position, tfB.position), 0.5f);
+					shadowTestSystem->RegisterCollisionPair(eA, eB, contactPoint);
+
+					// 前フレームの結果を確認
+					// memo: 前フレームの判定を取得する
+					if (shadowTestSystem->AreBothInShadow(eA, eB)) { continue; }
+				}
+
 
 				// 押し出し量の計算 (A->B 法線)
 				auto [dispA, dispB] = collision::ComputePushOut(

@@ -74,7 +74,7 @@ namespace ecs {
 			engine_->GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, &shadow_sampler_);
 		}
 
-		CreateShadowResources(SHADOW_MAP_SIZE, MAX_SHADOW_LIGHTS);
+		CreateShadowResources(SHADOW_MAP_HEIGHT, SHADOW_MAP_WIDTH, MAX_SHADOW_LIGHTS);
 	}
 
 	/**
@@ -145,7 +145,7 @@ namespace ecs {
 		};
 		std::unordered_map<Key, size_t, KeyHash> map;
 
-		// Entity一覧を走査してバッチ化 // todo: 毎フレーム全Entityに対して処理するのはあまりにも無駄なので、差分更新とかにしたい。
+		// Entity一覧を走査してバッチ化
 		for (auto& e : entities_) {
 			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<Transform>(e);
@@ -155,7 +155,7 @@ namespace ecs {
 
 			if (!meshData) continue;
 
-			struct Key key { meshData->vb.get(), meshData->ib.get() };
+			Key key { meshData->vb.get(), meshData->ib.get() };
 			size_t batchIndex{};
 			// 既存のバッチ
 			if (auto it = map.find(key); it != map.end()) {
@@ -233,14 +233,14 @@ namespace ecs {
 	/**
 	 * @brief シャドウマップに必要なリソースの生成
 	 */
-	void LightDepthRenderSystem::CreateShadowResources(uint32_t _texSize, uint32_t _arraySize)
+	void LightDepthRenderSystem::CreateShadowResources(uint32_t _texHeight, uint32_t _texWidth, uint32_t _arraySize)
 	{
 		auto& device = engine_->GetGraphicsDevice();
 
 		// シャドウマップ用テクスチャ作成
 		D3D11_TEXTURE2D_DESC texDesc{};
-		texDesc.Width = _texSize;
-		texDesc.Height = _texSize;
+		texDesc.Width = _texWidth;
+		texDesc.Height = _texHeight;
 		texDesc.MipLevels = 1;
 		texDesc.ArraySize = _arraySize;
 		texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
@@ -278,12 +278,12 @@ namespace ecs {
 	 */
 	void LightDepthRenderSystem::RenderShadowPass(Entity _lightEntity, ID3D11DepthStencilView* _dsv)
 	{
-		auto& contextWrap = engine_->GetDeviceContext();
-		auto contextD3D = contextWrap.GetDeviceContext();
+		auto& contextWrap = engine_->GetDeferredContext();
+		auto contextD3D = contextWrap.GetDeferredContext();
 		// ライト行列の作成
 		auto& tf = ecs_.GetComponent<Transform>(_lightEntity);
 		SpotLight* spotPtr = ecs_.HasComponent<SpotLight>(_lightEntity) ? &ecs_.GetComponent<SpotLight>(_lightEntity) : nullptr;
-		DirectX::XMMATRIX lightVP = BuildLightViewProj(tf, spotPtr, 0.1f);
+		DirectX::XMMATRIX lightVP = BuildLightViewProj(tf, spotPtr, 0.1f); // memo: lightのVPをビルドをするSystemがあってもいいかも...?
 		
 		// ライトごとのビュー射影行列を保存
 		int shadowIndex = light_to_shadow_index_[_lightEntity];
@@ -297,7 +297,7 @@ namespace ecs {
 		// シャドウ用DSVをセット
 		contextD3D->OMSetRenderTargets(0, nullptr, _dsv);
 		contextD3D->ClearDepthStencilView(_dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
-		contextWrap.SetViewportSize({ static_cast<int32_t>(SHADOW_MAP_SIZE), static_cast<int32_t>(SHADOW_MAP_SIZE) });
+		contextWrap.SetViewportSize({ static_cast<int32_t>(SHADOW_MAP_WIDTH), static_cast<int32_t>(SHADOW_MAP_HEIGHT) });
 
 		// ライト行列をセット
 		{

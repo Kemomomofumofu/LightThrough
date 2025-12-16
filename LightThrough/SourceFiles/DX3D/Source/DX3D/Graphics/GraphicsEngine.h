@@ -32,9 +32,13 @@ namespace dx3d {
 		virtual ~GraphicsEngine() override;
 
 		GraphicsDevice& GetGraphicsDevice() noexcept;
-		DeviceContext& GetDeviceContext() noexcept;
-		void SetSwapChain(SwapChain& _swapChain);
+		DeviceContext& GetDeferredContext() noexcept;
+		//! @brief メッシュレジストリ取得
 		MeshRegistry& GetMeshRegistry() noexcept;
+		//! @brief シェーダーキャッシュ取得
+		ShaderCache& GetShaderCache() noexcept { return *shader_cache_; };
+
+		void SetSwapChain(SwapChain& _swapChain);
 
 		void BeginFrame();
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib, PipelineKey _key = { VertexShaderKind::Default,
@@ -44,7 +48,7 @@ namespace dx3d {
 
 	private:
 		std::shared_ptr<GraphicsDevice> graphics_device_{};
-		DeviceContextPtr device_context_{};
+		DeviceContextPtr deferred_context_{};
 		GraphicsPipelineStatePtr pipeline_{};
 		InputLayoutPtr vs_layout_{};
 		std::unique_ptr<ShaderCache> shader_cache_{};

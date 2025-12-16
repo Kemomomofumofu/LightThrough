@@ -31,6 +31,6 @@ namespace ecs {
 		std::set<Entity> entities_;	// ˆ—‘ÎÛ‚ÌEntity‚ÌW‡
 
 	protected:
-		::ecs::Coordinator& ecs_; // ecs::Coordinator‚Ö‚ÌQÆ
+		ecs::Coordinator& ecs_; // ecs::Coordinator‚Ö‚ÌQÆ
 	};
 }

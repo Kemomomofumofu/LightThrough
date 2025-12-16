@@ -27,7 +27,7 @@ cbuffer cbperFrame : register(b0)
 cbuffer cbLightMatrix : register(b1)
 {
     row_major float4x4 lightViewProj;
-}
+};
 
 
 VSOUT VSMain(VSVertex _vin, VSInstance _inst)

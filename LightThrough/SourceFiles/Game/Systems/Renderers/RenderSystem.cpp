@@ -78,7 +78,7 @@ namespace ecs {
 	 */
 	void RenderSystem::Update(float _dt)
 	{
-		auto& context = engine_->GetDeviceContext();
+		auto& context = engine_->GetDeferredContext();
 		auto& device = engine_->GetGraphicsDevice();
 
 		// Camera取得 memo: 現状カメラは一つだけを想定
@@ -129,6 +129,7 @@ namespace ecs {
 			// 方向の取得
 			auto& tf = ecs_.GetComponent<Transform>(e);
 #ifdef _DEBUG || DEBUG
+
 			// ライトの位置に丸を描画。
 			auto debugRender = ecs_.GetSystem<DebugRenderSystem>();
 			debugRender->DrawSphere(tf, { 1, 0, 0, 1 });
@@ -243,7 +244,7 @@ namespace ecs {
 			// インスタンスデータ追加
 			dx3d::InstanceDataMain dm{};
 			dm.world = tf.world;
-			dm.color = { 1, 1, 1, 0.5f };	// todo: 色実装次第、参照するように
+			dm.color = { 1, 1, 1, 1 };	// todo: 色実装次第、参照するように
 			(*targetBatches)[batchIndex].instances.emplace_back(dm);
 
 			// 半透明なら
@@ -302,7 +303,7 @@ namespace ecs {
 
 	void RenderSystem::RenderMainPass(CBLight& _lightData)
 	{
-		auto& context = engine_->GetDeviceContext();
+		auto& context = engine_->GetDeferredContext();
 
 		// ライティングCB更新
 		cb_lighting_->Update(context, &_lightData, sizeof(_lightData));

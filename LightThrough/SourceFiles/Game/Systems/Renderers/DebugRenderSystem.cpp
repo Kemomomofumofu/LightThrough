@@ -121,7 +121,7 @@ namespace ecs {
 	 */
 	void DebugRenderSystem::Update(float _dt)
 	{
-		auto& context = engine_->GetDeviceContext();
+		auto& context = engine_->GetDeferredContext();
 
 		// CameraComponent‚ğ‚ÂEntity‚ğæ“¾ [ToDo] Œ»óƒJƒƒ‰‚Íˆê‚Â‚¾‚¯‚ğ‘z’è
 		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();

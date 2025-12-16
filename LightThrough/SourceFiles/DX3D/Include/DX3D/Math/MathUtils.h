@@ -23,12 +23,37 @@ namespace dx3d {
 			return { _a.x - _b.x, _a.y - _b.y, _a.z - _b.z };
 		}
 
+		/**
+		 * @brief 加算
+		 * @param _a ベクトルA
+		 * @param _b ベクトルB
+		 * @return 和
+		 */
 		inline XMFLOAT3 Add(const XMFLOAT3& _a, const XMFLOAT3& _b)
 		{
 			return { _a.x + _b.x, _a.y + _b.y, _a.z + _b.z };
 		}
 
+		/**
+		 * @brief スカラー倍
+		 * @param _v ベクトル
+		 * @param _s スカラー値
+		 * @return スカラー倍されたベクトル
+		 */
+		inline XMFLOAT3 Scale(const XMFLOAT3& _v, float _s)
+		{
+			return { _v.x * _s, _v.y * _s, _v.z * _s };
+		}
 
+		/**
+		 * @brief 否定
+		 * @param _v ベクトル
+		 * @return 反転されたベクトル
+		 */
+		inline XMFLOAT3 Negate(const XMFLOAT3& _v)
+		{
+			return { -_v.x, -_v.y, -_v.z };
+		}
 
 		/**
 		 * @brief 内積

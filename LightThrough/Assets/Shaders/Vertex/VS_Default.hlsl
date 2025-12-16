@@ -8,12 +8,12 @@ cbuffer cbperFrame : register(b0)
 cbuffer cbPerObject : register(b1)
 {
     row_major float4x4 worldMatrix;
-}
+};
 
 cbuffer cbLightMatrix : register(b2)
 {
     row_major float4x4 lightViewProj;
-}
+};
 
 struct VSIN
 {

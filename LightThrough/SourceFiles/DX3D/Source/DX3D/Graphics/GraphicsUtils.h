@@ -24,6 +24,7 @@ namespace dx3d {
 			switch (_type) {
 			case ShaderBinary::Type::Vertex:	return "vs_5_0";
 			case ShaderBinary::Type::Pixel:		return "ps_5_0";
+			case ShaderBinary::Type::Compute:	return "cs_5_0";
 			default:						return "";
 			}
 		}

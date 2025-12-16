@@ -7,7 +7,7 @@ cbuffer CSParams : register(b0)
     uint sliceIndex;
     float depthBias;
     uint _pad0;
-}
+};
 
 StructuredBuffer<float3> points : register(t0); // ポイントリスト
 Texture2DArray<float> shadowMap : register(t1); // シャドウマップ

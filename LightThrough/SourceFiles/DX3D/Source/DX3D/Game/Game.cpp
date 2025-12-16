@@ -16,6 +16,7 @@
 
 #include <Game/Systems/TransformSystem.h>
 #include <Game/Systems/CameraSystem.h>
+#include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
 #include <Game/Systems/Renderers/LightDepthRenderSystem.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
@@ -51,6 +52,15 @@ namespace {
 		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
 		ecs.RegisterSystem<ecs::IntegrationSystem>(_desc);
 		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
+		
+		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_desc);
+		const auto& lightDepthRenderSystem = ecs.GetSystem<ecs::LightDepthRenderSystem>();
+		lightDepthRenderSystem->SetGraphicsEngine(_engine);
+
+		ecs.RegisterSystem<ecs::ShadowTestSystem>(_desc);
+		const auto& shadowTest = ecs.GetSystem<ecs::ShadowTestSystem>();
+		shadowTest->SetGraphicsEngine(_engine);
+
 		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
 		ecs.RegisterSystem<ecs::ClearForcesSystem>(_desc);
 
@@ -60,10 +70,6 @@ namespace {
 		ecs.RegisterSystem<ecs::TransformSystem>(_desc);
 
 		// •`‰æƒVƒXƒeƒ€
-		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_desc);
-		const auto& lightDepthRenderSystem = ecs.GetSystem<ecs::LightDepthRenderSystem>();
-		lightDepthRenderSystem->SetGraphicsEngine(_engine);
-
 		ecs.RegisterSystem<ecs::RenderSystem>(_desc);
 		const auto& renderSystem = ecs.GetSystem<ecs::RenderSystem>();
 		renderSystem->SetGraphicsEngine(_engine);
@@ -103,7 +109,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 	try {
 		// ImGui‚Ì‰Šú‰»
 		ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
-		ID3D11DeviceContext* context = graphics_engine_->GetDeviceContext().GetDeviceContext().Get();
+		ID3D11DeviceContext* context = graphics_engine_->GetDeferredContext().GetDeferredContext().Get();
 		void* hwnd = display_->GetHandle();
 		debug::DebugUI::Init(device, context, hwnd);
 

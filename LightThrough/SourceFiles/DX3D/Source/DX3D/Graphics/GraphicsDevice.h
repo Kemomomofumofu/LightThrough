@@ -51,13 +51,13 @@ namespace dx3d {
 		void ExecuteCommandList(DeviceContext& _context);
 
 		Microsoft::WRL::ComPtr<ID3D11Device> GetD3DDevice() const noexcept { return d3d_device_; }
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetD3DContext() const noexcept { return d3d_context_; }
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetImmediateContext() const noexcept { return immediate_context_; }
 	private:
 		GraphicsResourceDesc GetGraphicsResourceDesc() const noexcept;
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Device> d3d_device_{};					// デバイス
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> d3d_context_{};	// デバイスコンテキスト
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> immediate_context_{};	// デバイスコンテキスト
 		Microsoft::WRL::ComPtr<IDXGIDevice> dxgi_device_{};		// GPUとWindowsの橋
 		Microsoft::WRL::ComPtr<IDXGIAdapter> dxgi_adapter_{};		// GPUの情報を持っている
 		Microsoft::WRL::ComPtr<IDXGIFactory> dxgi_factory_{};		// スワップチェインを作ったり
