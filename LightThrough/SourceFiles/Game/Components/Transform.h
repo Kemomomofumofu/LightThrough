@@ -262,6 +262,17 @@ namespace ecs {
 			RecalcAxes();
 			return up;
 		}
+		//! @brief Y軸回りの角度取得
+		const float GetYaw() const
+		{
+			const float fx = forward.x;
+			const float fz = forward.z;
+			if(fabsf(fx) < 1e-6f && fabsf(fz) < 1e-6f) {
+				return 0.0f;
+			}
+
+			return std::atan2f(fx, fz);
+		}
 
 		//! @brief ライト/カメラ用のLookTo行列
 		const XMMATRIX MakeLookToLH() const

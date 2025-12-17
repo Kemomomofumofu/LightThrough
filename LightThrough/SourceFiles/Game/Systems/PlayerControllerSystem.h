@@ -8,7 +8,7 @@ namespace ecs {
 	class PlayerControllerSystem : public ISystem
 	{
 	public:
-		explicit PlayerControllerSystem(ecs::SystemDesc& _desc)
+		explicit PlayerControllerSystem(const ecs::SystemDesc& _desc)
 			: ISystem(_desc) {}
 
 		void Init();
@@ -16,7 +16,11 @@ namespace ecs {
 		void FixedUpdate(float _fixedDt) override;
 
 	private:
-
+		// ˆÚ“®ƒtƒ‰ƒO
+		bool move_forward_	= false;
+		bool move_back_		= false;
+		bool move_left_		= false;
+		bool move_right_	= false;
 
 	};
 } // namespace ecs

@@ -9,7 +9,6 @@
 #include <Debug/DebugUI.h>
 
 namespace debug {
-#ifdef _DEBUG || DEBUG
 	std::vector<std::function<void(void)>> debug::DebugUI::debug_functions_{};
 
 	/**
@@ -75,5 +74,4 @@ namespace debug {
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
 	}
-#endif // _DEBUG || DEBUG
 }

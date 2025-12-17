@@ -60,7 +60,7 @@ namespace ecs {
 			// forward / up
 			XMVECTOR forward = XMVector3Rotate(basisForward, q);
 			XMVECTOR up = XMVector3Rotate(basisUp, q);
-			
+
 			XMMATRIX viewM = XMMatrixLookAtLH(pos, XMVectorAdd(pos, forward), up);
 
 			// proj行列の計算
@@ -93,7 +93,7 @@ namespace ecs {
 		float dy = (_controller.invertY ? -delta.y : delta.y) * sensitivity;	// Y軸が反転しているかで変わる
 
 		// FPSモード
-		if(_controller.mode == CameraMode::FPS) {
+		if (_controller.mode == CameraMode::FPS) {
 			// ---------- 視点操作 ---------- // 
 			_controller.yaw += dx;
 			_controller.pitch += dy;
@@ -106,32 +106,35 @@ namespace ecs {
 			XMStoreFloat4(&_transform.rotationQuat, q);
 
 			// ---------- 移動操作 ---------- // 
-			 XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-			XMVECTOR forward = XMVectorSet(sinf(_controller.yaw), 0, cosf(_controller.yaw), 0);
-			XMVECTOR right = XMVector3Cross(up, forward);
+			if (_controller.enableMove) {
 
-			XMVECTOR pos = XMLoadFloat3(&_transform.position);
-			const float moveSpeed = _controller.moveSpeed * _dt;	// 速度係数
-			if(input.IsKeyDown('W')) {
-				pos += forward * moveSpeed;
-			}
-			if(input.IsKeyDown('S')) {
-				pos -= forward * moveSpeed;
-			}
-			if(input.IsKeyDown('A')) {
-				pos -= right * moveSpeed;
-			}
-			if(input.IsKeyDown('D')) {
-				pos += right * moveSpeed;
-			}
-			if (input.IsKeyDown('E')) {
-				pos += up * moveSpeed;
-			}
-			if (input.IsKeyDown('Q')) {
-				pos -= up * moveSpeed;
-			}
+				XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+				XMVECTOR forward = XMVectorSet(sinf(_controller.yaw), 0, cosf(_controller.yaw), 0);
+				XMVECTOR right = XMVector3Cross(up, forward);
 
-			XMStoreFloat3(&_transform.position, pos);
+				XMVECTOR pos = XMLoadFloat3(&_transform.position);
+				const float moveSpeed = _controller.moveSpeed * _dt;	// 速度係数
+				if (input.IsKeyDown('W')) {
+					pos += forward * moveSpeed;
+				}
+				if (input.IsKeyDown('S')) {
+					pos -= forward * moveSpeed;
+				}
+				if (input.IsKeyDown('A')) {
+					pos -= right * moveSpeed;
+				}
+				if (input.IsKeyDown('D')) {
+					pos += right * moveSpeed;
+				}
+				if (input.IsKeyDown('E')) {
+					pos += up * moveSpeed;
+				}
+				if (input.IsKeyDown('Q')) {
+					pos -= up * moveSpeed;
+				}
+
+				XMStoreFloat3(&_transform.position, pos);
+			}
 		}
 		// Orbitモード
 		else {

@@ -27,33 +27,12 @@ namespace ecs {
 
 		// ComponentType‚ğ“o˜^
 		assert(next_component_type_ < MAX_COMPONENTS);
-		component_types_[type] = next_component_type_++;
-
+		ComponentType id = next_component_type_++;
+		component_types_[type] = id;
 		// ComponentƒŠƒXƒg‚ğ“o˜^
 		component_arrays_[type] = std::make_unique<ComponentArray<Com>>();
-	}
-
-	/**
-	 * @brief Component‚Ì’Ç‰Á
-	 * @param <Com> ’Ç‰Á‚·‚éComponent‚Ìí—Ş
-	 * @param _e  ’Ç‰Áæ‚ÌEntity
-	 * @param _component ’Ç‰Á‚·‚éComponent‚ÌQÆ
-	 */
-	template<typename Com>
-	void ComponentManager::AddComponent(Entity _e, const Com& _component)
-	{
-		GetComponentArray<Com>()->Insert(_e, _component);
-	}
-
-	/**
-	 * @brief Component‚Ìíœ
-	 * @param <Com> íœ‚·‚éComponent‚Ìí—Ş
-	 * @param _e íœæ‚ÌEntity
-	 */
-	template<typename Com>
-	void ComponentManager::RemoveComponent(Entity _e)
-	{
-		GetComponentArray<Com>()->Remove(_e);
+		// ComponentType‚©‚çComponentArray‚ğæ“¾‚·‚é‚½‚ß‚Ì”z—ñ‚É“o˜^
+		component_arrays_by_type_[id] = component_arrays_[type].get();
 	}
 
 	/**

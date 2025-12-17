@@ -135,7 +135,7 @@ namespace ecs {
 
 		const size_t n = ents.size();
 
-		const float baumgarte = 0.2; // ƒoƒEƒ€ƒKƒ‹ƒeŒW”
+		const float baumgarte = 0.2f; // ƒoƒEƒ€ƒKƒ‹ƒeŒW”
 
 		for (size_t i = 0; i < n; ++i) {
 			const Entity eA = ents[i];

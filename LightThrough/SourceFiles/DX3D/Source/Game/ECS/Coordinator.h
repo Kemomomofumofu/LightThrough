@@ -9,6 +9,7 @@
 // ---------- インクルード ---------- //
 #include <vector>
 #include <memory>
+#include <functional>
 #include <DX3D/Core/Common.h>
 #include <Game/ECS/ECSUtils.h>
 #include <Game/ECS/ISystem.h>
@@ -36,10 +37,22 @@ namespace ecs {
 
 		template<typename Com>
 		void RegisterComponent();	// Componentリストの登録
+
 		template<typename Com>
 		void AddComponent(Entity _e, const Com& _component);	// Componentの追加
+		void AddComponent(Entity _e, ComponentType _type, const void* _data);
+		
 		template<typename Com>
-		bool HasComponent(Entity _e);	// Componentを持っているか
+		void RemoveComponent(Entity _e);	// Componentの削除
+		void RemoveComponent(Entity _e, ComponentType _type);
+		/**
+		 * @brief コンポーネントを持っているか
+		 * @param _確認先のEntity
+		 * @return true: 持ってる, false: 持ってない
+		 */
+		template<typename Com>
+		bool HasComponent(Entity _e);
+
 		template<typename Com>
 		Com& GetComponent(Entity _e);	// Componentの取得
 		template<typename Com>
@@ -48,6 +61,14 @@ namespace ecs {
 		std::vector<Entity> GetEntitiesWithComponents(); // 複数指定したSignatureを持っているEntityの一覧を取得
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
+
+		template<typename Com>
+		void RequestAddComponent(Entity _e, const Com& _component);	// Componentの追加リクエスト
+		template<typename Com>
+		void RequestRemoveComponent(Entity _e);	// Componentの削除リクエスト
+		void RequestDestroyEntity(Entity _e);	// Entityの破棄リクエスト
+		
+
 
 		template<typename Sys>
 		void RegisterSystem(const SystemDesc& _desc);		// Systemの登録
@@ -59,12 +80,35 @@ namespace ecs {
 		void InitAllSystems();	// 登録されたSystemの初期化
 		void FixedUpdateAllSystems(float _fixedDt); // 登録されたSystemの固定更新
 		void UpdateAllSystems(float _dt);	// 登録されたSystemの更新
+		void FlushPending(); // 保留中の変更を反映
+
 		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
 		
 	private:
+		/**
+		 * @brief 保留中の追加操作
+		 */
+		struct PendingAdd {
+			Entity e;
+			ComponentType type;
+			std::function<void()> apply;
+		};
+
+		/**
+		 * @brief 保留中の削除操作
+		 */
+		struct PendingRemove {
+			Entity e;
+			ComponentType type;
+		};
+
 		std::unique_ptr<EntityManager> entity_manager_{};		// Entityマネージャ
 		std::unique_ptr<ComponentManager> component_manager_{};	// Componentマネージャ
 		std::unique_ptr<SystemManager> system_manager_{};		// Systemマネージャ
+
+		std::vector<PendingAdd> pending_adds_{};		// 保留中の追加操作
+		std::vector<PendingRemove> pending_removes_{};	// 保留中の削除操作
+		std::vector<Entity> pending_destroys_{};		// 保留中の破棄操作
 
 	};
 }

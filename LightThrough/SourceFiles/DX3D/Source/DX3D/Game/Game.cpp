@@ -25,6 +25,7 @@
 #include <Game/Systems/Physics/ForceAccumulationSystem.h>
 #include <Game/Systems/Physics/IntegrationSystem.h>
 #include <Game/Systems/Physics/ClearForcesSystem.h>
+#include <Game/Systems/PlayerControllerSystem.h>
 
 #include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Transform.h>
@@ -33,12 +34,33 @@
 #include <Game/Components/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
 #include <Game/Components/Light.h>
+#include <Game/Components/PlayerController.h>
+#include <Game/Components/MoveDirectionSource.h>
 
 #include <Debug/DebugUI.h>
 #include <Debug/Debug.h>
 
 #pragma region ローカルメソッド
 namespace {
+
+	/**
+	 * @brief コンポーネントの登録
+	 * @param _ecs ECSのコーディネーター
+	 */
+	void RegisterAllComponents(ecs::Coordinator& _ecs)
+	{
+		// todo: 自動でComponentを登録する機能が欲しいかも。システム登録段階で、コンポーネントマネージャの中にすでに登録してあったらそのシグネチャを使い、なければ新たにとか...
+		_ecs.RegisterComponent<ecs::Transform>();
+		_ecs.RegisterComponent<ecs::MeshRenderer>();
+		_ecs.RegisterComponent<ecs::Camera>();
+		_ecs.RegisterComponent<ecs::CameraController>();
+		_ecs.RegisterComponent<ecs::Collider>();
+		_ecs.RegisterComponent<ecs::Rigidbody>();
+		_ecs.RegisterComponent<ecs::LightCommon>();
+		_ecs.RegisterComponent<ecs::SpotLight>();
+		_ecs.RegisterComponent<ecs::PlayerController>();
+		_ecs.RegisterComponent<ecs::MoveDirectionSource>();
+	}
 	/**
 	 * @brief システムの登録
 	 * @param _ecs ECSのコーディネーター
@@ -48,11 +70,14 @@ namespace {
 		auto& ecs = _desc.ecs;
 
 
+		// 入力関係
+		ecs.RegisterSystem<ecs::PlayerControllerSystem>(_desc);
+
 		// ---------- 衝突関係 ---------- // 
 		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
 		ecs.RegisterSystem<ecs::IntegrationSystem>(_desc);
 		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
-		
+
 		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_desc);
 		const auto& lightDepthRenderSystem = ecs.GetSystem<ecs::LightDepthRenderSystem>();
 		lightDepthRenderSystem->SetGraphicsEngine(_engine);
@@ -122,16 +147,8 @@ dx3d::Game::Game(const GameDesc& _desc)
 		// SceneManagerの初期化
 		scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
 
-		// todo: 自動でComponentを登録する機能が欲しいかも。システム登録段階で、コンポーネントマネージャの中にすでに登録してあったらそのシグネチャを使い、なければ新たにとか...
-		ecs_coordinator_->RegisterComponent<ecs::Transform>();
-		ecs_coordinator_->RegisterComponent<ecs::MeshRenderer>();
-		ecs_coordinator_->RegisterComponent<ecs::Camera>();
-		ecs_coordinator_->RegisterComponent<ecs::CameraController>();
-		ecs_coordinator_->RegisterComponent<ecs::Collider>();
-		ecs_coordinator_->RegisterComponent<ecs::Rigidbody>();
-		ecs_coordinator_->RegisterComponent<ecs::LightCommon>();
-		ecs_coordinator_->RegisterComponent<ecs::SpotLight>();
-
+		// Componentの登録
+		RegisterAllComponents(*ecs_coordinator_);
 		// Systemの登録
 		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
 		RegisterAllSystems(systemDesc, *graphics_engine_);
@@ -236,6 +253,7 @@ void dx3d::Game::OnInternalUpdate()
 		accumulated_time_ -= fixed_time_step_;
 	}
 	ecs_coordinator_->UpdateAllSystems(dt);
+	ecs_coordinator_->FlushPending();
 
 	// デバッグUIの描画
 	debug::DebugUI::Render();

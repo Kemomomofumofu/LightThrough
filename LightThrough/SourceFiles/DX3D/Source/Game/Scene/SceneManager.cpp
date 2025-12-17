@@ -14,6 +14,7 @@
 
 #include <Game/Scene/SceneManager.h>
 
+#include <Game/ECS/Coordinator.h>
 #include <Game/Components/Transform.h>
 #include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Camera.h>
@@ -21,8 +22,10 @@
 #include <Game/Components/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
 #include <Game/Components/Light.h>
+#include <Game/Components/PlayerController.h>
+#include <Game/Components/MoveDirectionSource.h>
 
-
+#include <Game/ECS/ECSUtils.h>
 #include <Game/GameLogUtils.h>
 #include <Debug/DebugUI.h>
 
@@ -144,13 +147,48 @@ namespace {
 		ImGui::Separator();
 		// 方向ベクトル確認表示
 		{
-			auto f = _tf.GetForward();
-			auto r = _tf.GetRight();
-			auto u = _tf.GetUp();
+			auto& f = _tf.GetForward();
+			auto& r = _tf.GetRight();
+			auto& u = _tf.GetUp();
 			ImGui::Text("Fwd:(%.2f %.2f %.2f)", f.x, f.y, f.z);
 			ImGui::Text("Right:(%.2f %.2f %.2f)", r.x, r.y, r.z);
 			ImGui::Text("Up:(%.2f %.2f %.2f)", u.x, u.y, u.z);
 		}
+	}
+
+	template<>
+	void DrawReflectedComponentFields<ecs::Collider>(ecs::Collider& c, float speed)
+	{
+		const char* shapeItems[] = { "Sphere", "Box" };
+		int current = static_cast<int>(c.type);
+
+		if (ImGui::Combo("ShapeType", &current, shapeItems, IM_ARRAYSIZE(shapeItems))) {
+			c.type = static_cast<collision::ShapeType>(current);
+			c.shapeDirty = true;
+		}
+
+		switch (c.type)
+		{
+		case collision::ShapeType::Sphere:
+		{
+			if (ImGui::DragFloat("Radius", &c.sphere.radius, speed, 0.01f)) {
+				c.shapeDirty = true;
+			}
+			break;
+		}
+		case collision::ShapeType::Box:
+		{
+			if (ImGui::DragFloat3("HalfExtents", &c.box.halfExtents.x, speed)) {
+				c.shapeDirty = true;
+			}
+			break;
+		}
+		default:
+			break;
+		}
+
+		ImGui::Checkbox("IsTrigger", &c.isTrigger);
+		ImGui::Checkbox("IsStatic", &c.isStatic);
 	}
 
 } // unnamed namespace
@@ -432,6 +470,18 @@ namespace scene {
 		ImGui::BeginChild("EntitiesPana", ImVec2(middleW, 0), true);
 		ImGui::Text("Entities");
 		ImGui::Separator();
+		if (ImGui::Button("Create Entity")) {
+			ecs::Entity e = ecs_.CreateEntity();
+
+			// 最低限 Transform は付ける
+			ecs_.AddComponent<ecs::Transform>(e, {});
+
+			// アクティブ Scene に登録
+			if (active_scene_) {
+				AddEntityToScene(*active_scene_, e);
+			}
+		}
+
 
 		if (!active_scene_) {
 			ImGui::TextUnformatted("Active scene is not loaded.");
@@ -493,6 +543,8 @@ namespace scene {
 		ImGui::SameLine();
 
 		// ---------- Inspector ---------- //
+		std::optional<ecs::ComponentType> removeComponentType;
+
 		ImGui::BeginChild("InspectorPane", ImVec2(rightW, 0), true);
 		ImGui::Text("Inspector");
 		ImGui::Separator();
@@ -502,6 +554,23 @@ namespace scene {
 		}
 		else {
 			ecs::Entity e = *debug_selected_entity_;
+
+			// Entity削除ボタン
+			if (ImGui::Button("Delete Entity")) {
+				ecs_.DestroyEntity(e);
+
+				if (active_scene_) {
+					RemoveEntityFromScene(*active_scene_, e);
+				}
+
+				debug_selected_entity_.reset();
+				ImGui::EndChild();
+				ImGui::End();
+				return;
+			}
+			ImGui::Separator();
+
+			// Entity情報
 			ImGui::Text("Entity Id: %u (Ver:%u)", e.Index(), e.Version());
 			if (ImGui::Button("Deselect")) {
 				debug_selected_entity_.reset();
@@ -523,7 +592,9 @@ namespace scene {
 				ecs::Collider,
 				ecs::Rigidbody,
 				ecs::LightCommon,
-				ecs::SpotLight
+				ecs::SpotLight,
+				ecs::PlayerController,
+				ecs::MoveDirectionSource
 			>;
 
 			// メタループ
@@ -535,8 +606,12 @@ namespace scene {
 					ImGui::PushID(compName);
 					if (ImGui::CollapsingHeader(compName, ImGuiTreeNodeFlags_DefaultOpen)) {
 						DrawReflectedComponentFields(comp, baseSpeed);
-					}
-					ImGui::PopID();
+
+						// コンポーネント削除ボタン
+						if (ImGui::Button("Remove Component")) {
+							removeComponentType = ecs_.GetComponentType<CompT>();
+						}
+					}					ImGui::PopID();
 					ImGui::Separator();
 				}
 				});
@@ -546,29 +621,13 @@ namespace scene {
 				ImGui::OpenPopup("AddCompPopup");
 			}
 			if (ImGui::BeginPopup("AddCompPopup")) {
-				if (!ecs_.HasComponent<ecs::Transform>(e) && ImGui::Selectable("Transform")) {
-					ecs_.AddComponent<ecs::Transform>(e, ecs::Transform{});
-				}
-				if (!ecs_.HasComponent<ecs::MeshRenderer>(e) && ImGui::Selectable("MeshRenderer")) {
-					ecs_.AddComponent<ecs::MeshRenderer>(e, ecs::MeshRenderer{});
-				}
-				if (!ecs_.HasComponent<ecs::Camera>(e) && ImGui::Selectable("Camera")) {
-					ecs_.AddComponent<ecs::Camera>(e, ecs::Camera{});
-				}
-				if (!ecs_.HasComponent<ecs::CameraController>(e) && ImGui::Selectable("CameraController")) {
-					ecs_.AddComponent<ecs::CameraController>(e, ecs::CameraController{});
-				}
-				if (!ecs_.HasComponent<ecs::Collider>(e) && ImGui::Selectable("Collider")) {
-					ecs_.AddComponent<ecs::Collider>(e, ecs::Collider{});
-				}
-				if (!ecs_.HasComponent<ecs::Rigidbody>(e) && ImGui::Selectable("Rigidbody")) {
-					ecs_.AddComponent<ecs::Rigidbody>(e, ecs::Rigidbody{});
-				}
-				if (!ecs_.HasComponent<ecs::LightCommon>(e) && ImGui::Selectable("LightCommon")) {
-					ecs_.AddComponent<ecs::LightCommon>(e, ecs::LightCommon{});
-				}
-				if (!ecs_.HasComponent<ecs::SpotLight>(e) && ImGui::Selectable("SpotLight")) {
-					ecs_.AddComponent<ecs::SpotLight>(e, ecs::SpotLight{});
+				auto& registry = ecs_serial::ComponentRegistry::Get();
+				for (const auto& [name, entry] : registry.GetAllEntries()) {
+					if (entry.has && entry.has(ecs_, e)) { continue; }
+
+					if (ImGui::Selectable(name.c_str())) {
+						registry.AddDefault(ecs_, e, name);
+					}
 				}
 				ImGui::EndPopup();
 			}
