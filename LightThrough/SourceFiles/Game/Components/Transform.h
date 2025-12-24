@@ -77,6 +77,9 @@ namespace ecs {
 			return eulerDegCache;
 		}
 
+		/**
+		 * @brief 
+		 */
 		void SyncEulerFromQuat() const
 		{
 			RecalcAxes();
@@ -213,6 +216,43 @@ namespace ecs {
 			LookTo(dir, _upHint);
 		}
 
+		/**
+		 * @brief +Z を _dir に向ける回転を設定
+		 */
+		void SetRotationFromDirection(const XMFLOAT3& _dir)
+		{
+			XMVECTOR v1 = XMLoadFloat3(&_dir);
+			if (XMVectorGetX(XMVector3LengthSq(v1)) < 1e-8f) { return; }
+			v1 = XMVector3Normalize(v1);
+
+			// 元の forward (+Z)
+			XMVECTOR v0 = XMVectorSet(0, 0, 1, 0);
+
+			// From-To Quaternion
+			XMVECTOR c = XMVector3Cross(v0, v1);
+			float d = XMVectorGetX(XMVector3Dot(v0, v1));
+
+			// v0 と v1 がほぼ正反対のとき
+			if (d < -0.9999f) {
+				// 任意の直交軸（X軸を使う）
+				XMVECTOR axis = XMVectorSet(1, 0, 0, 0);
+				XMVECTOR q = XMQuaternionRotationAxis(axis, XM_PI);
+				XMStoreFloat4(&rotationQuat, q);
+			}
+			else {
+				XMVECTOR q = XMVectorSet(
+					XMVectorGetX(c),
+					XMVectorGetY(c),
+					XMVectorGetZ(c),
+					1.0f + d
+				);
+				q = XMQuaternionNormalize(q);
+				XMStoreFloat4(&rotationQuat, q);
+			}
+
+			dirty = true;
+			axesDirty = true;
+		}
 		//! @brief ワールド行列の更新
 		void BuildWorld()
 		{

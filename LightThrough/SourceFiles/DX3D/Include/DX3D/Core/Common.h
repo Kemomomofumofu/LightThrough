@@ -99,11 +99,16 @@ namespace dx3d {
 	};
 }
 
+
+namespace scene {
+	class SceneManager;
+}
 namespace ecs {
 	class Coordinator;
 
 	struct SystemDesc {
 		dx3d::BaseDesc base;
 		Coordinator& ecs; // Coordinator‚Ö‚ÌQÆ
+		scene::SceneManager& sceneManager; // SceneManager‚Ö‚ÌQÆ
 	};
 }

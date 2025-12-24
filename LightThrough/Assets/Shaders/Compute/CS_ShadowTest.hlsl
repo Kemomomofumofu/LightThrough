@@ -32,9 +32,9 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
         return;
     }
     
-    float3 ndc = clip.xyz / clip.w; // -1..1
-    float2 uv = ndc.xy * 0.5f + 0.5f; // 0..1
-    float zLight = ndc.z * 0.5f + 0.5f; // 0..1
+    float3 ndc = clip.xyz / clip.w;
+    float2 uv = ndc.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f); // memo: DirectXの使用上y軸のみ反転 座標系の変換はcommon.hlsliに置いといたほうが良いかも
+    float zLight = ndc.z;
     
     // 範囲外
     if (uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f)
@@ -42,6 +42,8 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
         outFlags[idx] = 1u; // shadow
         return;
     }
+
+
     
     // テクセル座標
     int tx = (int) (uv.x * (shadowWidth - 1));

@@ -62,7 +62,7 @@ namespace debug {
 		}
 
 		// ログを書き出すファイルの初期化
-		out_file_.open("DebugLog/DebugLog.txt", std::ios::out | std::ios::app);
+		out_file_.open("DebugLog/DebugLog.txt", std::ios::out | std::ios::trunc);
 		if (!out_file_.is_open()) {
 			std::cout << "Failed to open DebugLog/DebugLog.txt\n";
 			OutputDebugStringA("Failed to open DebugLog/DebugLog.txt\n");

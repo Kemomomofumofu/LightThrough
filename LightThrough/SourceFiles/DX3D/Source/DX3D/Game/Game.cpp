@@ -26,6 +26,7 @@
 #include <Game/Systems/Physics/IntegrationSystem.h>
 #include <Game/Systems/Physics/ClearForcesSystem.h>
 #include <Game/Systems/PlayerControllerSystem.h>
+#include <Game/Systems/Scenes/TitleSceneSystem.h>
 
 #include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Transform.h>
@@ -91,9 +92,12 @@ namespace {
 
 		// カメラ
 		ecs.RegisterSystem<ecs::CameraSystem>(_desc);
+
+		// タイトル独自の更新
+		ecs.RegisterSystem<ecs::TitleSceneSystem>(_desc);
+
 		// 位置更新
 		ecs.RegisterSystem<ecs::TransformSystem>(_desc);
-
 		// 描画システム
 		ecs.RegisterSystem<ecs::RenderSystem>(_desc);
 		const auto& renderSystem = ecs.GetSystem<ecs::RenderSystem>();
@@ -150,7 +154,7 @@ dx3d::Game::Game(const GameDesc& _desc)
 		// Componentの登録
 		RegisterAllComponents(*ecs_coordinator_);
 		// Systemの登録
-		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
+		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_};
 		RegisterAllSystems(systemDesc, *graphics_engine_);
 
 		// Sceneの生成・読み込み・アクティベート
@@ -236,13 +240,13 @@ void dx3d::Game::OnInternalUpdate()
 	{
 		scene_manager_->SaveActiveScene();
 	}
-	if (input::InputSystem::Get().IsKeyTrigger('1'))
+	if (input::InputSystem::Get().IsKeyTrigger(VK_RETURN))
 	{
 		scene_manager_->ChangeScene("TestScene");
 	}
 	if (input::InputSystem::Get().IsKeyTrigger('2'))
 	{
-		scene_manager_->ChangeScene("TestScene2");
+		scene_manager_->ChangeScene("TitleScene");
 	}
 
 

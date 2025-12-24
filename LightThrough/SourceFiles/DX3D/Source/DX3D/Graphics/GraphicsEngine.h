@@ -21,6 +21,12 @@
  * なんか描画する感じ？
  */
 namespace dx3d {
+
+	namespace texture {
+		class TextureRegistry;
+	} // namespace texture
+
+
 	struct GraphicsEngineDesc {
 		BaseDesc base;
 	};
@@ -30,7 +36,7 @@ namespace dx3d {
 
 		explicit GraphicsEngine(const GraphicsEngineDesc& _desc);
 		virtual ~GraphicsEngine() override;
-
+		
 		GraphicsDevice& GetGraphicsDevice() noexcept;
 		DeviceContext& GetDeferredContext() noexcept;
 		//! @brief メッシュレジストリ取得
@@ -55,5 +61,6 @@ namespace dx3d {
 		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};
 		std::unique_ptr<MeshRegistry> mesh_registry_{};
+		std::unique_ptr<texture::TextureRegistry> texture_registry_{};
 	};
 }

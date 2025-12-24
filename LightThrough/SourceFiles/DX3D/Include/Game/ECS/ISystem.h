@@ -21,7 +21,8 @@ namespace ecs {
 	public:
 		explicit ISystem(const SystemDesc& _desc)
 			: dx3d::Base(_desc.base)
-			, ecs_(_desc.ecs){}
+			, ecs_(_desc.ecs)
+			, scene_manager_(_desc.sceneManager){}
 
 		virtual ~ISystem() = default;
 		virtual void Init() {}
@@ -32,5 +33,6 @@ namespace ecs {
 
 	protected:
 		ecs::Coordinator& ecs_; // ecs::CoordinatorÇ÷ÇÃéQè∆
+		scene::SceneManager& scene_manager_;
 	};
 }

@@ -10,6 +10,12 @@
  /*---------- インクルード ----------*/
 #include <DX3D/Core/Logger.h>
 #include <d3d11.h>
+#include <stdexcept>
+#include <string>
+#include <sstream>
+#include <wrl/client.h>
+#include <dxgitype.h>
+#include <comdef.h>
 
 
 namespace dx3d {
