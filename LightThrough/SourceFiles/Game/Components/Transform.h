@@ -18,8 +18,8 @@ namespace ecs {
 		XMFLOAT4 rotationQuat = { 0, 0, 0, 1 };				//! 回転(クォータニオン)
 		XMFLOAT3 scale = { 1, 1, 1 };						//! スケール
 
-		//! エディター表示用の角度キャッシュ
-		//! memo: ImGuiで編集する用の変数、実際の値はrotationQuatで扱う
+		//! @brief エディター表示用の角度キャッシュ
+		//! @memo ImGuiで編集する用の変数、実際の値はrotationQuatで扱う
 		mutable XMFLOAT3 eulerDegCache{ 0.0f, 0.0f, 0.0f };
 
 		//! キャッシュ用
@@ -253,6 +253,8 @@ namespace ecs {
 			dirty = true;
 			axesDirty = true;
 		}
+
+
 		//! @brief ワールド行列の更新
 		void BuildWorld()
 		{

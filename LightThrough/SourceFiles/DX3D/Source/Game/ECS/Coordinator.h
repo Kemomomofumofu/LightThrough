@@ -40,7 +40,7 @@ namespace ecs {
 
 		template<typename Com>
 		void AddComponent(Entity _e, const Com& _component);	// Componentの追加
-		void AddComponent(Entity _e, ComponentType _type, const void* _data);
+		void AddComponentRaw(Entity _e, ComponentType _type, const void* _data);
 		
 		template<typename Com>
 		void RemoveComponent(Entity _e);	// Componentの削除
@@ -62,8 +62,13 @@ namespace ecs {
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
 
-		template<typename Com>
-		void RequestAddComponent(Entity _e, const Com& _component);	// Componentの追加リクエスト
+		/**
+		 * @brief コンポーネントの追加リクエスト
+		 * @param _e 対象のEntity
+		 * @param _type 追加するComponentのType
+		 * @param _apply 追加処理
+		 */
+		void RequestAddComponentRaw(Entity _e, ComponentType _type, std::function<void()> _apply);
 		template<typename Com>
 		void RequestRemoveComponent(Entity _e);	// Componentの削除リクエスト
 		void RequestDestroyEntity(Entity _e);	// Entityの破棄リクエスト
@@ -76,7 +81,10 @@ namespace ecs {
 		void SetSystemSignature(Signature& _signature);	// SystemのSignatureを設定
 		template<typename Sys>
 		std::shared_ptr<Sys> GetSystem();	// Systemの取得
+		void ReactivateAllSystems(); // 登録されたSystemをすべて再アクティブ化
 		
+
+
 		void InitAllSystems();	// 登録されたSystemの初期化
 		void FixedUpdateAllSystems(float _fixedDt); // 登録されたSystemの固定更新
 		void UpdateAllSystems(float _dt);	// 登録されたSystemの更新

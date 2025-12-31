@@ -31,7 +31,24 @@ namespace dx3d {
 		virtual void Run() final;
 
 	private:
+		/**
+		 * @brief 更新
+		 */
 		void OnInternalUpdate();
+
+		/**
+		 * @brief シーンの保存
+		 */
+		void SaveScene();
+		/**
+		 * @brief シーンのリロード
+		 */
+		void ReloadScene();
+		/**
+		 * @brief シーンの切り替え
+		 * @param _newScene 新しいシーンID
+		 */
+		void ChangeScene(const scene::SceneData::Id& _newScene);
 	private:
 		std::unique_ptr<Logger>logger_ptr_{};
 		std::unique_ptr<GraphicsEngine> graphics_engine_{};

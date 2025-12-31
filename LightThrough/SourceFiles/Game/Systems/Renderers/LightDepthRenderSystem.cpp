@@ -56,7 +56,7 @@ namespace ecs {
 
 		auto& device = engine_->GetGraphicsDevice();
 		// ConstantBuffer作成
-		cb_light_matrix_ = device.CreateConstantBuffer({	// vsスロット2
+		cb_light_matrix_ = device.CreateConstantBuffer({
 			sizeof(CBLightMatrix),
 			nullptr
 			});
@@ -192,7 +192,7 @@ namespace ecs {
 		if (totalInstance == 0) { return; } // 描画するものがない
 
 		// インスタンスバッファの作成またはリサイズ
-		CreateOrResizeInstanceBuffer(totalInstance);
+		CreateOrResizeInstanceBufferShadow(totalInstance);
 
 		std::vector<dx3d::InstanceDataShadow> instances;
 		instances.reserve(totalInstance);
@@ -215,7 +215,7 @@ namespace ecs {
 				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceDataShadow)),
 				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceDataShadow))
 			};
-			instance_buffer_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
+			instance_buffer_shadow_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
 	}
 
@@ -223,7 +223,7 @@ namespace ecs {
 	 * @brief インスタンスバッファの作成またはリサイズ
 	 * @param _requiredInstanceCapacity 必要なインスタンス数
 	 */
-	void LightDepthRenderSystem::CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity)
+	void LightDepthRenderSystem::CreateOrResizeInstanceBufferShadow(size_t _requiredInstanceCapacity)
 	{
 		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
 		instance_buffer_capacity_ = (std::max)(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
@@ -304,7 +304,7 @@ namespace ecs {
 			CBLightMatrix lm{};
 			lm.lightViewProj = lightVP;
 			cb_light_matrix_->Update(contextWrap, &lm, sizeof(lm));
-			contextWrap.VSSetConstantBuffer(1, *cb_light_matrix_); // slot2
+			contextWrap.VSSetConstantBuffer(1, *cb_light_matrix_);
 		}
 
 
@@ -313,7 +313,7 @@ namespace ecs {
 		for (auto& b : shadow_batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, instanceCount, b.instanceOffset, key);
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, key);
 		}
 
 		// 退避していたRTV、DSVを復元

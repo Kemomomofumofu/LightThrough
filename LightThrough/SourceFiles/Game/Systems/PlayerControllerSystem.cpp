@@ -45,8 +45,6 @@ namespace ecs {
 	{
 		using namespace DirectX;
 
-		if (!move_forward_ && !move_left_ && !move_back_ && !move_right_) { return; }
-
 		// ˆÚ“®ˆ—
 		for (auto e : entities_) {
 			auto& tf = ecs_.GetComponent<Transform>(e);

@@ -21,5 +21,8 @@ namespace ecs {
 		TransformSystem(const SystemDesc& _desc);
 		void Init();
 		void Update(float _dt) override;
+
+	private:
+		void RenderTransformHierarchy();
 	};
 }

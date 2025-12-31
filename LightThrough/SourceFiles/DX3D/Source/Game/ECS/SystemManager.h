@@ -35,6 +35,11 @@ namespace ecs {
 		const std::unordered_map<std::type_index, std::shared_ptr<ISystem>>& GetAllSystems() const;
 		const std::vector<std::shared_ptr<ISystem>>& GetAllSystemsInOrder() const;
 
+		void UpdateAllSystems(float _dt);	// 全てのシステムを更新
+
+		void ReactivateAllSystems(); // 登録されたSystemをすべて再アクティブ化
+
+
 		void EntitySignatureChanged(Entity _e, Signature _eSignature);	// EntityのSignatureが変わった時に呼び出す
 		void EntityDestroyed(Entity _e);	// Entityが破棄された時に呼び出す
 

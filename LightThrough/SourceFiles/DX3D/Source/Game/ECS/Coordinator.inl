@@ -40,7 +40,7 @@ namespace ecs {
 	{
 		ComponentType type = component_manager_->GetComponentType<Com>();
 		// 追加
-		AddComponent(_e, type, static_cast<const void*>(&_component));
+		AddComponentRaw(_e, type, static_cast<const void*>(&_component));
 	}
 
 
@@ -127,20 +127,6 @@ namespace ecs {
 		return component_manager_->GetComponentType<Com>();
 	}
 
-	/**
-	 * @brief EntityにComponentの追加リクエストを出す
-	 * @param <Com> 追加するComponentの種類
-	 * @param _e 追加先のEntity
-	 * @param _component 追加するComponentの参照
-	 */
-	template<typename Com>
-	inline void Coordinator::RequestAddComponent(Entity _e, const Com& _component)
-	{
-		pending_adds_.push_back({ _e, component_manager_->GetComponentType<Com>(),
-			[this, _e, _component]() {
-				this->AddComponent<Com>(_e, _component);
-			} });
-	}
 
 	/**
 	 * @brief EntityからComponentの削除リクエストを出す
@@ -175,6 +161,10 @@ namespace ecs {
 	void Coordinator::SetSystemSignature(Signature& _signature)
 	{
 		system_manager_->SetSignature<Sys>(_signature);
+		// すでに存在するEntityに対しても反映させる
+		for (auto& e : entity_manager_->GetAllEntities()) {
+			system_manager_->EntitySignatureChanged(e, entity_manager_->GetSignature(e));
+		}
 	}
 
 

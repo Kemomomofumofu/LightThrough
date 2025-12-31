@@ -402,16 +402,26 @@ template<> struct ecs_serial::TypeReflection<Type> { \
 		ecs_serial::ComponentRegistry::Get().Register( \
 			ecs_serial::TypeReflection<ComponentT>::Name(), \
 			[](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
-				const ComponentT temp = ecs_serial::Deserialize<ComponentT>(_j); \
-				_coord.AddComponent<ComponentT>(_e, temp); \
+				/* JSON -> Component ŽÀ‘Ì */ \
+				auto componentPtr = std::make_shared<ComponentT>( \
+					ecs_serial::Deserialize<ComponentT>(_j) \
+				); \
+				\
+				const auto type = _coord.GetComponentType<ComponentT>(); \
+				\
+				/* Flush Žž‚ÉŽÀs‚³‚ê‚é */ \
+				_coord.RequestAddComponentRaw( \
+					_e, type, \
+					[coord = &_coord, e = _e, componentPtr]() { \
+						coord->AddComponent<ComponentT>(e, *componentPtr); \
+					} \
+				); \
 			}, \
 			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
 				return _coord.HasComponent<ComponentT>(_e); \
 			}, \
-			[](ecs::Coordinator& _coord, ecs::Entity _e) \
-			{ \
-				const auto& c = _coord.GetComponent<ComponentT>(_e); \
-				return ecs_serial::Serialize<ComponentT>(c); \
+			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
+				return ecs_serial::Serialize(_coord.GetComponent<ComponentT>(_e)); \
 			} \
 		); \
 	} while(0)

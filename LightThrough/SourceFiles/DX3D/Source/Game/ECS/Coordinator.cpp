@@ -50,6 +50,17 @@ namespace ecs {
 		entity_manager_->Destroy(_e);
 	}
 
+	//! @brief Componentの追加リクエスト
+	void Coordinator::RequestAddComponentRaw(Entity _e, ComponentType _type, std::function<void()> _apply)
+	{
+		pending_adds_.push_back(
+			PendingAdd{
+			.e =_e,
+			.type = _type,
+			.apply = std::move(_apply)
+			});
+	}
+
 	/**
 	 * @brief Entityの破棄リクエスト
 	 * @param _e
@@ -65,7 +76,7 @@ namespace ecs {
 	 * @param _type 追加するComponentの種類
 	 * @param _data 追加するComponentのデータへのポインタ
 	 */
-	void Coordinator::AddComponent(Entity _e, ComponentType _type, const void* _data)
+	void Coordinator::AddComponentRaw(Entity _e, ComponentType _type, const void* _data)
 	{
 		// 追加
 		component_manager_->AddComponent(_e, _type, _data);
@@ -92,6 +103,11 @@ namespace ecs {
 		sig.set(_type, false);
 		entity_manager_->SetSignature(_e, sig);
 		system_manager_->EntitySignatureChanged(_e, sig);
+	}
+
+	void Coordinator::ReactivateAllSystems()
+	{
+		system_manager_->ReactivateAllSystems();
 	}
 
 	/**
@@ -121,9 +137,7 @@ namespace ecs {
 	 */
 	void Coordinator::UpdateAllSystems(float _dt)
 	{
-		for (auto& system : system_manager_->GetAllSystemsInOrder()) {
-			system->Update(_dt);
-		}
+		system_manager_->UpdateAllSystems(_dt);
 	}
 
 	//! @brief 保留中の変更を反映

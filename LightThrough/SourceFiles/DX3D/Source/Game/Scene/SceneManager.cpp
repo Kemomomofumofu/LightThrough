@@ -24,6 +24,9 @@
 #include <Game/Components/Light.h>
 #include <Game/Components/PlayerController.h>
 #include <Game/Components/MoveDirectionSource.h>
+#include <Game/Components/Object/Name.h>
+#include <Game/Components/Object/ObjectRoot.h>
+#include <Game/Components/Object/ObjectChild.h>
 
 #include <Game/ECS/ECSUtils.h>
 #include <Game/GameLogUtils.h>
@@ -260,6 +263,25 @@ namespace scene {
 		return true;
 	}
 
+	//! @brief アクティブなSceneDataをリロードする
+	bool SceneManager::ReloadActiveScene()
+	{
+		const auto id = *active_scene_;
+		// アンロード
+		if (!UnloadScene(id)) {
+			GameLogFError("[SceneManager] シーンのアンロードに失敗: {}", id);
+			return false;
+		}
+
+		// ロード
+		if (!LoadSceneFromFile(id)) {
+			GameLogFError("[SceneManager] シーンのロードに失敗: {}", id);
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * @brief アクティブなSceneDataを保存する
 	 * @return 成功: true, 失敗: false
@@ -470,11 +492,16 @@ namespace scene {
 		ImGui::BeginChild("EntitiesPana", ImVec2(middleW, 0), true);
 		ImGui::Text("Entities");
 		ImGui::Separator();
+
+		// エンティティ生成
 		if (ImGui::Button("Create Entity")) {
 			ecs::Entity e = ecs_.CreateEntity();
 
-			// 最低限 Transform は付ける
+			// 最低限のコンポーネントを付ける
 			ecs_.AddComponent<ecs::Transform>(e, {});
+			ecs::Name nameComp;
+			nameComp.value = "Entity_" + std::to_string(e.Index());
+			ecs_.AddComponent<ecs::Name>(e, nameComp);
 
 			// アクティブ Scene に登録
 			if (active_scene_) {
@@ -514,7 +541,15 @@ namespace scene {
 						// Column 0: 選択されているEntity
 						ImGui::TableSetColumnIndex(0);
 						bool isSelected = (debug_selected_entity_ && *debug_selected_entity_ == e);
-						std::string label = "Idx:" + std::to_string(e.Index()) + "Ver:" + std::to_string(e.Version());
+						// 表示名
+						std::string label;
+						if (ecs_.HasComponent<ecs::Name>(e)) {
+							label = ecs_.GetComponent<ecs::Name>(e).value;
+						}
+						else {
+							label = "Idx:" + std::to_string(e.Index()) + "Ver:" + std::to_string(e.Version());
+						}
+
 						ImGui::PushID(static_cast<int>(e.Index()));
 						if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns)) {
 							debug_selected_entity_ = e;
@@ -557,11 +592,8 @@ namespace scene {
 
 			// Entity削除ボタン
 			if (ImGui::Button("Delete Entity")) {
-				ecs_.DestroyEntity(e);
-
-				if (active_scene_) {
-					RemoveEntityFromScene(*active_scene_, e);
-				}
+				// Entityの削除待機リストに追加する
+				ecs_.RequestDestroyEntity(e);
 
 				debug_selected_entity_.reset();
 				ImGui::EndChild();
@@ -585,16 +617,19 @@ namespace scene {
 
 			// ここで列挙したい全コンポーネント型タプル
 			using AllComponents = std::tuple<
+				ecs::Name,
 				ecs::Transform,
 				ecs::MeshRenderer,
 				ecs::Camera,
 				ecs::CameraController,
+				ecs::PlayerController,
+				ecs::MoveDirectionSource,
 				ecs::Collider,
 				ecs::Rigidbody,
 				ecs::LightCommon,
 				ecs::SpotLight,
-				ecs::PlayerController,
-				ecs::MoveDirectionSource
+				ecs::ObjectRoot,
+				ecs::ObjectChild
 			>;
 
 			// メタループ
@@ -604,29 +639,34 @@ namespace scene {
 					auto& comp = ecs_.GetComponent<CompT>(e);
 					const char* compName = ecs_serial::TypeReflection<CompT>::Name().data();
 					ImGui::PushID(compName);
-					if (ImGui::CollapsingHeader(compName, ImGuiTreeNodeFlags_DefaultOpen)) {
+					if (ImGui::CollapsingHeader(compName)) {
 						DrawReflectedComponentFields(comp, baseSpeed);
 
 						// コンポーネント削除ボタン
 						if (ImGui::Button("Remove Component")) {
 							removeComponentType = ecs_.GetComponentType<CompT>();
+							// コンポーネント削除待機リストに追加
+							ecs_.RequestRemoveComponent<CompT>(e);
 						}
-					}					ImGui::PopID();
+					}
+					ImGui::PopID();
 					ImGui::Separator();
 				}
 				});
 
-			// Add Component Popup (既存を流用)
+			// Add Component Popup
 			if (ImGui::Button("Add Component")) {
 				ImGui::OpenPopup("AddCompPopup");
 			}
 			if (ImGui::BeginPopup("AddCompPopup")) {
 				auto& registry = ecs_serial::ComponentRegistry::Get();
 				for (const auto& [name, entry] : registry.GetAllEntries()) {
+					// すでに持っているコンポーネントはスキップ
 					if (entry.has && entry.has(ecs_, e)) { continue; }
 
 					if (ImGui::Selectable(name.c_str())) {
-						registry.AddDefault(ecs_, e, name);
+						// コンポーネント追加待機リストに追加
+						registry.AddIfExists(ecs_, e, name, nlohmann::json::object());
 					}
 				}
 				ImGui::EndPopup();

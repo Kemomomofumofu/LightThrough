@@ -12,44 +12,63 @@
 #include <Game/ECS/ISystem.h>
 
 
-/**
- * @brief システム群の取得
- * @return 登録されたシステム群
- */
-const std::unordered_map<std::type_index, std::shared_ptr<ecs::ISystem>>& ecs::SystemManager::GetAllSystems() const
-{
-	return systems_;
-}
+namespace ecs {
+	/**
+	 * @brief システム群の取得
+	 * @return 登録されたシステム群
+	 */
+	const std::unordered_map<std::type_index, std::shared_ptr<ISystem>>& SystemManager::GetAllSystems() const
+	{
+		return systems_;
+	}
 
-//! システム群の取得（更新順）
-const std::vector<std::shared_ptr<ecs::ISystem>>& ecs::SystemManager::GetAllSystemsInOrder() const
-{
-	return systems_in_order_;
-}
+	//! システム群の取得（更新順）
+	const std::vector<std::shared_ptr<ISystem>>& SystemManager::GetAllSystemsInOrder() const
+	{
+		return systems_in_order_;
+	}
 
-//! エンティティのシグネチャが変わったときの処理
-void ecs::SystemManager::EntitySignatureChanged(Entity _e, Signature _eSignature)
-{
-	for (auto const& pair : systems_) {
-		auto const& type = pair.first;
-		auto const& system = pair.second;
-		auto const& sysSig = signature_[type];
-
-		if ((_eSignature & sysSig) == sysSig) {
-			system->entities_.insert(_e);
-		}
-		else {
-			system->entities_.erase(_e);
+	//! @brief 全てのシステムを更新
+	void SystemManager::UpdateAllSystems(float _dt)
+	{
+		for(auto system : systems_in_order_) {
+			system->Update(_dt);
 		}
 	}
-}
 
-//! エンティティが破棄されたときの処理
-void ecs::SystemManager::EntityDestroyed(Entity _e)
-{
-	for (auto const& pair : systems_) {
+	//! @brief 登録されたSystemをすべて再アクティブ化
+	void SystemManager::ReactivateAllSystems()
+	{
+		for (auto& pair : systems_) {
+			pair.second->SetActive(true);
+		}
+	}
 
-		pair.second->OnEntityDestroyed(_e);
-		pair.second->entities_.erase(_e);
+
+	//! エンティティのシグネチャが変わったときの処理
+	void SystemManager::EntitySignatureChanged(Entity _e, Signature _eSignature)
+	{
+		for (auto const& pair : systems_) {
+			auto const& type = pair.first;
+			auto const& system = pair.second;
+			auto const& sysSig = signature_[type];
+
+			if ((_eSignature & sysSig) == sysSig) {
+				system->entities_.insert(_e);
+			}
+			else {
+				system->entities_.erase(_e);
+			}
+		}
+	}
+
+	//! エンティティが破棄されたときの処理
+	void SystemManager::EntityDestroyed(Entity _e)
+	{
+		for (auto const& pair : systems_) {
+
+			pair.second->OnEntityDestroyed(_e);
+			pair.second->entities_.erase(_e);
+		}
 	}
 }
