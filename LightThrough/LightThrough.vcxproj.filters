@@ -333,5 +333,6 @@
     <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
   </ItemGroup>
 </Project>

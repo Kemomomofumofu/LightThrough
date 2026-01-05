@@ -105,14 +105,16 @@ namespace ecs {
 		}
 	}
 
+
 	/**
 	 * @brief エンティティ破棄イベント
 	 */
 	void LightDepthRenderSystem::OnEntityDestroyed(Entity _entity)
 	{
-
+		// todo: ライトが消されたときにlight_to_shadow_index_からも消すべきかも
 	}
 
+	//! @brief ライトEntityからシャドウ情報を取得
 	bool LightDepthRenderSystem::GetShadowInfo(Entity _lightEntity, int& _outIndex, DirectX::XMMATRIX& _outMatrix) const
 	{
 		auto it = light_to_shadow_index_.find(_lightEntity);
@@ -308,12 +310,19 @@ namespace ecs {
 		}
 
 
-		auto key = dx3d::BuildPipelineKey(true);
+		auto psoKey = dx3d::BuildPipelineKey(
+			dx3d::VertexShaderKind::ShadowMap,
+			dx3d::PixelShaderKind::None,
+			dx3d::BlendMode::Opaque,
+			dx3d::DepthMode::Default,
+			dx3d::RasterMode::SolidBack,
+			dx3d::PipelineFlags::Instancing
+		);
 		// 描画
 		for (auto& b : shadow_batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, key);
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, psoKey);
 		}
 
 		// 退避していたRTV、DSVを復元

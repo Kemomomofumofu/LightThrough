@@ -132,7 +132,7 @@ namespace ecs {
 
 			// ライトの位置に丸を描画。
 			auto debugRender = ecs_.GetSystem<DebugRenderSystem>();
-			debugRender->DrawSphere(tf, { 1, 0, 0, 1 });
+			debugRender->DrawSphere(tf);
 #endif // _DEBUG || DEBUG
 
 			// パック
@@ -208,7 +208,14 @@ namespace ecs {
 
 			// todo: マテリアルからpsoを取得するつくりにする
 			// auto& material = ecs_.GetComponent<Material>(e);
-			auto psoKey = dx3d::BuildPipelineKey(false, dx3d::BlendMode::Alpha);
+			auto psoKey = dx3d::BuildPipelineKey(
+				dx3d::VertexShaderKind::Instanced,
+				dx3d::PixelShaderKind::Default,
+				dx3d::BlendMode::Alpha,
+				dx3d::DepthMode::Default,
+				dx3d::RasterMode::SolidBack,
+				dx3d::PipelineFlags::Instancing
+			);
 
 			if (!meshData) continue;
 

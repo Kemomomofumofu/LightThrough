@@ -36,7 +36,6 @@ namespace ecs {
 	 */
 	class LightDepthRenderSystem : public ISystem {
 	public:
-
 		explicit LightDepthRenderSystem(const SystemDesc& _desc);
 		//! @brief ‰Šú‰»
 		void Init() override;

@@ -30,6 +30,7 @@ namespace dx3d {
 
 		// Pixel Shader
 		const char* psDefault = "Assets/Shaders/Pixel/PS_Default.hlsl";
+		const char* psColor = "Assets/Shaders/Pixel/PS_Color.hlsl";
 
 		// Compute Shader
 		const char* csShadowTest = "Assets/Shaders/Compute/CS_ShadowTest.hlsl";

@@ -104,7 +104,7 @@ namespace dx3d {
 		auto pso = pipeline_cache_->GetOrCreate(_key);
 		deferred_context_->SetGraphicsPipelineState(*pso);
 
-		if (!(_key.GetFlags() & PipelineFlags::ShadowPass)) {
+		if (_key.GetVS() != VertexShaderKind::ShadowMap) {
 			deferred_context_->SetViewportSize(swap_chain_->GetSize());
 		}
 		deferred_context_->SetVertexBuffers(_vb, _instanceVB);

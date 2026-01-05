@@ -30,14 +30,28 @@ namespace dx3d {
 			.vs = *vsEntry.signature,
 			.ps = psBin.get(),
 			.inputLayout = vsEntry.layout,
-			.blendMode = _key.GetBlend()
+			.blendMode = _key.GetBlend(),
+			.depthMode = _key.GetDepth(),
 		};
+
+		// ラスタライザーステートの設定
+		switch (_key.GetRaster()) {
+		case RasterMode::Wireframe:
+			psoDesc.rasterizerState.fillMode = FillMode::Wireframe;
+			psoDesc.rasterizerState.cullMode = CullMode::None;
+			break;
+		case RasterMode::SolidNone:
+			psoDesc.rasterizerState.cullMode = CullMode::None;
+			break;
+		case RasterMode::SolidBack:
+			psoDesc.rasterizerState.cullMode = CullMode::Back;
+			break;
+		}
 
 		// パイプラインステートオブジェクトの生成
 		auto pso = graphics_device_->CreateGraphicsPipelineState(psoDesc);
-
-		// キャッシュに保存してから返す
 		pso_cache_.emplace(_key, pso);
+
 		return pso;
 	}
 
