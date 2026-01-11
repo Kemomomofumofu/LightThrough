@@ -219,6 +219,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
     <ClInclude Include="SourceFiles\Game\Components\Render\Light.h" />
     <ClInclude Include="SourceFiles\Game\Components\Input\MoveDirectionSource.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Name.h" />

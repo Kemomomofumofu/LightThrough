@@ -36,6 +36,7 @@
 #include <Game/Components/Input/CameraController.h>
 #include <Game/Components/Physics/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/Render/Light.h>
 #include <Game/Components/Input/PlayerController.h>
 #include <Game/Components/Input/MoveDirectionSource.h>
@@ -62,6 +63,7 @@ namespace {
 		_ecs.RegisterComponent<ecs::CameraController>();
 		_ecs.RegisterComponent<ecs::Collider>();
 		_ecs.RegisterComponent<ecs::Rigidbody>();
+		_ecs.RegisterComponent<ecs::GroundContact>();
 		_ecs.RegisterComponent<ecs::LightCommon>();
 		_ecs.RegisterComponent<ecs::SpotLight>();
 		_ecs.RegisterComponent<ecs::PlayerController>();

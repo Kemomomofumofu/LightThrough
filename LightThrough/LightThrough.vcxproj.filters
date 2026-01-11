@@ -220,6 +220,7 @@
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">

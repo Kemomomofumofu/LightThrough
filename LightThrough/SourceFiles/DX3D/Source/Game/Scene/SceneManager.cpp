@@ -21,6 +21,7 @@
 #include <Game/Components/Input/CameraController.h>
 #include <Game/Components/Physics/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/Render/Light.h>
 #include <Game/Components/Input/PlayerController.h>
 #include <Game/Components/Input/MoveDirectionSource.h>
@@ -619,6 +620,7 @@ namespace scene {
 			using AllComponents = std::tuple<
 				ecs::Name,
 				ecs::Transform,
+				ecs::GroundContact,
 				ecs::MeshRenderer,
 				ecs::Camera,
 				ecs::CameraController,

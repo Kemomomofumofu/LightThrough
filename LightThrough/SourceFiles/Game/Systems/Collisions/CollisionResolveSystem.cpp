@@ -17,13 +17,18 @@
 #include <Game/Components/Core/Transform.h>
 #include <Game/Components/Physics/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Physics/GroundContact.h>
+#include <Game/Components/Core/Name.h>
 
 #include <Game/Collisions/CollisionUtils.h>
+#include <Debug/Debug.h>
 
 namespace ecs {
 	using namespace DirectX;
 
 	namespace {
+		constexpr float GROUND_NORMAL_Y_THRESHOLD = -0.7f; // 地面とみなす法線のY成分閾値
+
 		// オーバーロード用のヘルパー
 		template <class ...Ts>
 		struct Overloaded : Ts... { using Ts::operator()...; };
@@ -94,7 +99,7 @@ namespace ecs {
 			return { _v.x * _s, _v.y * _s, _v.z * _s };
 		}
 
-	}
+	} // unnamed namespace
 
 
 	/**
@@ -128,6 +133,17 @@ namespace ecs {
 	{
 		auto shadowTestSystem = shadow_test_system_.lock();
 
+		// GroundContactの初期化
+		for (Entity e : entities_) {
+			if (ecs_.HasComponent<GroundContact>(e)) {
+				auto& gc = ecs_.GetComponent<GroundContact>(e);
+				gc.isGrounded = false;
+				gc.groundNormalY = 0.0f;
+				// gc.groundEntity = {}; // todo: 動く床対応が必要になったら有効化
+			}
+		}
+
+
 		// ペアごとに処理するためにベクターにコピー
 		std::vector<Entity> ents;
 		ents.reserve(entities_.size());
@@ -154,10 +170,8 @@ namespace ecs {
 
 				// ナローフェーズ
 				const auto contact = DispatchContact(colA, colB);
-				if (!contact) { continue; }	// 衝突していないならスキップ
-
-				if (contact->penetration <= 1e-6f) { continue; } // ほとんどゼロならスキップ
-
+				if (!contact) { continue; }							// 衝突していないならスキップ
+				if (contact->penetration <= 1e-6f) { continue; }	// ほとんどゼロならスキップ
 
 				// 影判定
 				if (shadow_collision_enabled_ && shadowTestSystem) {
@@ -170,6 +184,25 @@ namespace ecs {
 					// memo: 前フレームの判定を取得する
 					if (shadowTestSystem->AreBothInShadow(eA, eB)) { continue; }
 				}
+
+				// 設置判定の更新
+				// 地面接触の更新用ラムダ
+				auto tryUpdateGroundContact = [&](Entity _self, Entity _other, const XMFLOAT3& _normal)
+					{
+						if (!ecs_.HasComponent<GroundContact>(_self)) { return; } // GroundContact持ってないならスキップ
+						if (_normal.y > GROUND_NORMAL_Y_THRESHOLD) { return; } // 法線のY成分が閾値を超えていたらスキップ
+
+						auto& gc = ecs_.GetComponent<GroundContact>(_self);
+						gc.isGrounded = true;
+
+						if (_normal.y > gc.groundNormalY) {
+							gc.groundNormalY = _normal.y;
+							// gc.groundEntity = _other; // todo: 動く床対応が必要になったら有効化
+						}
+					};
+				const XMFLOAT3& nAB = contact->normal;
+				tryUpdateGroundContact(eA, eB, nAB);
+				tryUpdateGroundContact(eB, eA, Scale(nAB, -1.0f));
 
 
 				// 押し出し量の計算 (A->B 法線)
@@ -187,7 +220,6 @@ namespace ecs {
 				}
 
 				// 反発
-				const XMFLOAT3 nAB = contact->normal;
 				float invMassA = 0.0f;
 				float invMassB = 0.0f;
 				Rigidbody* pRbA = nullptr;

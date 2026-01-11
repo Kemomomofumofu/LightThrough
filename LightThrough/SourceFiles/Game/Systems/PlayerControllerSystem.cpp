@@ -11,6 +11,7 @@
 #include <Game/Components/Input/PlayerController.h>
 #include <Game/Components/Core/Transform.h>
 #include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/Input/MoveDirectionSource.h>
 #include <Game/Components/Input/CameraController.h>
 
@@ -25,6 +26,7 @@ namespace ecs {
 		signature.set(ecs_.GetComponentType<PlayerController>());
 		signature.set(ecs_.GetComponentType<Rigidbody>());
 		signature.set(ecs_.GetComponentType<MoveDirectionSource>());
+		signature.set(ecs_.GetComponentType<GroundContact>());
 		ecs_.SetSystemSignature<PlayerControllerSystem>(signature);
 	}
 
@@ -54,6 +56,7 @@ namespace ecs {
 			auto& pc = ecs_.GetComponent<PlayerController>(e);
 			auto& rb = ecs_.GetComponent<Rigidbody>(e);
 			auto& mds = ecs_.GetComponent<MoveDirectionSource>(e);
+			auto& gc = ecs_.GetComponent<GroundContact>(e);
 
 			float yaw = 0.0f;
 			if (mds.target.IsInitialized() && ecs_.HasComponent<CameraController>(mds.target)) {
@@ -85,8 +88,7 @@ namespace ecs {
 
 			// ƒWƒƒƒ“ƒvˆ—
 			if (move_jump_) {
- 				bool isGrounded = true; // todo: ’n–Ê”»’è
-				if (isGrounded)				{
+				if (gc.isGrounded) {
 					rb.linearVelocity.y = pc.jumpForce;
 				}
 			}
