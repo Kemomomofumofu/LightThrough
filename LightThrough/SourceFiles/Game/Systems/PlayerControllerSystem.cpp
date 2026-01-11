@@ -34,10 +34,13 @@ namespace ecs {
 		auto& input = input::InputSystem::Get();
 
 		// 移動入力取得
-		move_forward_ = input.IsKeyDown('W');
-		move_left_ = input.IsKeyDown('A');
-		move_back_ = input.IsKeyDown('S');
-		move_right_ = input.IsKeyDown('D');
+		if (input.IsKeyDown('W')) { move_forward_ = true; }
+		if (input.IsKeyDown('S')) { move_back_ = true; }
+		if (input.IsKeyDown('A')) { move_left_ = true; }
+		if (input.IsKeyDown('D')) { move_right_ = true; }
+
+		// ジャンプ入力取得
+		if (input.IsKeyTrigger(VK_SPACE)) { move_jump_ = true; }
 	}
 
 	//! @brief 固定更新
@@ -75,11 +78,27 @@ namespace ecs {
 				dir = XMVector3Normalize(dir);
 				float speed = pc.moveSpeed * _fixedDt;
 
-				XMFLOAT3 delta;
+				XMFLOAT3 delta{};
 				XMStoreFloat3(&delta, dir * speed);
-				delta.y = 0.0f;
 				rb.linearVelocity = math::Add(rb.linearVelocity, delta);
 			}
+
+			// ジャンプ処理
+			if (move_jump_) {
+ 				bool isGrounded = true; // todo: 地面判定
+				if (isGrounded)				{
+					rb.linearVelocity.y = pc.jumpForce;
+				}
+			}
+
 		}
+
+		// フラグリセット
+		move_forward_ = false;
+		move_back_ = false;
+		move_left_ = false;
+		move_right_ = false;
+		move_jump_ = false;
+
 	}
-}
+} // namespace ecs

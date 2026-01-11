@@ -21,6 +21,6 @@ namespace ecs {
 		bool move_back_		= false;
 		bool move_left_		= false;
 		bool move_right_	= false;
-
+		bool move_jump_ = false;
 	};
 } // namespace ecs
