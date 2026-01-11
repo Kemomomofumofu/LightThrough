@@ -11,6 +11,7 @@
 #include <typeindex>
 #include <memory>
 #include <cassert>
+#include <array>
 #include <Game/ECS/ECSUtils.h>
 
 namespace ecs {
@@ -30,16 +31,14 @@ namespace ecs {
 		template<typename Com>
 		void RegisterComponent();	// Componentリストの登録
 		template<typename Com>
-		void AddComponent(Entity _e, const Com& _component);	// Componentの追加
-		template<typename Com>
-		void RemoveComponent(Entity _e);	// Componentの削除
-		template<typename Com>
 		Com& GetComponent(Entity _e);	// Componentの取得
 		template<typename Com>
 		bool HasComponent(Entity _e);	// Componentを持っているか
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
 
+		void AddComponent(Entity _e, ComponentType _type, const void* _data);
+		void RemoveComponent(Entity _e, ComponentType _type);	// Componentの削除
 		void EntityDestroyed(Entity _e);	// Entityが破棄された際に呼び出す
 
 	private:
@@ -49,6 +48,7 @@ namespace ecs {
 	private:
 		std::unordered_map<std::type_index, std::unique_ptr<IComponentArray>> component_arrays_;	// Componentリストを保持するMap
 		std::unordered_map<std::type_index, ComponentType> component_types_;	// コンポーネントに対応する整数を保持するMap
+		std::array<IComponentArray*, MAX_COMPONENTS> component_arrays_by_type_{}; // ComponentTypeからComponentArrayを取得するための配列
 		ComponentType next_component_type_ = 0;	// 次に登録されるコンポーネントのType
 	};
 

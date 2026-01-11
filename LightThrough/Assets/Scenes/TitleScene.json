@@ -1,0 +1,218 @@
+{
+    "entities": [
+        {
+            "components": {
+                "ecs::Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 500.0,
+                    "fovY": 60.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 200.0
+                },
+                "ecs::CameraController": {
+                    "enableMove": false,
+                    "invertY": false,
+                    "mode": 0,
+                    "mouseSensitivity": 0.0,
+                    "moveSpeed": 100.0,
+                    "orbitDistance": 5.0,
+                    "orbitPitch": 0.30000001192092896,
+                    "orbitTarget": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "orbitYaw": 0.0,
+                    "pitch": 1.5607963800430298,
+                    "yaw": -6.28397798538208
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 200.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": -0.7035623788833618,
+                        "y": 0.0002815896878018975,
+                        "z": -0.00027878780383616686
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 33554433
+        },
+        {
+            "components": {
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": -100.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.7071067094802856,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 10000.0,
+                        "y": 100000.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 33554434
+        },
+        {
+            "components": {
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 1.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "enabled": true,
+                    "intensity": 100.0
+                },
+                "ecs::SpotLight": {
+                    "innerCos": 0.8999999761581421,
+                    "outerCos": 0.800000011920929,
+                    "range": 1000.0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 50.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.06293986737728119,
+                        "y": -0.347333699464798,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 33554435
+        },
+        {
+            "components": {
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                    },
+                    "enabled": true,
+                    "intensity": 100.0
+                },
+                "ecs::SpotLight": {
+                    "innerCos": 0.8999999761581421,
+                    "outerCos": 0.800000011920929,
+                    "range": 1000.0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 50.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.3360069692134857,
+                        "y": 0.9174677133560181,
+                        "z": -0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 33554436
+        },
+        {
+            "components": {
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 1.0
+                    },
+                    "enabled": true,
+                    "intensity": 100.0
+                },
+                "ecs::SpotLight": {
+                    "innerCos": 0.8999999761581421,
+                    "outerCos": 0.800000011920929,
+                    "range": 1000.0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 50.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.6302369832992554,
+                        "y": -0.6272730231285095,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 33554437
+        },
+        {
+            "components": {
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 0
+                    },
+                    "materialId": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 90.3499984741211
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 143.89999389648438,
+                        "y": 97.19999694824219,
+                        "z": 91.3499984741211
+                    }
+                }
+            },
+            "id": 33554438
+        }
+    ],
+    "sceneId": "TitleScene",
+    "sceneName": "TitleScene",
+    "version": 1
+}

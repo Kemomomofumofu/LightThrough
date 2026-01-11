@@ -10,10 +10,12 @@
 
 namespace ecs {
 	struct PlayerController {
-		float moveSpeed = 5.0f;
+		float moveSpeed = 5.0f; // ˆÚ“®‘¬“x
+		float jumpForce = 5.0f; // ƒWƒƒƒ“ƒv—Í
 	};
 }
 
 ECS_REFLECT_BEGIN(ecs::PlayerController)
-ECS_REFLECT_FIELD(moveSpeed)
+ECS_REFLECT_FIELD(moveSpeed),
+ECS_REFLECT_FIELD(jumpForce)
 ECS_REFLECT_END()

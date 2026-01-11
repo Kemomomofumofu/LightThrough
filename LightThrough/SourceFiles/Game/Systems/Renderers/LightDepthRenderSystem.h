@@ -36,7 +36,6 @@ namespace ecs {
 	 */
 	class LightDepthRenderSystem : public ISystem {
 	public:
-
 		explicit LightDepthRenderSystem(const SystemDesc& _desc);
 		//! @brief 初期化
 		void Init() override;
@@ -62,7 +61,7 @@ namespace ecs {
 		void UpdateBatches();
 		void RenderShadowPass(Entity _lightEntity, ID3D11DepthStencilView* _dsv);
 		//! @brief インスタンスバッファの作成またはリサイズ
-		void CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity);
+		void CreateOrResizeInstanceBufferShadow(size_t _requiredInstanceCapacity);
 		// シャドウマップ用リソースの作成
 		void CreateShadowResources(uint32_t _texHeight, uint32_t _texWidth, uint32_t _arraySize);
 
@@ -73,7 +72,7 @@ namespace ecs {
 		const uint32_t SHADOW_MAP_HEIGHT = 2048;
 
 		std::vector<InstanceBatchShadow> shadow_batches_{}; // シャドウパスのバッチ
-		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_{};
+		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_shadow_{};
 		size_t instance_buffer_capacity_{};
 
 		dx3d::ConstantBufferPtr cb_light_matrix_{};	// 定数バッファ

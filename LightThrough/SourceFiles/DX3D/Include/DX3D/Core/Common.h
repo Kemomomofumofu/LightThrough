@@ -99,11 +99,17 @@ namespace dx3d {
 	};
 }
 
+
+namespace scene {
+	class SceneManager;
+}
 namespace ecs {
 	class Coordinator;
 
 	struct SystemDesc {
 		dx3d::BaseDesc base;
 		Coordinator& ecs; // Coordinatorへの参照
+		scene::SceneManager& sceneManager; // SceneManagerへの参照
+		bool oneShot = false; // 一度だけ実行するシステムか
 	};
 }

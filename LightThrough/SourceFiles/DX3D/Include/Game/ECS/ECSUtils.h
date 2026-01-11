@@ -20,6 +20,9 @@ namespace ecs {
 	constexpr uint32_t INDEX_MASK = (1 << INDEX_BITS) - 1;
 	constexpr uint32_t VERSION_MASK = (1 << VERSION_BITS) - 1;
 
+	constexpr uint32_t ENTITY_NONE = 0u; // 無効なEntity
+	constexpr uint32_t ENTITY_INVALID = (VERSION_MASK << INDEX_BITS) | INDEX_MASK; // 全ビット1で無効なEntity
+
 	/**
 	 * @brief Entity生成
 	 * @param _index EntityのIndex

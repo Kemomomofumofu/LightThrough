@@ -10,15 +10,19 @@
 #include <Game/ECS/ISystem.h>
 
 namespace ecs {
-		// ---------- ‘O•ûéŒ¾ ---------- //
-	struct Entity;
-	class Coordinator;
 	class TitleSceneSystem : public ISystem {
 	public:
 		explicit TitleSceneSystem(const SystemDesc& _desc);
+
+		virtual void Init() override;
 		virtual void Update(float _dt) override;
 
 		void DebugTitleScene();
+
+	private:
+		float time_sec_ = 0.0f;
+
+
 	};
 }
 

@@ -25,6 +25,10 @@
 #include <Game/Systems/Physics/ForceAccumulationSystem.h>
 #include <Game/Systems/Physics/IntegrationSystem.h>
 #include <Game/Systems/Physics/ClearForcesSystem.h>
+#include <Game/Systems/PlayerControllerSystem.h>
+#include <Game/Systems/Scenes/TitleSceneSystem.h>
+#include <Game/Systems/Initialization/Resolve/ObjectResolveSystem.h>
+#include <Game/Systems/Initialization/Resolve/MoveDirectionSourceResolveSystem.h>
 
 #include <Game/Components/MeshRenderer.h>
 #include <Game/Components/Transform.h>
@@ -33,12 +37,39 @@
 #include <Game/Components/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
 #include <Game/Components/Light.h>
+#include <Game/Components/PlayerController.h>
+#include <Game/Components/MoveDirectionSource.h>
+#include <Game/Components/Object/Name.h>
+#include <Game/Components/Object/ObjectRoot.h>
+#include <Game/Components/Object/ObjectChild.h>
 
 #include <Debug/DebugUI.h>
 #include <Debug/Debug.h>
 
 #pragma region ローカルメソッド
 namespace {
+
+	/**
+	 * @brief コンポーネントの登録
+	 * @param _ecs ECSのコーディネーター
+	 */
+	void RegisterAllComponents(ecs::Coordinator& _ecs)
+	{
+		// todo: 自動でComponentを登録する機能が欲しいかも。システム登録段階で、コンポーネントマネージャの中にすでに登録してあったらそのシグネチャを使い、なければ新たにとか...
+		_ecs.RegisterComponent<ecs::Transform>();
+		_ecs.RegisterComponent<ecs::MeshRenderer>();
+		_ecs.RegisterComponent<ecs::Camera>();
+		_ecs.RegisterComponent<ecs::CameraController>();
+		_ecs.RegisterComponent<ecs::Collider>();
+		_ecs.RegisterComponent<ecs::Rigidbody>();
+		_ecs.RegisterComponent<ecs::LightCommon>();
+		_ecs.RegisterComponent<ecs::SpotLight>();
+		_ecs.RegisterComponent<ecs::PlayerController>();
+		_ecs.RegisterComponent<ecs::MoveDirectionSource>();
+		_ecs.RegisterComponent<ecs::Name>();
+		_ecs.RegisterComponent<ecs::ObjectRoot>();
+		_ecs.RegisterComponent<ecs::ObjectChild>();
+	}
 	/**
 	 * @brief システムの登録
 	 * @param _ecs ECSのコーディネーター
@@ -47,12 +78,22 @@ namespace {
 	{
 		auto& ecs = _desc.ecs;
 
+		// ---------- 初期化関係 ---------- //
+		_desc.oneShot = true;
+		ecs.RegisterSystem<ecs::ObjectResolveSystem>(_desc);
+		ecs.RegisterSystem<ecs::MoveDirectionSourceResolveSystem>(_desc);
+
+		// ---------- ゲーム関係 ---------- //
+		_desc.oneShot = false;
+		// 入力関係
+		ecs.RegisterSystem<ecs::PlayerControllerSystem>(_desc);
 
 		// ---------- 衝突関係 ---------- // 
 		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
+		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
 		ecs.RegisterSystem<ecs::IntegrationSystem>(_desc);
 		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
-		
+
 		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_desc);
 		const auto& lightDepthRenderSystem = ecs.GetSystem<ecs::LightDepthRenderSystem>();
 		lightDepthRenderSystem->SetGraphicsEngine(_engine);
@@ -61,14 +102,16 @@ namespace {
 		const auto& shadowTest = ecs.GetSystem<ecs::ShadowTestSystem>();
 		shadowTest->SetGraphicsEngine(_engine);
 
-		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
 		ecs.RegisterSystem<ecs::ClearForcesSystem>(_desc);
 
-		// カメラ
-		ecs.RegisterSystem<ecs::CameraSystem>(_desc);
+		// タイトル独自の更新
+		ecs.RegisterSystem<ecs::TitleSceneSystem>(_desc);
+
 		// 位置更新
 		ecs.RegisterSystem<ecs::TransformSystem>(_desc);
 
+		// カメラ
+		ecs.RegisterSystem<ecs::CameraSystem>(_desc);
 		// 描画システム
 		ecs.RegisterSystem<ecs::RenderSystem>(_desc);
 		const auto& renderSystem = ecs.GetSystem<ecs::RenderSystem>();
@@ -82,179 +125,187 @@ namespace {
 		// 全システム初期化
 		ecs.InitAllSystems();
 	}
-}
+} // namespace anonymous
 #pragma endregion
 
-/**
- * @brief コンストラクタ
- * @param _desc ゲームの定義
- */
-dx3d::Game::Game(const GameDesc& _desc)
-	: Base({ *std::make_unique<Logger>(_desc.logLevel).release() }),
-	logger_ptr_(&logger_)
-{
-	// デバッグログ初期化
-	debug::Debug::Init(true);
+
+namespace dx3d {
+
+	/**
+	 * @brief コンストラクタ
+	 * @param _desc ゲームの定義
+	 */
+	Game::Game(const GameDesc& _desc)
+		: Base({ *std::make_unique<Logger>(_desc.logLevel).release() }),
+		logger_ptr_(&logger_)
+	{
+		// デバッグログ初期化
+		debug::Debug::Init(true);
+
+		// 描画エンジンの生成
+		graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });
+
+		// ウィンドウの生成
+		display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
+		try {
+			// ImGuiの初期化
+			ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
+			ID3D11DeviceContext* context = graphics_engine_->GetDeferredContext().GetDeferredContext().Get();
+			void* hwnd = display_->GetHandle();
+			debug::DebugUI::Init(device, context, hwnd);
+
+			// InputSystem初期化
+			input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));
+			// ECSのコーディネーターの生成
+			ecs_coordinator_ = std::make_unique<ecs::Coordinator>(dx3d::BaseDesc{ logger_ });
+			ecs_coordinator_->Init();
+
+			// SceneManagerの初期化
+			scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
+
+			// Componentの登録
+			RegisterAllComponents(*ecs_coordinator_);
+
+			// Sceneの生成・読み込み・アクティベート
+			ChangeScene("TestScene");
+
+			// Systemの登録
+			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_ };
+			RegisterAllSystems(systemDesc, *graphics_engine_);
 
 
 
-	// 時間初期化
-	last_time_ = std::chrono::high_resolution_clock::now();
+			// 時間初期化
+			last_time_ = std::chrono::high_resolution_clock::now();
 
-	// 描画エンジンの生成
-	graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });
+		}
+		catch (const std::exception& _e) {
+			OutputDebugStringA(("[Init] exception: " + std::string(_e.what()) + "\n").c_str());
+			__debugbreak();
+		}
+		catch (...) {
+			OutputDebugStringA("[Init] unknown exception\n");
+			__debugbreak();
+		}
 
-	// ウィンドウの生成
-	display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
-	try {
-		// ImGuiの初期化
-		ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
-		ID3D11DeviceContext* context = graphics_engine_->GetDeferredContext().GetDeferredContext().Get();
-		void* hwnd = display_->GetHandle();
-		debug::DebugUI::Init(device, context, hwnd);
+		DX3DLogInfo("ゲーム開始");
+	}
 
-		// InputSystem初期化
-		input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));
-		// ECSのコーディネーターの生成
-		ecs_coordinator_ = std::make_unique<ecs::Coordinator>(dx3d::BaseDesc{ logger_ });
-		ecs_coordinator_->Init();
+	Game::~Game()
+	{
+		// ImGuiの破棄
+		debug::DebugUI::DisposeUI();
+		DX3DLogInfo("ゲーム終了");
 
-		// SceneManagerの初期化
-		scene_manager_ = std::make_unique<scene::SceneManager>(scene::SceneManagerDesc{ {logger_}, *ecs_coordinator_ });
+		debug::Debug::Log(debug::Debug::LogLevel::LOG_INFO, "ゲーム終了処理中...");
+		debug::Debug::Shutdown();
+	}
 
-		// todo: 自動でComponentを登録する機能が欲しいかも。システム登録段階で、コンポーネントマネージャの中にすでに登録してあったらそのシグネチャを使い、なければ新たにとか...
-		ecs_coordinator_->RegisterComponent<ecs::Transform>();
-		ecs_coordinator_->RegisterComponent<ecs::MeshRenderer>();
-		ecs_coordinator_->RegisterComponent<ecs::Camera>();
-		ecs_coordinator_->RegisterComponent<ecs::CameraController>();
-		ecs_coordinator_->RegisterComponent<ecs::Collider>();
-		ecs_coordinator_->RegisterComponent<ecs::Rigidbody>();
-		ecs_coordinator_->RegisterComponent<ecs::LightCommon>();
-		ecs_coordinator_->RegisterComponent<ecs::SpotLight>();
 
-		// Systemの登録
-		ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_ };
-		RegisterAllSystems(systemDesc, *graphics_engine_);
+	/**
+	 * @brief 更新
+	 */
+	void Game::OnInternalUpdate()
+	{
+		const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
+		// 入力の更新
+		input::InputSystem::Get().Update();
+		dx3d::Point mouseDelta = input::InputSystem::Get().GetMouseDelta();
 
-		// Sceneの生成・読み込み・アクティベート
-		scene_manager_->ChangeScene("TestScene");
+		// 時間の更新
+		using clock = std::chrono::high_resolution_clock;
+		auto now = clock::now();
+		std::chrono::duration<float> delta = now - last_time_;
+		float dt = delta.count();	// 秒
+		last_time_ = now;
 
-		// Entityの生成
-		// テスト
+		// 描画前処理
+		// スワップチェインのセット
+		graphics_engine_->SetSwapChain(display_->GetSwapChain());
+		graphics_engine_->BeginFrame();
 
+		if (input::InputSystem::Get().IsKeyTrigger(VK_RETURN))
+		{
+			scene_manager_->ChangeScene("TestScene");
+		}
+
+		// シーンの保存
+		if (input::InputSystem::Get().IsKeyTrigger('T'))
+		{
+			SaveScene();
+		}
+		// シーンリロード
+		if (input::InputSystem::Get().IsKeyTrigger('R')) {
+			ReloadScene();
+		}
+		//if (input::InputSystem::Get().IsKeyTrigger('2'))
 		//{
-		//	auto e = ecs_coordinator_->CreateEntity();
-		//	ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
-		//	tf.LookTo({ 0.0f, -1.0f, 0.0f });
-		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
-		//	ecs::LightCommon lightCommon;
-		//	lightCommon.color = { 0.7f, 0.5f, 0.6f };
-		//	ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
-		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
+		//	scene_manager_->ChangeScene("TitleScene");
 		//}
 
-		//{
-		//	auto e = ecs_coordinator_->CreateEntity();
-		//	ecs::Transform tf{ {0.0f, 20.0f, 0.0f} };
-		//	tf.LookTo({ 0.0f, -1.0f, 0.0f });
-		//	ecs_coordinator_->AddComponent<ecs::Transform>(e, tf);
-		//	ecs::LightCommon lightCommon;
-		//	lightCommon.color = { 0.0f, 0.95f, 0.2f };
-		//	ecs_coordinator_->AddComponent<ecs::LightCommon>(e, lightCommon);
-		//	ecs::SpotLight spotData{};
-		//	spotData.range = 100.0f;
-		//	spotData.innerCos = 0.9f;
-		//	spotData.outerCos = 0.8f;
-		//	ecs_coordinator_->AddComponent<ecs::SpotLight>(e, spotData);
-		//	scene_manager_->AddEntityToScene(*scene_manager_->GetActiveScene(), e);
-		//}
 
-	}
-	catch (const std::exception& _e) {
-		OutputDebugStringA(("[Init] exception: " + std::string(_e.what()) + "\n").c_str());
-		__debugbreak();
-	}
-	catch (...) {
-		OutputDebugStringA("[Init] unknown exception\n");
-		__debugbreak();
-	}
+		// Systemの更新
+		accumulated_time_ += dt;
+		while (accumulated_time_ >= fixed_time_step_) {
+			ecs_coordinator_->FixedUpdateAllSystems(fixed_time_step_);
+			accumulated_time_ -= fixed_time_step_;
+		}
+		ecs_coordinator_->UpdateAllSystems(dt);
+		ecs_coordinator_->FlushPending();
 
-	DX3DLogInfo("ゲーム開始");
-}
+		// デバッグUIの描画
+		debug::DebugUI::Render();
 
-dx3d::Game::~Game()
-{
-	// ImGuiの破棄
-	debug::DebugUI::DisposeUI();
-	DX3DLogInfo("ゲーム終了");
-
-	debug::Debug::Log(debug::Debug::LogLevel::LOG_INFO, "ゲーム終了処理中...");
-	debug::Debug::Shutdown();
-}
-
-
-/**
- * @brief 更新
- */
-void dx3d::Game::OnInternalUpdate()
-{
-	const auto& debugRenderSystem = ecs_coordinator_->GetSystem<ecs::DebugRenderSystem>();
-	// 入力の更新
-	input::InputSystem::Get().Update();
-	dx3d::Point mouseDelta = input::InputSystem::Get().GetMouseDelta();
-
-	// 時間の更新
-	using clock = std::chrono::high_resolution_clock;
-	auto now = clock::now();
-	std::chrono::duration<float> delta = now - last_time_;
-	float dt = delta.count();	// 秒
-	last_time_ = now;
-
-	// 描画前処理
-	// スワップチェインのセット
-	graphics_engine_->SetSwapChain(display_->GetSwapChain());
-	graphics_engine_->BeginFrame();
-
-	if (input::InputSystem::Get().IsKeyTrigger('T'))
-	{
-		scene_manager_->SaveActiveScene();
-	}
-	if (input::InputSystem::Get().IsKeyTrigger('1'))
-	{
-		scene_manager_->ChangeScene("TestScene");
-	}
-	if (input::InputSystem::Get().IsKeyTrigger('2'))
-	{
-		scene_manager_->ChangeScene("TestScene2");
-	}
-
-
-	// Systemの更新
-	accumulated_time_ += dt;
-	while (accumulated_time_ >= fixed_time_step_) {
-		ecs_coordinator_->FixedUpdateAllSystems(fixed_time_step_);
-		accumulated_time_ -= fixed_time_step_;
-	}
-	ecs_coordinator_->UpdateAllSystems(dt);
-
-	// デバッグUIの描画
-	debug::DebugUI::Render();
-
-	// 描画
-	graphics_engine_->EndFrame();
+		// 描画
+		graphics_engine_->EndFrame();
 
 #ifdef defined(_DEBUG) || defined(DEBUG)
 
-	if (auto* dev = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get()) {
-		const HRESULT hr = dev->GetDeviceRemovedReason();
-		if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || FAILED(hr)) {
-			char buf[256]{};
-			sprintf_s(buf, "DeviceRemovedReason=0x%08X\n", static_cast<unsigned>(hr));
-			OutputDebugStringA(buf);
-			__debugbreak();
+		if (auto* dev = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get()) {
+			const HRESULT hr = dev->GetDeviceRemovedReason();
+			if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || FAILED(hr)) {
+				char buf[256]{};
+				sprintf_s(buf, "DeviceRemovedReason=0x%08X\n", static_cast<unsigned>(hr));
+				OutputDebugStringA(buf);
+				__debugbreak();
+			}
 		}
-	}
 #endif // _DEBUG || DEBUG
 
-}
+	}
 
+	//! @brief シーンの保存
+	void Game::SaveScene()
+	{
+		if (!scene_manager_) {
+			DX3DLogError("SceneManagerが存在しない。");
+			return;
+		}
+
+		scene_manager_->SaveActiveScene();
+	}
+
+	void Game::ReloadScene()
+	{
+		if (!ecs_coordinator_) {
+			DX3DLogError("ECS::Coordinatorが存在しない。");
+			return;
+		}
+		if (!scene_manager_) {
+			DX3DLogError("SceneManagerが存在しない。");
+			return;
+		}
+		scene_manager_->ReloadActiveScene();		// シーンリロード
+		ecs_coordinator_->ReactivateAllSystems();	// システムの再アクティブ化
+		ecs_coordinator_->FlushPending();			// 保留中の変更を反映
+		
+	}
+
+	void Game::ChangeScene(const scene::SceneData::Id& _newScene)
+	{
+		scene_manager_->ChangeScene(_newScene);
+		ecs_coordinator_->ReactivateAllSystems();	// システムの再アクティブ化
+		ecs_coordinator_->FlushPending();			// 保留中の変更を反映
+	}
+
+}

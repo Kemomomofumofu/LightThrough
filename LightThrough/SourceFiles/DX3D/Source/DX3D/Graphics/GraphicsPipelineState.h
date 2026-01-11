@@ -41,6 +41,7 @@ namespace dx3d {
 		InputLayoutPtr inputLayout{};
 		RasterizerStateDesc rasterizerState;
 		BlendMode blendMode = BlendMode::Opaque;
+		DepthMode depthMode = DepthMode::Default;
 	};
 
 
@@ -58,6 +59,7 @@ namespace dx3d {
 		Microsoft::WRL::ComPtr<ID3D11InputLayout>  layout_{};
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rast_state_{};
 		Microsoft::WRL::ComPtr<ID3D11BlendState> blend_state_{};
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depth_state_{};
 
 		friend class DeviceContext;
 	};

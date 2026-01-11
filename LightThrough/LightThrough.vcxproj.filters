@@ -181,7 +181,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\InstanceData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
     <ClInclude Include="SourceFiles\Game\Components\Material.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Texture.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\Texture.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
@@ -204,11 +204,21 @@
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Light.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\LightDepthRenderSystem.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Gimmicks\ShadowState.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\MathUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
+    <ClInclude Include="SourceFiles\Game\Components\PlayerController.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\PlayerControllerSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\MoveDirectionSource.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\DirectXTex\include\DirectXTex.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Object\Name.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Object\ObjectChild.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Object\ObjectRoot.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -302,6 +312,11 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\PlayerControllerSystem.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
@@ -310,6 +325,7 @@
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
     <None Include="Assets\Shaders\Common\Lighting.hlsli" />
     <None Include="Assets\Shaders\Common\common.hlsli" />
+    <None Include="SourceFiles\ThirdParty\DirectXTex\include\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shaders\Compute\CS_ShadowTest.hlsl" />
@@ -317,5 +333,6 @@
     <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
   </ItemGroup>
 </Project>

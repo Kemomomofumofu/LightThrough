@@ -18,7 +18,7 @@ namespace dx3d {
 		 * @param _b ベクトルB
 		 * @return 差
 		 */
-		inline XMFLOAT3 Sub(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline XMFLOAT3 Sub(const XMFLOAT3& _a, const XMFLOAT3& _b)
 		{
 			return { _a.x - _b.x, _a.y - _b.y, _a.z - _b.z };
 		}
@@ -29,7 +29,7 @@ namespace dx3d {
 		 * @param _b ベクトルB
 		 * @return 和
 		 */
-		inline XMFLOAT3 Add(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline XMFLOAT3 Add(const XMFLOAT3& _a, const XMFLOAT3& _b)
 		{
 			return { _a.x + _b.x, _a.y + _b.y, _a.z + _b.z };
 		}
@@ -40,7 +40,7 @@ namespace dx3d {
 		 * @param _s スカラー値
 		 * @return スカラー倍されたベクトル
 		 */
-		inline XMFLOAT3 Scale(const XMFLOAT3& _v, float _s)
+		[[nodiscard]] inline XMFLOAT3 Scale(const XMFLOAT3& _v, float _s)
 		{
 			return { _v.x * _s, _v.y * _s, _v.z * _s };
 		}
@@ -50,7 +50,7 @@ namespace dx3d {
 		 * @param _v ベクトル
 		 * @return 反転されたベクトル
 		 */
-		inline XMFLOAT3 Negate(const XMFLOAT3& _v)
+		[[nodiscard]] inline XMFLOAT3 Negate(const XMFLOAT3& _v)
 		{
 			return { -_v.x, -_v.y, -_v.z };
 		}
@@ -61,7 +61,7 @@ namespace dx3d {
 		 * @param _b ベクトルB
 		 * @return 内積
 		 */
-		inline float Dot(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline float Dot(const XMFLOAT3& _a, const XMFLOAT3& _b)
 		{
 			return (_a.x * _b.x) + (_a.y * _b.y) + (_a.z * _b.z);
 		}
@@ -72,7 +72,7 @@ namespace dx3d {
 		 * @param _b ベクトルB
 		 * @return 外積
 		 */
-		inline XMFLOAT3 Cross(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline XMFLOAT3 Cross(const XMFLOAT3& _a, const XMFLOAT3& _b)
 		{
 			return {
 				_a.y * _b.z - _a.z * _b.y,
@@ -87,7 +87,7 @@ namespace dx3d {
 		 * @param _v ベクトル
 		 * @return 長さ
 		 */
-		inline float LengthSq(const XMFLOAT3& _v)
+		[[nodiscard]] inline float LengthSq(const XMFLOAT3& _v)
 		{
 			return Dot(_v, _v);
 		}
@@ -97,7 +97,7 @@ namespace dx3d {
 		 * @param _v ベクトル
 		 * @return 長さ
 		 */
-		inline float Length(const XMFLOAT3& _v)
+		[[nodiscard]] inline float Length(const XMFLOAT3& _v)
 		{
 			return std::sqrt(LengthSq(_v));
 		}

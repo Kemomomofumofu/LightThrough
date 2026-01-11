@@ -36,7 +36,7 @@ namespace dx3d {
 			XMFLOAT3 halfExtents{ 0.5f, 0.5f, 0.5f };
 		};
 
-		using ShapeVariant = std::variant<SphereShape, BoxShape>;
+		using ShapeVariant = std::variant<BoxShape, SphereShape>;
 
 		/**
 		 * @brief
@@ -340,16 +340,16 @@ namespace dx3d {
 		{
 			switch (_t)
 			{
-			case ShapeType::Sphere: return "Sphere";
 			case ShapeType::Box:	return "Box";
+			case ShapeType::Sphere: return "Sphere";
 			default:				return "Unknown";
 			}
 		}
 
 		inline std::optional<ShapeType> ShapeTypeFromString(std::string_view _s)
 		{
-			if (_s == "Sphere") { return ShapeType::Sphere; }
 			if (_s == "Box") { return ShapeType::Box; }
+			if (_s == "Sphere") { return ShapeType::Sphere; }
 			return std::nullopt;
 		}
 
@@ -358,73 +358,11 @@ namespace dx3d {
 
 namespace collision = dx3d::collision;
 
-ECS_REFLECT_BEGIN(collision::SphereShape)
-ECS_REFLECT_FIELD(radius)
-ECS_REFLECT_END()
 
 ECS_REFLECT_BEGIN(collision::BoxShape)
 ECS_REFLECT_FIELD(halfExtents)
 ECS_REFLECT_END()
 
-
-
-// ShapeVariant —p‚ÌSerialize/Deserialize
-namespace ecs_serial
-{
-	template<>
-	inline json Serialize<collision::ShapeVariant>(const collision::ShapeVariant& _v)
-	{
-		json j = json::object();
-		std::visit([&](auto&& _s) {
-			using S = std::decay_t<decltype(_s)>;
-			// SphereShape
-			if constexpr (std::is_same_v<S, collision::SphereShape>) {
-				j["type"] = collision::ToString(collision::ShapeType::Sphere);
-				j["data"] = Serialize(_s);
-			}
-			// BoxShape
-			else if constexpr (std::is_same_v<S, collision::BoxShape>) {
-				j["type"] = collision::ToString(collision::ShapeType::Box);
-				j["data"] = Serialize(_s);
-			}
-			}, _v);
-		return j;
-	}
-
-	template<>
-	inline collision::ShapeVariant Deserialize<collision::ShapeVariant>(const json& _j)
-	{
-		std::string typeStr;
-
-		if (_j.contains("type")) {
-			if (_j["type"].is_string()) {
-				typeStr = _j["type"].get<std::string>();
-			}
-			else if (_j["type"].is_number_integer()) {
-				int t = _j["type"].get<int>();
-				switch (static_cast<collision::ShapeType>(t)) {
-				case collision::ShapeType::Sphere:	typeStr = "Sphere"; break;
-				case collision::ShapeType::Box:		typeStr = "Box"; break;
-				default:							typeStr = "Unknown"; break;
-				}
-			}
-		}
-
-		// data•”•ª‚ÌŽæ“¾
-		const json& data = _j.at("data");
-
-		if (auto st = collision::ShapeTypeFromString(typeStr)) {
-			switch (*st) {
-			case collision::ShapeType::Sphere:
-				return Deserialize<collision::SphereShape>(data);
-			case collision::ShapeType::Box:
-				return Deserialize<collision::BoxShape>(data);
-			default:
-				break;
-			}
-		}
-
-		throw std::runtime_error("[CollisionUtils]Unknown ShapeType");
-
-	}
-} // namespace ecs_serial
+ECS_REFLECT_BEGIN(collision::SphereShape)
+ECS_REFLECT_FIELD(radius)
+ECS_REFLECT_END()

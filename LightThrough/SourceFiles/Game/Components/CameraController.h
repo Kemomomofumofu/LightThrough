@@ -40,6 +40,7 @@ namespace ecs {
 
 		// ƒIƒvƒVƒ‡ƒ“
 		bool invertY = false;	// YŽ²”½“]
+		bool enableMove = false;
 	};
 }
 
@@ -54,5 +55,6 @@ ECS_REFLECT_FIELD(orbitTarget),
 ECS_REFLECT_FIELD(orbitDistance),
 ECS_REFLECT_FIELD(orbitYaw),
 ECS_REFLECT_FIELD(orbitPitch),
-ECS_REFLECT_FIELD(invertY)
+ECS_REFLECT_FIELD(invertY),
+ECS_REFLECT_FIELD(enableMove)
 ECS_REFLECT_END()

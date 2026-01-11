@@ -13,11 +13,11 @@ namespace ecs {
 		DirectX::XMFLOAT3 force{};
 		DirectX::XMFLOAT3 torque{};
 
-		float mass = 1.0;
-		float drag = 0.0f;
-		float angularDrag = 0.0f;
-		float restitution = 0.0f;
-		float friction = 0.0f;
+		float mass = 1.0;			// ¿—Ê
+		float drag = 0.0f;			// ’ïR
+		float angularDrag = 0.0f;	// ’ïR
+		float restitution = 0.0f;	// ”½”­ŒW”
+		float friction = 0.0f;		// –€C
 
 		bool useGravity = true;
 		bool isStatic = false;

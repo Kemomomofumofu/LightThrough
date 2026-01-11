@@ -50,8 +50,18 @@ namespace scene {
 		bool SaveActiveScene();
 		bool LoadSceneFromFile(const std::string& _name);
 
-		// Sceneの切り替え
+		/**
+		 * @brief Scene切り替え
+		 * @param _newScene 新しいシーンID
+		 * @return 成功: True、失敗: False
+		 */
 		bool ChangeScene(const SceneData::Id& _newScene, bool _unloadPrev = true);
+
+		/**
+		 * @brief アクティブなシーンをリロード
+		 * @return 成功: True、失敗: False
+		 */
+		bool ReloadActiveScene();
 
 		// アクティベート
 		bool SetActiveScene(const SceneData::Id& _id, bool _unloadPrev = true);

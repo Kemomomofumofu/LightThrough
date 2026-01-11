@@ -39,22 +39,6 @@ namespace dx3d {
 		deferred_context_->ClearRenderTargetView(rtv, fColor);
 		deferred_context_->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		deferred_context_->OMSetRenderTargets(1, &rtv, dsv);
-
-		// todo: 仮。将来的にはパイプラインステートに持たせる。
-		static Microsoft::WRL::ComPtr<ID3D11DepthStencilState> s_depthState{};
-		if (!s_depthState) {
-			D3D11_DEPTH_STENCIL_DESC desc{};
-			desc.DepthEnable = TRUE;
-			desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-			desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-			desc.StencilEnable = FALSE;
-			DX3DGraphicsLogThrowOnFail(
-				device_.CreateDepthStencilState(&desc, &s_depthState),
-				"CreateDepthStencilState に 失敗"
-			);
-		}
-
-		deferred_context_->OMSetDepthStencilState(s_depthState.Get(), 0);
 	}
 
 
@@ -65,6 +49,7 @@ namespace dx3d {
 		deferred_context_->PSSetShader(_pipeline.ps_.Get(), nullptr, 0);
 		deferred_context_->RSSetState(_pipeline.rast_state_.Get());
 		deferred_context_->OMSetBlendState(_pipeline.blend_state_.Get(), nullptr, 0xffffffff);
+		deferred_context_->OMSetDepthStencilState(_pipeline.depth_state_.Get(), 0);
 	}
 
 

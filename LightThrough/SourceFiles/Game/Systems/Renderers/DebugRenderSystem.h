@@ -13,10 +13,13 @@
 #include <Game/Components/MeshRenderer.h>
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 
+#include <Game/Collisions/CollisionUtils.h>
+
 
 namespace dx3d {
 	class GraphicsEngine;
 }
+
 
 namespace ecs {
 	// ---------- 名前空間 ---------- // 
@@ -34,10 +37,37 @@ namespace ecs {
 		void Init() override;
 		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
-		void DrawLine(DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end, DirectX::XMFLOAT4 _color);
-		void DrawCube(const Transform& _transform, DirectX::XMFLOAT4 _color);
-		void DrawSphere(const Transform& _transform, DirectX::XMFLOAT4 _color);
+		void DrawLine(DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+		void DrawCube(const Transform& _transform, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
 
+		void DrawSphere(const Transform& _transform, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+		void DrawSphere(const DirectX::XMFLOAT3& _center, float _radius, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+		void DrawSphere(const collision::WorldSphere& _sphere, DirectX::XMFLOAT4 _color = {1.0f, 1.0f, 1.0f, 1.0f });
+		void DrawSphereWireframe(const collision::WorldSphere& _sphere, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+
+		/**
+		 * @brief ポイント描画
+		 * @param _position 位置
+		 * @param _color 色
+		 * @param _size サイズ
+		 */
+		void DrawPoint(const DirectX::XMFLOAT3& _position, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f }, float _size = 0.1f);
+
+		/**
+		 * @brief OBB描画
+		 * @param _obb OBB情報
+		 * @param _color 色
+		 */
+		void DrawOBB(const collision::WorldOBB& _obb, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+		void DrawOBBWireframe(const collision::WorldOBB& _obb, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+
+
+		void DrawAllColliders(float _alpha = 0.5f);
+
+
+		/**
+		 * @brief 更新
+		 */
 		void Update(float _dt) override;
 
 
@@ -47,6 +77,7 @@ namespace ecs {
 			MeshRenderer mesh;
 			DirectX::XMMATRIX world;
 			DirectX::XMFLOAT4 color;
+			bool wireframe = false;
 		};
 
 		dx3d::GraphicsEngine* engine_{};
@@ -58,5 +89,7 @@ namespace ecs {
 		MeshRenderer cube_mesh_{};
 		MeshRenderer sphere_mesh_{};
 		MeshRenderer line_mesh_{};
+
+		bool show_all_colliders_ = false;
 	};
 }

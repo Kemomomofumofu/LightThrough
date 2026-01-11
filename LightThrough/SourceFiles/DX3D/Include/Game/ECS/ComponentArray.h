@@ -24,7 +24,10 @@ namespace ecs
 	class IComponentArray {
 	public:
 		virtual ~IComponentArray() = default;
-		virtual void EntityDestroyed(Entity _e) = 0;	// Entityが破棄された際に呼び出す
+		virtual void EntityDestroyed(Entity _e) = 0;			// Entityが破棄された際に呼び出す
+		virtual void Remove(Entity _e) = 0;						// Componentの削除
+		virtual bool Has(Entity _e) const = 0;					// Componentを持っているか
+		virtual void AddRaw(Entity _e, const void* _data) = 0;	// Componentの追加（voidポインタ版）
 	};
 
 	/**
@@ -37,14 +40,15 @@ namespace ecs
 	class ComponentArray : public IComponentArray {
 	public:
 		void Insert(Entity _e, const Com& _component);
-		void Remove(Entity _e);
 		Com& Get(Entity _e);
 		//const std::vector<Com>& GetAllComponents() const;
 		//const std::vector<Entity>& GetAllEntityIDs() const;
 		
 
-		bool Has(Entity _e) const;
 		void EntityDestroyed(Entity _e) override;
+		void Remove(Entity _e) override;
+		bool Has(Entity _e) const override;
+		void AddRaw(Entity _e, const void* _src) override;
 
 	private:
 		std::vector<Com> components_{};	// ComponentのVector配列

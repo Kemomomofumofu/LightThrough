@@ -50,6 +50,7 @@ namespace dx3d {
 		switch (_kind) {
 		case PixelShaderKind::None:    file = nullptr; break;
 		case PixelShaderKind::Default: file = paths_.psDefault; break;
+		case PixelShaderKind::Color: file = paths_.psColor; break;
 		default: DX3DLogThrowError("[ShaderCache] 未対応のピクセルシェーダー");
 		}
 

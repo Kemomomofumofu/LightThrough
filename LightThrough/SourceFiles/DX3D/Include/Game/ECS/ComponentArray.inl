@@ -8,16 +8,16 @@
 
 // ---------- インクルード ---------- // 
 #include <Game/ECS/Entity.h>
+#include "ComponentArray.h"
 
 
 namespace ecs {
-	template<typename Com>
-
 	/**
 	 * @brief Componentの追加
 	 * @param _e			追加先のEntity
 	 * @param _component	追加するComponentの参照
 	 */
+	template<typename Com>
 	void ComponentArray<Com>::Insert(Entity _e, const Com& _component)
 	{
 		assert(entity_to_index_.find(_e) == entity_to_index_.end());
@@ -92,5 +92,17 @@ namespace ecs {
 			
 			Remove(_e);
 		}
+	}
+
+	/**
+	 * @brief 生ポインタからComponentを追加
+	 * @param _e		追加先のEntity
+	 * @param _src		追加するComponentの生ポインタ
+	 */
+	template<typename Com>
+	inline void ecs::ComponentArray<Com>::AddRaw(Entity _e, const void* _src)
+	{
+		assert(_src != nullptr);
+		Insert(_e, *static_cast<const Com*>(_src));
 	}
 }

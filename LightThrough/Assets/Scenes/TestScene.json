@@ -2,40 +2,54 @@
     "entities": [
         {
             "components": {
-                "ecs::Camera": {
-                    "aspectRatio": 1.7777777910232544,
-                    "farZ": 1000.0,
-                    "fovY": 60.0,
-                    "isActive": true,
-                    "isMain": true,
-                    "nearZ": 0.10000000149011612
-                },
-                "ecs::CameraController": {
-                    "invertY": false,
-                    "mode": 0,
-                    "mouseSensitivity": 0.0010000000474974513,
-                    "moveSpeed": 10.0,
-                    "orbitDistance": 5.0,
-                    "orbitPitch": 0.30000001192092896,
-                    "orbitTarget": {
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
                     },
-                    "orbitYaw": 0.0,
-                    "pitch": 0.5257940888404846,
-                    "yaw": 24.740732192993164
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MoveDirectionSource": {
+                    "targetName": "PlayerCamera"
+                },
+                "ecs::Name": {
+                    "value": "Player"
+                },
+                "ecs::ObjectRoot": {
+                    "name": "PlayerRoot"
+                },
+                "ecs::PlayerController": {
+                    "jumpForce": 6.0,
+                    "moveSpeed": 35.0
+                },
+                "ecs::Rigidbody": {
+                    "angularDrag": 1.0,
+                    "drag": 1.0,
+                    "friction": 1.0,
+                    "isKinematic": false,
+                    "isStatic": false,
+                    "mass": 1.0,
+                    "restitution": 0.0,
+                    "useGravity": true
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 16.336023330688477,
-                        "y": 8.218035697937012,
-                        "z": -17.325353622436523
+                        "x": -0.22312481701374054,
+                        "y": -8.510000228881836,
+                        "z": 4.568295001983643
                     },
                     "rotationQuat": {
-                        "x": 0.254903107881546,
-                        "y": -0.18806079030036926,
-                        "z": 0.05061205103993416
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
                     },
                     "scale": {
                         "x": 1.0,
@@ -44,22 +58,22 @@
                     }
                 }
             },
-            "id": 1
+            "id": 50331649
         },
         {
             "components": {
                 "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
                     "isStatic": false,
                     "isTrigger": false,
-                    "shape": {
-                        "data": {
-                            "halfExtents": {
-                                "x": 0.5,
-                                "y": 0.5,
-                                "z": 0.5
-                            }
-                        },
-                        "type": "Box"
+                    "sphere": {
+                        "radius": 0.5
                     },
                     "type": 1
                 },
@@ -69,14 +83,17 @@
                     },
                     "materialId": 0
                 },
+                "ecs::Name": {
+                    "value": "Box_1"
+                },
                 "ecs::Transform": {
                     "position": {
-                        "x": 2.4549999237060547,
-                        "y": 2.0429999828338623,
-                        "z": 0.7492992877960205
+                        "x": 3.2785632610321045,
+                        "y": 1.357763409614563,
+                        "z": 0.4355253577232361
                     },
                     "rotationQuat": {
-                        "x": 0.7071067094802856,
+                        "x": 0.0,
                         "y": 0.0,
                         "z": 0.0
                     },
@@ -87,22 +104,22 @@
                     }
                 }
             },
-            "id": 2
+            "id": 50331650
         },
         {
             "components": {
                 "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
                     "isStatic": false,
                     "isTrigger": false,
-                    "shape": {
-                        "data": {
-                            "halfExtents": {
-                                "x": 0.5,
-                                "y": 0.5,
-                                "z": 0.5
-                            }
-                        },
-                        "type": "Box"
+                    "sphere": {
+                        "radius": 0.5
                     },
                     "type": 1
                 },
@@ -112,11 +129,24 @@
                     },
                     "materialId": 0
                 },
+                "ecs::Name": {
+                    "value": "Box_2"
+                },
+                "ecs::Rigidbody": {
+                    "angularDrag": 0.0,
+                    "drag": 0.10000000149011612,
+                    "friction": 1.0,
+                    "isKinematic": false,
+                    "isStatic": false,
+                    "mass": 1.0,
+                    "restitution": 0.10000000149011612,
+                    "useGravity": true
+                },
                 "ecs::Transform": {
                     "position": {
-                        "x": 1.4950000047683716,
-                        "y": 4.610000133514404,
-                        "z": -3.9000000953674316
+                        "x": 2.761826753616333,
+                        "y": -8.510000228881836,
+                        "z": -3.190999984741211
                     },
                     "rotationQuat": {
                         "x": 0.0,
@@ -130,22 +160,22 @@
                     }
                 }
             },
-            "id": 3
+            "id": 50331651
         },
         {
             "components": {
                 "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
                     "isStatic": true,
                     "isTrigger": false,
-                    "shape": {
-                        "data": {
-                            "halfExtents": {
-                                "x": 0.5,
-                                "y": 0.5,
-                                "z": 0.5
-                            }
-                        },
-                        "type": "Box"
+                    "sphere": {
+                        "radius": 0.5
                     },
                     "type": 1
                 },
@@ -155,10 +185,13 @@
                     },
                     "materialId": 0
                 },
+                "ecs::Name": {
+                    "value": "Ground_1"
+                },
                 "ecs::Transform": {
                     "position": {
                         "x": 1.899999976158142,
-                        "y": -10.0,
+                        "y": -9.5,
                         "z": 0.0
                     },
                     "rotationQuat": {
@@ -173,22 +206,22 @@
                     }
                 }
             },
-            "id": 4
+            "id": 50331652
         },
         {
             "components": {
                 "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
                     "isStatic": false,
                     "isTrigger": false,
-                    "shape": {
-                        "data": {
-                            "halfExtents": {
-                                "x": 0.5,
-                                "y": 0.5,
-                                "z": 0.5
-                            }
-                        },
-                        "type": "Box"
+                    "sphere": {
+                        "radius": 0.5
                     },
                     "type": 1
                 },
@@ -198,10 +231,13 @@
                     },
                     "materialId": 0
                 },
+                "ecs::Name": {
+                    "value": "Box_3"
+                },
                 "ecs::Rigidbody": {
-                    "angularDrag": 0.0,
-                    "drag": 0.0,
-                    "friction": 0.0,
+                    "angularDrag": 1.0,
+                    "drag": 1.0,
+                    "friction": 1.0,
                     "isKinematic": false,
                     "isStatic": false,
                     "mass": 1.0,
@@ -210,9 +246,9 @@
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 2.8889999389648438,
-                        "y": 0.32939305901527405,
-                        "z": -0.6502176523208618
+                        "x": 4.631409645080566,
+                        "y": -8.510000228881836,
+                        "z": -3.8302698135375977
                     },
                     "rotationQuat": {
                         "x": 0.0,
@@ -226,22 +262,22 @@
                     }
                 }
             },
-            "id": 5
+            "id": 50331653
         },
         {
             "components": {
                 "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
                     "isStatic": false,
                     "isTrigger": false,
-                    "shape": {
-                        "data": {
-                            "halfExtents": {
-                                "x": 0.5,
-                                "y": 0.5,
-                                "z": 0.5
-                            }
-                        },
-                        "type": "Box"
+                    "sphere": {
+                        "radius": 0.5
                     },
                     "type": 1
                 },
@@ -251,10 +287,13 @@
                     },
                     "materialId": 0
                 },
+                "ecs::Name": {
+                    "value": "Box_4"
+                },
                 "ecs::Rigidbody": {
-                    "angularDrag": 0.0,
-                    "drag": 0.0,
-                    "friction": 0.0,
+                    "angularDrag": 1.0,
+                    "drag": 1.0,
+                    "friction": 1.0,
                     "isKinematic": false,
                     "isStatic": false,
                     "mass": 1.0,
@@ -263,9 +302,9 @@
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 4.331280708312988,
-                        "y": -0.6100000143051147,
-                        "z": -0.24604079127311707
+                        "x": 11.031000137329102,
+                        "y": -7181.72314453125,
+                        "z": -0.3050139844417572
                     },
                     "rotationQuat": {
                         "x": 0.0,
@@ -279,22 +318,22 @@
                     }
                 }
             },
-            "id": 6
+            "id": 50331654
         },
         {
             "components": {
                 "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
                     "isStatic": false,
                     "isTrigger": false,
-                    "shape": {
-                        "data": {
-                            "halfExtents": {
-                                "x": 0.5,
-                                "y": 0.5,
-                                "z": 0.5
-                            }
-                        },
-                        "type": "Box"
+                    "sphere": {
+                        "radius": 0.5
                     },
                     "type": 1
                 },
@@ -304,21 +343,24 @@
                     },
                     "materialId": 0
                 },
+                "ecs::Name": {
+                    "value": "Box_5"
+                },
                 "ecs::Rigidbody": {
-                    "angularDrag": 0.0,
-                    "drag": 0.0,
-                    "friction": 0.0,
+                    "angularDrag": 1.0,
+                    "drag": 1.0,
+                    "friction": 1.0,
                     "isKinematic": false,
                     "isStatic": false,
                     "mass": 1.0,
-                    "restitution": 0.0,
+                    "restitution": 1.0,
                     "useGravity": true
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 2.9789998531341553,
-                        "y": -0.6294642090797424,
-                        "z": -0.4529999792575836
+                        "x": 1.687000036239624,
+                        "y": -8.510000228881836,
+                        "z": 5.250999927520752
                     },
                     "rotationQuat": {
                         "x": 0.0,
@@ -332,7 +374,7 @@
                     }
                 }
             },
-            "id": 7
+            "id": 50331655
         },
         {
             "components": {
@@ -345,6 +387,9 @@
                     "enabled": true,
                     "intensity": 100.0
                 },
+                "ecs::Name": {
+                    "value": "SpotLight_1"
+                },
                 "ecs::SpotLight": {
                     "innerCos": 1.0,
                     "outerCos": 0.800000011920929,
@@ -353,8 +398,8 @@
                 "ecs::Transform": {
                     "position": {
                         "x": 0.6499999761581421,
-                        "y": 8.25,
-                        "z": 8.100000381469727
+                        "y": 9.649999618530273,
+                        "z": 0.44999998807907104
                     },
                     "rotationQuat": {
                         "x": 0.8482747077941895,
@@ -368,38 +413,7 @@
                     }
                 }
             },
-            "id": 8
-        },
-        {
-            "components": {
-                "ecs::LightCommon": {
-                    "color": {
-                        "x": 0.699999988079071,
-                        "y": 0.5,
-                        "z": 0.6000000238418579
-                    },
-                    "enabled": false,
-                    "intensity": 0.25
-                },
-                "ecs::Transform": {
-                    "position": {
-                        "x": -13.25,
-                        "y": 5.400000095367432,
-                        "z": 0.0
-                    },
-                    "rotationQuat": {
-                        "x": 0.0,
-                        "y": -0.7071068286895752,
-                        "z": 0.0
-                    },
-                    "scale": {
-                        "x": 1.0,
-                        "y": 1.0,
-                        "z": 1.0
-                    }
-                }
-            },
-            "id": 9
+            "id": 50331656
         },
         {
             "components": {
@@ -409,8 +423,11 @@
                         "y": 0.05000000074505806,
                         "z": 0.8999999761581421
                     },
-                    "enabled": true,
+                    "enabled": false,
                     "intensity": 100.0
+                },
+                "ecs::Name": {
+                    "value": "SpotLight_2"
                 },
                 "ecs::SpotLight": {
                     "innerCos": 1.100000023841858,
@@ -435,7 +452,60 @@
                     }
                 }
             },
-            "id": 10
+            "id": 50331657
+        },
+        {
+            "components": {
+                "ecs::Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 100.0,
+                    "fovY": 100.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 0.10000000149011612
+                },
+                "ecs::CameraController": {
+                    "enableMove": false,
+                    "invertY": false,
+                    "mode": 0,
+                    "mouseSensitivity": 0.0020000000949949026,
+                    "moveSpeed": 5.0,
+                    "orbitDistance": 5.0,
+                    "orbitPitch": 0.13079412281513214,
+                    "orbitTarget": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "orbitYaw": 1.8999505043029785,
+                    "pitch": 0.6172063946723938,
+                    "yaw": 13.734474182128906
+                },
+                "ecs::Name": {
+                    "value": "PlayerCamera"
+                },
+                "ecs::ObjectChild": {
+                    "rootName": "PlayerRoot"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.25338074564933777,
+                        "y": 0.5253592133522034,
+                        "z": -0.16747824847698212
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 50331658
         }
     ],
     "sceneId": "TestScene",

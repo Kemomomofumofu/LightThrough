@@ -135,7 +135,7 @@ namespace ecs {
 
 		const size_t n = ents.size();
 
-		const float baumgarte = 0.2; // バウムガルテ係数
+		const float baumgarte = 0.2f; // バウムガルテ係数
 
 		for (size_t i = 0; i < n; ++i) {
 			const Entity eA = ents[i];
@@ -181,11 +181,9 @@ namespace ecs {
 				// 押し出し
 				if (!colA.isStatic && !IsZeroDisp(dispA)) {
 					tfA.AddPosition(dispA);
-					tfA.BuildWorld(); // ワールド行列更新
 				}
 				if (!colB.isStatic && !IsZeroDisp(dispB)) {
 					tfB.AddPosition(dispB);
-					tfB.BuildWorld(); // ワールド行列更新
 				}
 
 				// 反発

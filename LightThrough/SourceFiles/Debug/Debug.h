@@ -13,6 +13,7 @@
 #include <Windows.h>
 #include <mutex>
 #include <atomic>
+#include <format>
 
 namespace debug {
 

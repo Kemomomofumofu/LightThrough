@@ -16,14 +16,14 @@ namespace dx3d {
 	dx3d::GraphicsPipelineState::GraphicsPipelineState(const GraphicsPipelineStateDesc& _desc, const GraphicsResourceDesc& _gDesc)
 		:GraphicsResource(_gDesc)
 	{
-		// VertexShader
+		// ---------- VertexShader ---------- //
 		auto vs = _desc.vs.GetShaderBinaryData();
 		DX3DGraphicsLogThrowOnFail(
 			device_.CreateVertexShader(vs.data, vs.dataSize, nullptr, &vs_),
 			"CreateVertexShader Ç é∏îsÇµÇ‹ÇµÇΩ"
 		);
 
-		// PixelShader
+		// ---------- PixelShader ---------- //
 		if (_desc.ps) {
 			auto ps = _desc.ps->GetData();
 			DX3DGraphicsLogThrowOnFail(
@@ -32,10 +32,10 @@ namespace dx3d {
 			);
 		}
 
-		// InputLayout
+		// ---------- InputLayout ---------- //
 		layout_ = _desc.inputLayout->Get();	// éQè∆Çï€éù
 
-		// RasterizerState
+		// ---------- Rasterizer State ---------- //
 		D3D11_RASTERIZER_DESC rastDesc{};
 		rastDesc.FillMode = (_desc.rasterizerState.fillMode == FillMode::Solid) ? D3D11_FILL_MODE::D3D11_FILL_SOLID : D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
 
@@ -50,7 +50,6 @@ namespace dx3d {
 			rastDesc.CullMode = D3D11_CULL_BACK;
 			break;
 		}
-
 		rastDesc.FrontCounterClockwise = _desc.rasterizerState.frontCounterClockwise;
 		rastDesc.DepthBias = _desc.rasterizerState.depthBias;
 		rastDesc.DepthBiasClamp = _desc.rasterizerState.depthBiasClamp;
@@ -65,7 +64,7 @@ namespace dx3d {
 		);
 
 
-		// BlendState
+		// ---------- Blend State ---------- //
 		D3D11_BLEND_DESC blendDesc{};
 		blendDesc.IndependentBlendEnable = false;
 		blendDesc.RenderTarget[0].BlendEnable = true;
@@ -93,10 +92,36 @@ namespace dx3d {
 			blendDesc.RenderTarget[0].BlendEnable = false;
 			break;
 		}
-		
 		DX3DGraphicsLogThrowOnFail(
 			device_.CreateBlendState(&blendDesc, &blend_state_),
 			"CreateBlendState Ç™é∏îsÇµÇ‹ÇµÇΩ"
+		);
+		
+
+		// ---------- Depth State ---------- // 
+		D3D11_DEPTH_STENCIL_DESC dsDesc{};
+		switch (_desc.depthMode) {
+		case DepthMode::Default:
+			dsDesc.DepthEnable = TRUE;
+			dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+			break;
+		case DepthMode::ReadOnly:
+			dsDesc.DepthEnable = TRUE;
+			dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+			break;
+		case DepthMode::Disable:
+			dsDesc.DepthEnable = FALSE;
+			dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			dsDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
+			break;
+		default:
+			break;
+		}
+		DX3DGraphicsLogThrowOnFail(
+			device_.CreateDepthStencilState(&dsDesc, &depth_state_),
+			"CreateDepthStencilState Ç…é∏îs"
 		);
 	}
 }

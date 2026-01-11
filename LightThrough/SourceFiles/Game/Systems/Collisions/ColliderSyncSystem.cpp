@@ -47,7 +47,7 @@ namespace ecs {
 			if (col.isStatic && !col.shapeDirty && !tf.dirty) { continue; }
 
 			// ワールド行列の更新
-			tf.BuildWorld();
+			if (tf.dirty) { tf.BuildWorld(); }
 
 			// 形状の更新
 			switch (col.type) {
@@ -67,12 +67,13 @@ namespace ecs {
 
 			// 変更フラグをリセット
 			col.shapeDirty = false;
+			tf.dirty = false;
 		}
 	}
 
 	void ColliderSyncSystem::BuildSphere(const Transform& _tf, Collider& _col)
 	{
-		const auto& s = std::get<collision::SphereShape>(_col.shape);
+		const auto& s = _col.sphere;
 		float maxScale = (std::max)({ _tf.scale.x, _tf.scale.y, _tf.scale.z });
 		_col.worldSphere.center = _tf.position;
 		_col.worldSphere.radius = s.radius * maxScale;
@@ -82,7 +83,7 @@ namespace ecs {
 
 	void ColliderSyncSystem::BuildOBB(const Transform& _tf, Collider& _col)
 	{
-		const auto& b = std::get<collision::BoxShape>(_col.shape);
+		const auto& b = _col.box;
 
 		// 行列軸の取得
 		XMFLOAT3 rawX{ _tf.world._11, _tf.world._12, _tf.world._13 };
@@ -92,7 +93,7 @@ namespace ecs {
 		// 各軸の長さ
 		auto len = [](const XMFLOAT3& _v) {
 			return std::sqrt(_v.x * _v.x + _v.y * _v.y + _v.z * _v.z);
-		};
+			};
 		float lx = len(rawX);
 		float ly = len(rawY);
 		float lz = len(rawZ);

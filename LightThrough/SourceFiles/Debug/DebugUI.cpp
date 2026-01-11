@@ -9,7 +9,6 @@
 #include <Debug/DebugUI.h>
 
 namespace debug {
-#ifdef _DEBUG || DEBUG
 	std::vector<std::function<void(void)>> debug::DebugUI::debug_functions_{};
 
 	/**
@@ -19,6 +18,7 @@ namespace debug {
 	 */
 	void DebugUI::Init(ID3D11Device* _device, ID3D11DeviceContext* _context, void* _hwnd)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		// ImGuiの初期化
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -31,6 +31,7 @@ namespace debug {
 		// ImGuiのバックエンド初期化
 		ImGui_ImplWin32_Init(_hwnd);
 		ImGui_ImplDX11_Init(_device, _context);
+#endif // DEBUG || _DEBUG
 	}
 	/**
 	 * @brief デバッグ関数の登録
@@ -38,13 +39,17 @@ namespace debug {
 	 */
 	void DebugUI::ResistDebugFunction(std::function<void(void)> _func)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		debug_functions_.emplace_back(std::move(_func));
+#endif // DEBUG || _DEBUG
+
 	}
 	/**
 	 * @brief デバッグUIの描画
 	 */
 	void DebugUI::Render()
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		ImGui_ImplDX11_CreateDeviceObjects();	// なぜかこれを明示的に呼び出さないとフォントが崩れる
 
 		ImGui_ImplDX11_NewFrame();
@@ -65,15 +70,17 @@ namespace debug {
 		ImGui::ShowMetricsWindow();
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+#endif // DEBUG || _DEBUG
 	}
 	/**
 	 * @brief デバッグUIの破棄
 	 */
 	void DebugUI::DisposeUI()
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
+#endif // DEBUG || _DEBUG
 	}
-#endif // _DEBUG || DEBUG
 }

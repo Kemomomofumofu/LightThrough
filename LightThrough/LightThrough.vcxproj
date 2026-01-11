@@ -73,12 +73,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\directxtk\lib\x64\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)SourceFiles\ThirdParty\DirectXTex\lib\x64\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\DirectXTex\include;$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\directxtk\lib\x64\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)SourceFiles\ThirdParty\DirectXTex\include;$(SolutionDir)SourceFiles\ThirdParty\ImGui;$(SolutionDir)SourceFiles\DX3D\Source;$(SolutionDir)SourceFiles\DX3D\Include;$(SolutionDir)SourceFiles\DX3D;$(SolutionDir)SourceFiles;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)SourceFiles\ThirdParty\DirectXTex\lib\x64\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -126,8 +126,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3dcompiler.lib;d3d11.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)SourceFiles\ThirdParty\DirectXTex\lib\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,14 +146,18 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DirectXTex.lib;d3dcompiler.lib;d3d11.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.cpp" />
+    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\Debug.cpp" />
@@ -173,6 +177,7 @@
     <ClCompile Include="SourceFiles\Game\Components\Camera.h" />
     <ClCompile Include="SourceFiles\Game\Systems\CameraSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\PlayerControllerSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\DebugRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\LightDepthRenderSystem.cpp" />
@@ -211,9 +216,17 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\MathUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Gimmicks\ShadowState.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Components\Light.h" />
+    <ClInclude Include="SourceFiles\Game\Components\MoveDirectionSource.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Object\Name.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Object\ObjectChild.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Object\ObjectRoot.h" />
+    <ClInclude Include="SourceFiles\Game\Components\PlayerController.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ClearForcesSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\IntegrationSystem.h" />
     <ClInclude Include="SourceFiles\Debug\Debug.h" />
@@ -231,7 +244,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\InstanceData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Texture.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\Texture.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\Serialization\ComponentReflection.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
@@ -254,6 +267,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.h" />
     <ClInclude Include="SourceFiles\Game\Systems\CameraSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\PlayerControllerSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\DebugRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\ForceAccumulationSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\LightDepthRenderSystem.h" />
@@ -285,6 +299,7 @@
     <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h" />
+    <ClInclude Include="SourceFiles\ThirdParty\DirectXTex\include\DirectXTex.h" />
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.h" />
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imgui_impl_win32.h" />
     <ClInclude Include="SourceFiles\ThirdParty\ImGui\imconfig.h" />
@@ -297,14 +312,17 @@
   <ItemGroup>
     <None Include="Assets\Shaders\Common\common.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="Assets\Shaders\Common\Lighting.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.inl" />
     <None Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.inl" />
+    <None Include="SourceFiles\ThirdParty\DirectXTex\include\DirectXTex.inl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Assets\Shaders\Compute\CS_ShadowTest.hlsl">
@@ -319,6 +337,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -328,6 +353,7 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -337,6 +363,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -346,6 +373,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -355,6 +383,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

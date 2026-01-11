@@ -45,7 +45,7 @@ namespace ecs {
 		//! @brief 描画
 		void RenderMainPass(struct CBLight& _lightData);
 		//! @brief インスタンスバッファの作成またはリサイズ
-		void CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity);
+		void CreateOrResizeInstanceBufferMain(size_t _requiredInstanceCapacity);
 
 
 
@@ -66,14 +66,13 @@ namespace ecs {
 		std::vector<InstanceBatchMain> opaque_batches_{};
 		std::vector<InstanceBatchMain> transparent_batches_{};
 		// インスタンスバッファ
-		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_{};
+		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_main_{};
 		size_t instance_buffer_capacity_{};
 		// 定数バッファ
 		dx3d::ConstantBufferPtr cb_per_frame_{};
 		dx3d::ConstantBufferPtr cb_per_object_{};	// [ToDo] 単体描画用/マテリアル毎とか？？？
 		dx3d::ConstantBufferPtr cb_light_matrix_{};
 		dx3d::ConstantBufferPtr cb_lighting_{};
-
 	};
 
 }

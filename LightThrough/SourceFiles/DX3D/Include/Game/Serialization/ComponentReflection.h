@@ -39,6 +39,14 @@ namespace ecs_serial {
 	};
 
 	/**
+	 * @brief バリアント情報
+	 */
+	struct VariantInfo {
+		std::string name;	// バリアント名
+		json defaultData;	// デフォルトデータ
+	};
+
+	/**
 	 * @brief 型のリフレクション情報
 	 * @tparam T
 	 */
@@ -47,6 +55,7 @@ namespace ecs_serial {
 	{
 		static constexpr auto Fields() { return std::make_tuple(); }
 		static constexpr std::string_view Name() { return "Unknown"; }
+		static std::vector<VariantInfo> Variants() { return {}; }
 	};
 
 
@@ -68,6 +77,7 @@ namespace ecs_serial {
 			AddFunc add{};
 			HasFunc has{};
 			ToJsonFunc toJson{};
+			std::vector<VariantInfo> variants{};
 		};
 
 		/**
@@ -90,7 +100,7 @@ namespace ecs_serial {
 		void Register(std::string_view _name, AddFunc _add, HasFunc _has, ToJsonFunc _toJson)
 		{
 			assert(registry_.find(std::string(_name)) == registry_.end());
-			registry_[std::string(_name)] = Entry{std::move(_add), std::move(_has), std::move(_toJson)};
+			registry_[std::string(_name)] = Entry{ std::move(_add), std::move(_has), std::move(_toJson) };
 		}
 
 		/**
@@ -110,6 +120,11 @@ namespace ecs_serial {
 			return true;
 		}
 
+		bool Contains(const std::string& _name) const
+		{
+			return registry_.find(_name) != registry_.end();
+		}
+
 		json SerializeComponents(ecs::Coordinator& _coord, ecs::Entity& _e)
 		{
 			json comps = json::object();
@@ -119,6 +134,26 @@ namespace ecs_serial {
 				}
 			}
 			return comps;
+		}
+
+		/**
+		 * @brief 登録されている全エントリを取得
+		 * @return エントリマップ
+		 */
+		const std::unordered_map<std::string, Entry>& GetAllEntries() const
+		{
+			return registry_;
+		}
+
+		[[nodiscard]] bool AddDefault(ecs::Coordinator& _coord, ecs::Entity& _e, const std::string& _name)
+		{
+			auto it = registry_.find(_name);
+			if (it == registry_.end()) { return false; }
+
+			// デフォルト登録
+			it->second.add(_coord, _e, json::object());
+			return true;
+
 		}
 
 	private:
@@ -358,25 +393,35 @@ template<> struct ecs_serial::TypeReflection<Type> { \
 #define ECS_REFLECT_END() ); } };
 
 
-/**
- * @brief コンポーネントのリフレクション登録マクロ
- * @tparam ComponentT	コンポーネント型
- */
+   /**
+	* @brief コンポーネントのリフレクション登録マクロ
+	* @tparam ComponentT	コンポーネント型
+	*/
 #define REGISTER_COMPONENT_REFLECTION(ComponentT) \
 	do { \
 		ecs_serial::ComponentRegistry::Get().Register( \
 			ecs_serial::TypeReflection<ComponentT>::Name(), \
 			[](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
-				const ComponentT temp = ecs_serial::Deserialize<ComponentT>(_j); \
-				_coord.AddComponent<ComponentT>(_e, temp); \
+				/* JSON -> Component 実体 */ \
+				auto componentPtr = std::make_shared<ComponentT>( \
+					ecs_serial::Deserialize<ComponentT>(_j) \
+				); \
+				\
+				const auto type = _coord.GetComponentType<ComponentT>(); \
+				\
+				/* Flush 時に実行される */ \
+				_coord.RequestAddComponentRaw( \
+					_e, type, \
+					[coord = &_coord, e = _e, componentPtr]() { \
+						coord->AddComponent<ComponentT>(e, *componentPtr); \
+					} \
+				); \
 			}, \
 			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
 				return _coord.HasComponent<ComponentT>(_e); \
-			 }, \
-			[](ecs::Coordinator& _coord, ecs::Entity _e) \
-			{ \
-				const auto& c = _coord.GetComponent<ComponentT>(_e); \
-				return ecs_serial::Serialize<ComponentT>(c); \
+			}, \
+			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
+				return ecs_serial::Serialize(_coord.GetComponent<ComponentT>(_e)); \
 			} \
 		); \
 	} while(0)

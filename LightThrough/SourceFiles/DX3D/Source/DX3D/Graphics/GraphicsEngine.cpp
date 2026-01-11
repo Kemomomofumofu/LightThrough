@@ -16,6 +16,7 @@
 #include <DX3D/Graphics/Buffers/IndexBuffer.h>
 
 #include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
+#include <DX3D/Graphics/Textures/TextureRegistry.h>
 
 #include <Debug/Debug.h>
 
@@ -43,6 +44,9 @@ namespace dx3d {
 		PrimitiveFactory::CreateSphere(device, *mesh_registry_);
 		PrimitiveFactory::CreateQuad(device, *mesh_registry_);
 		//PrimitiveFactory::CreateLine(device, *mesh_registry_);
+
+		// テクスチャレジストリの生成
+		texture_registry_ = std::make_unique<texture::TextureRegistry>(*graphics_device_->GetD3DDevice().Get());
 	}
 
 	//! @brief デストラクタ
@@ -100,7 +104,7 @@ namespace dx3d {
 		auto pso = pipeline_cache_->GetOrCreate(_key);
 		deferred_context_->SetGraphicsPipelineState(*pso);
 
-		if (!(_key.GetFlags() & PipelineFlags::ShadowPass)) {
+		if (_key.GetVS() != VertexShaderKind::ShadowMap) {
 			deferred_context_->SetViewportSize(swap_chain_->GetSize());
 		}
 		deferred_context_->SetVertexBuffers(_vb, _instanceVB);

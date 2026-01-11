@@ -38,13 +38,23 @@ namespace ecs {
 	template<typename Com>
 	void Coordinator::AddComponent(Entity _e, const Com& _component)
 	{
-		component_manager_->AddComponent<Com>(_e, _component);
+		ComponentType type = component_manager_->GetComponentType<Com>();
+		// ’Ç‰Á
+		AddComponentRaw(_e, type, static_cast<const void*>(&_component));
+	}
 
-		// Signature‚ÌXV
-		auto sig = entity_manager_->GetSignature(_e);
-		sig.set(component_manager_->GetComponentType<Com>(), true);
-		entity_manager_->SetSignature(_e, sig);
-		system_manager_->EntitySignatureChanged(_e, sig);
+
+	/**
+	 * @brief Entity‚©‚çComponent‚ğíœ
+	 * @param <Com> íœ‚·‚éComponent‚Ìí—Ş
+	 * @param _e íœæ‚ÌEntity
+	 */
+	template<typename Com>
+	void Coordinator::RemoveComponent(Entity _e)
+	{
+		ComponentType type = component_manager_->GetComponentType<Com>();
+		// íœ
+		RemoveComponent(_e, type);
 	}
 
 	/**
@@ -117,6 +127,19 @@ namespace ecs {
 		return component_manager_->GetComponentType<Com>();
 	}
 
+
+	/**
+	 * @brief Entity‚©‚çComponent‚ÌíœƒŠƒNƒGƒXƒg‚ğo‚·
+	 * @param <Com> íœ‚·‚éComponent‚Ìí—Ş
+	 * @param _e íœæ‚ÌEntity
+	 */
+	template<typename Com>
+	inline void Coordinator::RequestRemoveComponent(Entity _e)
+	{
+		auto componentType = component_manager_->GetComponentType<Com>();
+		pending_removes_.push_back({ _e, componentType });
+	}
+
 	/**
 	 * @brief System‚Ì“o˜^
 	 * @param <Sys> “o˜^‚·‚éSystem‚Ìí—Ş
@@ -138,6 +161,10 @@ namespace ecs {
 	void Coordinator::SetSystemSignature(Signature& _signature)
 	{
 		system_manager_->SetSignature<Sys>(_signature);
+		// ‚·‚Å‚É‘¶İ‚·‚éEntity‚É‘Î‚µ‚Ä‚à”½‰f‚³‚¹‚é
+		for (auto& e : entity_manager_->GetAllEntities()) {
+			system_manager_->EntitySignatureChanged(e, entity_manager_->GetSignature(e));
+		}
 	}
 
 

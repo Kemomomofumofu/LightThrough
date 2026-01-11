@@ -132,7 +132,7 @@ namespace ecs {
 
 			// ライトの位置に丸を描画。
 			auto debugRender = ecs_.GetSystem<DebugRenderSystem>();
-			debugRender->DrawSphere(tf, { 1, 0, 0, 1 });
+			debugRender->DrawSphere(tf);
 #endif // _DEBUG || DEBUG
 
 			// パック
@@ -208,7 +208,14 @@ namespace ecs {
 
 			// todo: マテリアルからpsoを取得するつくりにする
 			// auto& material = ecs_.GetComponent<Material>(e);
-			auto psoKey = dx3d::BuildPipelineKey(false, dx3d::BlendMode::Alpha);
+			auto psoKey = dx3d::BuildPipelineKey(
+				dx3d::VertexShaderKind::Instanced,
+				dx3d::PixelShaderKind::Default,
+				dx3d::BlendMode::Alpha,
+				dx3d::DepthMode::Default,
+				dx3d::RasterMode::SolidBack,
+				dx3d::PipelineFlags::Instancing
+			);
 
 			if (!meshData) continue;
 
@@ -271,7 +278,7 @@ namespace ecs {
 		if (totalInstance == 0) { return; } // 描画するものがない
 
 		// インスタンスバッファの作成またはリサイズ
-		CreateOrResizeInstanceBuffer(totalInstance);
+		CreateOrResizeInstanceBufferMain(totalInstance);
 
 		std::vector<dx3d::InstanceDataMain> instances;
 		instances.reserve(totalInstance);
@@ -297,7 +304,7 @@ namespace ecs {
 				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceDataMain)),
 				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceDataMain))
 			};
-			instance_buffer_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
+			instance_buffer_main_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
 	}
 
@@ -319,7 +326,7 @@ namespace ecs {
 			if (b.instances.empty()) { continue; }
 
 			// 描画
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, b.instances.size(), b.instanceOffset, b.key);
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
 		}
 
 		// 透明オブジェクトのソート（カメラから遠い順）
@@ -330,7 +337,7 @@ namespace ecs {
 		for (auto& b : transparent_batches_) {
 			if (b.instances.empty()) { continue; }
 			// 描画
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_, b.instances.size(), b.instanceOffset, b.key);
+			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
 		}
 
 
@@ -340,7 +347,7 @@ namespace ecs {
 	 * @brief インスタンスバッファの作成またはリサイズ
 	 * @param _requiredInstanceCapacity 必要なインスタンス数
 	 */
-	void RenderSystem::CreateOrResizeInstanceBuffer(size_t _requiredInstanceCapacity)
+	void RenderSystem::CreateOrResizeInstanceBufferMain(size_t _requiredInstanceCapacity)
 	{
 		if (_requiredInstanceCapacity <= instance_buffer_capacity_) { return; }
 		instance_buffer_capacity_ = (std::max)(_requiredInstanceCapacity, instance_buffer_capacity_ * 2 + 1);
