@@ -181,11 +181,9 @@ namespace ecs {
 				// 押し出し
 				if (!colA.isStatic && !IsZeroDisp(dispA)) {
 					tfA.AddPosition(dispA);
-					tfA.BuildWorld(); // ワールド行列更新
 				}
 				if (!colB.isStatic && !IsZeroDisp(dispB)) {
 					tfB.AddPosition(dispB);
-					tfB.BuildWorld(); // ワールド行列更新
 				}
 
 				// 反発

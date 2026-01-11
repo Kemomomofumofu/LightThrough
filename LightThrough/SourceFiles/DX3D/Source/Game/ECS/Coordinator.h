@@ -1,12 +1,12 @@
 #pragma once
 /**
  * @file ecs/Coordinator.h
- * @brief ECSコーディネータ	
+ * @brief ECSコーディネータ
  * @author Arima Keita
  * @date 2025-08-15
  */
 
-// ---------- インクルード ---------- //
+ // ---------- インクルード ---------- //
 #include <vector>
 #include <memory>
 #include <functional>
@@ -26,22 +26,57 @@ namespace ecs {
 	 *
 	 * Entity、Component、Systemを管理する。
 	 */
-	class Coordinator final: public dx3d::Base {
+	class Coordinator final : public dx3d::Base {
 	public:
 		Coordinator(const dx3d::BaseDesc& _desc) : Base(_desc) {}
 
-		void Init();		// 初期化
+		void Init();
 
-		Entity CreateEntity();	// Entityの生成
-		void DestroyEntity(Entity _e);	// Entityの破棄
+		// ---------- Entity関連 ---------- //
+		/**
+		 * @brief Entityの生成
+		 * @return 生成されたEntity
+		 */
+		Entity CreateEntity();
+		/**
+		 * @brief Entityの破棄
+		 * @param _e: 破棄するEntity
+		 */
+		void DestroyEntity(Entity _e);
+		/**
+		 * @brief 登録されている全てのEntityを取得
+		 * @return 登録されている全てのEntityのコンテナ
+		 */
+		std::vector<Entity> GetAllEntities();
+		/**
+		 * @brief Entityが有効かどうかを確認
+		 * @param _e: 確認するEntity
+		 * @return true: 有効, false: 無効
+		 */
+		template<typename Com>
+		std::vector<Entity> GetEntitiesWithComponent();
+		/**
+		 * @brief 複数のコンポーネントを持っているEntityの一覧を取得
+		 * @tparam ...Coms : コンポーネントの型リスト
+		 * @return 該当するEntityの一覧
+		 */
+		template<typename... Coms>
+		std::vector<Entity> GetEntitiesWithComponents();
+		/**
+		 * @brief Entityの破棄リクエスト
+		 * @param _e: 破棄するEntity
+		 */
+		void RequestDestroyEntity(Entity _e);
 
+
+		// ---------- Component関連 ---------- //
 		template<typename Com>
 		void RegisterComponent();	// Componentリストの登録
 
 		template<typename Com>
 		void AddComponent(Entity _e, const Com& _component);	// Componentの追加
 		void AddComponentRaw(Entity _e, ComponentType _type, const void* _data);
-		
+
 		template<typename Com>
 		void RemoveComponent(Entity _e);	// Componentの削除
 		void RemoveComponent(Entity _e, ComponentType _type);
@@ -55,10 +90,7 @@ namespace ecs {
 
 		template<typename Com>
 		Com& GetComponent(Entity _e);	// Componentの取得
-		template<typename Com>
-		std::vector<Entity> GetEntitiesWithComponent(); // 指定したComponentを持っているEntityの一覧を取得
-		template<typename... Coms>
-		std::vector<Entity> GetEntitiesWithComponents(); // 複数指定したSignatureを持っているEntityの一覧を取得
+
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
 
@@ -71,8 +103,7 @@ namespace ecs {
 		void RequestAddComponentRaw(Entity _e, ComponentType _type, std::function<void()> _apply);
 		template<typename Com>
 		void RequestRemoveComponent(Entity _e);	// Componentの削除リクエスト
-		void RequestDestroyEntity(Entity _e);	// Entityの破棄リクエスト
-		
+
 
 
 		template<typename Sys>
@@ -82,7 +113,7 @@ namespace ecs {
 		template<typename Sys>
 		std::shared_ptr<Sys> GetSystem();	// Systemの取得
 		void ReactivateAllSystems(); // 登録されたSystemをすべて再アクティブ化
-		
+
 
 
 		void InitAllSystems();	// 登録されたSystemの初期化
@@ -91,7 +122,7 @@ namespace ecs {
 		void FlushPending(); // 保留中の変更を反映
 
 		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
-		
+
 	private:
 		/**
 		 * @brief 保留中の追加操作

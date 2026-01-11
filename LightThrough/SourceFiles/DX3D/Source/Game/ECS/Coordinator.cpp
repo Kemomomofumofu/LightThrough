@@ -50,12 +50,21 @@ namespace ecs {
 		entity_manager_->Destroy(_e);
 	}
 
+	/**
+	 * @brief 登録されている全てのEntityを取得
+	 * @return 登録されている全てのEntityのコンテナ
+	 */
+	std::vector<Entity> Coordinator::GetAllEntities()
+	{
+		return entity_manager_->GetAllEntities();
+	}
+
 	//! @brief Componentの追加リクエスト
 	void Coordinator::RequestAddComponentRaw(Entity _e, ComponentType _type, std::function<void()> _apply)
 	{
 		pending_adds_.push_back(
 			PendingAdd{
-			.e =_e,
+			.e = _e,
 			.type = _type,
 			.apply = std::move(_apply)
 			});
@@ -80,14 +89,14 @@ namespace ecs {
 	{
 		// 追加
 		component_manager_->AddComponent(_e, _type, _data);
-		
+
 		// Signatureの更新
 		auto sig = entity_manager_->GetSignature(_e);
 		sig.set(_type, true);
 		entity_manager_->SetSignature(_e, sig);
 		system_manager_->EntitySignatureChanged(_e, sig);
 	}
-	
+
 	/**
 	 * @brief EntityからComponentを削除
 	 * @param _e 削除先のEntity
@@ -144,7 +153,7 @@ namespace ecs {
 	void Coordinator::FlushPending()
 	{
 		// Component追加リクエストの反映
-		for(auto& add: pending_adds_) {
+		for (auto& add : pending_adds_) {
 			add.apply();
 		}
 		pending_adds_.clear();
@@ -154,7 +163,7 @@ namespace ecs {
 		}
 		pending_removes_.clear();
 		// Entity破棄リクエストの反映
-		for(auto& e: pending_destroys_) {
+		for (auto& e : pending_destroys_) {
 			DestroyEntity(e);
 		}
 		pending_destroys_.clear();

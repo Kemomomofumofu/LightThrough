@@ -17,7 +17,13 @@
 #include <Game/Components/Light.h>
 #include <Game/Components/Collider.h>
 
+#include <Game/Collisions/CollisionUtils.h>
+
 #include <Debug/Debug.h>
+#include <Debug/DebugUI.h>
+#include <Game/Systems/Renderers/DebugRenderSystem.h>
+
+
 
 namespace ecs {
 
@@ -40,6 +46,7 @@ namespace ecs {
 		CreateComputeResources();
 
 		light_depth_system_ = ecs_.GetSystem<LightDepthRenderSystem>();
+		debug_render_system_ = ecs_.GetSystem<DebugRenderSystem>();
 	}
 
 	//! @brief XV
@@ -203,7 +210,10 @@ namespace ecs {
 		// ƒNƒŠƒA
 		deferredContext.CSClearResources(2, 1);
 
-		// Œ‹‰Ê‚ÌŠi”[
+		// ƒfƒoƒbƒO•`‰æ—p‚ÌƒVƒXƒeƒ€Žæ“¾
+		auto debugRenderSystem = debug_render_system_.lock();
+
+		// Œ‹‰Ê‚ÌŠi”[ & ƒfƒoƒbƒO•`‰æ
 		for (const auto& test : pending_tests_) {
 			PairKey key{ test.a, test.b };
 
@@ -222,8 +232,6 @@ namespace ecs {
 			}
 
 			ShadowTestResult result{};
-			// todo: ‚±‚±‚ð’²®‚Å‚«‚é‚æ‚¤‚É‚µ‚½‚¢B
-			// ˆê’èˆÈã‚ª‰e‚Ì’†‚È‚ç‚·‚×‚Ä‰e‚Ì’†‚Æ‚·‚é
 			result.aInShadow = (test.pointCountA > 0) && (aInShadowCount > test.pointCountA / 2);
 			result.bInShadow = (test.pointCountB > 0) && (bInShadowCount > test.pointCountB / 2);
 
@@ -257,5 +265,4 @@ namespace ecs {
 			}
 		}
 	}
-
 }

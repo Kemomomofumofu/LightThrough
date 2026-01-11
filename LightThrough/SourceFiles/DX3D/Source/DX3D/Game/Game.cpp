@@ -90,6 +90,7 @@ namespace {
 
 		// ---------- 衝突関係 ---------- // 
 		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
+		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
 		ecs.RegisterSystem<ecs::IntegrationSystem>(_desc);
 		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
 
@@ -101,7 +102,6 @@ namespace {
 		const auto& shadowTest = ecs.GetSystem<ecs::ShadowTestSystem>();
 		shadowTest->SetGraphicsEngine(_engine);
 
-		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
 		ecs.RegisterSystem<ecs::ClearForcesSystem>(_desc);
 
 		// タイトル独自の更新

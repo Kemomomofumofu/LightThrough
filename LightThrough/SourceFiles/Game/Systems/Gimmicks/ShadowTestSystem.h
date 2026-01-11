@@ -17,6 +17,7 @@ namespace dx3d {
 
 namespace ecs {
 	class LightDepthRenderSystem;
+	class DebugRenderSystem;
 	//! @brief 影判定結果
 	struct ShadowTestResult {
 		bool aInShadow = false; // Entity Aが影の中にいるか
@@ -106,6 +107,7 @@ namespace ecs {
 	private:
 		dx3d::GraphicsEngine* engine_{};
 		std::weak_ptr<LightDepthRenderSystem> light_depth_system_{};
+		std::weak_ptr<DebugRenderSystem> debug_render_system_{};
 
 		// コンピュートシェーダー関連
 		dx3d::ConstantBufferPtr cb_params_{};
@@ -121,6 +123,7 @@ namespace ecs {
 		static constexpr float DEPTH_BIAS = 0.005f;
 		static constexpr uint32_t POINTS_PER_AABB = 8;
 		static constexpr uint32_t CS_THREAD_GROUP_SIZE = 64;
+
 	};
 
 }
