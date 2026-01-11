@@ -15,9 +15,9 @@
 #include <Game/ECS/Coordinator.h>
 #include <DX3D/Graphics/PipelineKey.h>
 
-#include <Game/Components/Camera.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/Collider.h>
+#include <Game/Components/Camera/Camera.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Physics/Collider.h>
 
 #include <Game/Collisions/CollisionUtils.h>
 #include <Debug/DebugUI.h>

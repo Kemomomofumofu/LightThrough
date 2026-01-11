@@ -10,7 +10,7 @@
 #include <vector>
 #include <DirectXMath.h>
 #include <Game/ECS/ISystem.h>
-#include <Game/Components/MeshRenderer.h>
+#include <Game/Components/Render/MeshRenderer.h>
 #include <DX3D/Graphics/Buffers/ConstantBuffer.h>
 
 #include <Game/Collisions/CollisionUtils.h>

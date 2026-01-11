@@ -11,10 +11,10 @@
 #include <Game/Systems/CameraSystem.h>
 #include <Game/InputSystem/InputSystem.h>
 #include <Game/ECS/Coordinator.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/Camera.h>
-#include <Game/Components/CameraController.h>
-#include <Game/Components/Object/ObjectChild.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Camera/Camera.h>
+#include <Game/Components/Input/CameraController.h>
+#include <Game/Components/Core/ObjectChild.h>
 
 
 namespace ecs {

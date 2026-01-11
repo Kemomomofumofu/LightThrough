@@ -19,10 +19,10 @@
 #include <Game/Scene/SceneSerializer.h>
 #include <Game/Scene/SceneManager.h>
 
-#include <Game/Components/Transform.h>
-#include <Game/Components/Camera.h>
-#include <Game/Components/CameraController.h>
-#include <Game/Components/Meshrenderer.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Camera/Camera.h>
+#include <Game/Components/Input/CameraController.h>
+#include <Game/Components/Render/MeshRenderer.h>
 
 #include <Debug/Debug.h>
 

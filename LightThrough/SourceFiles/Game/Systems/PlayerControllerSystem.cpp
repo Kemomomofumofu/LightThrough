@@ -8,11 +8,11 @@
 #include <Game/ECS/Coordinator.h>
 #include <Game/InputSystem/InputSystem.h>
 
-#include <Game/Components/PlayerController.h>
-#include <Game/Components/Transform.h>
+#include <Game/Components/Input/PlayerController.h>
+#include <Game/Components/Core/Transform.h>
 #include <Game/Components/Physics/Rigidbody.h>
-#include <Game/Components/MoveDirectionSource.h>
-#include <Game/Components/CameraController.h>
+#include <Game/Components/Input/MoveDirectionSource.h>
+#include <Game/Components/Input/CameraController.h>
 
 #include <DX3D/Math/MathUtils.h>
 #include <Debug/Debug.h>

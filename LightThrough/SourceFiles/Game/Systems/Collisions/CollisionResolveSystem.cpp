@@ -14,8 +14,8 @@
 
 #include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 
-#include <Game/Components/Transform.h>
-#include <Game/Components/Collider.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Physics/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
 
 #include <Game/Collisions/CollisionUtils.h>

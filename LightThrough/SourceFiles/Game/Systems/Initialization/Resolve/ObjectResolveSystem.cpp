@@ -10,10 +10,10 @@
 #include <Game/Systems/Initialization/Resolve/ObjectResolveSystem.h>
 #include <Game/ECS/Coordinator.h>
 
-#include <Game/Components/Object/ObjectRoot.h>
-#include <Game/Components/Object/ObjectChild.h>
-#include <Game/Components/Object/Name.h>
-#include <Game/Components/Transform.h>
+#include <Game/Components/Core/ObjectRoot.h>
+#include <Game/Components/Core/ObjectChild.h>
+#include <Game/Components/Core/Name.h>
+#include <Game/Components/Core/Transform.h>
 
 #include <Game/ECS/ECSUtils.h>
 #include <Debug/Debug.h>

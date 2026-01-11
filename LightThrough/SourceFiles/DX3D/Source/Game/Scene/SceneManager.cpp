@@ -15,18 +15,18 @@
 #include <Game/Scene/SceneManager.h>
 
 #include <Game/ECS/Coordinator.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/MeshRenderer.h>
-#include <Game/Components/Camera.h>
-#include <Game/Components/CameraController.h>
-#include <Game/Components/Collider.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Render/MeshRenderer.h>
+#include <Game/Components/Camera/Camera.h>
+#include <Game/Components/Input/CameraController.h>
+#include <Game/Components/Physics/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
-#include <Game/Components/Light.h>
-#include <Game/Components/PlayerController.h>
-#include <Game/Components/MoveDirectionSource.h>
-#include <Game/Components/Object/Name.h>
-#include <Game/Components/Object/ObjectRoot.h>
-#include <Game/Components/Object/ObjectChild.h>
+#include <Game/Components/Render/Light.h>
+#include <Game/Components/Input/PlayerController.h>
+#include <Game/Components/Input/MoveDirectionSource.h>
+#include <Game/Components/Core/Name.h>
+#include <Game/Components/Core/ObjectRoot.h>
+#include <Game/Components/Core/ObjectChild.h>
 
 #include <Game/ECS/ECSUtils.h>
 #include <Game/GameLogUtils.h>

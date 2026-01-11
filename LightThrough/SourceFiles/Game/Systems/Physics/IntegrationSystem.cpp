@@ -7,7 +7,7 @@
  // ---------- インクルード ---------- // 
 #include <Game/Systems/Physics/IntegrationSystem.h>
 #include <Game/ECS/Coordinator.h>
-#include <Game/Components/Transform.h>
+#include <Game/Components/Core/Transform.h>
 #include <Game/Components/Physics/Rigidbody.h>
 
 namespace ecs {
