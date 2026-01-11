@@ -12,10 +12,10 @@
 
 #include <Game/Systems/TransformSystem.h>
 #include <Game/ECS/Coordinator.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/Object/ObjectChild.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Core/ObjectChild.h>
 
-#include <Game/Components/Object/Name.h>
+#include <Game/Components/Core/Name.h>
 #include <Debug/DebugUI.h>
 
 namespace ecs {

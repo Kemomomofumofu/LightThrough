@@ -13,9 +13,9 @@
 
 #include <Game/ECS/Coordinator.h>
 #include <Game/Systems/Renderers/LightDepthRenderSystem.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/Light.h>
-#include <Game/Components/Collider.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Render/Light.h>
+#include <Game/Components/Physics/Collider.h>
 
 #include <Game/Collisions/CollisionUtils.h>
 

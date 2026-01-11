@@ -19,10 +19,10 @@
 #include <DX3D/Graphics/PipelineKey.h>
 #include <Game/ECS/Coordinator.h>
 
-#include <Game/Components/Camera.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/MeshRenderer.h>
-#include <Game/Components/Light.h>
+#include <Game/Components/Camera/Camera.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Render/MeshRenderer.h>
+#include <Game/Components/Render/Light.h>
 
 namespace {
 	struct CBPerFrame {

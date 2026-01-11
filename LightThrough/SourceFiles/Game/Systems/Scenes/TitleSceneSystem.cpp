@@ -10,8 +10,8 @@
 #include <Game/ECS/Coordinator.h>
 #include <Game/Scene/SceneManager.h>
 
-#include <Game/Components/Transform.h>
-#include <Game/Components/Light.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Render/Light.h>
 
 #include <Debug/DebugUI.h>
 

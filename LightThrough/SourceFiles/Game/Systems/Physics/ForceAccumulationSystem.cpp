@@ -10,7 +10,7 @@
 #include <Game/Systems/Physics/ForceAccumulationSystem.h>
 #include <Game/ECS/Coordinator.h>
 
-#include <Game/Components/Transform.h>
+#include <Game/Components/Core/Transform.h>
 #include <Game/Components/Physics/Rigidbody.h>
 
 

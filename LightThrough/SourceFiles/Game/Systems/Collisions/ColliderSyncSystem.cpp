@@ -11,8 +11,8 @@
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/ECS/Coordinator.h>
 
-#include <Game/Components/Transform.h>
-#include <Game/Components/Collider.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Physics/Collider.h>
 
 
 

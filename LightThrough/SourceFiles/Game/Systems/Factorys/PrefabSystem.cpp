@@ -11,9 +11,9 @@
 #include <Game/ECS/Entity.h>
 
 #include <Game/Systems/Factorys/PrefabSystem.h>
-#include <Game/Components/Transform.h>
-#include <Game/Components/Camera.h>
-#include <Game/Components/CameraController.h>
+#include <Game/Components/Core/Transform.h>
+#include <Game/Components/Camera/Camera.h>
+#include <Game/Components/Input/CameraController.h>
 
 namespace ecs {
 	Entity PrefabSystem::CreateGameObject(LightThrough::GameObjectType _type)

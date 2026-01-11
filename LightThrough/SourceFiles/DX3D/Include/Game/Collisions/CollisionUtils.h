@@ -197,7 +197,7 @@ namespace dx3d {
 					// 誤差範囲より大きければ
 					if (len2 > EPS) {
 						float inv = 1.0f / std::sqrt(len2);
-						axes[axisCount++] = { cr.x * inv, cr.y * inv, cr.z * inv };
+						axes[axisCount++] = math::Scale(cr, inv);
 					}
 				}
 			}
@@ -224,14 +224,14 @@ namespace dx3d {
 					return std::nullopt;
 				}
 
-				// 最小の貫通深度を更新
+				// 最小の侵入深さとその軸を更新
 				if (overlap < minPenetration) {
 					minPenetration = overlap;
 					bestAxis = axis;
-
-					// 内積が負なら
-					if (math::Dot(bestAxis, T) < 0.0f) {
-						// 中心方向に合わせて法線を反転
+					
+					// 法線の向きを A→B の押し出し方向に調整
+					// T と bestAxis が逆向きなら反転（T の方向に合わせる）
+					if (math::Dot(axis, T) < 0.0f) {
 						bestAxis.x *= -1.0f;
 						bestAxis.y *= -1.0f;
 						bestAxis.z *= -1.0f;

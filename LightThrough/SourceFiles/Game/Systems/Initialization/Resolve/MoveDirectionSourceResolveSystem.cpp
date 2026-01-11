@@ -6,8 +6,8 @@
  // // ---------- インクルード ---------- //
 #include <Game/Systems/Initialization/Resolve/MoveDirectionSourceResolveSystem.h>
 #include <Game/ECS/Coordinator.h>
-#include <Game/Components/MoveDirectionSource.h>
-#include <Game/Components/Object/Name.h>
+#include <Game/Components/Input/MoveDirectionSource.h>
+#include <Game/Components/Core/Name.h>
 
 
 namespace ecs {
