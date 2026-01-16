@@ -62,7 +62,7 @@ float4 PSMain(PSIN _pin) : SV_Target
     float3 N = normalize(_pin.normalWS);
     
     float3 color = float3(0.0f, 0.0f, 0.0f);
-    float alpha = 0.0f;
+    float totalLight = 0.0f;
     [unroll]
     for (int i = 0; i < lightCount; ++i)
     {
@@ -77,16 +77,21 @@ float4 PSMain(PSIN _pin) : SV_Target
        
         // F‰ÁŽZ
         color += effectiveLight * lights[i].color.rgb;
-        alpha += effectiveLight;
+        totalLight += effectiveLight;
     }
     
-    if (alpha <= 0.0f)
+    // Œõ‚ª“–‚½‚Á‚Ä‚¢‚È‚¢ê‡‚Í”jŠü
+    if (totalLight <= 0.0f)
     {
         discard;
     }
     
-    color *= _pin.color.rgb;
-    alpha = saturate(alpha + 0.1f) * _pin.color.a;
+    //
+    float threshold = 0.3f;
+    float edgeWidth = 0.2f;
     
+    float alpha = smoothstep(threshold - edgeWidth, threshold, totalLight);
+    alpha *= _pin.color.a;
+
     return float4(saturate(color), alpha);
 }

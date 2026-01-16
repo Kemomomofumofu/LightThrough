@@ -188,12 +188,14 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
-		XMMATRIX rot = XMMATRIX(
-			XMLoadFloat3(&_obb.axis[0]),
-			XMLoadFloat3(&_obb.axis[1]),
-			XMLoadFloat3(&_obb.axis[2]),
-			XMVectorSet(0, 0, 0, 1));
-		rot = XMMatrixTranspose(rot);
+		
+		// OBBÇÃé≤Ç©ÇÁâÒì]çsóÒÇç\íz
+		XMMATRIX rot = XMMatrixIdentity();
+		rot.r[0] = XMVectorSetW(XMLoadFloat3(&_obb.axis[0]), 0.0f);
+		rot.r[1] = XMVectorSetW(XMLoadFloat3(&_obb.axis[1]), 0.0f);
+		rot.r[2] = XMVectorSetW(XMLoadFloat3(&_obb.axis[2]), 0.0f);
+		rot.r[3] = XMVectorSet(0, 0, 0, 1);
+		
 		const auto S = XMMatrixScaling(_obb.half.x * 2.0f, _obb.half.y * 2.0f, _obb.half.z * 2.0f);
 		const auto T = XMMatrixTranslation(_obb.center.x, _obb.center.y, _obb.center.z);
 		cmd.world = S * rot * T;
@@ -252,7 +254,7 @@ namespace ecs {
 		}
 		// ÉÅÉCÉìÉJÉÅÉâÇíTÇ∑
 		for (auto& e : camEntities) {
-			auto cameraComp = ecs_.GetComponent<Camera>(e);
+			auto& cameraComp = ecs_.GetComponent<Camera>(e);
 			if (cameraComp.isActive && cameraComp.isMain) {
 				cameraEnt = e;
 				break;

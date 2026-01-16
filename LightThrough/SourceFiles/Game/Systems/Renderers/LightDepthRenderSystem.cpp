@@ -180,7 +180,6 @@ namespace ecs {
 			dx3d::InstanceDataShadow ds{};
 			ds.world = tf.world;
 			shadow_batches_[batchIndex].instances.emplace_back(ds);
-
 		}
 	}
 
@@ -285,11 +284,11 @@ namespace ecs {
 		// ライト行列の作成
 		auto& tf = ecs_.GetComponent<Transform>(_lightEntity);
 		SpotLight* spotPtr = ecs_.HasComponent<SpotLight>(_lightEntity) ? &ecs_.GetComponent<SpotLight>(_lightEntity) : nullptr;
-		DirectX::XMMATRIX lightVP = BuildLightViewProj(tf, spotPtr, 0.1f); // memo: lightのVPをビルドをするSystemがあってもいいかも...?
-		
+		LightViewProj lightVP = BuildLightViewProj(tf, spotPtr, 0.1f); // memo: lightのVPをビルドをするSystemがあってもいいかも...?
+
 		// ライトごとのビュー射影行列を保存
 		int shadowIndex = light_to_shadow_index_[_lightEntity];
-		light_view_proj_matrices_[shadowIndex] = lightVP;
+		light_view_proj_matrices_[shadowIndex] = lightVP.view * lightVP.proj;
 
 		// 現在のRTV、DSVを退避
 		ID3D11RenderTargetView* prevRTV = nullptr;
@@ -304,7 +303,7 @@ namespace ecs {
 		// ライト行列をセット
 		{
 			CBLightMatrix lm{};
-			lm.lightViewProj = lightVP;
+			lm.lightViewProj = lightVP.view * lightVP.proj;
 			cb_light_matrix_->Update(contextWrap, &lm, sizeof(lm));
 			contextWrap.VSSetConstantBuffer(1, *cb_light_matrix_);
 		}

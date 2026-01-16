@@ -316,7 +316,7 @@ namespace ecs {
 			return std::atan2f(fx, fz);
 		}
 
-		//! @brief ライト/カメラ用のLookTo行列
+		//! @brief カメラ用のLookTo行列
 		const XMMATRIX MakeLookToLH() const
 		{
 			RecalcAxes();
