@@ -22,6 +22,7 @@ namespace ecs {
 	struct ShadowTestResult {
 		bool aInShadow = false; // Entity Aが影の中にいるか
 		bool bInShadow = false; // Entity Bが影の中にいるか
+		bool allContactPointsInShadow = false;  // すべての接触点が影の中か
 	};
 
 
@@ -33,9 +34,6 @@ namespace ecs {
 		void Init() override;
 		//! @brief 更新
 		void Update(float _dt) override;
-		void FixedUpdate(float _dt) override;
-		//! @brief Engineのセット
-		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
 		/**
 		 * @brief 影判定の結果を取得
@@ -60,11 +58,11 @@ namespace ecs {
 		//! @brief 両方とも影の中にいるか
 		bool AreBothInShadow(Entity _a, Entity _b) const;
 
+		//! @brief 影判定の実行
+		void ExecuteShadowTests();
 	private:
 		//! @brief コンピュート用リソースの作成
 		void CreateComputeResources();
-		//! @brief 影判定の実行
-		void ExecuteShadowTests();
 		//! @brief テスト用のポイント収集
 		void CollectTestPoints(Entity _entity, std::vector<DirectX::XMFLOAT3>& _outPoints);
 
@@ -110,14 +108,12 @@ namespace ecs {
 		struct PendingTest {
 			Entity a;
 			Entity b;
-			DirectX::XMFLOAT3 contactPoint;
-			size_t pointStartIndex = 0;
-			size_t pointCountA = 0;
-			size_t pointCountB = 0;
+			size_t contactPointStartIndex = 0;  // 接触点の開始インデックス
+			size_t contactPointCount = 0;        // 接触点の数
 		};
 
 	private:
-		dx3d::GraphicsEngine* engine_{};
+		dx3d::GraphicsEngine& engine_;
 		std::weak_ptr<LightDepthRenderSystem> light_depth_system_{};
 		std::weak_ptr<DebugRenderSystem> debug_render_system_{};
 
@@ -130,7 +126,7 @@ namespace ecs {
 		// 処理対象
 		std::vector<PendingTest> pending_tests_{};
 		std::unordered_map<PairKey, ShadowTestResult, PairKeyHash> shadow_results_{};
-
+		std::vector<DirectX::XMFLOAT3> pending_contact_points_;
 
 		static constexpr uint32_t MAX_TEST_POINTS = 4096;
 		static constexpr uint32_t POINTS_PER_AABB = 8;

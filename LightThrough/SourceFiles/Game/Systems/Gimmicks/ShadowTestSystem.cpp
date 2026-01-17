@@ -29,7 +29,8 @@ namespace ecs {
 
 	//! @brief コンストラクタ
 	ShadowTestSystem::ShadowTestSystem(const SystemDesc& _desc)
-		:ISystem(_desc)
+		:ISystem(_desc),
+		engine_(_desc.graphicsEngine)
 	{
 	}
 
@@ -70,11 +71,6 @@ namespace ecs {
 #endif
 	}
 
-	//! @brief 更新
-	void ShadowTestSystem::FixedUpdate(float _dt)
-	{
-		ExecuteShadowTests();
-	}
 
 	//! @brief 更新
 	void ShadowTestSystem::Update(float _dt)
@@ -116,17 +112,41 @@ namespace ecs {
 	//! @brief 衝突ペアの登録
 	void ShadowTestSystem::RegisterCollisionPair(Entity _a, Entity _b, const DirectX::XMFLOAT3& _contactPoint)
 	{
-		if (pending_tests_.size() >= MAX_TEST_POINTS) return;
+		if (pending_contact_points_.size() >= MAX_TEST_POINTS) return;
 
-		pending_tests_.push_back(PendingTest{ _a, _b, _contactPoint });
+		PairKey key{ _a, _b };
+
+		// 既存のペアを検索
+		auto it = std::find_if(pending_tests_.begin(), pending_tests_.end(),
+			[&key](const PendingTest& test) {
+				return PairKey{ test.a, test.b } == key;
+			});
+
+		if (it != pending_tests_.end()) {
+			// 既存のペアに接触点を追加
+			it->contactPointCount++;
+		}
+		else {
+			// 新しいペアを追加
+			PendingTest newTest{};
+			newTest.a = _a;
+			newTest.b = _b;
+			newTest.contactPointStartIndex = pending_contact_points_.size();
+			newTest.contactPointCount = 1;
+			pending_tests_.push_back(newTest);
+		}
+
+		// 接触点を追加
+		pending_contact_points_.push_back(_contactPoint);
 	}
 
-	//! @brief 両方とも影の中にいるか
+	//! @brief 両方とも影の中にいるか（接触点がすべて影の中か）
 	bool ShadowTestSystem::AreBothInShadow(Entity _a, Entity _b) const
 	{
 		ShadowTestResult result{};
 		if (GetShadowTestResult(_a, _b, result)) {
-			return result.aInShadow && result.bInShadow;
+			// 接触点がすべて影の中の場合にtrueを返す
+			return result.allContactPointsInShadow;
 		}
 		return false;
 	}
@@ -134,10 +154,7 @@ namespace ecs {
 	//! @brief コンピュート用リソース作成
 	void ShadowTestSystem::CreateComputeResources()
 	{
-		if (!engine_) return;
-
-
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 		// 定数バッファ
 		cb_params_ = device.CreateConstantBuffer({ sizeof(CSParams), nullptr });
 		// 入力ポイント用
@@ -152,36 +169,47 @@ namespace ecs {
 	void ShadowTestSystem::ExecuteShadowTests()
 	{
 		auto lightDepthSystem = light_depth_system_.lock();
-		if (!engine_ || !lightDepthSystem) { return; }
+		if (!lightDepthSystem) { return; }
 
-#if defined(DEBUG) || defined(_DEBUG)
-		// 衝突がない場合はデバッグポイントをクリア
+		// 衝突がない場合は前フレームの結果を維持（クリアしない）
 		if (pending_tests_.empty()) {
+			pending_contact_points_.clear();
+#if defined(DEBUG) || defined(_DEBUG)
 			debug_test_points_.clear();
+#endif
 			return;
 		}
-#else
-		if (pending_tests_.empty()) { return; }
-#endif
-
+		
+		// 新しいテストがある場合のみ結果をクリア
+		shadow_results_.clear();
+		
 		// ライトがない場合はすべて影の中とする
 		if (entities_.empty()) {
 			for (const auto& test : pending_tests_) {
 				PairKey key{ test.a, test.b };
-				shadow_results_[key] = ShadowTestResult{ true, true };
+				ShadowTestResult result{};
+				result.aInShadow = true;
+				result.bInShadow = true;
+				result.allContactPointsInShadow = true;
+				shadow_results_[key] = result;
 			}
-			pending_tests_.clear();
 #if defined(DEBUG) || defined(_DEBUG)
+			// ライトがない場合はすべて影として表示
 			debug_test_points_.clear();
+			for (const auto& point : pending_contact_points_) {
+				debug_test_points_.push_back({ point, true });
+			}
 #endif
+			pending_tests_.clear();
+			pending_contact_points_.clear();
 			return;
 		}
 
-		auto& device = engine_->GetGraphicsDevice();
-		auto& deferredContext = engine_->GetDeferredContext();
+		auto& device = engine_.GetGraphicsDevice();
+		auto& deferredContext = engine_.GetDeferredContext();
 
 		// ComputeShader取得
-		auto& shaderCache = engine_->GetShaderCache();
+		auto& shaderCache = engine_.GetShaderCache();
 		auto& csEntry = shaderCache.GetCS(dx3d::ComputeShaderKind::ShadowTest);
 
 		if (!csEntry.shader)
@@ -190,26 +218,15 @@ namespace ecs {
 			return;
 		}
 
-		// ポイントデータを収集
-		std::vector<DirectX::XMFLOAT3> testPoints;
-		testPoints.reserve(pending_tests_.size() * POINTS_PER_AABB * 2);
-
-		for (auto& test : pending_tests_) {
-			test.pointStartIndex = testPoints.size();
-
-			size_t beforePointsSize = testPoints.size();
-			CollectTestPoints(test.a, testPoints);
-			test.pointCountA = testPoints.size() - beforePointsSize;
-
-			beforePointsSize = testPoints.size();
-			CollectTestPoints(test.b, testPoints);
-			test.pointCountB = testPoints.size() - beforePointsSize;
-		}
+		// 接触点をテストポイントとして使用（コピーして保持）
+		std::vector<DirectX::XMFLOAT3> testPoints = pending_contact_points_;  // コピーに変更！
 
 		if (testPoints.empty()) {
 #if defined(DEBUG) || defined(_DEBUG)
 			debug_test_points_.clear();
 #endif
+			pending_tests_.clear();
+			pending_contact_points_.clear();
 			return;
 		}
 
@@ -217,13 +234,11 @@ namespace ecs {
 		point_buffer_->Update(deferredContext, testPoints.data(), sizeof(DirectX::XMFLOAT3) * testPoints.size());
 
 		// 判定
-		// どれか1つのライトでも照らされていれば false (照らされている)、すべてのライトで照らされていなければ true (影の中)
 		std::vector<bool> isLitByAnyLight(testPoints.size(), false);
 
 		for (const auto& lightEntity : entities_) {
 			auto& common = ecs_.GetComponent<LightCommon>(lightEntity);
 			if (!common.enabled) { continue; }
-
 
 			auto& lightTf = ecs_.GetComponent<Transform>(lightEntity);
 
@@ -321,40 +336,42 @@ namespace ecs {
 		// クリア
 		deferredContext.CSClearResources(2, 1);
 
+#if defined(DEBUG) || defined(_DEBUG)
+		// デバッグ表示用の情報を更新（クリア前に実行！）
+		UpdateDebugVisualization(testPoints, isLitByAnyLight);
+#endif
+
 		// 結果の格納
 		for (const auto& test : pending_tests_) {
 			PairKey key{ test.a, test.b };
 
-			// エンティティAの判定: すべてのポイントが照らされていない場合に影とみなす
-			size_t aLitCount = 0;
-			for (size_t i = 0; i < test.pointCountA; ++i) {
-				if (isLitByAnyLight[test.pointStartIndex + i]) {
-					++aLitCount;
+			bool allContactPointsInShadow = true;
+			size_t litCount = 0;
+			
+			for (size_t i = 0; i < test.contactPointCount; ++i) {
+				size_t pointIndex = test.contactPointStartIndex + i;
+				if (pointIndex < isLitByAnyLight.size() && isLitByAnyLight[pointIndex]) {
+					allContactPointsInShadow = false;
+					++litCount;
 				}
 			}
 
-			// エンティティBの判定: すべてのポイントが照らされていない場合に影とみなす
-			size_t bLitCount = 0;
-			for (size_t i = 0; i < test.pointCountB; ++i) {
-				if (isLitByAnyLight[test.pointStartIndex + test.pointCountA + i]) {
-					++bLitCount;
-				}
-			}
+			DebugLogInfo("[ShadowTestSystem] Entity pair ({}, {}): {}/{} points lit, allInShadow={}",
+				test.a.id_, test.b.id_,
+				litCount, test.contactPointCount,
+				allContactPointsInShadow);
 
 			ShadowTestResult result{};
-			// すべてのポイントが照らされていない = 影の中
-			result.aInShadow = (test.pointCountA > 0) && (aLitCount == 0);
-			result.bInShadow = (test.pointCountB > 0) && (bLitCount == 0);
+			result.allContactPointsInShadow = allContactPointsInShadow;
+			result.aInShadow = allContactPointsInShadow;
+			result.bInShadow = allContactPointsInShadow;
 
 			shadow_results_[key] = result;
 		}
 
+		// 最後にクリア
 		pending_tests_.clear();
-
-#if defined(DEBUG) || defined(_DEBUG)
-		// デバッグ表示用の情報を更新
-		UpdateDebugVisualization(testPoints, isLitByAnyLight);
-#endif
+		pending_contact_points_.clear();
 	}
 
 	//! @brief テストポイントの収集

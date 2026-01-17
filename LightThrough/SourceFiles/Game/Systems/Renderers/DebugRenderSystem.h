@@ -35,7 +35,6 @@ namespace ecs {
 	public:
 		DebugRenderSystem(const SystemDesc& _desc);
 		void Init() override;
-		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 
 		void DrawLine(DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
 		void DrawCube(const Transform& _transform, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
@@ -80,7 +79,7 @@ namespace ecs {
 			bool wireframe = false;
 		};
 
-		dx3d::GraphicsEngine* engine_{};
+		dx3d::GraphicsEngine& engine_;
 		std::vector<DebugCommand> commands_{};
 		dx3d::ConstantBufferPtr cb_per_frame_{};
 		dx3d::ConstantBufferPtr cb_per_object_{};

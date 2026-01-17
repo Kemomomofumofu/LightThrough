@@ -85,13 +85,6 @@ float4 PSMain(PSIN _pin) : SV_Target
     {
         discard;
     }
-    
-    //
-    float threshold = 0.3f;
-    float edgeWidth = 0.2f;
-    
-    float alpha = smoothstep(threshold - edgeWidth, threshold, totalLight);
-    alpha *= _pin.color.a;
 
-    return float4(saturate(color), alpha);
+    return float4(saturate(color), totalLight);
 }

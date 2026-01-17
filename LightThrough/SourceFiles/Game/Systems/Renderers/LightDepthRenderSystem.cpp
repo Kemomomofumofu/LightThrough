@@ -41,6 +41,7 @@ namespace ecs {
 	 */
 	LightDepthRenderSystem::LightDepthRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
+		, engine_(_desc.graphicsEngine)
 	{
 		light_view_proj_matrices_.resize(MAX_SHADOW_LIGHTS);
 	}
@@ -54,7 +55,7 @@ namespace ecs {
 		// 2025-11-26 todo: shadowCasterComponentとか追加してもよいかも。
 		ecs_.SetSystemSignature<LightDepthRenderSystem>(signature);
 
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 		// ConstantBuffer作成
 		cb_light_matrix_ = device.CreateConstantBuffer({
 			sizeof(CBLightMatrix),
@@ -71,7 +72,7 @@ namespace ecs {
 			sd.MipLODBias = 0;
 			sd.MinLOD = -FLT_MAX;
 			sd.MaxLOD = FLT_MAX;
-			engine_->GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, &shadow_sampler_);
+			engine_.GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, &shadow_sampler_);
 		}
 
 		CreateShadowResources(SHADOW_MAP_HEIGHT, SHADOW_MAP_WIDTH, MAX_SHADOW_LIGHTS);
@@ -152,7 +153,7 @@ namespace ecs {
 			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<Transform>(e);
 
-			auto& mr = engine_->GetMeshRegistry();
+			auto& mr = engine_.GetMeshRegistry();
 			auto meshData = mr.Get(mesh.handle);
 
 			if (!meshData) continue;
@@ -216,7 +217,7 @@ namespace ecs {
 				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceDataShadow)),
 				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceDataShadow))
 			};
-			instance_buffer_shadow_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
+			instance_buffer_shadow_ = engine_.GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
 	}
 
@@ -236,7 +237,7 @@ namespace ecs {
 	 */
 	void LightDepthRenderSystem::CreateShadowResources(uint32_t _texHeight, uint32_t _texWidth, uint32_t _arraySize)
 	{
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 
 		// シャドウマップ用テクスチャ作成
 		D3D11_TEXTURE2D_DESC texDesc{};
@@ -279,7 +280,7 @@ namespace ecs {
 	 */
 	void LightDepthRenderSystem::RenderShadowPass(Entity _lightEntity, ID3D11DepthStencilView* _dsv)
 	{
-		auto& contextWrap = engine_->GetDeferredContext();
+		auto& contextWrap = engine_.GetDeferredContext();
 		auto contextD3D = contextWrap.GetDeferredContext();
 		// ライト行列の作成
 		auto& tf = ecs_.GetComponent<Transform>(_lightEntity);
@@ -321,7 +322,7 @@ namespace ecs {
 		for (auto& b : shadow_batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, psoKey);
+			engine_.RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, psoKey);
 		}
 
 		// 退避していたRTV、DSVを復元

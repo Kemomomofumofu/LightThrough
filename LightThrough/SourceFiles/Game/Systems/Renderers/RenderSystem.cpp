@@ -43,6 +43,7 @@ namespace ecs {
 	 */
 	RenderSystem::RenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
+		, engine_(_desc.graphicsEngine)
 	{
 	}
 
@@ -54,7 +55,7 @@ namespace ecs {
 		signature.set(ecs_.GetComponentType<MeshRenderer>());
 		ecs_.SetSystemSignature<RenderSystem>(signature);
 
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 		// ConstantBuffer作成
 		cb_per_frame_ = device.CreateConstantBuffer({	// vsスロット0
 			sizeof(CBPerFrame),
@@ -78,8 +79,8 @@ namespace ecs {
 	 */
 	void RenderSystem::Update(float _dt)
 	{
-		auto& context = engine_->GetDeferredContext();
-		auto& device = engine_->GetGraphicsDevice();
+		auto& context = engine_.GetDeferredContext();
+		auto& device = engine_.GetGraphicsDevice();
 
 		// Camera取得 memo: 現状カメラは一つだけを想定
 		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
@@ -203,7 +204,7 @@ namespace ecs {
 			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
 
-			auto& mr = engine_->GetMeshRegistry();
+			auto& mr = engine_.GetMeshRegistry();
 			auto meshData = mr.Get(mesh.handle);
 
 			// todo: マテリアルからpsoを取得するつくりにする
@@ -304,13 +305,13 @@ namespace ecs {
 				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceDataMain)),
 				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceDataMain))
 			};
-			instance_buffer_main_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
+			instance_buffer_main_ = engine_.GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
 	}
 
 	void RenderSystem::RenderMainPass(CBLight& _lightData)
 	{
-		auto& context = engine_->GetDeferredContext();
+		auto& context = engine_.GetDeferredContext();
 
 		// ライティングCB更新
 		cb_lighting_->Update(context, &_lightData, sizeof(_lightData));
@@ -326,7 +327,7 @@ namespace ecs {
 			if (b.instances.empty()) { continue; }
 
 			// 描画
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
+			engine_.RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
 		}
 
 		// 透明オブジェクトのソート（カメラから遠い順）
@@ -337,7 +338,7 @@ namespace ecs {
 		for (auto& b : transparent_batches_) {
 			if (b.instances.empty()) { continue; }
 			// 描画
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
+			engine_.RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
 		}
 
 

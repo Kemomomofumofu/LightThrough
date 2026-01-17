@@ -99,6 +99,84 @@ namespace ecs {
 			return { _v.x * _s, _v.y * _s, _v.z * _s };
 		}
 
+		/**
+		 * @brief 法線方向に面しているOBBの4頂点を取得
+		 * @param _obb OBB
+		 * @param _normal 法線方向（この方向を向いている面の頂点を取得）
+		 * @param _outPoints 出力先（4点）
+		 */
+		void GetOBBFacePointsAlongNormal(const collision::WorldOBB& _obb, const XMFLOAT3& _normal, std::vector<XMFLOAT3>& _outPoints)
+		{
+			// 8頂点を取得
+			XMFLOAT3 corners[8];
+			collision::GetOBBCorners(_obb, corners);
+
+			// 法線方向に最も近い4点を選択
+			// 法線とOBB中心からの方向を比較して、法線側の4点を取得
+			XMVECTOR nVec = XMLoadFloat3(&_normal);
+			XMVECTOR center = XMLoadFloat3(&_obb.center);
+
+			// 各頂点と中心の差分ベクトルと法線の内積を計算
+			std::vector<std::pair<float, int>> dotProducts;
+			for (int i = 0; i < 8; ++i) {
+				XMVECTOR corner = XMLoadFloat3(&corners[i]);
+				XMVECTOR toCorner = XMVectorSubtract(corner, center);
+				float dot = XMVectorGetX(XMVector3Dot(toCorner, nVec));
+				dotProducts.push_back({ dot, i });
+			}
+
+			// 内積が大きい順（法線方向に近い順）にソート
+			std::sort(dotProducts.begin(), dotProducts.end(),
+				[](const auto& a, const auto& b) { return a.first > b.first; });
+
+			// 上位4点を追加
+			for (int i = 0; i < 4; ++i) {
+				_outPoints.push_back(corners[dotProducts[i].second]);
+			}
+		}
+
+		/**
+		 * @brief 法線方向に面しているSphereのサンプル点を取得
+		 * @param _sphere Sphere
+		 * @param _normal 法線方向
+		 * @param _outPoints 出力先
+		 */
+		void GetSphereFacePointsAlongNormal(const collision::WorldSphere& _sphere, const XMFLOAT3& _normal, std::vector<XMFLOAT3>& _outPoints)
+		{
+			// 法線方向の1点 + 周囲4点（法線に垂直な平面上）
+			XMVECTOR n = XMVector3Normalize(XMLoadFloat3(&_normal));
+			XMVECTOR center = XMLoadFloat3(&_sphere.center);
+
+			// 法線方向の点
+			XMFLOAT3 mainPoint;
+			XMStoreFloat3(&mainPoint, XMVectorAdd(center, XMVectorScale(n, _sphere.radius)));
+			_outPoints.push_back(mainPoint);
+
+			// 法線に垂直な2つの軸を計算
+			XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+			if (std::fabs(XMVectorGetX(XMVector3Dot(n, up))) > 0.9f) {
+				up = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+			}
+			XMVECTOR tangent1 = XMVector3Normalize(XMVector3Cross(n, up));
+			XMVECTOR tangent2 = XMVector3Cross(n, tangent1);
+
+			// 周囲4点（少し法線方向にオフセット）
+			float offsetAlongNormal = _sphere.radius * 0.7f;  // 法線方向に70%
+			float offsetPerpendicular = _sphere.radius * 0.7f; // 垂直方向に70%
+
+			XMVECTOR basePos = XMVectorAdd(center, XMVectorScale(n, offsetAlongNormal));
+
+			XMFLOAT3 p;
+			XMStoreFloat3(&p, XMVectorAdd(basePos, XMVectorScale(tangent1, offsetPerpendicular)));
+			_outPoints.push_back(p);
+			XMStoreFloat3(&p, XMVectorAdd(basePos, XMVectorScale(tangent1, -offsetPerpendicular)));
+			_outPoints.push_back(p);
+			XMStoreFloat3(&p, XMVectorAdd(basePos, XMVectorScale(tangent2, offsetPerpendicular)));
+			_outPoints.push_back(p);
+			XMStoreFloat3(&p, XMVectorAdd(basePos, XMVectorScale(tangent2, -offsetPerpendicular)));
+			_outPoints.push_back(p);
+		}
+
 	} // unnamed namespace
 
 
@@ -139,7 +217,6 @@ namespace ecs {
 				auto& gc = ecs_.GetComponent<GroundContact>(e);
 				gc.isGrounded = false;
 				gc.groundNormalY = 0.0f;
-				// gc.groundEntity = {}; // todo: 動く床対応が必要になったら有効化
 			}
 		}
 
@@ -150,8 +227,7 @@ namespace ecs {
 		for (const auto& e : entities_) { ents.push_back(e); };
 
 		const size_t n = ents.size();
-
-		const float baumgarte = 0.2f; // バウムガルテ係数
+		const float baumgarte = 0.2f;
 
 		for (size_t i = 0; i < n; ++i) {
 			const Entity eA = ents[i];
@@ -162,42 +238,87 @@ namespace ecs {
 				const Entity eB = ents[j];
 				auto& tfB = ecs_.GetComponent<Transform>(eB);
 				auto& colB = ecs_.GetComponent<Collider>(eB);
-				if (colB.isTrigger) { continue; }	// Bがトリガーならスキップ
+				if (colB.isTrigger) { continue; }
 
 				// ブロードフェーズ
 				const float sumR = colA.broadPhaseRadius + colB.broadPhaseRadius;
-				if (DistSq(tfA.position, tfB.position) > sumR * sumR) { continue; }	// 半径の二乗より遠いならスキップ
+				if (DistSq(tfA.position, tfB.position) > sumR * sumR) { continue; }
 
 				// ナローフェーズ
 				const auto contact = DispatchContact(colA, colB);
-				if (!contact) { continue; }							// 衝突していないならスキップ
-				if (contact->penetration <= 1e-6f) { continue; }	// ほとんどゼロならスキップ
+				if (!contact) { continue; }
+				if (contact->penetration <= 1e-6f) { continue; }
 
-				// 影判定
+				// 影判定用の接触点を登録
 				if (shadow_collision_enabled_ && shadowTestSystem) {
-					// 衝突ペアを登録
-					// memo: 次フレームの判定になる
-					XMFLOAT3 contactPoint = math::Scale(math::Add(tfA.position, tfB.position), 0.5f);
-					shadowTestSystem->RegisterCollisionPair(eA, eB, contactPoint);
+					const XMFLOAT3 normalToB = contact->normal;
+					const XMFLOAT3 normalToA = Scale(normalToB, -1.0f);
 
-					// 前フレームの結果を確認
-					// memo: 前フレームの判定を取得する
-					if (shadowTestSystem->AreBothInShadow(eA, eB)) { continue; }
+					std::vector<XMFLOAT3> contactPoints;
+					contactPoints.reserve(10);
+
+					// オフセット量（潜り込み分 + 余裕）
+					constexpr float SURFACE_OFFSET = 0.05f;
+
+					// Aの接触面の点を取得（Bに向かう面）→ 法線方向にオフセット
+					if (colA.type == collision::ShapeType::Box) {
+						GetOBBFacePointsAlongNormal(colA.worldOBB, normalToB, contactPoints);
+					}
+					else if (colA.type == collision::ShapeType::Sphere) {
+						GetSphereFacePointsAlongNormal(colA.worldSphere, normalToB, contactPoints);
+					}
+
+					// Aの点を法線の逆方向（外側）にオフセット
+					size_t aPointCount = contactPoints.size();
+					for (size_t i = 0; i < aPointCount; ++i) {
+						// Aの表面から外側へ（normalToAの方向 = Bから離れる方向）
+						contactPoints[i].x += normalToA.x * SURFACE_OFFSET;
+						contactPoints[i].y += normalToA.y * SURFACE_OFFSET;
+						contactPoints[i].z += normalToA.z * SURFACE_OFFSET;
+					}
+
+					// Bの接触面の点を取得（Aに向かう面）
+					size_t bPointStart = contactPoints.size();
+					if (colB.type == collision::ShapeType::Box) {
+						GetOBBFacePointsAlongNormal(colB.worldOBB, normalToA, contactPoints);
+					}
+					else if (colB.type == collision::ShapeType::Sphere) {
+						GetSphereFacePointsAlongNormal(colB.worldSphere, normalToA, contactPoints);
+					}
+
+					// Bの点を法線の逆方向（外側）にオフセット
+					for (size_t i = bPointStart; i < contactPoints.size(); ++i) {
+						// Bの表面から外側へ（normalToBの方向 = Aから離れる方向）
+						contactPoints[i].x += normalToB.x * SURFACE_OFFSET;
+						contactPoints[i].y += normalToB.y * SURFACE_OFFSET;
+						contactPoints[i].z += normalToB.z * SURFACE_OFFSET;
+					}
+
+					DebugLogInfo("[CollisionResolve] Registering {} contact points for entities {} and {}",
+						contactPoints.size(), eA.id_, eB.id_);
+
+					for (const auto& point : contactPoints) {
+						shadowTestSystem->RegisterCollisionPair(eA, eB, point);
+					}
+
+					// 前フレームの結果を確認（すり抜け判定）
+					bool inShadow = shadowTestSystem->AreBothInShadow(eA, eB);
+					DebugLogInfo("[CollisionResolve] AreBothInShadow({}, {}) = {}", eA.id_, eB.id_, inShadow);
+					
+					if (inShadow) { continue; }
 				}
 
 				// 設置判定の更新
-				// 地面接触の更新用ラムダ
 				auto tryUpdateGroundContact = [&](Entity _self, Entity _other, const XMFLOAT3& _normal)
 					{
-						if (!ecs_.HasComponent<GroundContact>(_self)) { return; } // GroundContact持ってないならスキップ
-						if (_normal.y > GROUND_NORMAL_Y_THRESHOLD) { return; } // 法線のY成分が閾値を超えていたらスキップ
+						if (!ecs_.HasComponent<GroundContact>(_self)) { return; }
+						if (_normal.y > GROUND_NORMAL_Y_THRESHOLD) { return; }
 
 						auto& gc = ecs_.GetComponent<GroundContact>(_self);
 						gc.isGrounded = true;
 
 						if (_normal.y > gc.groundNormalY) {
 							gc.groundNormalY = _normal.y;
-							// gc.groundEntity = _other; // todo: 動く床対応が必要になったら有効化
 						}
 					};
 				const XMFLOAT3& nAB = contact->normal;
@@ -219,7 +340,7 @@ namespace ecs {
 					tfB.AddPosition(dispB);
 				}
 
-				// 反発
+				// 反発処理（既存コードと同じ）
 				float invMassA = 0.0f;
 				float invMassB = 0.0f;
 				Rigidbody* pRbA = nullptr;
@@ -294,6 +415,11 @@ namespace ecs {
 					if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
 				}
 			}
+		}
+
+
+		if (shadow_collision_enabled_ && shadowTestSystem) {
+			shadowTestSystem->ExecuteShadowTests();
 		}
 	}
 } // namespace ecs

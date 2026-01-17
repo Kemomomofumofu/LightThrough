@@ -42,6 +42,7 @@ namespace ecs {
 	//! @brief コンストラクタ
 	DebugRenderSystem::DebugRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
+		, engine_(_desc.graphicsEngine)
 	{
 
 	}
@@ -50,7 +51,7 @@ namespace ecs {
 	void DebugRenderSystem::Init()
 	{
 #if defined(DEBUG) || defined(_DEBUG)
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 
 		cb_per_frame_ = device.CreateConstantBuffer({
 			sizeof(CBPerFrame),
@@ -63,8 +64,8 @@ namespace ecs {
 			});
 
 		// ハンドルの取得
-		cube_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Cube");
-		sphere_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Sphere");
+		cube_mesh_.handle = engine_.GetMeshRegistry().GetHandleByName("Cube");
+		sphere_mesh_.handle = engine_.GetMeshRegistry().GetHandleByName("Sphere");
 
 
 		debug::DebugUI::ResistDebugFunction([this]()
@@ -241,7 +242,7 @@ namespace ecs {
 		// コマンドがなければスキップ
 		if (commands_.empty()) { return; }
 
-		auto& dc = engine_->GetDeferredContext();
+		auto& dc = engine_.GetDeferredContext();
 		ID3D11PixelShader* prevPS = nullptr;
 
 
@@ -278,7 +279,7 @@ namespace ecs {
 		// 描画
 		for (auto& cmd : commands_) {
 			// メッシュの取得
-			auto mesh = engine_->GetMeshRegistry().Get(cmd.mesh.handle);
+			auto mesh = engine_.GetMeshRegistry().Get(cmd.mesh.handle);
 			// オブジェクト単位のCB更新
 			CBPerObject cbPerObjectData{};
 			cbPerObjectData.world = cmd.world;
@@ -294,7 +295,7 @@ namespace ecs {
 				cmd.wireframe ? dx3d::RasterMode::Wireframe : dx3d::RasterMode::SolidBack
 			);
 
-			engine_->Render(*mesh->vb, *mesh->ib, psoKey);
+			engine_.Render(*mesh->vb, *mesh->ib, psoKey);
 		}
 		commands_.clear();
 

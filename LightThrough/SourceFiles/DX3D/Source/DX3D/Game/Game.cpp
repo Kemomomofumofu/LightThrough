@@ -16,9 +16,11 @@
 
 #include <Game/Systems/TransformSystem.h>
 #include <Game/Systems/CameraSystem.h>
-#include <Game/Systems/Gimmicks/ShadowTestSystem.h>
-#include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Initialization/Resolve/ObjectResolveSystem.h>
+#include <Game/Systems/Initialization/Resolve/MoveDirectionSourceResolveSystem.h>
 #include <Game/Systems/Renderers/LightDepthRenderSystem.h>
+#include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Renderers/OutlineRenderSystem.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
@@ -27,8 +29,7 @@
 #include <Game/Systems/Physics/ClearForcesSystem.h>
 #include <Game/Systems/PlayerControllerSystem.h>
 #include <Game/Systems/Scenes/TitleSceneSystem.h>
-#include <Game/Systems/Initialization/Resolve/ObjectResolveSystem.h>
-#include <Game/Systems/Initialization/Resolve/MoveDirectionSourceResolveSystem.h>
+#include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 
 #include <Game/Components/Render/MeshRenderer.h>
 #include <Game/Components/Core/Transform.h>
@@ -76,53 +77,49 @@ namespace {
 	 * @brief システムの登録
 	 * @param _ecs ECSのコーディネーター
 	 */
-	void RegisterAllSystems(ecs::SystemDesc& _desc, dx3d::GraphicsEngine& _engine)
+	void RegisterAllSystems(ecs::SystemDesc& _systemDesc)
 	{
-		auto& ecs = _desc.ecs;
+		auto& ecs = _systemDesc.ecs;
 
 		// ---------- 初期化関係 ---------- //
-		_desc.oneShot = true;
-		ecs.RegisterSystem<ecs::ObjectResolveSystem>(_desc);
-		ecs.RegisterSystem<ecs::MoveDirectionSourceResolveSystem>(_desc);
+		_systemDesc.oneShot = true;
+		ecs.RegisterSystem<ecs::ObjectResolveSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::MoveDirectionSourceResolveSystem>(_systemDesc);
 
 		// ---------- ゲーム関係 ---------- //
-		_desc.oneShot = false;
+		_systemDesc.oneShot = false;
 		// 入力関係
-		ecs.RegisterSystem<ecs::PlayerControllerSystem>(_desc);
+		ecs.RegisterSystem<ecs::PlayerControllerSystem>(_systemDesc);
 
 		// ---------- 衝突関係 ---------- // 
-		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_desc);
-		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_desc);
-		ecs.RegisterSystem<ecs::IntegrationSystem>(_desc);
-		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_desc);
+		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::IntegrationSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_systemDesc);
 
-		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_desc);
-		const auto& lightDepthRenderSystem = ecs.GetSystem<ecs::LightDepthRenderSystem>();
-		lightDepthRenderSystem->SetGraphicsEngine(_engine);
+		// ShadowMap描画
+		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_systemDesc);
 
-		ecs.RegisterSystem<ecs::ShadowTestSystem>(_desc);
-		const auto& shadowTest = ecs.GetSystem<ecs::ShadowTestSystem>();
-		shadowTest->SetGraphicsEngine(_engine);
+		ecs.RegisterSystem<ecs::ShadowTestSystem>(_systemDesc);
 
-		ecs.RegisterSystem<ecs::ClearForcesSystem>(_desc);
+		ecs.RegisterSystem<ecs::ClearForcesSystem>(_systemDesc);
 
 		// タイトル独自の更新
-		ecs.RegisterSystem<ecs::TitleSceneSystem>(_desc);
+		ecs.RegisterSystem<ecs::TitleSceneSystem>(_systemDesc);
 
 		// 位置更新
-		ecs.RegisterSystem<ecs::TransformSystem>(_desc);
+		ecs.RegisterSystem<ecs::TransformSystem>(_systemDesc);
 
 		// カメラ
-		ecs.RegisterSystem<ecs::CameraSystem>(_desc);
+		ecs.RegisterSystem<ecs::CameraSystem>(_systemDesc);
 		// 描画システム
-		ecs.RegisterSystem<ecs::RenderSystem>(_desc);
-		const auto& renderSystem = ecs.GetSystem<ecs::RenderSystem>();
-		renderSystem->SetGraphicsEngine(_engine);
+		ecs.RegisterSystem<ecs::RenderSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::OutlineRenderSystem>(_systemDesc);
 
+#if defined(_DEBUG) || defined(DEBUG)
 		// デバッグ描画システム
-		ecs.RegisterSystem<ecs::DebugRenderSystem>(_desc);
-		const auto& debugRenderSystem = ecs.GetSystem<ecs::DebugRenderSystem>();
-		debugRenderSystem->SetGraphicsEngine(_engine);
+		ecs.RegisterSystem<ecs::DebugRenderSystem>(_systemDesc);
+#endif // defined(_DEBUG) || defined(DEBUG)
 
 		// 全システム初期化
 		ecs.InitAllSystems();
@@ -172,8 +169,8 @@ namespace dx3d {
 			ChangeScene("TestScene");
 
 			// Systemの登録
-			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_ };
-			RegisterAllSystems(systemDesc, *graphics_engine_);
+			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_ };
+			RegisterAllSystems(systemDesc);
 
 
 

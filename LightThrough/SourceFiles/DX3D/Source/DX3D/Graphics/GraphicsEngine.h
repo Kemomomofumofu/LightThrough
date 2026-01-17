@@ -10,6 +10,7 @@
 #include <DX3D/Core/Core.h>
 #include <DX3D/Core/Base.h>
 #include <DX3D/Graphics/ShaderCache.h>
+#include <DX3D/Graphics/SwapChain.h>
 #include <DX3D/Graphics/PipelineCache.h>
 #include <DX3D/Graphics/PipelineKey.h>
 #include <DX3D/Graphics/Meshes/MeshRegistry.h>
@@ -43,8 +44,10 @@ namespace dx3d {
 		MeshRegistry& GetMeshRegistry() noexcept;
 		//! @brief シェーダーキャッシュ取得
 		ShaderCache& GetShaderCache() noexcept { return *shader_cache_; };
+		const Rect& GetScreenSize() { return swap_chain_->GetSize(); }
 
 		void SetSwapChain(SwapChain& _swapChain);
+		
 
 		void BeginFrame();
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib, PipelineKey _key = { VertexShaderKind::Default,

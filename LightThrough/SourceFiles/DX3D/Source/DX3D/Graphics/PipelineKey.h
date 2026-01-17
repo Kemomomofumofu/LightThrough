@@ -13,6 +13,7 @@ namespace dx3d {
 		Default,
 		Instanced,
 		ShadowMap,
+		Fullscreen,
 		Max,
 	};
 
@@ -20,6 +21,7 @@ namespace dx3d {
 		None = 0,
 		Default,
 		Color,
+		Outline,
 		Max,
 	};
 

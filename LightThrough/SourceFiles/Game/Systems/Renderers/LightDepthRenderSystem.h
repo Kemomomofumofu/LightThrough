@@ -39,7 +39,6 @@ namespace ecs {
 		explicit LightDepthRenderSystem(const SystemDesc& _desc);
 		//! @brief 初期化
 		void Init() override;
-		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 		//! @brief 更新
 		void Update(float _dt) override;
 		//! @brief 破棄イベント
@@ -87,7 +86,7 @@ namespace ecs {
 		std::unordered_map<Entity, int> light_to_shadow_index_{};
 		std::vector<DirectX::XMMATRIX> light_view_proj_matrices_{};
 
-		dx3d::GraphicsEngine* engine_{};
+		dx3d::GraphicsEngine& engine_;
 	};
 
 }
