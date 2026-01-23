@@ -221,6 +221,7 @@
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -319,6 +320,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
@@ -336,5 +338,7 @@
     <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Outline.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Fullscreen.hlsl" />
   </ItemGroup>
 </Project>
