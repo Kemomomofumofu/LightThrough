@@ -107,12 +107,10 @@ namespace {
 
 		// 影の中にいるか判定
 		ecs.RegisterSystem<ecs::ShadowTestSystem>(_systemDesc);
-
-		// 地面接地判定
-		ecs.RegisterSystem<ecs::GroundDetectionSystem>(_systemDesc);
-
 		// 押し出し・反発・摩擦など
 		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_systemDesc);
+		// 地面接地判定
+		ecs.RegisterSystem<ecs::GroundDetectionSystem>(_systemDesc);
 
 
 		// 力のクリア等

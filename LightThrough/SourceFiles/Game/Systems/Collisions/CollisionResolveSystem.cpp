@@ -21,15 +21,12 @@
 #include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/Core/Name.h>
 
-#include <Game/Collisions/CollisionUtils.h>
 #include <Debug/Debug.h>
 
 namespace ecs {
 	using namespace DirectX;
 
 	namespace {
-		constexpr float GROUND_NORMAL_Y_THRESHOLD = 0.7f; // 地面法線は上向き(0..1)で判定
-
 		template <class ...Ts>
 		struct Overloaded : Ts... { using Ts::operator()...; };
 		template <class... Ts>
@@ -105,8 +102,8 @@ namespace ecs {
 				XMFLOAT3 right{ 1, 0, 0 };
 				tangent1 = math::Cross(_normal, right);
 			}
-			tangent1 = collision::Normalize(tangent1);
-			tangent2 = collision::Normalize(math::Cross(_normal, tangent1));
+			tangent1 = math::Normalize(tangent1);
+			tangent2 = math::Normalize(math::Cross(_normal, tangent1));
 
 			// グリッド状にサンプリング
 			float step = (_gridSize > 1) ? (2.0f * _radius / (_gridSize - 1)) : 0.0f;
@@ -174,9 +171,7 @@ namespace ecs {
 		const float baumgarte = 0.2f;
 
 		// 接触情報の収集
-		std::vector<ContactRecord> contacts;
-		contacts.reserve(128);
-
+		contacts_.clear();
 		for (size_t i = 0; i < n; ++i) {
 			const Entity eA = ents[i];
 			auto& tfA = ecs_.GetComponent<Transform>(eA);
@@ -211,7 +206,7 @@ namespace ecs {
 				// サンプルポイントの生成
 				// 小さいほうを基準にする
 				const Collider* targetCol = nullptr;
-				XMFLOAT3 surfaceNormal = collision::Normalize(r.contact.normal);
+				XMFLOAT3 surfaceNormal = math::Normalize(r.contact.normal);
 
 				// Box vs Box
 				if (colA.type == collision::ShapeType::Box && colB.type == collision::ShapeType::Box)
@@ -273,12 +268,17 @@ namespace ecs {
 					}
 				}
 
-				contacts.push_back(std::move(r));
+				// 衝突リストに追加
+				contacts_.push_back({
+					eA,
+					eB,
+					r.contact
+					});
 			}
 		}
 
 		// 押し出し・反発・摩擦
-		for (auto& rec : contacts) {
+		for (auto& rec : contacts_) {
 			const Entity eA = rec.a;
 			const Entity eB = rec.b;
 

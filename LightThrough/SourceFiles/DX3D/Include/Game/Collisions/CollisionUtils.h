@@ -72,12 +72,6 @@ namespace dx3d {
 				std::fabs(math::Dot(_b.axis[2], _axis)) * _b.half.z;
 		}
 
-		inline XMFLOAT3 Normalize(const XMFLOAT3& _v)
-		{
-			float len = math::Length(_v);
-			if (len < 1e-6f) { return{ 0, 0, 0 }; }
-			return { _v.x / len, _v.y / len, _v.z / len };
-		}
 
 		// ---------- Õ“Ë”»’èŠÖ” ---------- //
 		inline std::optional<ContactResult> IntersectSphere(const WorldSphere& _sphereA, const WorldSphere& _sphereB)
@@ -246,7 +240,7 @@ namespace dx3d {
 			const XMFLOAT3& normal)
 		{
 			// normal ‚ð³‹K‰»
-			XMFLOAT3 n = Normalize(normal);
+			XMFLOAT3 n = math::Normalize(normal);
 
 			// ŠeŽ²‚Æ‚Ì“àÏ
 			float dx = math::Dot(n, target.axis[0]);
@@ -279,7 +273,7 @@ namespace dx3d {
 		{
 			float corr = (std::max)(_contact.penetration - _slop, 0.0f) * _percent;
 
-			XMFLOAT3 n = Normalize(_contact.normal);
+			XMFLOAT3 n = math::Normalize(_contact.normal);
 			XMFLOAT3 dispA{ 0, 0, 0 };
 			XMFLOAT3 dispB{ 0, 0, 0 };
 
@@ -347,7 +341,7 @@ namespace dx3d {
 			int _samplesPerAxis = 3
 		)
 		{
-			XMFLOAT3 normal = Normalize(_contactNormal);
+			XMFLOAT3 normal = math::Normalize(_contactNormal);
 
 			// ‘ã•\ÚG“_‚ðŽæ“¾
 			XMFLOAT3 center = GetRepresentativeContactPointOnOBB(_targetOBB, normal);
@@ -370,8 +364,8 @@ namespace dx3d {
 				XMFLOAT3 right{ 1, 0, 0 };
 				tangent1 = math::Cross(normal, right);
 			}
-			tangent1 = Normalize(tangent1);
-			tangent2 = Normalize(math::Cross(normal, tangent1));
+			tangent1 = math::Normalize(tangent1);
+			tangent2 = math::Normalize(math::Cross(normal, tangent1));
 
 			float step = (_samplesPerAxis > 1) ? (2.0f * sampleRadius / (_samplesPerAxis - 1)) : 0.0f;
 			float startOffset = -sampleRadius;

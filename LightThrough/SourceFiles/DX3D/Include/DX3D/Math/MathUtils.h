@@ -102,6 +102,18 @@ namespace dx3d {
 			return std::sqrt(LengthSq(_v));
 		}
 
+		/**
+		 * @brief ベクトルの正規化
+		 * @param _v 正規化するベクトル
+		 * @return 正規化されたベクトル
+		 */
+		[[nodiscard]] inline XMFLOAT3 Normalize(const XMFLOAT3& _v)
+		{
+			float len = math::Length(_v);
+			if (len < 1e-6f) { return{ 0, 0, 0 }; }
+			return { _v.x / len, _v.y / len, _v.z / len };
+		}
+
 	} // namespace math
 } // namespace dx3d
 
