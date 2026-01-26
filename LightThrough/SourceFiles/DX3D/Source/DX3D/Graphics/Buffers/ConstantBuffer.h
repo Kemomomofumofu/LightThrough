@@ -34,7 +34,8 @@ namespace dx3d {
 			DX3DGraphicsLogThrowOnFail(device_.CreateBuffer(&bd, pInit, &buffer_), "ConstantBuffer CreateBufferに失敗");
 		}
 
-
+		//! @brief バッファ更新
+		// memo: UpdateはContextの責務にしたほうがContextが動き回らなくてよかったな...反省
 		void Update(DeviceContext& _cxt, const void* _data, size_t _size)
 		{
 			auto context = _cxt.GetDeferredContext().Get();
@@ -56,5 +57,6 @@ namespace dx3d {
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_{};
+
 	};
 }

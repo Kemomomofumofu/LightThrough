@@ -28,14 +28,14 @@ namespace debug {
 		static void Init(bool _showConsole);
 		static void Shutdown(bool waitKey = false);
 
-		// 既存シグネチャを保持（互換）
+		// 既存シグネチャを保持
 		template<typename... Args>
 		static void Log(LogLevel _level, const std::string& _format, Args&&... _args);
 
 		// 生メッセージをそのまま出す場合
 		static void Log(LogLevel _level, std::string_view message);
 
-		// ログレベルのしきい値設定（未満は棄却）
+		// ログレベルのしきい値設定
 		static void SetLevel(LogLevel level) noexcept { level_threshold_ = level; }
 
 	private:

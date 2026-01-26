@@ -24,12 +24,12 @@
 
 namespace {
 	struct CBPerFrame {
-		DirectX::XMMATRIX view;	// ビュー行列
-		DirectX::XMMATRIX proj;	// プロジェクション行列
+		DirectX::XMFLOAT4X4 view;	// ビュー行列
+		DirectX::XMFLOAT4X4 proj;	// プロジェクション行列
 	};
 
 	struct CBPerObject {
-		DirectX::XMMATRIX world;	// ワールド行列
+		DirectX::XMFLOAT4X4 world;	// ワールド行列
 		DirectX::XMFLOAT4 color;	// 色
 	};
 }
@@ -42,6 +42,7 @@ namespace ecs {
 	//! @brief コンストラクタ
 	DebugRenderSystem::DebugRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
+		, engine_(_desc.graphicsEngine)
 	{
 
 	}
@@ -50,7 +51,7 @@ namespace ecs {
 	void DebugRenderSystem::Init()
 	{
 #if defined(DEBUG) || defined(_DEBUG)
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 
 		cb_per_frame_ = device.CreateConstantBuffer({
 			sizeof(CBPerFrame),
@@ -63,9 +64,22 @@ namespace ecs {
 			});
 
 		// ハンドルの取得
-		cube_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Cube");
-		sphere_mesh_.handle = engine_->GetMeshRegistry().GetHandleByName("Sphere");
+		cube_mesh_.handle = engine_.GetMeshRegistry().GetHandleByName("Cube");
+		sphere_mesh_.handle = engine_.GetMeshRegistry().GetHandleByName("Sphere");
+		quad_mesh_.handle = engine_.GetMeshRegistry().GetHandleByName("Quad");
 
+		{
+			D3D11_SAMPLER_DESC sd{};
+			sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+			sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+			sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+			sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 1.0f;
+			sd.MaxAnisotropy = 1;
+			sd.MipLODBias = 0;
+			sd.MinLOD = -FLT_MAX;
+			sd.MaxLOD = FLT_MAX;
+			engine_.GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, shadow_sampler_.GetAddressOf());
+		}
 
 		debug::DebugUI::ResistDebugFunction([this]()
 			{
@@ -93,7 +107,8 @@ namespace ecs {
 		const auto S = XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z);
 		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform.rotationQuat));
 		const auto T = XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
-		cmd.world = S * R * T;
+		auto worldM = S * R * T;
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -108,7 +123,8 @@ namespace ecs {
 		const auto S = XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z);
 		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform.rotationQuat));
 		const auto T = XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
-		cmd.world = S * R * T;
+		auto worldM = S * R * T;
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -117,9 +133,10 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
-		cmd.world =
+		auto worldM =
 			XMMatrixScaling(_radius * 2.0f, _radius * 2.0f, _radius * 2.0f) *
 			XMMatrixTranslation(_center.x, _center.y, _center.z);
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -128,9 +145,10 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
-		cmd.world =
+		auto worldM =
 			XMMatrixScaling(_sphere.radius * 2.0f, _sphere.radius * 2.0f, _sphere.radius * 2.0f) *
 			XMMatrixTranslation(_sphere.center.x, _sphere.center.y, _sphere.center.z);
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -139,9 +157,10 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
-		cmd.world =
+		auto worldM =
 			XMMatrixScaling(_sphere.radius * 2.0f, _sphere.radius * 2.0f, _sphere.radius * 2.0f) *
 			XMMatrixTranslation(_sphere.center.x, _sphere.center.y, _sphere.center.z);
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		cmd.wireframe = true;
 		commands_.emplace_back(std::move(cmd));
@@ -152,9 +171,10 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
-		cmd.world =
+		auto worldM =
 			XMMatrixScaling(_size, _size, _size) *
 			XMMatrixTranslation(_position.x, _position.y, _position.z);
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -179,7 +199,8 @@ namespace ecs {
 		const auto S = XMMatrixScaling(_obb.half.x * 2.0f, _obb.half.y * 2.0f, _obb.half.z * 2.0f);
 		const auto T = XMMatrixTranslation(_obb.center.x, _obb.center.y, _obb.center.z);
 
-		cmd.world = S * rotationMatrix * T;
+		auto worldM = S * rotationMatrix * T;
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 	}
@@ -188,15 +209,18 @@ namespace ecs {
 	{
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
-		XMMATRIX rot = XMMATRIX(
-			XMLoadFloat3(&_obb.axis[0]),
-			XMLoadFloat3(&_obb.axis[1]),
-			XMLoadFloat3(&_obb.axis[2]),
-			XMVectorSet(0, 0, 0, 1));
-		rot = XMMatrixTranspose(rot);
+
+		// OBBの軸から回転行列を構築
+		XMMATRIX rot = XMMatrixIdentity();
+		rot.r[0] = XMVectorSetW(XMLoadFloat3(&_obb.axis[0]), 0.0f);
+		rot.r[1] = XMVectorSetW(XMLoadFloat3(&_obb.axis[1]), 0.0f);
+		rot.r[2] = XMVectorSetW(XMLoadFloat3(&_obb.axis[2]), 0.0f);
+		rot.r[3] = XMVectorSet(0, 0, 0, 1);
+
 		const auto S = XMMatrixScaling(_obb.half.x * 2.0f, _obb.half.y * 2.0f, _obb.half.z * 2.0f);
 		const auto T = XMMatrixTranslation(_obb.center.x, _obb.center.y, _obb.center.z);
-		cmd.world = S * rot * T;
+		auto worldM = S * rot * T;
+		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		cmd.wireframe = true;
 		commands_.emplace_back(std::move(cmd));
@@ -227,6 +251,19 @@ namespace ecs {
 #endif
 	}
 
+
+	//! @brief シャドウマップ描画
+	void DebugRenderSystem::DrawShadowMap(ID3D11ShaderResourceView* _shadowSRV)
+	{
+		DebugCommand cmd;
+		cmd.mesh = quad_mesh_;
+		cmd.world = {}; // 単位行列でスクリーン上に描画
+		XMStoreFloat4x4(&cmd.world, DirectX::XMMatrixScaling(2.0f, 2.0f, 1.0f)); // フルスクリーン Quad
+		cmd.textureSRV = _shadowSRV;
+		commands_.emplace_back(std::move(cmd));
+	}
+
+
 	//! @brief 更新
 	void DebugRenderSystem::Update(float _dt)
 	{
@@ -239,7 +276,7 @@ namespace ecs {
 		// コマンドがなければスキップ
 		if (commands_.empty()) { return; }
 
-		auto& dc = engine_->GetDeferredContext();
+		auto& dc = engine_.GetDeferredContext();
 		ID3D11PixelShader* prevPS = nullptr;
 
 
@@ -252,7 +289,7 @@ namespace ecs {
 		}
 		// メインカメラを探す
 		for (auto& e : camEntities) {
-			auto cameraComp = ecs_.GetComponent<Camera>(e);
+			auto& cameraComp = ecs_.GetComponent<Camera>(e);
 			if (cameraComp.isActive && cameraComp.isMain) {
 				cameraEnt = e;
 				break;
@@ -267,8 +304,8 @@ namespace ecs {
 		// 定数バッファ更新
 		// フレーム単位の定数バッファ更新
 		CBPerFrame cbPerFrameData{};
-		cbPerFrameData.view = cam.view;
 		cbPerFrameData.proj = cam.proj;
+		cbPerFrameData.view = cam.view;
 
 		cb_per_frame_->Update(dc, &cbPerFrameData, sizeof(cbPerFrameData));
 		dc.VSSetConstantBuffer(0, *cb_per_frame_);
@@ -276,7 +313,7 @@ namespace ecs {
 		// 描画
 		for (auto& cmd : commands_) {
 			// メッシュの取得
-			auto mesh = engine_->GetMeshRegistry().Get(cmd.mesh.handle);
+			auto mesh = engine_.GetMeshRegistry().Get(cmd.mesh.handle);
 			// オブジェクト単位のCB更新
 			CBPerObject cbPerObjectData{};
 			cbPerObjectData.world = cmd.world;
@@ -284,15 +321,29 @@ namespace ecs {
 			cb_per_object_->Update(dc, &cbPerObjectData, sizeof(cbPerObjectData));
 			dc.VSSetConstantBuffer(1, *cb_per_object_);
 
-			auto psoKey = dx3d::BuildPipelineKey(
-				dx3d::VertexShaderKind::Default,
-				dx3d::PixelShaderKind::Color,
-				dx3d::BlendMode::Alpha,
-				dx3d::DepthMode::ReadOnly,
-				cmd.wireframe ? dx3d::RasterMode::Wireframe : dx3d::RasterMode::SolidBack
-			);
+			dx3d::PipelineKey psoKey;
+			if (cmd.textureSRV) {
+				dc.PSSetShaderResources(0, 1, &cmd.textureSRV);
+				dc.PSSetSamplers(0, 1, shadow_sampler_.GetAddressOf());
+				psoKey = dx3d::BuildPipelineKey(
+					dx3d::VertexShaderKind::Default,
+					dx3d::PixelShaderKind::ShadowDebug,
+					dx3d::BlendMode::Alpha,
+					dx3d::DepthMode::Disable,
+					dx3d::RasterMode::SolidBack
+				);
+			}
+			else {
+				psoKey = dx3d::BuildPipelineKey(
+					dx3d::VertexShaderKind::Default,
+					dx3d::PixelShaderKind::Color,
+					dx3d::BlendMode::Alpha,
+					dx3d::DepthMode::ReadOnly,
+					cmd.wireframe ? dx3d::RasterMode::Wireframe : dx3d::RasterMode::SolidBack
+				);
+			}
 
-			engine_->Render(*mesh->vb, *mesh->ib, psoKey);
+			engine_.Render(*mesh->vb, *mesh->ib, psoKey);
 		}
 		commands_.clear();
 

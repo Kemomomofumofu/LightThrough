@@ -23,7 +23,7 @@ namespace ecs {
 		mutable XMFLOAT3 eulerDegCache{ 0.0f, 0.0f, 0.0f };
 
 		//! キャッシュ用
-		mutable XMFLOAT4X4 world{
+		XMFLOAT4X4 world{
 			1, 0, 0, 0,
 			0, 1, 0, 0,
 			0, 0, 1, 0,
@@ -316,7 +316,7 @@ namespace ecs {
 			return std::atan2f(fx, fz);
 		}
 
-		//! @brief ライト/カメラ用のLookTo行列
+		//! @brief カメラ用のLookTo行列
 		const XMMATRIX MakeLookToLH() const
 		{
 			RecalcAxes();

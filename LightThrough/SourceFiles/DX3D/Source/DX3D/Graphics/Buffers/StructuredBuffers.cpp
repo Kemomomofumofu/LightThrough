@@ -13,6 +13,7 @@ namespace dx3d {
     //! @brief StructuredBufferコンストラクタ
 	StructuredBuffer::StructuredBuffer(const StructuredBufferDesc& _desc, const GraphicsResourceDesc& _gDesc)
         : GraphicsResource(_gDesc)
+		, immediate_(_gDesc.immediateContext)
     {
 		// バッファ作成
         D3D11_BUFFER_DESC bd{};
@@ -48,20 +49,19 @@ namespace dx3d {
         );
     }
 
-    void StructuredBuffer::Update(DeviceContext& _context, const void* _data, size_t _size)
+	//! @brief バッファ更新
+    void StructuredBuffer::Update(const void* _data, size_t _size)
     {
         if (!_data || _size == 0) { return; }
 
-        auto context = _context.GetDeferredContext().Get();
-
         D3D11_MAPPED_SUBRESOURCE mapped{};
         DX3DGraphicsLogThrowOnFail(
-            context->Map(buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped),
+            immediate_->Map(buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped),
             "[StructuredBuffer] Mapに失敗"
         );
 
         memcpy(mapped.pData, _data, _size);
-        context->Unmap(buffer_.Get(), 0);
+        immediate_->Unmap(buffer_.Get(), 0);
     }
 
 
@@ -115,6 +115,7 @@ namespace dx3d {
         );
     }
 
+	// @brief バッファマップ
     void* StagingBuffer::Map()
     {
         D3D11_MAPPED_SUBRESOURCE mapped{};
@@ -126,6 +127,7 @@ namespace dx3d {
         return mapped.pData;
     }
 
+	// @brief バッファアンマップ
     void StagingBuffer::Unmap()
     {
         immediate_->Unmap(buffer_.Get(), 0);

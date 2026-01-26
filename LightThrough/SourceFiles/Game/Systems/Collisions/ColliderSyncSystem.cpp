@@ -34,7 +34,7 @@ namespace ecs {
 
 
 	/**
-	 * @brief 球形状の構築
+	 * @brief 形状の構築
 	 * @param _dt
 	 */
 	void ColliderSyncSystem::FixedUpdate(float _fixedDt)
@@ -43,7 +43,7 @@ namespace ecs {
 			auto& tf = ecs_.GetComponent<Transform>(e);
 			auto& col = ecs_.GetComponent<Collider>(e);
 
-			// Transformに変更があった場合のみ更新
+			// Transformに変更がなかった場合のみ更新
 			if (col.isStatic && !col.shapeDirty && !tf.dirty) { continue; }
 
 			// ワールド行列の更新
@@ -67,7 +67,6 @@ namespace ecs {
 
 			// 変更フラグをリセット
 			col.shapeDirty = false;
-			tf.dirty = false;
 		}
 	}
 
@@ -83,35 +82,29 @@ namespace ecs {
 
 	void ColliderSyncSystem::BuildOBB(const Transform& _tf, Collider& _col)
 	{
+		using namespace DirectX;
+		
 		const auto& b = _col.box;
 
-		// 行列軸の取得
-		XMFLOAT3 rawX{ _tf.world._11, _tf.world._12, _tf.world._13 };
-		XMFLOAT3 rawY{ _tf.world._21, _tf.world._22, _tf.world._23 };
-		XMFLOAT3 rawZ{ _tf.world._31, _tf.world._32, _tf.world._33 };
+		// クォータニオンから直接軸を計算
+		XMVECTOR q = XMQuaternionNormalize(XMLoadFloat4(&_tf.rotationQuat));
+		
+		// 基底軸をクォータニオンで回転
+		XMVECTOR axisX = XMVector3Rotate(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), q);
+		XMVECTOR axisY = XMVector3Rotate(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), q);
+		XMVECTOR axisZ = XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), q);
 
-		// 各軸の長さ
-		auto len = [](const XMFLOAT3& _v) {
-			return std::sqrt(_v.x * _v.x + _v.y * _v.y + _v.z * _v.z);
-			};
-		float lx = len(rawX);
-		float ly = len(rawY);
-		float lz = len(rawZ);
+		// 正規化して格納
+		XMStoreFloat3(&_col.worldOBB.axis[0], XMVector3Normalize(axisX));
+		XMStoreFloat3(&_col.worldOBB.axis[1], XMVector3Normalize(axisY));
+		XMStoreFloat3(&_col.worldOBB.axis[2], XMVector3Normalize(axisZ));
 
-		// 正規化
-		auto norm = [&](const XMFLOAT3& _v, float _l) -> XMFLOAT3 {
-			if (_l < 1e-8f) { return XMFLOAT3{ 0, 0, 0 }; }
-			return { _v.x / _l, _v.y / _l, _v.z / _l };
-			};
-
+		// 中心と半径
 		_col.worldOBB.center = _tf.position;
-		_col.worldOBB.axis[0] = norm(rawX, lx);
-		_col.worldOBB.axis[1] = norm(rawY, ly);
-		_col.worldOBB.axis[2] = norm(rawZ, lz);
 		_col.worldOBB.half = {
-			b.halfExtents.x * lx,
-			b.halfExtents.y * ly,
-			b.halfExtents.z * lz,
+			b.halfExtents.x * _tf.scale.x,
+			b.halfExtents.y * _tf.scale.y,
+			b.halfExtents.z * _tf.scale.z,
 		};
 
 		const auto& h = _col.worldOBB.half;

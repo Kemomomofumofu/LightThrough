@@ -32,11 +32,11 @@ namespace ecs {
 		explicit RenderSystem(const SystemDesc& _desc);
 		//! @brief 初期化
 		void Init() override;
-		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
 		//! @brief 更新
 		void Update(float _dt) override;
-		//! @brief 破棄イベント
-		void OnEntityDestroyed(Entity _entity) override;
+
+		ID3D11ShaderResourceView* GetDepthSRV() const { return depth_srv_.Get(); }
+		ID3D11ShaderResourceView* GetSceneColorSRV() const { return scene_color_srv_.Get(); }
 	private:
 		//! @brief バッチ収集
 		void CollectBatches(const DirectX::XMFLOAT3& _camPos);
@@ -47,9 +47,6 @@ namespace ecs {
 		//! @brief インスタンスバッファの作成またはリサイズ
 		void CreateOrResizeInstanceBufferMain(size_t _requiredInstanceCapacity);
 
-
-
-	private:
 		//! @brief インスタンス描画用バッチ構造体
 		struct InstanceBatchMain {
 			dx3d::VertexBufferPtr vb{};
@@ -60,8 +57,9 @@ namespace ecs {
 			dx3d::PipelineKey key{};
 			float sortKey = 0.0f; // ソート用キー
 		};
+	private: 
 
-		dx3d::GraphicsEngine* engine_{};
+		dx3d::GraphicsEngine& engine_;
 		// バッチ
 		std::vector<InstanceBatchMain> opaque_batches_{};
 		std::vector<InstanceBatchMain> transparent_batches_{};
@@ -73,6 +71,9 @@ namespace ecs {
 		dx3d::ConstantBufferPtr cb_per_object_{};	// [ToDo] 単体描画用/マテリアル毎とか？？？
 		dx3d::ConstantBufferPtr cb_light_matrix_{};
 		dx3d::ConstantBufferPtr cb_lighting_{};
+		// 深度バッファ用SRV
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> depth_srv_;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scene_color_srv_;
 	};
 
 }

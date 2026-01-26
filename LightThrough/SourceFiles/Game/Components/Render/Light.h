@@ -14,28 +14,40 @@ namespace ecs {
 
 	constexpr int MAX_LIGHTS = 16;
 
-	enum class LightType : uint32_t {
+	struct LightViewProj
+	{
+		DirectX::XMMATRIX view;
+		DirectX::XMMATRIX proj;
+	};
+
+	enum class LightType : uint32_t
+	{
 		Directional = 0,
 		Spot,
 		//Point,
 	};
 
-	//! ライト共通データ
-	struct LightCommon {
+	//! @brief ライト共通データ
+	struct LightCommon
+	{
 		DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };	// 色
 		float intensity = 1.0f;									// 乗算係数
 		bool enabled = true;									// 有効フラグ
 		uint32_t _pad0[3]{};
 	};
 
-	//! 平行光源
-	struct DirectionalLight {
+
+
+	//! @brief 平行光源
+	struct DirectionalLight
+	{
 		// Transformを使用
 	};
 
 
 	//! @brief スポットライト
-	struct SpotLight {
+	struct SpotLight
+	{
 		float range = 10.0f;	// 到達距離
 		float innerCos = 0.9f;	// 内側コサイン
 		float outerCos = 0.8f;	// 外側コサイン
@@ -49,7 +61,8 @@ namespace ecs {
 	};
 
 	// GPUに送る際に使う構造体
-	struct LightCPU {
+	struct LightCPU
+	{
 		/* type */
 		// 0: Directional
 		// 1: Spot
@@ -59,20 +72,28 @@ namespace ecs {
 		DirectX::XMFLOAT4 spotAngles_shadowIndex{}; // x = innerCos, y = outerCos, z = shadowMapIndex ,w 未使用
 	};
 
-	struct CBLight {
+	struct CBLight
+	{
 		int lightCount; uint32_t _pad0[3];
 		LightCPU lights[MAX_LIGHTS];
-		DirectX::XMMATRIX lightViewProj[MAX_LIGHTS]; // 各ライトのビュー射影行列
+		DirectX::XMFLOAT4X4 lightViewProj[MAX_LIGHTS]; // 各ライトのビュー射影行列
 	};
 
-	struct CBLightMatrix {
-		DirectX::XMMATRIX lightViewProj;
+	struct CBLightMatrix
+	{
+		DirectX::XMFLOAT4X4 lightViewProj;
 	};
 
 	static_assert(sizeof(LightCPU) == 64, "LightCPUのサイズが不正(4 * 16 bytes)");
 
 
-
+	/**
+	 * @brief LightCPU構築
+	 * @param _tf transformComponent
+	 * @param _common lightCommonComponent
+	 * @param _spot spotLightComponentのポインタ(スポットライトでない場合はnullptr)
+	 * @return 構築されたLightCPU
+	 */
 	inline LightCPU BuildLightCPU(const Transform& _tf, const LightCommon& _common, const SpotLight* _spot)
 	{
 		using namespace DirectX;
@@ -99,23 +120,46 @@ namespace ecs {
 		return L;
 	}
 
-	inline DirectX::XMMATRIX BuildLightViewProj(const Transform& _tf, const SpotLight* _spot, float _nearZ = 0.1f)
+	inline LightViewProj BuildLightViewProj(const Transform& _tf, const SpotLight* _spot, float _nearZ = 0.1f)
 	{
 		using namespace DirectX;
-		const XMMATRIX V = _tf.MakeLookToLH();
-		if (_spot) {
-			const float fovY = _spot->CulcFovYRadians();
-			const float farZ = (std::max)(1.0f, _spot->range);
-			const XMMATRIX P = XMMatrixPerspectiveFovLH(fovY, 1.0f, _nearZ, farZ);
-
-			return XMMatrixMultiply(V, P);
+		
+		// Transformの現在の方向ベクトルを取得
+		XMVECTOR f = XMVector3Normalize(XMLoadFloat3(&_tf.GetForward()));
+		XMVECTOR u = XMVector3Normalize(XMLoadFloat3(&_tf.GetUp()));
+		
+		// 前方向と上方向がほぼ平行な場合は別の上方向を使用
+		float dotFU = XMVectorGetX(XMVector3Dot(f, u));
+		if (fabsf(dotFU) > 0.98f) {
+			// 別軸を試す
+			XMVECTOR alt = XMVectorSet(0, 0, 1, 0);
+			if (fabsf(XMVectorGetX(XMVector3Dot(f, alt))) > 0.9f) {
+				alt = XMVectorSet(1, 0, 0, 0);
+			}
+			u = XMVector3Normalize(XMVector3Cross(alt, f));
 		}
 		else {
-			const float orthoSize = 20.0f;
-			const XMMATRIX P = XMMatrixOrthographicLH(orthoSize * 2.0f, orthoSize * 2.0f, 0.1f, 1000.0f);
-
-			return XMMatrixMultiply(V, P);
+			// 直交化: upからforwardへの射影成分を除去
+			u = XMVector3Normalize(u - f * XMVectorGetX(XMVector3Dot(f, u)));
 		}
+		
+		// ビュー行列を構築
+		XMVECTOR eye = XMLoadFloat3(&_tf.position);
+		XMMATRIX view = XMMatrixLookToLH(eye, f, u);
+
+		// 射影行列を構築
+		XMMATRIX proj;
+		if (_spot) {
+			float fovY = _spot->CulcFovYRadians();
+			float farZ = (std::max)(1.0f, _spot->range);
+			proj = XMMatrixPerspectiveFovLH(fovY, 1.0f, _nearZ, farZ);
+		}
+		else {
+			float orthoSize = 20.0f;
+			proj = XMMatrixOrthographicLH(orthoSize * 2.0f, orthoSize * 2.0f, 0.1f, 1000.0f);
+		}
+
+		return { view, proj };
 	}
 }
 

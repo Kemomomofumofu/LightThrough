@@ -24,7 +24,7 @@ float Lambert(float3 _n, float3 _l)
 // ディレクショナルライトの計算
 float ComputeDirectional(LightPacked _light, float3 _normal)
 {
-    float L = normalize(-_light.dir_range.xyz);
+    float3 L = normalize(-_light.dir_range.xyz);
     return Lambert(_normal, L);
 
 }

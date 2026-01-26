@@ -64,6 +64,11 @@ namespace dx3d {
 	{
 		return *deferred_context_;
 	}
+	//! @brief 即時コンテキスト取得
+	ID3D11DeviceContext* GraphicsEngine::GetImmediateContext() noexcept
+	{
+		return graphics_device_->GetImmediateContext();
+	}
 	//! @brief スワップチェイン設定
 	void GraphicsEngine::SetSwapChain(SwapChain& _swapChain)
 	{

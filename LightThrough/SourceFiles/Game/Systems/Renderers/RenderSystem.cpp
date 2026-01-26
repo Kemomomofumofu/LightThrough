@@ -27,11 +27,11 @@
 
 namespace {
 	struct CBPerFrame {
-		DirectX::XMMATRIX view;	// ビュー行列
-		DirectX::XMMATRIX proj;	// プロジェクション行列
+		DirectX::XMFLOAT4X4 view;	// ビュー行列
+		DirectX::XMFLOAT4X4 proj;	// プロジェクション行列
 	};
 	struct CBPerObject {
-		DirectX::XMMATRIX world;	// ワールド行列
+		DirectX::XMFLOAT4X4 world;	// ワールド行列
 		DirectX::XMFLOAT4 color;	// 色
 	};
 
@@ -43,6 +43,7 @@ namespace ecs {
 	 */
 	RenderSystem::RenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
+		, engine_(_desc.graphicsEngine)
 	{
 	}
 
@@ -54,7 +55,7 @@ namespace ecs {
 		signature.set(ecs_.GetComponentType<MeshRenderer>());
 		ecs_.SetSystemSignature<RenderSystem>(signature);
 
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 		// ConstantBuffer作成
 		cb_per_frame_ = device.CreateConstantBuffer({	// vsスロット0
 			sizeof(CBPerFrame),
@@ -78,8 +79,8 @@ namespace ecs {
 	 */
 	void RenderSystem::Update(float _dt)
 	{
-		auto& context = engine_->GetDeferredContext();
-		auto& device = engine_->GetGraphicsDevice();
+		auto& context = engine_.GetDeferredContext();
+		auto& device = engine_.GetGraphicsDevice();
 
 		// Camera取得 memo: 現状カメラは一つだけを想定
 		auto camEntities = ecs_.GetEntitiesWithComponent<Camera>();
@@ -97,60 +98,48 @@ namespace ecs {
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
 		context.VSSetConstantBuffer(0, *cb_per_frame_);	// 頂点シェーダーのスロット0にセット
 
-
 		// 他システムからライト深度情報を取得
-		auto shadowSystem = ecs_.GetSystem<LightDepthRenderSystem>();
-		auto shadowSRV = shadowSystem->GetShadowMapSRV();
-		auto shadowSampler = shadowSystem->GetShadowSampler();
-
-		// PSにリソースをバインド
-		if (shadowSRV) {
-			ID3D11ShaderResourceView* srvs[1] = { shadowSRV };
-			context.PSSetShaderResources(0, 1, srvs);	// t0
-			ID3D11SamplerState* samps[1] = { shadowSampler };
-			context.PSSetSamplers(0, 1, samps);			// s0
-		}
+		auto depthSystem = ecs_.GetSystem<LightDepthRenderSystem>();
+		const auto& shadowLights = depthSystem->GetShadowLights();
 
 		// ---------- ライト処理 ---------- // 
-		// 共通処理
+		// ライト共通処理
 		CBLight lightData{};
 		int lightSum = 0;
-		for (auto& e : ecs_.GetEntitiesWithComponent<LightCommon>()) {
-			if (lightSum >= MAX_LIGHTS) { break; }	// ライトの総数が多すぎるなら
 
-			auto& common = ecs_.GetComponent<LightCommon>(e);
-			if (!common.enabled) { continue; }	// 無効状態なら
+		for (size_t i = 0; i < shadowLights.size(); ++i) {
+			if (lightSum >= MAX_LIGHTS) { break; }
 
-			SpotLight* spotPtr = nullptr;
-			if (ecs_.HasComponent<SpotLight>(e)) {
-				spotPtr = &ecs_.GetComponent<SpotLight>(e);
+			const auto& entry = shadowLights[i];
+			auto& tf = ecs_.GetComponent<Transform>(entry.light);
+			auto& common = ecs_.GetComponent<LightCommon>(entry.light);
+			SpotLight* spotLight = nullptr;
+			if (ecs_.HasComponent<SpotLight>(entry.light)) {
+				spotLight = &ecs_.GetComponent<SpotLight>(entry.light);
 			}
 
-			// 方向の取得
-			auto& tf = ecs_.GetComponent<Transform>(e);
-#ifdef _DEBUG || DEBUG
+			lightData.lights[lightSum] = BuildLightCPU(tf, common, spotLight);
+			lightData.lights[lightSum].spotAngles_shadowIndex.z = entry.sliceIndex;
+			lightData.lightViewProj[lightSum] = entry.lightViewProj;
 
+			++lightSum;
+
+#if defined(_DEBUG) || defined(DEBUG)
 			// ライトの位置に丸を描画。
 			auto debugRender = ecs_.GetSystem<DebugRenderSystem>();
 			debugRender->DrawSphere(tf);
-#endif // _DEBUG || DEBUG
-
-			// パック
-			lightData.lights[lightSum] = BuildLightCPU(tf, common, spotPtr);
-
-			int shadowIndex = -1;
-			DirectX::XMMATRIX lightMatrix;
-			if (shadowSystem->GetShadowInfo(e, shadowIndex, lightMatrix)) {
-				lightData.lights[lightSum].spotAngles_shadowIndex.z = shadowIndex;
-				lightData.lightViewProj[lightSum] = lightMatrix;
-			}
-			else {
-				lightData.lights[lightSum].spotAngles_shadowIndex.z = -1.0f;	// シャドウマップなし
-			}
-
-			++lightSum;
+#endif // defined(_DEBUG) || defined(DEBUG)
 		}
+
 		lightData.lightCount = lightSum;
+
+		// SRVセット
+		ID3D11ShaderResourceView* srv = depthSystem->GetShadowMapSRVs();
+		context.PSSetShaderResources(0, 1, &srv);
+
+		// サンプラーセット
+		auto shadowSampler = depthSystem->GetShadowSampler();
+		context.PSSetSamplers(0, 1, &shadowSampler);
 
 		// バッチ処理
 		opaque_batches_.clear();	// バッチクリア
@@ -161,16 +150,8 @@ namespace ecs {
 
 		// メインパス
 		RenderMainPass(lightData);
-
 	}
 
-	/**
-	 * @brief エンティティ破棄イベント
-	 */
-	void RenderSystem::OnEntityDestroyed(Entity _entity)
-	{
-
-	}
 
 
 	/**
@@ -203,7 +184,7 @@ namespace ecs {
 			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
 
-			auto& mr = engine_->GetMeshRegistry();
+			auto& mr = engine_.GetMeshRegistry();
 			auto meshData = mr.Get(mesh.handle);
 
 			// todo: マテリアルからpsoを取得するつくりにする
@@ -249,13 +230,13 @@ namespace ecs {
 			}
 
 			// インスタンスデータ追加
-			dx3d::InstanceDataMain dm{};
+            dx3d::InstanceDataMain dm{};
 			dm.world = tf.world;
 			dm.color = { 1, 1, 1, 1 };	// todo: 色実装次第、参照するように
-			(*targetBatches)[batchIndex].instances.emplace_back(dm);
+            (*targetBatches)[batchIndex].instances.emplace_back(dm);
 
 			// 半透明なら
-			if(psoKey.GetBlend() == dx3d::BlendMode::Alpha) {
+			if (psoKey.GetBlend() == dx3d::BlendMode::Alpha) {
 				DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&tf.position);
 				DirectX::XMVECTOR camPos = DirectX::XMLoadFloat3(&_camPos);
 				float distance = DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(DirectX::XMVectorSubtract(pos, camPos)));
@@ -304,13 +285,13 @@ namespace ecs {
 				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceDataMain)),
 				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceDataMain))
 			};
-			instance_buffer_main_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
+			instance_buffer_main_ = engine_.GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
 	}
 
 	void RenderSystem::RenderMainPass(CBLight& _lightData)
 	{
-		auto& context = engine_->GetDeferredContext();
+		auto& context = engine_.GetDeferredContext();
 
 		// ライティングCB更新
 		cb_lighting_->Update(context, &_lightData, sizeof(_lightData));
@@ -326,7 +307,7 @@ namespace ecs {
 			if (b.instances.empty()) { continue; }
 
 			// 描画
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
+			engine_.RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
 		}
 
 		// 透明オブジェクトのソート（カメラから遠い順）
@@ -337,7 +318,7 @@ namespace ecs {
 		for (auto& b : transparent_batches_) {
 			if (b.instances.empty()) { continue; }
 			// 描画
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
+			engine_.RenderInstanced(*b.vb, *b.ib, *instance_buffer_main_, b.instances.size(), b.instanceOffset, b.key);
 		}
 
 

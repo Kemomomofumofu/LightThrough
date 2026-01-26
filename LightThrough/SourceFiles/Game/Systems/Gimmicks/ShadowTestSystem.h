@@ -22,6 +22,7 @@ namespace ecs {
 	struct ShadowTestResult {
 		bool aInShadow = false; // Entity Aが影の中にいるか
 		bool bInShadow = false; // Entity Bが影の中にいるか
+		bool allContactPointsInShadow = false;  // すべての接触点が影の中か
 	};
 
 
@@ -32,16 +33,15 @@ namespace ecs {
 		//! @brief 初期化
 		void Init() override;
 		//! @brief 更新
-		void FixedUpdate(float _dt) override;
-		//! @brief Engineのセット
-		void SetGraphicsEngine(dx3d::GraphicsEngine& _engine) { engine_ = &_engine; }
-		
+		void Update(float _dt) override;
+		void FixedUpdate(float _fixedDt) override;
+
 		/**
 		 * @brief 影判定の結果を取得
 		 * @param[in] _a: エンティティA
 		 * @param[in] _b: エンティティB
 		 * @param[out] _outResult: 影判定結果の出力先
-		 * @return true: , false: 
+		 * @return true: , false:
 		 */
 		bool GetShadowTestResult(Entity _a, Entity _b, ShadowTestResult& _outResult) const;
 
@@ -59,25 +59,36 @@ namespace ecs {
 		//! @brief 両方とも影の中にいるか
 		bool AreBothInShadow(Entity _a, Entity _b) const;
 
+		//! @brief 影判定の実行
+		void ExecuteShadowTests();
 	private:
 		//! @brief コンピュート用リソースの作成
 		void CreateComputeResources();
-		//! @brief 影判定の実行
-		void ExecuteShadowTests();
 		//! @brief テスト用のポイント収集
 		void CollectTestPoints(Entity _entity, std::vector<DirectX::XMFLOAT3>& _outPoints);
 
+	private:
 		//! @brief CS用定数バッファ
 		struct alignas(16) CSParams {
-			DirectX::XMMATRIX lightViewProj;
+			DirectX::XMFLOAT4X4 lightViewProj;
+
 			uint32_t numPoints;
 			uint32_t shadowWidth;
 			uint32_t shadowHeight;
-			uint32_t sliceIndex;
-			float depthBias;
-			uint32_t _pad0;
-		};
+			int32_t sliceIndex;
 
+			DirectX::XMFLOAT3 lightPos;
+			float _pad0;
+
+			DirectX::XMFLOAT3 lightDir;
+			float _pad1;
+
+			float cosOuterAngle;
+			float cosInnerAngle;
+			float lightRange;
+			float _pad2;
+		};
+		// 合計 144 bytes
 		//! @brief 衝突ペアキー
 		struct PairKey {
 			Entity a;
@@ -98,32 +109,47 @@ namespace ecs {
 		struct PendingTest {
 			Entity a;
 			Entity b;
-			DirectX::XMFLOAT3 contactPoint;
-			size_t pointStartIndex = 0;
-			size_t pointCountA = 0;
-			size_t pointCountB = 0;
+			size_t contactPointStartIndex = 0;  // 接触点の開始インデックス
+			size_t contactPointCount = 0;        // 接触点の数
 		};
 
 	private:
-		dx3d::GraphicsEngine* engine_{};
+		dx3d::GraphicsEngine& engine_;
 		std::weak_ptr<LightDepthRenderSystem> light_depth_system_{};
 		std::weak_ptr<DebugRenderSystem> debug_render_system_{};
 
 		// コンピュートシェーダー関連
-		dx3d::ConstantBufferPtr cb_params_{};
-		dx3d::StructuredBufferPtr point_buffer_{};
-		dx3d::RWStructuredBufferPtr result_buffer_{};
-		dx3d::StagingBufferPtr staging_buffer_{};
+		dx3d::ConstantBufferPtr cb_params_{};			// CS用定数バッファ
+		dx3d::StructuredBufferPtr point_buffer_{};		// テストポイントバッファ
+		dx3d::RWStructuredBufferPtr result_buffer_{};	// 結果バッファ
+		dx3d::StagingBufferPtr staging_buffer_{};		// 読み戻し用ステージングバッファ
 
 		// 処理対象
 		std::vector<PendingTest> pending_tests_{};
 		std::unordered_map<PairKey, ShadowTestResult, PairKeyHash> shadow_results_{};
+		std::vector<DirectX::XMFLOAT3> pending_contact_points_;
 
 		static constexpr uint32_t MAX_TEST_POINTS = 4096;
-		static constexpr float DEPTH_BIAS = 0.005f;
 		static constexpr uint32_t POINTS_PER_AABB = 8;
 		static constexpr uint32_t CS_THREAD_GROUP_SIZE = 64;
 
+
+		// デバッグ関連
+		// デバッグ用テストポイント情報
+		struct DebugTestPoint {
+			DirectX::XMFLOAT3 position;
+			bool isInShadow;
+		};
+
+		// デバッグ用テストポイントリスト
+		std::vector<DebugTestPoint> debug_test_points_;
+		bool show_debug_points_ = false;  // デバッグ表示のON/OFF
+
+		// デバッグ情報の更新
+		void UpdateDebugVisualization(const std::vector<DirectX::XMFLOAT3>& _testPoints,
+			const std::vector<bool>& _isLitByAnyLight);
+
+		void DebugCheckSliceIndex();
 	};
 
 }

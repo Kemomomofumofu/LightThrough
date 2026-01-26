@@ -8,6 +8,7 @@ cbuffer cbperFrame : register(b0)
 cbuffer cbPerObject : register(b1)
 {
     row_major float4x4 worldMatrix;
+    float4 objectColor;
 };
 
 cbuffer cbLightMatrix : register(b2)
@@ -48,9 +49,7 @@ VSOUT VSMain(VSIN _vin)
     // 法線(ワールドスペース)
     vout.normalWS = normalize(mul(_vin.normal, (float3x3) worldMatrix));
     // 色
-    vout.color = _vin.color;
-    
-    vout.posLight = mul(wp, lightViewProj);
+    vout.color = objectColor;
     
     return vout;
 }

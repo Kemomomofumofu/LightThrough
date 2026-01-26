@@ -402,3 +402,4 @@ FodyWeavers.xsd
 /LightThrough/SourceFiles/DX3D/Source/DX3D/Game/Scene/SceneManager.h
 /LightThrough/SourceFiles/DX3D/Source/DX3D/Game/Scene/SceneManager.cpp
 /LightThrough/SourceFiles/DX3D/Source/DX3D/Game/Scene/Scene.h
+/LightThrough/Assets/Shaders/Vertex/VS_Fullscreen.hlsl

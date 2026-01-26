@@ -16,15 +16,15 @@ namespace dx3d {
 
         /**
          * @brief バッファ更新
-         * @param _context: コンテキスト
 		 * @param _data: 更新データ
 		 * @param _size: データサイズ
          */
-        void Update(DeviceContext& _context, const void* _data, size_t _size);
+        void Update(const void* _data, size_t _size);
 
     private:
-        Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_;
-        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv_;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_{};
+        Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv_{};
+		ID3D11DeviceContext* immediate_{};
     };
 
 	//! @brief 読み書き可能な構造化バッファクラス
@@ -35,8 +35,8 @@ namespace dx3d {
         ID3D11UnorderedAccessView* GetUAV() const { return uav_.Get(); }
         ID3D11Buffer* GetBuffer() const { return buffer_.Get(); }
     private:
-        Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_;
-        Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav_;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_{};
+        Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> uav_{};
     };
 
 	//! @brief ステージングバッファクラス
@@ -48,7 +48,7 @@ namespace dx3d {
 		void* Map();
 		void Unmap();
     private:
-        Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> buffer_{};
         ID3D11DeviceContext* immediate_{};
     };
 }

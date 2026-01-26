@@ -7,6 +7,7 @@
 #include <vector>
 #include <optional>
 #include <cmath>
+#include <variant>
 #include <DirectXMath.h>
 
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
@@ -20,75 +21,17 @@
 #include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/Core/Name.h>
 
-#include <Game/Collisions/CollisionUtils.h>
 #include <Debug/Debug.h>
 
 namespace ecs {
 	using namespace DirectX;
 
 	namespace {
-		constexpr float GROUND_NORMAL_Y_THRESHOLD = -0.7f; // 地面とみなす法線のY成分閾値
-
-		// オーバーロード用のヘルパー
 		template <class ...Ts>
 		struct Overloaded : Ts... { using Ts::operator()...; };
 		template <class... Ts>
 		Overloaded(Ts...) -> Overloaded<Ts...>;
 
-		/**
-		 * @brief 当たり判定のディスパッチ
-		 * @param _a
-		 * @param _b
-		 * @return 衝突している: ContactResult、していない: nullopt
-		 */
-		std::optional<collision::ContactResult>
-			DispatchContact(const Collider& _a, const Collider& _b)
-		{
-			using collision::SphereShape;
-			using collision::BoxShape;
-
-			return std::visit(
-				Overloaded{
-					// Sphere vs Sphere
-					[&](const SphereShape&, const SphereShape&)->std::optional<collision::ContactResult> {
-						return collision::IntersectSphere(_a.worldSphere, _b.worldSphere);
-					},
-				// Sphere vs Box
-				[&](const SphereShape&, const BoxShape&)->std::optional<collision::ContactResult> {
-					return collision::IntersectSphereOBB(_a.worldSphere, _b.worldOBB);
-				},
-				// Box vs Sphere
-				[&](const BoxShape&, const SphereShape&)->std::optional<collision::ContactResult> {
-					return collision::IntersectSphereOBB(_b.worldSphere, _a.worldOBB);
-				},
-				// Box vs Box
-				[&](const BoxShape&, const BoxShape&)->std::optional<collision::ContactResult> {
-					return collision::IntersectOBB(_a.worldOBB, _b.worldOBB);
-				}
-				},
-				_a.shape, _b.shape
-			);
-		}
-
-		/**
-		 * @brief 2点間の距離の二乗を計算
-		 * @param _a
-		 * @param _b
-		 * @return 距離の二乗
-		 */
-		float DistSq(const XMFLOAT3& _a, const XMFLOAT3& _b)
-		{
-			float dx = _a.x - _b.x;
-			float dy = _a.y - _b.y;
-			float dz = _a.z - _b.z;
-			return dx * dx + dy * dy + dz * dz;
-		}
-
-		/**
-		 * @brief ほぼゼロベクトルかどうか
-		 * @param _v
-		 * @return ほぼゼロベクトル: true, そうでない: false
-		 */
 		inline bool IsZeroDisp(const XMFLOAT3& _v) noexcept
 		{
 			return std::fabs(_v.x) + std::fabs(_v.y) + std::fabs(_v.z) < 1e-8f;
@@ -99,21 +42,111 @@ namespace ecs {
 			return { _v.x * _s, _v.y * _s, _v.z * _s };
 		}
 
-	} // unnamed namespace
+		std::optional<collision::ContactResult>
+			DispatchContact(const Collider& _a, const Collider& _b)
+		{
+			using collision::SphereShape;
+			using collision::BoxShape;
 
 
-	/**
-	 * @brief コンストラクタ
-	 * @param _desc
-	 */
+			return std::visit(
+				Overloaded{
+				[&](const SphereShape&, const SphereShape&)->std::optional<collision::ContactResult> {
+				return collision::IntersectSphere(_a.worldSphere, _b.worldSphere);
+				},
+				[&](const SphereShape&, const BoxShape&)->std::optional<collision::ContactResult> {
+				return collision::IntersectSphereOBB(_a.worldSphere, _b.worldOBB);
+				},
+				[&](const BoxShape&, const SphereShape&)->std::optional<collision::ContactResult> {
+				return collision::IntersectSphereOBB(_b.worldSphere, _a.worldOBB);
+				},
+				[&](const BoxShape&, const BoxShape&)->std::optional<collision::ContactResult> {
+				return collision::IntersectOBB(_a.worldOBB, _b.worldOBB);
+				}
+				},
+				_a.shape, _b.shape
+			);
+		}
+
+		// Contact を一時保存する構造体
+		struct ContactRecord {
+			Entity a;
+			Entity b;
+			collision::ContactResult contact;
+			std::vector<XMFLOAT3> samplePoints; // Shadow 判定用のサンプル点
+			bool skipDueToShadow = false; // ExecuteShadowTests 実行後に設定
+		};
+
+		/**
+		 * @brief 衝突面上のサンプルポイントを生成
+		 * @param _center 衝突面の中心（コライダー表面）
+		 * @param _normal 衝突法線
+		 * @param _radius サンプル範囲の半径
+		 * @param _outPoints 出力先
+		 * @param _gridSize グリッドサイズ（3なら3x3=9点）
+		 */
+		void GenerateSurfaceSamplePoints(
+			const XMFLOAT3& _center,
+			const XMFLOAT3& _normal,
+			float _radius,
+			std::vector<XMFLOAT3>& _outPoints,
+			int _gridSize = 3)
+		{
+			// 法線に垂直な2つの軸を生成
+			XMFLOAT3 tangent1{}, tangent2{};
+			if (std::fabs(_normal.y) < 0.99f) {
+				XMFLOAT3 up{ 0, 1, 0 };
+				tangent1 = math::Cross(_normal, up);
+			}
+			else {
+				XMFLOAT3 right{ 1, 0, 0 };
+				tangent1 = math::Cross(_normal, right);
+			}
+			tangent1 = math::Normalize(tangent1);
+			tangent2 = math::Normalize(math::Cross(_normal, tangent1));
+
+			// グリッド状にサンプリング
+			float step = (_gridSize > 1) ? (2.0f * _radius / (_gridSize - 1)) : 0.0f;
+			float startOffset = -_radius;
+
+			for (int i = 0; i < _gridSize; ++i) {
+				for (int j = 0; j < _gridSize; ++j) {
+					float offsetU = (_gridSize > 1) ? (startOffset + step * i) : 0.0f;
+					float offsetV = (_gridSize > 1) ? (startOffset + step * j) : 0.0f;
+
+					XMFLOAT3 samplePoint{
+						_center.x + tangent1.x * offsetU + tangent2.x * offsetV,
+						_center.y + tangent1.y * offsetU + tangent2.y * offsetV,
+						_center.z + tangent1.z * offsetU + tangent2.z * offsetV
+					};
+					_outPoints.push_back(samplePoint);
+				}
+			}
+		}
+
+		/** * @brief エンティティのサンプル半径を取得 */
+		float GetSampleRadius(const Collider& _col)
+		{
+			// Sphere の場合
+			if (_col.type == collision::ShapeType::Sphere) {
+				return _col.worldSphere.radius * 0.5f;
+			}
+			// Box の場合
+			else {
+				float minHalf = (std::min)({ _col.worldOBB.half.x, _col.worldOBB.half.y, _col.worldOBB.half.z });
+				return minHalf * 0.8f;
+			}
+		}
+
+
+	} // namespace anonymous
+
 	CollisionResolveSystem::CollisionResolveSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
 	{
 	}
 
-	/**
-	 * @brief 初期化処理
-	 */
+	//! @brief 初期化
 	void CollisionResolveSystem::Init()
 	{
 		Signature sig;
@@ -121,38 +154,24 @@ namespace ecs {
 		sig.set(ecs_.GetComponentType<Collider>());
 		ecs_.SetSystemSignature<CollisionResolveSystem>(sig);
 
-		// 影テストシステムの取得
 		shadow_test_system_ = ecs_.GetSystem<ShadowTestSystem>();
 	}
 
-	/**
-	 * @brief 更新処理
-	 * @param _dt
-	 */
+	//! @brief 固定更新
 	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
 		auto shadowTestSystem = shadow_test_system_.lock();
 
-		// GroundContactの初期化
-		for (Entity e : entities_) {
-			if (ecs_.HasComponent<GroundContact>(e)) {
-				auto& gc = ecs_.GetComponent<GroundContact>(e);
-				gc.isGrounded = false;
-				gc.groundNormalY = 0.0f;
-				// gc.groundEntity = {}; // todo: 動く床対応が必要になったら有効化
-			}
-		}
-
-
-		// ペアごとに処理するためにベクターにコピー
+		// 処理対象をローカルにコピー
 		std::vector<Entity> ents;
 		ents.reserve(entities_.size());
-		for (const auto& e : entities_) { ents.push_back(e); };
+		for (const auto& e : entities_) { ents.push_back(e); }
 
 		const size_t n = ents.size();
+		const float baumgarte = 0.2f;
 
-		const float baumgarte = 0.2f; // バウムガルテ係数
-
+		// 接触情報の収集
+		contacts_.clear();
 		for (size_t i = 0; i < n; ++i) {
 			const Entity eA = ents[i];
 			auto& tfA = ecs_.GetComponent<Transform>(eA);
@@ -162,138 +181,204 @@ namespace ecs {
 				const Entity eB = ents[j];
 				auto& tfB = ecs_.GetComponent<Transform>(eB);
 				auto& colB = ecs_.GetComponent<Collider>(eB);
-				if (colB.isTrigger) { continue; }	// Bがトリガーならスキップ
+
+				if (colB.isTrigger) { continue; }
 
 				// ブロードフェーズ
 				const float sumR = colA.broadPhaseRadius + colB.broadPhaseRadius;
-				if (DistSq(tfA.position, tfB.position) > sumR * sumR) { continue; }	// 半径の二乗より遠いならスキップ
+				auto DistSq = [](const XMFLOAT3& a, const XMFLOAT3& b) {
+					float dx = a.x - b.x; float dy = a.y - b.y; float dz = a.z - b.z;
+					return dx * dx + dy * dy + dz * dz;
+					};
+				if (DistSq(tfA.position, tfB.position) > sumR * sumR) { continue; }
 
 				// ナローフェーズ
-				const auto contact = DispatchContact(colA, colB);
-				if (!contact) { continue; }							// 衝突していないならスキップ
-				if (contact->penetration <= 1e-6f) { continue; }	// ほとんどゼロならスキップ
+				auto contactOpt = DispatchContact(colA, colB);
+				if (!contactOpt) { continue; }
+				if (contactOpt->penetration <= 1e-6f) { continue; }
 
-				// 影判定
+				// 接触情報を蓄積
+				ContactRecord r;
+				r.a = eA;
+				r.b = eB;
+				r.contact = *contactOpt;
+
+				// サンプルポイントの生成
+				// 小さいほうを基準にする
+				const Collider* targetCol = nullptr;
+				XMFLOAT3 surfaceNormal = math::Normalize(r.contact.normal);
+
+				// Box vs Box
+				if (colA.type == collision::ShapeType::Box && colB.type == collision::ShapeType::Box)
+				{
+					float volA =
+						colA.worldOBB.half.x *
+						colA.worldOBB.half.y *
+						colA.worldOBB.half.z;
+					float volB =
+						colB.worldOBB.half.x *
+						colB.worldOBB.half.y *
+						colB.worldOBB.half.z;
+
+					if (volA <= volB) {
+						targetCol = &colA;
+					}
+					else {
+						surfaceNormal = Scale(surfaceNormal, -1.0f); // 法線を反転
+						targetCol = &colB;
+					}
+
+				}
+				// Sphere が存在するなら
+				else {
+					// Box を優先して基準にする
+					if (colA.type == collision::ShapeType::Box) {
+						targetCol = &colA;
+					}
+					else {
+						surfaceNormal = Scale(surfaceNormal, -1.0f); // 法線を反転
+						targetCol = &colB;
+					}
+				}
+
+				// normal 方向の代表接触点を取得
+				XMFLOAT3 surfaceCenter = collision::GetRepresentativeContactPointOnOBB(targetCol->worldOBB, surfaceNormal);
+				// 半径取得
+				float radius = GetSampleRadius(*targetCol);
+
+				GenerateSurfaceSamplePoints(
+					surfaceCenter,
+					surfaceNormal,
+					radius,
+					r.samplePoints,
+					3
+				);
+				constexpr float SHADOW_EPS = 0.005f;
+				for (auto& p : r.samplePoints) {
+					p.x += surfaceNormal.x * SHADOW_EPS;
+					p.y += surfaceNormal.y * SHADOW_EPS;
+					p.z += surfaceNormal.z * SHADOW_EPS;
+				}
+
+
+				// ShadowTestSystem にサンプルを登録
 				if (shadow_collision_enabled_ && shadowTestSystem) {
-					// 衝突ペアを登録
-					// memo: 次フレームの判定になる
-					XMFLOAT3 contactPoint = math::Scale(math::Add(tfA.position, tfB.position), 0.5f);
-					shadowTestSystem->RegisterCollisionPair(eA, eB, contactPoint);
-
-					// 前フレームの結果を確認
-					// memo: 前フレームの判定を取得する
-					if (shadowTestSystem->AreBothInShadow(eA, eB)) { continue; }
-				}
-
-				// 設置判定の更新
-				// 地面接触の更新用ラムダ
-				auto tryUpdateGroundContact = [&](Entity _self, Entity _other, const XMFLOAT3& _normal)
-					{
-						if (!ecs_.HasComponent<GroundContact>(_self)) { return; } // GroundContact持ってないならスキップ
-						if (_normal.y > GROUND_NORMAL_Y_THRESHOLD) { return; } // 法線のY成分が閾値を超えていたらスキップ
-
-						auto& gc = ecs_.GetComponent<GroundContact>(_self);
-						gc.isGrounded = true;
-
-						if (_normal.y > gc.groundNormalY) {
-							gc.groundNormalY = _normal.y;
-							// gc.groundEntity = _other; // todo: 動く床対応が必要になったら有効化
-						}
-					};
-				const XMFLOAT3& nAB = contact->normal;
-				tryUpdateGroundContact(eA, eB, nAB);
-				tryUpdateGroundContact(eB, eA, Scale(nAB, -1.0f));
-
-
-				// 押し出し量の計算 (A->B 法線)
-				auto [dispA, dispB] = collision::ComputePushOut(
-					*contact,
-					colA.isStatic, colB.isStatic,
-					solve_percent_, solve_slop_);
-
-				// 押し出し
-				if (!colA.isStatic && !IsZeroDisp(dispA)) {
-					tfA.AddPosition(dispA);
-				}
-				if (!colB.isStatic && !IsZeroDisp(dispB)) {
-					tfB.AddPosition(dispB);
-				}
-
-				// 反発
-				float invMassA = 0.0f;
-				float invMassB = 0.0f;
-				Rigidbody* pRbA = nullptr;
-				Rigidbody* pRbB = nullptr;
-
-				// 質量の逆数を取得
-				if (!colA.isStatic && ecs_.HasComponent<Rigidbody>(eA)) {
-					auto& rbA = ecs_.GetComponent<Rigidbody>(eA);
-					if (!rbA.isStatic && !rbA.isKinematic && rbA.mass > 0.0f) {
-						invMassA = 1.0f / rbA.mass;
-						pRbA = &rbA;
-					}
-				}
-				if (!colB.isStatic && ecs_.HasComponent<Rigidbody>(eB)) {
-					auto& rbB = ecs_.GetComponent<Rigidbody>(eB);
-					if (!rbB.isStatic && !rbB.isKinematic && rbB.mass > 0.0f) {
-						invMassB = 1.0f / rbB.mass;
-						pRbB = &rbB;
+					for (const auto& p : r.samplePoints) {
+						shadowTestSystem->RegisterCollisionPair(eA, eB, p);
 					}
 				}
 
-				const float denom = invMassA + invMassB;
-				if (denom <= 0.0f) { continue; }	// 両方0ならスキップ
+				// 衝突リストに追加
+				contacts_.push_back({
+					eA,
+					eB,
+					r.contact
+					});
+			}
+		}
 
-				// 相対速度
-				XMFLOAT3 vA{};
-				XMFLOAT3 vB{};
-				if (pRbA) { vA = pRbA->linearVelocity; }
-				if (pRbB) { vB = pRbB->linearVelocity; }
-				const XMFLOAT3 vRel = math::Sub(vB, vA);
+		// 押し出し・反発・摩擦
+		for (auto& rec : contacts_) {
+			const Entity eA = rec.a;
+			const Entity eB = rec.b;
 
-				// 法線方向の相対速度
-				const float vRelN = math::Dot(vRel, nAB);
-
-				// 反発係数
-				float e = 0.0f;
-				if (pRbA) { e = (std::max)(e, std::clamp(pRbA->restitution, 0.0f, 1.0f)); }
-				if (pRbB) { e = (std::max)(e, std::clamp(pRbB->restitution, 0.0f, 1.0f)); }
-				// 侵入安定化バイアス(分離していても貫通があれば押し出し)
-				const float penetration = (std::max)(contact->penetration - solve_slop_, 0.0f);
-				const float bias = (penetration > 0.0f && _fixedDt > 0.0f) ? baumgarte * (penetration / _fixedDt) : 0.0f;
-
-				// 法線インパルス( vRelN < 0 の時は反発も付与。分離中は反発0、バイアスのみ)
-				float jn = -((vRelN < 0.0f ? (1.0f + e) * vRelN : vRelN) + bias) / denom;
-				if (jn < 0.0f) { jn = 0.0f; } // 負のインパルスは無し
-
-				const XMFLOAT3 impulseN = Scale(nAB, jn);
-
-				// 速度適用
-				if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseN, invMassA)); }
-				if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseN, invMassB)); }
-
-				// クーロン摩擦の簡易モデル: (接触方向 t = normalize(vRel - vRelN * nAB))
-				XMFLOAT3 t = math::Sub(vRel, Scale(nAB, vRelN));
-				const float tLen = math::Length(t);
-				if (tLen > 1e-6f) {
-					t = Scale(t, 1.0f / tLen);
-					// 合成摩擦係数 memo: ここでは平均をとる
-					float mu = 0.0f;
-					if (pRbA) { mu += std::clamp(pRbA->friction, 0.0f, 1.0f); }
-					if (pRbB) { mu += std::clamp(pRbB->friction, 0.0f, 1.0f); }
-					mu = (pRbA && pRbB) ? (mu * 0.5f) : mu;
-
-					// 接触インパルス
-					float jt = -(math::Dot(vRel, t) / denom);
-					// クランプ ( |jt| <= mu * jn )
-					const float jtMax = mu * jn;
-					jt = std::clamp(jt, -jtMax, jtMax);
-
-					const XMFLOAT3 impulseT = Scale(t, jt);
-					if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
-					if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
+			// Shadow の結果を参照してスキップするか決める
+			bool bothInShadow = false;
+			if (shadow_collision_enabled_ && shadowTestSystem) {
+				if (shadowTestSystem->AreBothInShadow(eA, eB)) {
+					bothInShadow = true;
 				}
+			}
+
+			// 影の中ならスキップ
+			if (bothInShadow) {
+				continue;
+			}
+
+			const XMFLOAT3& nAB = rec.contact.normal;
+
+			// 押し出し量の計算
+			auto [dispA, dispB] = collision::ComputePushOut(
+				rec.contact,
+				ecs_.GetComponent<Collider>(eA).isStatic,
+				ecs_.GetComponent<Collider>(eB).isStatic,
+				solve_percent_, solve_slop_);
+
+			// 押し出し（Transform の直接更新）
+			if (!ecs_.GetComponent<Collider>(eA).isStatic && !IsZeroDisp(dispA)) {
+				ecs_.GetComponent<Transform>(eA).AddPosition(dispA);
+			}
+			if (!ecs_.GetComponent<Collider>(eB).isStatic && !IsZeroDisp(dispB)) {
+				ecs_.GetComponent<Transform>(eB).AddPosition(dispB);
+			}
+
+			// 反発処理
+			float invMassA = 0.0f;
+			float invMassB = 0.0f;
+			Rigidbody* pRbA = nullptr;
+			Rigidbody* pRbB = nullptr;
+
+			if (!ecs_.GetComponent<Collider>(eA).isStatic && ecs_.HasComponent<Rigidbody>(eA)) {
+				auto& rbA = ecs_.GetComponent<Rigidbody>(eA);
+				if (!rbA.isStatic && !rbA.isKinematic && rbA.mass > 0.0f) {
+					invMassA = 1.0f / rbA.mass;
+					pRbA = &rbA;
+				}
+			}
+			if (!ecs_.GetComponent<Collider>(eB).isStatic && ecs_.HasComponent<Rigidbody>(eB)) {
+				auto& rbB = ecs_.GetComponent<Rigidbody>(eB);
+				if (!rbB.isStatic && !rbB.isKinematic && rbB.mass > 0.0f) {
+					invMassB = 1.0f / rbB.mass;
+					pRbB = &rbB;
+				}
+			}
+
+			const float denom = invMassA + invMassB;
+			if (denom <= 0.0f) { continue; }
+
+			XMFLOAT3 vA{};
+			XMFLOAT3 vB{};
+			if (pRbA) { vA = pRbA->linearVelocity; }
+			if (pRbB) { vB = pRbB->linearVelocity; }
+			const XMFLOAT3 vRel = math::Sub(vB, vA);
+
+			const float vRelN = math::Dot(vRel, nAB);
+
+			float e = 0.0f;
+			if (pRbA) { e = (std::max)(e, std::clamp(pRbA->restitution, 0.0f, 1.0f)); }
+			if (pRbB) { e = (std::max)(e, std::clamp(pRbB->restitution, 0.0f, 1.0f)); }
+
+			const float penetration = (std::max)(rec.contact.penetration - solve_slop_, 0.0f);
+			const float bias = (penetration > 0.0f && _fixedDt > 0.0f) ? baumgarte * (penetration / _fixedDt) : 0.0f;
+
+			float jn = -((vRelN < 0.0f ? (1.0f + e) * vRelN : vRelN) + bias) / denom;
+			if (jn < 0.0f) { jn = 0.0f; }
+
+			const XMFLOAT3 impulseN = Scale(nAB, jn);
+
+			if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseN, invMassA)); }
+			if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseN, invMassB)); }
+
+			// 摩擦
+			XMFLOAT3 t = math::Sub(vRel, Scale(nAB, vRelN));
+			const float tLen = math::Length(t);
+			if (tLen > 1e-6f) {
+				t = Scale(t, 1.0f / tLen);
+
+				float mu = 0.0f;
+				if (pRbA) { mu += std::clamp(pRbA->friction, 0.0f, 1.0f); }
+				if (pRbB) { mu += std::clamp(pRbB->friction, 0.0f, 1.0f); }
+				mu = (pRbA && pRbB) ? (mu * 0.5f) : mu;
+
+				float jt = -(math::Dot(vRel, t) / denom);
+				const float jtMax = mu * jn;
+				jt = std::clamp(jt, -jtMax, jtMax);
+
+				const XMFLOAT3 impulseT = Scale(t, jt);
+				if (pRbA) { pRbA->linearVelocity = math::Sub(pRbA->linearVelocity, Scale(impulseT, invMassA)); }
+				if (pRbB) { pRbB->linearVelocity = math::Add(pRbB->linearVelocity, Scale(impulseT, invMassB)); }
 			}
 		}
 	}
+
 } // namespace ecs

@@ -24,6 +24,10 @@
 #include <Game/Components/Render/MeshRenderer.h>
 #include <Game/Components/Render/Light.h>
 
+#include <Game/Systems/Renderers/DebugRenderSystem.h>
+
+#include <Debug/Debug.h>
+
 namespace {
 	struct CBPerFrame {
 		DirectX::XMMATRIX view;	// ビュー行列
@@ -41,8 +45,9 @@ namespace ecs {
 	 */
 	LightDepthRenderSystem::LightDepthRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
+		, engine_(_desc.graphicsEngine)
 	{
-		light_view_proj_matrices_.resize(MAX_SHADOW_LIGHTS);
+		//light_view_proj_matrices_.resize(MAX_SHADOW_LIGHTS);
 	}
 
 	void LightDepthRenderSystem::Init()
@@ -54,7 +59,7 @@ namespace ecs {
 		// 2025-11-26 todo: shadowCasterComponentとか追加してもよいかも。
 		ecs_.SetSystemSignature<LightDepthRenderSystem>(signature);
 
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 		// ConstantBuffer作成
 		cb_light_matrix_ = device.CreateConstantBuffer({
 			sizeof(CBLightMatrix),
@@ -71,15 +76,16 @@ namespace ecs {
 			sd.MipLODBias = 0;
 			sd.MinLOD = -FLT_MAX;
 			sd.MaxLOD = FLT_MAX;
-			engine_->GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, &shadow_sampler_);
+			engine_.GetGraphicsDevice().GetD3DDevice()->CreateSamplerState(&sd, &shadow_sampler_);
 		}
 
 		CreateShadowResources(SHADOW_MAP_HEIGHT, SHADOW_MAP_WIDTH, MAX_SHADOW_LIGHTS);
+
+		debug_render_system_ = ecs_.GetSystem<DebugRenderSystem>();
 	}
 
-	/**
-	 * @brief 更新処理
-	 */
+
+	//! @brief 更新処理
 	void LightDepthRenderSystem::Update(float _dt)
 	{
 		// バッチ処理
@@ -87,44 +93,52 @@ namespace ecs {
 		CollectBatches();			// バッチ収集
 		UpdateBatches();			// バッチ更新
 
+		// todo: シーンリロード時に他Systemが、shadow_lights_のclearより先にshadow_lights_にアクセスしてクラッシュする問題がある
+		shadow_lights_.clear();
 		// 深度パス実行
-		light_to_shadow_index_.clear();
-		int currentShadowIndex = 0;
+		int32_t shadowIndex = 0;
 		for (auto& e : ecs_.GetEntitiesWithComponents<LightCommon>()) {
-			if (currentShadowIndex >= MAX_SHADOW_LIGHTS) { break; }	// 最大数到達
+			if (shadowIndex >= MAX_SHADOW_LIGHTS) { break; }
 
 			auto& common = ecs_.GetComponent<LightCommon>(e);
-			if (!common.enabled) { continue; } // 無効ならスキップ
+			if (!common.enabled) { continue; }
+			auto& tf = ecs_.GetComponent<Transform>(e);
+			SpotLight* spot = nullptr;
+			if (ecs_.HasComponent<SpotLight>(e)) {
+				spot = &ecs_.GetComponent<SpotLight>(e);
+			}
 
-			// ライトと関連付け
-			light_to_shadow_index_[e] = currentShadowIndex;
-			// 深度パス描画
-			RenderShadowPass(e, shadow_dsvs_[currentShadowIndex].Get());
+			LightViewProj vp = BuildLightViewProj(tf, spot);
 
-			++currentShadowIndex;
+			// 情報の格納
+			auto lightViewProj = vp.view * vp.proj;
+			XMFLOAT4X4 lightVPFloat;
+			XMStoreFloat4x4(&lightVPFloat, lightViewProj);
+			shadow_lights_.push_back({ e, lightVPFloat, shadowIndex });
+			//DebugLogInfo("[LightDepthRenderSystem] Dispatching ShadowTest CS for light {} sliceIndex={}", e.id_, shadowIndex);
+
+			// 描画
+			RenderShadowPass(shadow_lights_.back(), shadow_dsvs_[shadowIndex].Get());
+
+			++shadowIndex;
 		}
 	}
 
-
-	/**
-	 * @brief エンティティ破棄イベント
-	 */
-	void LightDepthRenderSystem::OnEntityDestroyed(Entity _entity)
+	//! @brief エンティティ破棄時の処理
+	void LightDepthRenderSystem::OnEntityDestroyed(Entity _e)
 	{
-		// todo: ライトが消されたときにlight_to_shadow_index_からも消すべきかも
-	}
+		// ShadowLightEntryから削除
+		auto it = std::remove_if(shadow_lights_.begin(), shadow_lights_.end(),
+			[_e](const ShadowLightEntry& entry) {
+				return entry.light == _e;
+			});
 
-	//! @brief ライトEntityからシャドウ情報を取得
-	bool LightDepthRenderSystem::GetShadowInfo(Entity _lightEntity, int& _outIndex, DirectX::XMMATRIX& _outMatrix) const
-	{
-		auto it = light_to_shadow_index_.find(_lightEntity);
-		if(it != light_to_shadow_index_.end()) {
-			_outIndex = it->second;
-			_outMatrix = light_view_proj_matrices_[_outIndex];
-			return true;
+		if (it != shadow_lights_.end()) {
+			shadow_lights_.erase(it, shadow_lights_.end());
 		}
-		return false;
+
 	}
+
 
 	/**
 	 * @brief バッチ収集
@@ -152,12 +166,12 @@ namespace ecs {
 			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
 			auto& tf = ecs_.GetComponent<Transform>(e);
 
-			auto& mr = engine_->GetMeshRegistry();
+			auto& mr = engine_.GetMeshRegistry();
 			auto meshData = mr.Get(mesh.handle);
 
 			if (!meshData) continue;
 
-			Key key { meshData->vb.get(), meshData->ib.get() };
+			Key key{ meshData->vb.get(), meshData->ib.get() };
 			size_t batchIndex{};
 			// 既存のバッチ
 			if (auto it = map.find(key); it != map.end()) {
@@ -180,7 +194,6 @@ namespace ecs {
 			dx3d::InstanceDataShadow ds{};
 			ds.world = tf.world;
 			shadow_batches_[batchIndex].instances.emplace_back(ds);
-
 		}
 	}
 
@@ -217,7 +230,7 @@ namespace ecs {
 				.vertexListSize = static_cast<uint32_t>(instances.size() * sizeof(dx3d::InstanceDataShadow)),
 				.vertexSize = static_cast<uint32_t>(sizeof(dx3d::InstanceDataShadow))
 			};
-			instance_buffer_shadow_ = engine_->GetGraphicsDevice().CreateVertexBuffer(desc);
+			instance_buffer_shadow_ = engine_.GetGraphicsDevice().CreateVertexBuffer(desc);
 		}
 	}
 
@@ -235,61 +248,63 @@ namespace ecs {
 	/**
 	 * @brief シャドウマップに必要なリソースの生成
 	 */
-	void LightDepthRenderSystem::CreateShadowResources(uint32_t _texHeight, uint32_t _texWidth, uint32_t _arraySize)
+	void LightDepthRenderSystem::CreateShadowResources(uint32_t _texHeight, uint32_t _texWidth, uint32_t _lightCount)
 	{
-		auto& device = engine_->GetGraphicsDevice();
+		auto& device = engine_.GetGraphicsDevice();
 
-		// シャドウマップ用テクスチャ作成
+		shadow_dsvs_.resize(_lightCount);
+
+		// テクスチャ配列の作成
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> shadowTex{};
 		D3D11_TEXTURE2D_DESC texDesc{};
 		texDesc.Width = _texWidth;
 		texDesc.Height = _texHeight;
 		texDesc.MipLevels = 1;
-		texDesc.ArraySize = _arraySize;
+		texDesc.ArraySize = _lightCount;
 		texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
 		texDesc.SampleDesc.Count = 1;
 		texDesc.Usage = D3D11_USAGE_DEFAULT;
 		texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-		device.CreateTexture2D(&texDesc, nullptr, &shadow_depth_tex_);
+		device.CreateTexture2D(&texDesc, nullptr, &shadowTex);
 
-		// DSVの作成(配列の各スライスに対して)
-		shadow_dsvs_.resize(_arraySize);
-		for (uint32_t i = 0; i < _arraySize; ++i) {
+		shadow_depth_tex_ = shadowTex;
+
+		// DSVの作成
+		for (uint32_t i = 0; i < _lightCount; ++i) {
 			D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
 			dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
 			dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
 			dsvDesc.Texture2DArray.MipSlice = 0;
 			dsvDesc.Texture2DArray.FirstArraySlice = i;
 			dsvDesc.Texture2DArray.ArraySize = 1;
-			device.CreateDepthStencilView(shadow_depth_tex_.Get(), &dsvDesc, &shadow_dsvs_[i]);
+			device.CreateDepthStencilView(shadowTex.Get(), &dsvDesc, &shadow_dsvs_[i]);
 		}
 
-		// SRVの作成(配列全体に対して)
+		// SRVの作成
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
 		srvDesc.Texture2DArray.MostDetailedMip = 0;
 		srvDesc.Texture2DArray.MipLevels = 1;
 		srvDesc.Texture2DArray.FirstArraySlice = 0;
-		srvDesc.Texture2DArray.ArraySize = _arraySize;
-		device.CreateShaderResourceView(shadow_depth_tex_.Get(), &srvDesc, &shadow_srv_);
+		srvDesc.Texture2DArray.ArraySize = _lightCount;
+
+		device.CreateShaderResourceView(shadowTex.Get(), &srvDesc, &shadow_srvs_);
 	}
 
 
 	/**
 	 * @brief Brief シャドウマップ描画パス
 	 */
-	void LightDepthRenderSystem::RenderShadowPass(Entity _lightEntity, ID3D11DepthStencilView* _dsv)
+	void LightDepthRenderSystem::RenderShadowPass(ShadowLightEntry _entry, ID3D11DepthStencilView* _dsv)
 	{
-		auto& contextWrap = engine_->GetDeferredContext();
-		auto contextD3D = contextWrap.GetDeferredContext();
+		auto debugRenderSystem = debug_render_system_.lock();
+
+		auto& deferredContext = engine_.GetDeferredContext();
+		auto contextD3D = deferredContext.GetDeferredContext();
 		// ライト行列の作成
-		auto& tf = ecs_.GetComponent<Transform>(_lightEntity);
-		SpotLight* spotPtr = ecs_.HasComponent<SpotLight>(_lightEntity) ? &ecs_.GetComponent<SpotLight>(_lightEntity) : nullptr;
-		DirectX::XMMATRIX lightVP = BuildLightViewProj(tf, spotPtr, 0.1f); // memo: lightのVPをビルドをするSystemがあってもいいかも...?
-		
-		// ライトごとのビュー射影行列を保存
-		int shadowIndex = light_to_shadow_index_[_lightEntity];
-		light_view_proj_matrices_[shadowIndex] = lightVP;
+		auto& tf = ecs_.GetComponent<Transform>(_entry.light);
+		SpotLight* spotPtr = ecs_.HasComponent<SpotLight>(_entry.light) ? &ecs_.GetComponent<SpotLight>(_entry.light) : nullptr;
 
 		// 現在のRTV、DSVを退避
 		ID3D11RenderTargetView* prevRTV = nullptr;
@@ -299,14 +314,15 @@ namespace ecs {
 		// シャドウ用DSVをセット
 		contextD3D->OMSetRenderTargets(0, nullptr, _dsv);
 		contextD3D->ClearDepthStencilView(_dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
-		contextWrap.SetViewportSize({ static_cast<int32_t>(SHADOW_MAP_WIDTH), static_cast<int32_t>(SHADOW_MAP_HEIGHT) });
+		deferredContext.SetViewportSize({ static_cast<int32_t>(SHADOW_MAP_WIDTH), static_cast<int32_t>(SHADOW_MAP_HEIGHT) });
+
 
 		// ライト行列をセット
 		{
 			CBLightMatrix lm{};
-			lm.lightViewProj = lightVP;
-			cb_light_matrix_->Update(contextWrap, &lm, sizeof(lm));
-			contextWrap.VSSetConstantBuffer(1, *cb_light_matrix_);
+			lm.lightViewProj = _entry.lightViewProj;
+			cb_light_matrix_->Update(deferredContext, &lm, sizeof(lm));
+			deferredContext.VSSetConstantBuffer(1, *cb_light_matrix_);
 		}
 
 
@@ -322,7 +338,7 @@ namespace ecs {
 		for (auto& b : shadow_batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
-			engine_->RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, psoKey);
+			engine_.RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, psoKey);
 		}
 
 		// 退避していたRTV、DSVを復元
@@ -331,6 +347,6 @@ namespace ecs {
 			if (prevRTV) { prevRTV->Release(); }
 			if (prevDSV) { prevDSV->Release(); }
 		}
-		
+
 	}
 }
