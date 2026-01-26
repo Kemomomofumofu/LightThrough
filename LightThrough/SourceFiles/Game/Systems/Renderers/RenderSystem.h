@@ -34,9 +34,6 @@ namespace ecs {
 		void Init() override;
 		//! @brief 更新
 		void Update(float _dt) override;
-		//! @brief 破棄イベント
-		void OnEntityDestroyed(Entity _entity) override;
-
 
 		ID3D11ShaderResourceView* GetDepthSRV() const { return depth_srv_.Get(); }
 		ID3D11ShaderResourceView* GetSceneColorSRV() const { return scene_color_srv_.Get(); }

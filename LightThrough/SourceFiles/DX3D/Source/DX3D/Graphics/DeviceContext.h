@@ -217,7 +217,7 @@ namespace dx3d {
 
 
 		void* ReadbackBuffer(StagingBuffer& _dst, RWStructuredBuffer& _src);
-		void UnmapReadback(StagingBuffer& _buffer);
+		// void UnmapReadback(StagingBuffer& _buffer);
 	private:
 		Microsoft::WRL::ComPtr<ID3D11DeviceContext> deferred_context_{};
 

@@ -22,6 +22,7 @@ namespace dx3d {
 		Default,
 		Color,
 		Outline,
+		ShadowDebug,
 		Max,
 	};
 

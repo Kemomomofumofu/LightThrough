@@ -1,5 +1,5 @@
 /**
- * @file ShadowTestSystem.h
+ * @file ShadowTestSystem.cpp
  * @brief 影なのか判定するシステム
  */
 
@@ -22,7 +22,6 @@
 #include <Debug/Debug.h>
 #include <Debug/DebugUI.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
-
 
 
 namespace ecs {
@@ -76,6 +75,9 @@ namespace ecs {
 	void ShadowTestSystem::Update(float _dt)
 	{
 #if defined(DEBUG) || defined(_DEBUG)
+
+		DebugCheckSliceIndex();
+		
 		// デバッグ表示
 		if (show_debug_points_) {
 			auto debugRenderSystem = debug_render_system_.lock();
@@ -94,6 +96,11 @@ namespace ecs {
 			}
 		}
 #endif
+	}
+
+	void ShadowTestSystem::FixedUpdate(float _fixedDt)
+	{
+		ExecuteShadowTests();
 	}
 
 	//! @brief 影判定結果の取得
@@ -169,9 +176,8 @@ namespace ecs {
 	void ShadowTestSystem::ExecuteShadowTests()
 	{
 		auto lightDepthSystem = light_depth_system_.lock();
-		if (!lightDepthSystem) { return; }
 
-		// 衝突がない場合は前フレームの結果を維持（クリアしない）
+		// 衝突がない場合は前フレームの結果を維持
 		if (pending_tests_.empty()) {
 			pending_contact_points_.clear();
 #if defined(DEBUG) || defined(_DEBUG)
@@ -179,10 +185,10 @@ namespace ecs {
 #endif
 			return;
 		}
-		
+
 		// 新しいテストがある場合のみ結果をクリア
 		shadow_results_.clear();
-		
+
 		// ライトがない場合はすべて影の中とする
 		if (entities_.empty()) {
 			for (const auto& test : pending_tests_) {
@@ -206,20 +212,14 @@ namespace ecs {
 		}
 
 		auto& device = engine_.GetGraphicsDevice();
-		auto& deferredContext = engine_.GetDeferredContext();
+		auto* immediateContext = engine_.GetImmediateContext();
 
 		// ComputeShader取得
 		auto& shaderCache = engine_.GetShaderCache();
 		auto& csEntry = shaderCache.GetCS(dx3d::ComputeShaderKind::ShadowTest);
 
-		if (!csEntry.shader)
-		{
-			DebugLogWarning("[ShadowTestSystem] shaderが未設定");
-			return;
-		}
-
-		// 接触点をテストポイントとして使用（コピーして保持）
-		std::vector<DirectX::XMFLOAT3> testPoints = pending_contact_points_;  // コピーに変更！
+		// 接触点をテストポイントとして使用
+		std::vector<DirectX::XMFLOAT3> testPoints = pending_contact_points_;
 
 		if (testPoints.empty()) {
 #if defined(DEBUG) || defined(_DEBUG)
@@ -231,90 +231,113 @@ namespace ecs {
 		}
 
 		// ポイントバッファの更新
-		point_buffer_->Update(deferredContext, testPoints.data(), sizeof(DirectX::XMFLOAT3) * testPoints.size());
-
+		point_buffer_->Update(testPoints.data(), sizeof(DirectX::XMFLOAT3) * testPoints.size());
 		// 判定
+		// memo: falseで初期化。CSの結果が光ならtrueで上書きする。
 		std::vector<bool> isLitByAnyLight(testPoints.size(), false);
 
-		for (const auto& lightEntity : entities_) {
-			auto& common = ecs_.GetComponent<LightCommon>(lightEntity);
-			if (!common.enabled) { continue; }
-
-			auto& lightTf = ecs_.GetComponent<Transform>(lightEntity);
-
-			DirectX::XMMATRIX lightViewProj{};
-			int shadowIndex = 0;
-			lightDepthSystem->GetShadowInfo(lightEntity, shadowIndex, lightViewProj);
+		const auto& shadowLights = lightDepthSystem->GetShadowLights();
+		for (uint32_t i = 0; i < shadowLights.size(); ++i) {
+			const auto& entry = shadowLights[i];
 
 			// 定数バッファの更新
 			CSParams params{};
-			params.lightViewProj = lightViewProj;
+			params.lightViewProj = entry.lightViewProj;
 			params.numPoints = static_cast<uint32_t>(testPoints.size());
 			params.shadowWidth = lightDepthSystem->GetShadowMapWidth();
 			params.shadowHeight = lightDepthSystem->GetShadowMapHeight();
-			params.sliceIndex = static_cast<uint32_t>(shadowIndex);
+			params.sliceIndex = entry.sliceIndex;
 			// ライト情報
+			auto& lightTf = ecs_.GetComponent<Transform>(entry.light);
+			auto& lightCommon = ecs_.GetComponent<LightCommon>(entry.light);
 			params.lightPos = lightTf.position;
 			params.lightDir = lightTf.GetForward();
 			params.cosOuterAngle = -1.0f;
 			params.cosInnerAngle = -1.0f;
 			params.lightRange = 100000.0f;
 			// スポットライトなら
-			if (ecs_.HasComponent<SpotLight>(lightEntity)) {
-				auto& spot = ecs_.GetComponent<SpotLight>(lightEntity);
+			if (ecs_.HasComponent<SpotLight>(entry.light)) {
+				auto& spot = ecs_.GetComponent<SpotLight>(entry.light);
 				params.cosOuterAngle = spot.outerCos;
 				params.cosInnerAngle = spot.innerCos;
 				params.lightRange = spot.range;
 			}
-
-			cb_params_->Update(deferredContext, &params, sizeof(CSParams));
+			// CB更新
+			D3D11_MAPPED_SUBRESOURCE mapped{};
+			immediateContext->Map(
+				cb_params_->GetBuffer(),
+				0,
+				D3D11_MAP_WRITE_DISCARD,
+				0,
+				&mapped
+			);
+			memcpy(mapped.pData, &params, sizeof(CSParams));
+			immediateContext->Unmap(cb_params_->GetBuffer(), 0);
 
 			// リソースセット
-			deferredContext.CSSetShader(csEntry.shader.Get());
-			deferredContext.CSSetConstantBuffer(0, *cb_params_);
-			ID3D11ShaderResourceView* srvs[] = {
-				point_buffer_->GetSRV(),
-				lightDepthSystem->GetShadowMapSRV()
-			};
-			deferredContext.CSSetShaderResources(0, 2, srvs);
-			deferredContext.CSSetUnorderedAccessView(0, result_buffer_.get());
+			immediateContext->CSSetShader(csEntry.shader.Get(), nullptr, 0);
+			// CB
+			ID3D11Buffer* cb = cb_params_->GetBuffer();
+			immediateContext->CSSetConstantBuffers(0, 1, &cb);
+			// SRV
+			ID3D11ShaderResourceView* csSrvs[2];
+			csSrvs[0] = point_buffer_->GetSRV();
+			csSrvs[1] = lightDepthSystem->GetShadowMapSRVs();
+			immediateContext->CSSetShaderResources(0, 2, csSrvs);
+			// UAV
+			ID3D11UnorderedAccessView* uav = result_buffer_->GetUAV();
+			UINT initialCounts = 0;
+			immediateContext->CSSetUnorderedAccessViews(0, 1, &uav, &initialCounts);
 
 			// シャドウサンプラーをセット
 			ID3D11SamplerState* samplers[] = { lightDepthSystem->GetShadowSampler() };
-			deferredContext.GetDeferredContext()->CSSetSamplers(0, 1, samplers);
+			immediateContext->CSSetSamplers(0, 1, samplers);
 
 			// 実行
 			uint32_t groupCount = static_cast<uint32_t>(testPoints.size() + CS_THREAD_GROUP_SIZE - 1) / CS_THREAD_GROUP_SIZE;
-			deferredContext.Dispatch(groupCount, 1, 1);
+			immediateContext->Dispatch(groupCount, 1, 1);
 
-			// 結果の取得
-			deferredContext.CopyResource(*staging_buffer_, *result_buffer_);
+			// GPUを待ってから結果を取得
+			immediateContext->CopyResource(staging_buffer_->GetBuffer(), result_buffer_->GetBuffer());
 			void* mappedData = staging_buffer_->Map();
 			if (mappedData) {
 
 				// デバッグ用カウンタ
 				uint32_t countLit = 0;
 				uint32_t countShadow = 0;
-				uint32_t countOutsideXY = 0;
-				uint32_t countBadW = 0;
+				uint32_t countOutUV = 0;
+				uint32_t countOutZ = 0;
+				uint32_t countZeroW = 0;
+				uint32_t countOutRange = 0;
+				uint32_t countOutSideCone = 0;
 
+				// outFlags: 0 = lit, 1 = shadow, 2 = outUV, 3 = outZ, 4 = wZero, 5 = outRange, 6 = outSideCone
 				auto* flags = static_cast<const uint32_t*>(mappedData);
-				for (size_t i = 0; i < testPoints.size(); ++i)
+				for (size_t j = 0; j < testPoints.size(); ++j)
 				{
-					switch (flags[i])
+					switch (flags[j])
 					{
 					case 0: // lit
 						++countLit;
-						isLitByAnyLight[i] = true;
+						isLitByAnyLight[j] = true;
 						break;
 					case 1: // shadow
 						++countShadow;
 						break;
-					case 2: // outside XY
-						++countOutsideXY;
+					case 2: // outUV
+						++countOutUV;
 						break;
-					case 3: // w == 0
-						++countBadW;
+					case 3: // outZ
+						++countOutZ;
+						break;
+					case 4: // wZero
+						++countZeroW;
+						break;
+					case 5: // outRange
+						++countOutRange;
+						break;
+					case 6: // outSideCone
+						++countOutSideCone;
 						break;
 					default:
 						break;
@@ -323,21 +346,29 @@ namespace ecs {
 				staging_buffer_->Unmap();
 
 #if defined(DEBUG) || defined(_DEBUG)
-				GameLogFInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outsideXY={}, badW={}",
-					lightEntity.id_,
+				/*
+				DebugLogInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outUV={}, outZ={}, zeroW={}, outRange={}, outSideCone={}",
+					entry.light.id_,
 					countLit,
 					countShadow,
-					countOutsideXY,
-					countBadW
+					countOutUV,
+					countOutZ,
+					countZeroW,
+					countOutRange,
+					countOutSideCone
 				);
+				*/
 #endif // DEBUG
 			}
 		}
 		// クリア
-		deferredContext.CSClearResources(2, 1);
+		ID3D11ShaderResourceView* nullSrvs[2] = { nullptr, nullptr };
+		immediateContext->CSSetShaderResources(0, 2, nullSrvs);
+		ID3D11UnorderedAccessView* nullUav = nullptr;
+		immediateContext->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
 
 #if defined(DEBUG) || defined(_DEBUG)
-		// デバッグ表示用の情報を更新（クリア前に実行！）
+		// デバッグ表示用の情報を更新
 		UpdateDebugVisualization(testPoints, isLitByAnyLight);
 #endif
 
@@ -347,7 +378,7 @@ namespace ecs {
 
 			bool allContactPointsInShadow = true;
 			size_t litCount = 0;
-			
+
 			for (size_t i = 0; i < test.contactPointCount; ++i) {
 				size_t pointIndex = test.contactPointStartIndex + i;
 				if (pointIndex < isLitByAnyLight.size() && isLitByAnyLight[pointIndex]) {
@@ -355,11 +386,14 @@ namespace ecs {
 					++litCount;
 				}
 			}
-
+#if defined(DEBUG) || defined(_DEBUG)
+			/*
 			DebugLogInfo("[ShadowTestSystem] Entity pair ({}, {}): {}/{} points lit, allInShadow={}",
 				test.a.id_, test.b.id_,
 				litCount, test.contactPointCount,
 				allContactPointsInShadow);
+			*/
+#endif // DEBUG || _DEBUG
 
 			ShadowTestResult result{};
 			result.allContactPointsInShadow = allContactPointsInShadow;
@@ -413,5 +447,22 @@ namespace ecs {
 			debugPoint.isInShadow = !_isLitByAnyLight[i];
 			debug_test_points_.push_back(debugPoint);
 		}
+	}
+
+	void ShadowTestSystem::DebugCheckSliceIndex()
+	{
+#if defined(DEBUG) || defined(_DEBUG)
+		auto lightDepthSystem = light_depth_system_.lock();
+		if (!lightDepthSystem) return;
+
+		const auto& lights = lightDepthSystem->GetShadowLights();
+		for (uint32_t i = 0; i < lights.size(); ++i) {
+			const auto& entry = lights[i];
+			if (entry.sliceIndex != i) {
+				DebugLogError("[SliceIndexMismatch] Light {} expectedSlice={} actualSlice={}",
+					entry.light.id_, i, entry.sliceIndex);
+			}
+		}
+#endif
 	}
 }

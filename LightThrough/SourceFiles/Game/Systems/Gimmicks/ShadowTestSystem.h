@@ -34,6 +34,7 @@ namespace ecs {
 		void Init() override;
 		//! @brief 更新
 		void Update(float _dt) override;
+		void FixedUpdate(float _fixedDt) override;
 
 		/**
 		 * @brief 影判定の結果を取得
@@ -69,12 +70,12 @@ namespace ecs {
 	private:
 		//! @brief CS用定数バッファ
 		struct alignas(16) CSParams {
-			DirectX::XMMATRIX lightViewProj;
+			DirectX::XMFLOAT4X4 lightViewProj;
 
 			uint32_t numPoints;
 			uint32_t shadowWidth;
 			uint32_t shadowHeight;
-			uint32_t sliceIndex;
+			int32_t sliceIndex;
 
 			DirectX::XMFLOAT3 lightPos;
 			float _pad0;
@@ -118,10 +119,10 @@ namespace ecs {
 		std::weak_ptr<DebugRenderSystem> debug_render_system_{};
 
 		// コンピュートシェーダー関連
-		dx3d::ConstantBufferPtr cb_params_{};
-		dx3d::StructuredBufferPtr point_buffer_{};
-		dx3d::RWStructuredBufferPtr result_buffer_{};
-		dx3d::StagingBufferPtr staging_buffer_{};
+		dx3d::ConstantBufferPtr cb_params_{};			// CS用定数バッファ
+		dx3d::StructuredBufferPtr point_buffer_{};		// テストポイントバッファ
+		dx3d::RWStructuredBufferPtr result_buffer_{};	// 結果バッファ
+		dx3d::StagingBufferPtr staging_buffer_{};		// 読み戻し用ステージングバッファ
 
 		// 処理対象
 		std::vector<PendingTest> pending_tests_{};
@@ -147,6 +148,8 @@ namespace ecs {
 		// デバッグ情報の更新
 		void UpdateDebugVisualization(const std::vector<DirectX::XMFLOAT3>& _testPoints,
 			const std::vector<bool>& _isLitByAnyLight);
+
+		void DebugCheckSliceIndex();
 	};
 
 }

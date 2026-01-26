@@ -10,16 +10,16 @@ struct PSIN
 };
 
 
-Texture2DArray<float> shadowMap : register(t0);
+Texture2DArray shadowMap : register(t0);
 SamplerComparisonState shadowSampler : register(s0);
 
-// シャドウの計算
-float CalcShadowFactor(float3 _worldPos, int _shadowIndex, matrix _lightVP)
+// シャドウの計算 0: 影, 1: 光
+float CalcShadowFactor(float3 _worldPos, int _shadowIndex, row_major float4x4 _lightVP)
 {
     // シャドウマップ未使用
     if (_shadowIndex < 0)
     {
-        return 0.0f;
+        return 1.0f;
     }
     
     float4 lightPos = mul(float4(_worldPos, 1), _lightVP);
@@ -31,11 +31,13 @@ float CalcShadowFactor(float3 _worldPos, int _shadowIndex, matrix _lightVP)
     // 影外チェック
     if (uvw.x < 0 || uvw.x > 1 || uvw.y < 0 || uvw.y > 1)
     {
-        return 0.0; // 光側
+        return 1.0f; // 光側
     }
     
     // PCFサンプリング
-    float2 texel = 1.0f / float2(2048.0f, 2048.0f);
+    uint w, h, layers;
+    shadowMap.GetDimensions(w, h, layers);
+    float2 texel = 1.0f / float2(w, h);
     float result = 0.0f;
     [unroll]
     for (int y = -1; y <= 1; ++y)
@@ -59,11 +61,11 @@ float CalcShadowFactor(float3 _worldPos, int _shadowIndex, matrix _lightVP)
 
 float4 PSMain(PSIN _pin) : SV_Target
 {
+    
     float3 N = normalize(_pin.normalWS);
     
     float3 color = float3(0.0f, 0.0f, 0.0f);
     float totalLight = 0.0f;
-    [unroll]
     for (int i = 0; i < lightCount; ++i)
     {
         // ライティング計算
@@ -72,17 +74,19 @@ float4 PSMain(PSIN _pin) : SV_Target
         // シャドウ計算
         int shadowIndex = (int) lights[i].spotAngles_shadowIndex.z;
         float shadowFactor = CalcShadowFactor(_pin.worldPos, shadowIndex, lightViewProjs[i]);
+        //float shadowFactor = 1.0f; // シャドウ無効化
+        
         
         float effectiveLight = li * shadowFactor;
-       
-        // 色加算
         color += effectiveLight * lights[i].color.rgb;
         totalLight += effectiveLight;
     }
-    
+
     // 光が当たっていない場合は破棄
     if (totalLight <= 0.0f)
     {
+
+        return float4(1, 0, 1, 0.2);
         discard;
     }
 

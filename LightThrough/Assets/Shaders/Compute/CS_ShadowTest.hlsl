@@ -22,7 +22,7 @@ StructuredBuffer<float3> points : register(t0);
 Texture2DArray<float> shadowMap : register(t1);
 SamplerComparisonState shadowSampler : register(s0);
 
-// outFlags: 0 = lit, 1 = shadow, 2 = outsideXY, 3 = wZero
+// outFlags: 0 = lit, 1 = shadow, 2 = outUV, 3 = outZ, 4 = wZero, 5 = outRange, 6 = outSideCone
 RWStructuredBuffer<uint> outFlags : register(u0);
 
 [numthreads(64, 1, 1)]
@@ -32,44 +32,18 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
     if (idx >= numPoints)
         return;
     
-    // shadowで初期化
-    outFlags[idx] = 1u;
-
     float3 P = points[idx];
     
     // ライト位置からポイントへのベクトルと距離
     float3 toPoint = P - lightPos;
     float dist = length(toPoint);
     
-    // 距離チェック
-    if (dist > lightRange)
-    {
-        outFlags[idx] = 2u; // 範囲外
-        return;
-    }
-    
-    // 角度チェック
-    float3 toPointDir = toPoint / dist;
-    float cosAngle = dot(toPointDir, lightDir);
-    if (cosAngle < cosOuterAngle)
-    {
-        outFlags[idx] = 2u; // 円錐外
-        return;
-    }
-    
     // クリップ座標に変換
     float4 clip = mul(float4(P, 1.0f), lightViewProj);
 
-    // wが0に近い場合
-    if (abs(clip.w) < 1e-6f)
-    {
-        outFlags[idx] = 3u;
-        return;
-    }
-
     float3 ndc = clip.xyz / clip.w;
     
-    // UV座標変換 (PS_Default.hlslと同じロジック)
+    // UV座標変換
     float3 uvw = ndc * float3(0.5f, -0.5f, 1.0f) + float3(0.5f, 0.5f, 0.0f);
     
     // 範囲外
@@ -78,22 +52,45 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
         outFlags[idx] = 2u;
         return;
     }
-
     // Z範囲外（ニアプレーンより手前、ファープレーンより奥）
     if (uvw.z < 0.0f || uvw.z > 1.0f)
     {
-        outFlags[idx] = 2u; // 範囲外扱い
+        outFlags[idx] = 3u; // 範囲外扱い
+        return;
+    }
+    // wが0に近い場合
+    if (abs(clip.w) < 1e-6f)
+    {
+        outFlags[idx] = 4u;
         return;
     }
     
+    // 距離チェック
+    if (dist > lightRange)
+    {
+        outFlags[idx] = 5u; // 範囲外
+        return;
+    }
+    //角度チェック
+    float3 toPointDir = toPoint / dist;
+    float cosAngle = dot(toPointDir, lightDir);
+    if (cosAngle < cosOuterAngle)
+    {
+        outFlags[idx] = 6u; // 円錐外
+        return;
+    }
+    
+
+    
     // SampleCmpLevelZero: uvw.z <= stored なら 1.0 (光の中)
+    float bias = 0.0001f;
     float shadowFactor = shadowMap.SampleCmpLevelZero(
         shadowSampler,
-        float3(uvw.xy, (float) sliceIndex),
-        uvw.z
+        float3(uvw.xy, sliceIndex),
+        uvw.z - bias
     );
     
     // shadowFactor: 1.0 = 光の中, 0.0 = 影
-    // 0.5より大きければ光の中と判定（PCFを考慮）
-    outFlags[idx] = (shadowFactor > 0.5f) ? 0u : 1u;
+    // 0.5より小さければ影の中と判定（PCFを考慮）
+    outFlags[idx] = (shadowFactor < 0.5f) ? 1u : 0u;
 }

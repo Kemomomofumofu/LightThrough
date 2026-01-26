@@ -24,6 +24,7 @@
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
+#include <Game/Systems/Physics/GroundDetectionSystem.h>
 #include <Game/Systems/Physics/ForceAccumulationSystem.h>
 #include <Game/Systems/Physics/IntegrationSystem.h>
 #include <Game/Systems/Physics/ClearForcesSystem.h>
@@ -81,45 +82,56 @@ namespace {
 	{
 		auto& ecs = _systemDesc.ecs;
 
-		// ---------- 初期化関係 ---------- //
+		// ---------- 初期化関係 ----------
 		_systemDesc.oneShot = true;
 		ecs.RegisterSystem<ecs::ObjectResolveSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::MoveDirectionSourceResolveSystem>(_systemDesc);
 
-		// ---------- ゲーム関係 ---------- //
+		// ---------- ゲーム関係 ----------
 		_systemDesc.oneShot = false;
+
 		// 入力関係
 		ecs.RegisterSystem<ecs::PlayerControllerSystem>(_systemDesc);
 
-		// ---------- 衝突関係 ---------- // 
+		// 力の集計
 		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_systemDesc);
-		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_systemDesc);
+
+		// 物理予測 速度→位置の仮適用
 		ecs.RegisterSystem<ecs::IntegrationSystem>(_systemDesc);
+
+		// Transform → Collider(worldOBB 等) を同期
 		ecs.RegisterSystem<ecs::ColliderSyncSystem>(_systemDesc);
 
-		// ShadowMap描画
+		// ShadowMap(ライト深度) の更新
 		ecs.RegisterSystem<ecs::LightDepthRenderSystem>(_systemDesc);
 
+		// 影の中にいるか判定
 		ecs.RegisterSystem<ecs::ShadowTestSystem>(_systemDesc);
 
+		// 地面接地判定
+		ecs.RegisterSystem<ecs::GroundDetectionSystem>(_systemDesc);
+
+		// 押し出し・反発・摩擦など
+		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_systemDesc);
+
+
+		// 力のクリア等
 		ecs.RegisterSystem<ecs::ClearForcesSystem>(_systemDesc);
 
 		// タイトル独自の更新
 		ecs.RegisterSystem<ecs::TitleSceneSystem>(_systemDesc);
 
-		// 位置更新
+		// 親子解決など
 		ecs.RegisterSystem<ecs::TransformSystem>(_systemDesc);
 
-		// カメラ
+		// カメラ・描画系
 		ecs.RegisterSystem<ecs::CameraSystem>(_systemDesc);
-		// 描画システム
 		ecs.RegisterSystem<ecs::RenderSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::OutlineRenderSystem>(_systemDesc);
 
 #if defined(_DEBUG) || defined(DEBUG)
-		// デバッグ描画システム
 		ecs.RegisterSystem<ecs::DebugRenderSystem>(_systemDesc);
-#endif // defined(_DEBUG) || defined(DEBUG)
+#endif
 
 		// 全システム初期化
 		ecs.InitAllSystems();
@@ -259,7 +271,6 @@ namespace dx3d {
 		graphics_engine_->EndFrame();
 
 #ifdef defined(_DEBUG) || defined(DEBUG)
-
 		if (auto* dev = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get()) {
 			const HRESULT hr = dev->GetDeviceRemovedReason();
 			if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || FAILED(hr)) {

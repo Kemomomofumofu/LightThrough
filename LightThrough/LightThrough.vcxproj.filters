@@ -222,6 +222,7 @@
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -321,6 +322,7 @@
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
@@ -339,6 +341,7 @@
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Outline.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_ShadowMapDebug.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Fullscreen.hlsl" />
   </ItemGroup>
 </Project>

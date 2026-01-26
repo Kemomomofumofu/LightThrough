@@ -51,7 +51,5 @@ VSOUT VSMain(VSIN _vin)
     // êF
     vout.color = objectColor;
     
-    vout.posLight = mul(wp, lightViewProj);
-    
     return vout;
 }

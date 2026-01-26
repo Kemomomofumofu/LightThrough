@@ -76,18 +76,24 @@ namespace ecs {
 	{
 		int lightCount; uint32_t _pad0[3];
 		LightCPU lights[MAX_LIGHTS];
-		DirectX::XMMATRIX lightViewProj[MAX_LIGHTS]; // 各ライトのビュー射影行列
+		DirectX::XMFLOAT4X4 lightViewProj[MAX_LIGHTS]; // 各ライトのビュー射影行列
 	};
 
 	struct CBLightMatrix
 	{
-		DirectX::XMMATRIX lightViewProj;
+		DirectX::XMFLOAT4X4 lightViewProj;
 	};
 
 	static_assert(sizeof(LightCPU) == 64, "LightCPUのサイズが不正(4 * 16 bytes)");
 
 
-
+	/**
+	 * @brief LightCPU構築
+	 * @param _tf transformComponent
+	 * @param _common lightCommonComponent
+	 * @param _spot spotLightComponentのポインタ(スポットライトでない場合はnullptr)
+	 * @return 構築されたLightCPU
+	 */
 	inline LightCPU BuildLightCPU(const Transform& _tf, const LightCommon& _common, const SpotLight* _spot)
 	{
 		using namespace DirectX;

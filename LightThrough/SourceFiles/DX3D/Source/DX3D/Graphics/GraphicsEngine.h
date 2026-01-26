@@ -40,6 +40,8 @@ namespace dx3d {
 		
 		GraphicsDevice& GetGraphicsDevice() noexcept;
 		DeviceContext& GetDeferredContext() noexcept;
+		ID3D11DeviceContext* GetImmediateContext() noexcept;
+		
 		//! @brief メッシュレジストリ取得
 		MeshRegistry& GetMeshRegistry() noexcept;
 		//! @brief シェーダーキャッシュ取得

@@ -29,6 +29,13 @@ namespace ecs {
 		size_t instanceOffset = 0;
 	};
 
+	//! @brief ライトごとのシャドウ情報エントリ
+	struct ShadowLightEntry {
+		ecs::Entity light;
+		DirectX::XMFLOAT4X4 lightViewProj;
+		int32_t sliceIndex = -1;
+	};
+
 	/**
 	 * @brief 描画システム
 	 *
@@ -41,24 +48,36 @@ namespace ecs {
 		void Init() override;
 		//! @brief 更新
 		void Update(float _dt) override;
-		//! @brief 破棄イベント
-		void OnEntityDestroyed(Entity _entity) override;
+		/**
+		 * @brief エンティティ破棄時処理
+		 * @param _e 破棄されたエンティティ
+		 */
+		void OnEntityDestroyed(Entity _e) override;
 
+		/**
+		 * @brief シャドウマップSRV取得
+		 * @return SRVポインタ
+		 */
+		ID3D11ShaderResourceView* GetShadowMapSRVs() const { return shadow_srvs_.Get(); }
 
-		ID3D11ShaderResourceView* GetShadowMapSRV() const { return shadow_srv_.Get(); }
+		/**
+		 * @brief シャドウマップ用サンプラーステート取得
+		 * @return サンプラーステートポインタ
+		 */
 		ID3D11SamplerState* GetShadowSampler() const { return shadow_sampler_.Get(); }
 
 		uint32_t GetShadowMapWidth() const { return SHADOW_MAP_WIDTH; }
 		uint32_t GetShadowMapHeight() const { return SHADOW_MAP_HEIGHT; }
 
-		//! @brief ライトEntityからシャドウ情報を取得
-		bool GetShadowInfo(Entity _lightEntity, int& _outIndex, DirectX::XMMATRIX& _outMatrix) const;
+		//! @brief ライトエンティティのシャドウ情報取得
+		std::vector<ShadowLightEntry> GetShadowLights() const { return shadow_lights_; }
 	private:
 		//! @brief バッチ収集
 		void CollectBatches();
 		//! @brief バッチ更新
 		void UpdateBatches();
-		void RenderShadowPass(Entity _lightEntity, ID3D11DepthStencilView* _dsv);
+		//! @brief シャドウマップ描画パス
+		void RenderShadowPass(ShadowLightEntry _entry, ID3D11DepthStencilView* _dsv);
 		//! @brief インスタンスバッファの作成またはリサイズ
 		void CreateOrResizeInstanceBufferShadow(size_t _requiredInstanceCapacity);
 		// シャドウマップ用リソースの作成
@@ -66,6 +85,9 @@ namespace ecs {
 
 
 	private:
+		std::weak_ptr<class DebugRenderSystem> debug_render_system_{};
+
+
 		static const uint32_t MAX_SHADOW_LIGHTS = 16;
 		const uint32_t SHADOW_MAP_WIDTH = 2048;
 		const uint32_t SHADOW_MAP_HEIGHT = 2048;
@@ -73,18 +95,17 @@ namespace ecs {
 		std::vector<InstanceBatchShadow> shadow_batches_{}; // シャドウパスのバッチ
 		std::shared_ptr<dx3d::VertexBuffer> instance_buffer_shadow_{};
 		size_t instance_buffer_capacity_{};
-
 		dx3d::ConstantBufferPtr cb_light_matrix_{};	// 定数バッファ
 
 		// シャドウマップ用リソース
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> shadow_depth_tex_{};
 		std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> shadow_dsvs_{};
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadow_srv_{};
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shadow_srvs_{};
+		//std::vector<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> shadow_srvs_{};
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> shadow_sampler_{};
 
 		// ライトごとのシャドウ情報
-		std::unordered_map<Entity, int> light_to_shadow_index_{};
-		std::vector<DirectX::XMMATRIX> light_view_proj_matrices_{};
+		std::vector<ShadowLightEntry> shadow_lights_;
 
 		dx3d::GraphicsEngine& engine_;
 	};

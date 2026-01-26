@@ -23,7 +23,7 @@ namespace ecs {
 		mutable XMFLOAT3 eulerDegCache{ 0.0f, 0.0f, 0.0f };
 
 		//! キャッシュ用
-		mutable XMFLOAT4X4 world{
+		XMFLOAT4X4 world{
 			1, 0, 0, 0,
 			0, 1, 0, 0,
 			0, 0, 1, 0,

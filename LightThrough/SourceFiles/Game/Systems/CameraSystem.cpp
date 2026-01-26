@@ -61,8 +61,8 @@ namespace ecs {
 				cam.farZ
 			);
 
-			cam.view = viewM;
-			cam.proj = projM;
+			XMStoreFloat4x4(&cam.view, viewM);
+			XMStoreFloat4x4(&cam.proj, projM);
 		}
 	}
 
