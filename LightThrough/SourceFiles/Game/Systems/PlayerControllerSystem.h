@@ -21,6 +21,9 @@ namespace ecs {
 		bool move_back_		= false;
 		bool move_left_		= false;
 		bool move_right_	= false;
-		bool move_jump_ = false;
+		bool request_jump_ = false;
+
+		// ライト生成リクエスト
+		bool request_spawn_light_ = false;
 	};
 } // namespace ecs

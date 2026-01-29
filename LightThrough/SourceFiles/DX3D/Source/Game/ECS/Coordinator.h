@@ -74,7 +74,7 @@ namespace ecs {
 		void RegisterComponent();	// ComponentƒŠƒXƒg‚Ì“o˜^
 
 		template<typename Com>
-		void AddComponent(Entity _e, const Com& _component);	// Component‚Ì’Ç‰Á
+		Com* AddComponent(Entity _e, const Com& _component);	// Component‚Ì’Ç‰Á
 		void AddComponentRaw(Entity _e, ComponentType _type, const void* _data);
 
 		template<typename Com>
@@ -89,7 +89,7 @@ namespace ecs {
 		bool HasComponent(Entity _e);
 
 		template<typename Com>
-		Com& GetComponent(Entity _e);	// Component‚ÌŽæ“¾
+		Com* GetComponent(Entity _e);	// Component‚ÌŽæ“¾
 
 		template<typename Com>
 		ComponentType GetComponentType();	// Component‚ÌType‚ðŽæ“¾

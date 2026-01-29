@@ -14,6 +14,7 @@
 #include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/Input/MoveDirectionSource.h>
 #include <Game/Components/Input/CameraController.h>
+#include <Game/Components/GamePlay/LightPlaceRequest.h>
 
 #include <DX3D/Math/MathUtils.h>
 #include <Debug/Debug.h>
@@ -42,7 +43,11 @@ namespace ecs {
 		if (input.IsKeyDown('D')) { move_right_ = true; }
 
 		// ジャンプ入力取得
-		if (input.IsKeyTrigger(VK_SPACE)) { move_jump_ = true; }
+		if (input.IsKeyTrigger(VK_SPACE)) { request_jump_ = true; }
+
+		// ライト生成リクエスト取得
+		if (input.IsKeyTrigger('F')) { request_spawn_light_ = true; }
+
 	}
 
 	//! @brief 固定更新
@@ -87,10 +92,22 @@ namespace ecs {
 			}
 
 			// ジャンプ処理
-			if (move_jump_) {
+			if (request_jump_) {
 				if (gc.isGrounded) {
 					rb.linearVelocity.y = pc.jumpForce;
 				}
+			}
+
+			// ライト生成リクエスト取得部分の修正
+			if(request_spawn_light_) {
+				// デバッグ用: ライト生成リクエストをMoveDirectionSourceに伝える
+				auto playerEntity = e;
+				auto req = ecs_.HasComponent<LightPlaceRequest>(playerEntity) ?
+					ecs_.GetComponent<LightPlaceRequest>(playerEntity) :
+					ecs_.AddComponent<LightPlaceRequest>(playerEntity, LightPlaceRequest{});
+
+
+				
 			}
 
 		}
@@ -100,7 +117,7 @@ namespace ecs {
 		move_back_ = false;
 		move_left_ = false;
 		move_right_ = false;
-		move_jump_ = false;
+		request_jump_ = false;
 
 	}
 } // namespace ecs

@@ -223,6 +223,7 @@
     <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\GamePlay\LightPlaceRequest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">

@@ -6,6 +6,8 @@
 
 
  // ---------- インクルード ---------- // 
+#include <vector>
+#include <DirectXMath.h>
 #include <Game/ECS/ISystem.h>
 #include <DX3D/Core/Common.h>
 
@@ -25,12 +27,12 @@ namespace ecs {
 	class CollisionResolveSystem : public ISystem
 	{
 	public:
-		//! @brief 衝突エントリ
-		struct ContactEntry
-		{
+		//! @brief 衝突情報を保存する構造体
+		struct ContactRecord {
 			Entity a;
 			Entity b;
 			collision::ContactResult contact;
+			std::vector<DirectX::XMFLOAT3> samplePoints;
 		};
 
 		explicit CollisionResolveSystem(const SystemDesc& _desc);
@@ -41,10 +43,10 @@ namespace ecs {
 		void SetShadowCollisionEnabled(bool _enabled) { shadow_collision_enabled_ = _enabled; }
 
 		// 衝突リストを取得
-		const std::vector<ContactEntry>& GetContacts() const { return contacts_; }
+		const std::vector<ContactRecord>& GetContacts() const { return contacts_; }
 	private:
 		std::weak_ptr<ShadowTestSystem> shadow_test_system_{};
-		std::vector<ContactEntry> contacts_; // 衝突リスト
+		std::vector<ContactRecord> contacts_; // 衝突リスト
 
 		float solve_percent_ = 1.0f; // 解消割合
 		float solve_slop_ = 0.01f;   // 微小貫通を無視する閾値

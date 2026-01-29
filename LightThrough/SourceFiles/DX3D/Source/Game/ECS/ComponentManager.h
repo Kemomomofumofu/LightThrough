@@ -31,7 +31,7 @@ namespace ecs {
 		template<typename Com>
 		void RegisterComponent();	// ComponentƒŠƒXƒg‚Ì“o˜^
 		template<typename Com>
-		Com& GetComponent(Entity _e);	// Component‚Ìæ“¾
+		Com* GetComponent(Entity _e);	// Component‚Ìæ“¾
 		template<typename Com>
 		bool HasComponent(Entity _e);	// Component‚ğ‚Á‚Ä‚¢‚é‚©
 		template<typename Com>
