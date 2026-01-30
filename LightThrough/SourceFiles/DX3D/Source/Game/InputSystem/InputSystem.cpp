@@ -10,8 +10,25 @@
 #include <Windows.h>
 #include <hidusage.h>
 
+namespace
+{
+	// マウスボタンが押されているか
+	bool GetMouseButtonDown(input::MouseButton _btn)
+	{
+		int vk = 0;
+		switch (_btn) {
+		case input::MouseButton::Left: vk = VK_LBUTTON; break;
+		case input::MouseButton::Right: vk = VK_RBUTTON; break;
+		case input::MouseButton::Middle: vk = VK_MBUTTON; break;
+		default: return false;
+		}
 
-namespace input {
+		return (::GetAsyncKeyState(vk) & 0x8000) != 0;
+	}
+}
+
+namespace input
+{
 	/**
 	 * @brief ゲッター
 	 * @return インプットシステムの参照
@@ -37,6 +54,9 @@ namespace input {
 	{
 		if (!focused_ || !input_enabled_) {
 			mouse_delta_ = {};
+
+			::memset(mouse_buttons_, 0, sizeof(mouse_buttons_));
+			::memset(old_mouse_buttons_, 0, sizeof(old_mouse_buttons_));
 			return;
 		}
 
@@ -45,10 +65,11 @@ namespace input {
 		::GetKeyboardState(keys_state_);
 
 		// ---------- マウス ---------- //
-
-		// RawInputが有効なら 
+		// マウスボタン
+			UpdateMouseButtons();
+		// マウス移動
 		if (use_raw_mouse_) {
-			ClearFrameMouse();	// フレーム開始処理
+			ClearFrameMouse();
 		}
 
 		if (mouse_mode_ == MouseMode::Cursor) {
@@ -108,6 +129,24 @@ namespace input {
 	bool InputSystem::IsKeyRelease(int _key) const
 	{
 		return !(keys_state_[_key] & 0x80) && (old_keys_state_[_key] & 0x80);
+	}
+
+	bool InputSystem::IsMouseDown(MouseButton _button) const
+	{
+		const size_t i = static_cast<size_t>(_button);
+		return mouse_buttons_[i];
+	}
+
+	bool InputSystem::IsMouseTrigger(MouseButton _button) const
+	{
+		const size_t i = static_cast<size_t>(_button);
+		return (mouse_buttons_[i] && !old_mouse_buttons_[i]);
+	}
+
+	bool InputSystem::IsMouseRelease(MouseButton _button) const
+	{
+		const size_t i = static_cast<size_t>(_button);
+		return (!mouse_buttons_[i] && old_mouse_buttons_[i]);
 	}
 
 	/**
@@ -325,7 +364,7 @@ namespace input {
 		RECT rect{};
 		::GetClientRect(hwnd_, &rect);
 
-		switch(mouse_mode_)
+		switch (mouse_mode_)
 		{
 		case MouseMode::Camera:
 		{
@@ -400,9 +439,20 @@ namespace input {
 		wheel_delta_ = 0.0f;
 	}
 
+	//! @brief マウスボタン状態更新
+	void InputSystem::UpdateMouseButtons()
+	{
+		// 保存
+		::memcpy(old_mouse_buttons_, mouse_buttons_, sizeof(mouse_buttons_));
+		// 更新
+		for(size_t i = 0; i< static_cast<size_t>(MouseButton::Max); ++i) {
+			mouse_buttons_[i] = GetMouseButtonDown(static_cast<MouseButton>(i));
+		}
+	}
+
 	/**
 	 * @brief マウスモードに応じた状態を適用
-	 * 
+	 *
 	 * - c/ Camera: 入力有効、フォーカス有効、RawInput有効、マウスロック
 	 * - c/ Cursor: 入力無効、フォーカス有効、RawInput無効、マウスロック解除
 	 * - c/ Disabled: すべて無効

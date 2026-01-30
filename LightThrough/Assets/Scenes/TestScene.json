@@ -1,564 +1,602 @@
 {
-  "entities": [
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": false,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 0.5
-          },
-          "type": 1
+    "entities": [
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::GroundContact": {
+                    "isGrounded": true
+                },
+                "ecs::MoveDirectionSource": {
+                    "targetName": "PlayerCamera"
+                },
+                "ecs::Name": {
+                    "value": "Player"
+                },
+                "ecs::PlayerController": {
+                    "jumpForce": 6.5,
+                    "moveSpeed": 25.0
+                },
+                "ecs::Rigidbody": {
+                    "angularDrag": 2.0,
+                    "drag": 2.0,
+                    "friction": 1.0,
+                    "isKinematic": false,
+                    "isStatic": false,
+                    "mass": 1.0,
+                    "restitution": 0.0,
+                    "useGravity": true
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": -0.8402029871940613,
+                        "y": -8.510000228881836,
+                        "z": 1.7744988203048706
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 50331661
         },
-        "ecs::GroundContact": {
-          "isGrounded": true
+        {
+            "components": {
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 1.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "enabled": true,
+                    "intensity": 100.0
+                },
+                "ecs::Name": {
+                    "value": "PlayerSpotLight"
+                },
+                "ecs::ObjectChild": {
+                    "rootName": "PlayerCamera"
+                },
+                "ecs::SpotLight": {
+                    "innerCos": 1.0,
+                    "outerCos": 0.800000011920929,
+                    "range": 100.0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886081
         },
-        "ecs::MoveDirectionSource": {
-          "targetName": "PlayerCamera"
+        {
+            "components": {
+                "ecs::Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 100.0,
+                    "fovY": 100.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 0.10000000149011612
+                },
+                "ecs::CameraController": {
+                    "enableMove": false,
+                    "invertY": false,
+                    "mode": 0,
+                    "mouseSensitivity": 0.0020000000949949026,
+                    "moveSpeed": 5.0,
+                    "orbitDistance": 5.0,
+                    "orbitPitch": 0.13079412281513214,
+                    "orbitTarget": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "orbitYaw": 1.8999505043029785,
+                    "pitch": 0.8887952566146851,
+                    "yaw": 14.502481460571289
+                },
+                "ecs::Name": {
+                    "value": "PlayerCamera"
+                },
+                "ecs::ObjectChild": {
+                    "rootName": "Player"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.2437194287776947,
+                        "y": 0.7437704205513,
+                        "z": -0.3541566729545593
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886082
         },
-        "ecs::Name": {
-          "value": "Player"
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Name": {
+                    "value": "Box_1"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 3.2785632610321045,
+                        "y": 1.7316993474960327,
+                        "z": 0.4355253577232361
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 5.75,
+                        "y": 0.800000011920929,
+                        "z": 2.1500000953674316
+                    }
+                }
+            },
+            "id": 83886083
         },
-        "ecs::ObjectRoot": {
-          "name": "PlayerRoot"
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Name": {
+                    "value": "Box_2"
+                },
+                "ecs::Rigidbody": {
+                    "angularDrag": 0.0,
+                    "drag": 0.10000000149011612,
+                    "friction": 1.0,
+                    "isKinematic": false,
+                    "isStatic": false,
+                    "mass": 1.0,
+                    "restitution": 0.10000000149011612,
+                    "useGravity": true
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 2.761826753616333,
+                        "y": -8.510000228881836,
+                        "z": -3.190999984741211
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886084
         },
-        "ecs::PlayerController": {
-          "jumpForce": 6.5,
-          "moveSpeed": 25.0
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": true,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Name": {
+                    "value": "Ground_1"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 1.899999976158142,
+                        "y": -30.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 100.0,
+                        "y": 1.0,
+                        "z": 100.0
+                    }
+                }
+            },
+            "id": 83886085
         },
-        "ecs::Rigidbody": {
-          "angularDrag": 2.0,
-          "drag": 2.0,
-          "friction": 1.0,
-          "isKinematic": false,
-          "isStatic": false,
-          "mass": 1.0,
-          "restitution": 0.0,
-          "useGravity": true
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": true,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Name": {
+                    "value": "Ground_2"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 1.899999976158142,
+                        "y": -9.5,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 100.0,
+                        "y": 1.0,
+                        "z": 100.0
+                    }
+                }
+            },
+            "id": 83886086
         },
-        "ecs::Transform": {
-          "position": {
-            "x": -1.9200704097747803,
-            "y": -8.510000228881836,
-            "z": 0.5085058808326721
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Name": {
+                    "value": "Box_3"
+                },
+                "ecs::Rigidbody": {
+                    "angularDrag": 1.0,
+                    "drag": 1.0,
+                    "friction": 1.0,
+                    "isKinematic": false,
+                    "isStatic": false,
+                    "mass": 1.0,
+                    "restitution": 0.0,
+                    "useGravity": true
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 4.631409645080566,
+                        "y": -8.510000228881836,
+                        "z": -3.8302698135375977
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886087
+        },
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Name": {
+                    "value": "Box_4"
+                },
+                "ecs::Rigidbody": {
+                    "angularDrag": 1.0,
+                    "drag": 1.0,
+                    "friction": 1.0,
+                    "isKinematic": false,
+                    "isStatic": false,
+                    "mass": 1.0,
+                    "restitution": 0.0,
+                    "useGravity": true
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 11.031000137329102,
+                        "y": -8.510000228881836,
+                        "z": -3.2049999237060547
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886088
+        },
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": true,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 1.7000000476837158
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "handle": {
+                        "id": 1
+                    },
+                    "materialId": 0
+                },
+                "ecs::Name": {
+                    "value": "Box_5"
+                },
+                "ecs::Rigidbody": {
+                    "angularDrag": 1.0,
+                    "drag": 1.0,
+                    "friction": 1.0,
+                    "isKinematic": false,
+                    "isStatic": true,
+                    "mass": 1.0,
+                    "restitution": 0.0,
+                    "useGravity": true
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": -4.11299991607666,
+                        "y": -4.010000228881836,
+                        "z": 5.250999927520752
+                    },
+                    "rotationQuat": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 10.0,
+                        "y": 10.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886089
+        },
+        {
+            "components": {
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                    },
+                    "enabled": true,
+                    "intensity": 100.0
+                },
+                "ecs::Name": {
+                    "value": "SpotLight_1"
+                },
+                "ecs::SpotLight": {
+                    "innerCos": 1.0,
+                    "outerCos": 0.800000011920929,
+                    "range": 100.0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.6499999761581421,
+                        "y": 9.649999618530273,
+                        "z": 0.44999998807907104
+                    },
+                    "rotationQuat": {
+                        "x": 0.8482747077941895,
+                        "y": 2.84956286122906e-07,
+                        "z": 2.84956286122906e-07
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886090
+        },
+        {
+            "components": {
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 0.0,
+                        "y": 0.05000000074505806,
+                        "z": 0.8999999761581421
+                    },
+                    "enabled": false,
+                    "intensity": 100.0
+                },
+                "ecs::Name": {
+                    "value": "SpotLight_2"
+                },
+                "ecs::SpotLight": {
+                    "innerCos": 1.100000023841858,
+                    "outerCos": 0.8500000238418579,
+                    "range": 100.4000015258789
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 1.25,
+                        "y": -25.0,
+                        "z": -28.600000381469727
+                    },
+                    "rotationQuat": {
+                        "x": 0.0697387084364891,
+                        "y": -0.021314311772584915,
+                        "z": 0.0015744412085041404
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 83886091
         }
-      },
-      "id": 1
-    },
-    {
-      "components": {
-        "ecs::Camera": {
-          "aspectRatio": 1.7777777910232544,
-          "farZ": 100.0,
-          "fovY": 100.0,
-          "isActive": true,
-          "isMain": true,
-          "nearZ": 0.10000000149011612
-        },
-        "ecs::CameraController": {
-          "enableMove": false,
-          "invertY": false,
-          "mode": 0,
-          "mouseSensitivity": 0.0020000000949949026,
-          "moveSpeed": 5.0,
-          "orbitDistance": 5.0,
-          "orbitPitch": 0.13079412281513214,
-          "orbitTarget": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "orbitYaw": 1.8999505043029785,
-          "pitch": 0.5447954535484314,
-          "yaw": 12.696504592895508
-        },
-        "ecs::Name": {
-          "value": "PlayerCamera"
-        },
-        "ecs::ObjectChild": {
-          "rootName": "PlayerRoot"
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 0.0,
-            "y": 1.0,
-            "z": 0.0
-          },
-          "rotationQuat": {
-            "x": 0.26847222447395325,
-            "y": 0.06262350082397461,
-            "z": -0.01749332621693611
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 11
-    },
-
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": false,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 0.5
-          },
-          "type": 1
-        },
-        "ecs::MeshRenderer": {
-          "handle": {
-            "id": 1
-          },
-          "materialId": 0
-        },
-        "ecs::Name": {
-          "value": "Box_1"
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 3.2785632610321045,
-            "y": 1.7316993474960327,
-            "z": 0.4355253577232361
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 5.75,
-            "y": 0.800000011920929,
-            "z": 2.1500000953674316
-          }
-        }
-      },
-      "id": 2
-    },
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": false,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 0.5
-          },
-          "type": 1
-        },
-        "ecs::MeshRenderer": {
-          "handle": {
-            "id": 1
-          },
-          "materialId": 0
-        },
-        "ecs::Name": {
-          "value": "Box_2"
-        },
-        "ecs::Rigidbody": {
-          "angularDrag": 0.0,
-          "drag": 0.10000000149011612,
-          "friction": 1.0,
-          "isKinematic": false,
-          "isStatic": false,
-          "mass": 1.0,
-          "restitution": 0.10000000149011612,
-          "useGravity": true
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 2.761826753616333,
-            "y": -8.521902084350586,
-            "z": -3.190999984741211
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 3
-    },
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": true,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 0.5
-          },
-          "type": 1
-        },
-        "ecs::MeshRenderer": {
-          "handle": {
-            "id": 1
-          },
-          "materialId": 0
-        },
-        "ecs::Name": {
-          "value": "Ground_1"
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 1.899999976158142,
-            "y": -30.0,
-            "z": 0.0
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 100.0,
-            "y": 1.0,
-            "z": 100.0
-          }
-        }
-      },
-      "id": 4
-    },
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": true,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 0.5
-          },
-          "type": 1
-        },
-        "ecs::MeshRenderer": {
-          "handle": {
-            "id": 1
-          },
-          "materialId": 0
-        },
-        "ecs::Name": {
-          "value": "Ground_2"
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 1.899999976158142,
-            "y": -9.5,
-            "z": 0.0
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 100.0,
-            "y": 1.0,
-            "z": 100.0
-          }
-        }
-      },
-      "id": 5
-    },
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": false,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 0.5
-          },
-          "type": 1
-        },
-        "ecs::MeshRenderer": {
-          "handle": {
-            "id": 1
-          },
-          "materialId": 0
-        },
-        "ecs::Name": {
-          "value": "Box_3"
-        },
-        "ecs::Rigidbody": {
-          "angularDrag": 1.0,
-          "drag": 1.0,
-          "friction": 1.0,
-          "isKinematic": false,
-          "isStatic": false,
-          "mass": 1.0,
-          "restitution": 0.0,
-          "useGravity": true
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 4.631409645080566,
-            "y": -8.510000228881836,
-            "z": -3.8302698135375977
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 6
-    },
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": false,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 0.5
-          },
-          "type": 1
-        },
-        "ecs::MeshRenderer": {
-          "handle": {
-            "id": 1
-          },
-          "materialId": 0
-        },
-        "ecs::Name": {
-          "value": "Box_4"
-        },
-        "ecs::Rigidbody": {
-          "angularDrag": 1.0,
-          "drag": 1.0,
-          "friction": 1.0,
-          "isKinematic": false,
-          "isStatic": false,
-          "mass": 1.0,
-          "restitution": 0.0,
-          "useGravity": true
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 11.031000137329102,
-            "y": -8.510000228881836,
-            "z": -3.2049999237060547
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 7
-    },
-    {
-      "components": {
-        "ecs::Collider": {
-          "box": {
-            "halfExtents": {
-              "x": 0.5,
-              "y": 0.5,
-              "z": 0.5
-            }
-          },
-          "isStatic": true,
-          "isTrigger": false,
-          "sphere": {
-            "radius": 1.7000000476837158
-          },
-          "type": 1
-        },
-        "ecs::MeshRenderer": {
-          "handle": {
-            "id": 1
-          },
-          "materialId": 0
-        },
-        "ecs::Name": {
-          "value": "Box_5"
-        },
-        "ecs::Rigidbody": {
-          "angularDrag": 1.0,
-          "drag": 1.0,
-          "friction": 1.0,
-          "isKinematic": false,
-          "isStatic": true,
-          "mass": 1.0,
-          "restitution": 0.0,
-          "useGravity": true
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": -4.11299991607666,
-            "y": -4.010000228881836,
-            "z": 5.250999927520752
-          },
-          "rotationQuat": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 10.0,
-            "y": 10.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 8
-    },
-    {
-      "components": {
-        "ecs::LightCommon": {
-          "color": {
-            "x": 0.0,
-            "y": 1.0,
-            "z": 0.0
-          },
-          "enabled": true,
-          "intensity": 100.0
-        },
-        "ecs::Name": {
-          "value": "SpotLight_1"
-        },
-        "ecs::SpotLight": {
-          "innerCos": 1.0,
-          "outerCos": 0.800000011920929,
-          "range": 100.0
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 0.6499999761581421,
-            "y": 9.649999618530273,
-            "z": 0.44999998807907104
-          },
-          "rotationQuat": {
-            "x": 0.8482747077941895,
-            "y": 2.84956286122906e-07,
-            "z": 2.84956286122906e-07
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 9
-    },
-    {
-      "components": {
-        "ecs::LightCommon": {
-          "color": {
-            "x": 0.0,
-            "y": 0.05000000074505806,
-            "z": 0.8999999761581421
-          },
-          "enabled": false,
-          "intensity": 100.0
-        },
-        "ecs::Name": {
-          "value": "SpotLight_2"
-        },
-        "ecs::SpotLight": {
-          "innerCos": 1.100000023841858,
-          "outerCos": 0.8500000238418579,
-          "range": 100.4000015258789
-        },
-        "ecs::Transform": {
-          "position": {
-            "x": 1.25,
-            "y": -25.0,
-            "z": -28.600000381469727
-          },
-          "rotationQuat": {
-            "x": 0.0697387084364891,
-            "y": -0.021314311772584915,
-            "z": 0.0015744412085041404
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 10
-    }
-  ],
-  "sceneId": "TestScene",
-  "sceneName": "TestScene",
-  "version": 1
+    ],
+    "sceneId": "TestScene",
+    "sceneName": "TestScene",
+    "version": 1
 }

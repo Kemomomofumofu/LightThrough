@@ -41,6 +41,7 @@ namespace ecs {
 		ComponentType type = component_manager_->GetComponentType<Com>();
 		// 追加
 		AddComponentRaw(_e, type, static_cast<const void*>(&_component));
+
 		return GetComponent<Com>(_e);
 	}
 	 
@@ -128,6 +129,15 @@ namespace ecs {
 		return component_manager_->GetComponentType<Com>();
 	}
 
+
+	template<typename Com>
+	inline void Coordinator::RequestAddComponent(Entity _e, const Com& _component)
+	{
+		const ComponentType type = GetComponentType<Com>();
+		RequestAddComponentRaw(_e, type, [this, _e, _component]() mutable {
+			AddComponent<Com>(_e, _component);
+			});
+	}
 
 	/**
 	 * @brief EntityからComponentの削除リクエストを出す

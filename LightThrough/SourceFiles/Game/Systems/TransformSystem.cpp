@@ -69,7 +69,7 @@ namespace ecs {
 
 				visiting.insert(e);
 
-				auto& tf = ecs_.GetComponent<Transform>(e);
+				auto tf = ecs_.GetComponent<Transform>(e);
 
 				bool hasParent = false;
 				XMMATRIX parentWorld = XMMatrixIdentity();
@@ -77,25 +77,25 @@ namespace ecs {
 				// 親がいるなら先に親を更新
 				if (ecs_.HasComponent<ObjectChild>(e)) {
 					const auto& child = ecs_.GetComponent<ObjectChild>(e);
-					if (child.root.IsInitialized() &&
-						ecs_.HasComponent<Transform>(child.root))
+					if (child->root.IsInitialized() &&
+						ecs_.HasComponent<Transform>(child->root))
 					{
 						hasParent = true;
-						updateWorld(child.root);
+						updateWorld(child->root);
 
 						const auto& parentTf =
-							ecs_.GetComponent<Transform>(child.root);
-						parentWorld = XMLoadFloat4x4(&parentTf.world);
+							ecs_.GetComponent<Transform>(child->root);
+						parentWorld = XMLoadFloat4x4(&parentTf->world);
 					}
 				}
 
-				if (tf.dirty || hasParent) {
-					XMMATRIX S = XMMatrixScaling(tf.scale.x, tf.scale.y, tf.scale.z);
+				if (tf->dirty || hasParent) {
+					XMMATRIX S = XMMatrixScaling(tf->scale.x, tf->scale.y, tf->scale.z);
 					XMMATRIX R = XMMatrixRotationQuaternion(
-						XMLoadFloat4(&tf.rotationQuat)
+						XMLoadFloat4(&tf->rotationQuat)
 					);
 					XMMATRIX T = XMMatrixTranslation(
-						tf.position.x, tf.position.y, tf.position.z
+						tf->position.x, tf->position.y, tf->position.z
 					);
 
 					XMMATRIX local = S * R * T;
@@ -103,8 +103,8 @@ namespace ecs {
 						? XMMatrixMultiply(local, parentWorld)
 						: local;
 
-					XMStoreFloat4x4(&tf.world, world);
-					tf.dirty = false;
+					XMStoreFloat4x4(&tf->world, world);
+					tf->dirty = false;
 				}
 
 				visited.insert(e);
@@ -134,17 +134,16 @@ namespace ecs {
 
 			if (ecs_.HasComponent<ObjectChild>(e)) {
 				const auto& child = ecs_.GetComponent<ObjectChild>(e);
-				if (child.root.IsInitialized()) {
+				if (child->root.IsInitialized()) {
 					// 親が存在し、かつその親がこのシステムで扱われていれば登録
 					// 親が Transform を持つことが前提
-					if (ecs_.HasComponent<Transform>(child.root)) {
-						childrenMap[child.root].push_back(e);
+					if (ecs_.HasComponent<Transform>(child->root)) {
+						childrenMap[child->root].push_back(e);
 						hasParent.insert(e);
 					}
 				}
 			}
 
-			// Ensure the node exists in map so that leafs are present
 			if (childrenMap.find(e) == childrenMap.end()) {
 				childrenMap.emplace(e, std::vector<Entity>{});
 			}
@@ -166,7 +165,7 @@ namespace ecs {
 				// 表示ラベルを決定（Nameコンポーネントがあればそれを使う）
 				std::string label;
 				if (ecs_.HasComponent<Name>(e)) {
-					label = ecs_.GetComponent<Name>(e).value;
+					label = ecs_.GetComponent<Name>(e)->value;
 				}
 				else {
 					label = "Idx:" + std::to_string(e.Index()) + " Ver:" + std::to_string(e.Version());

@@ -25,13 +25,13 @@ namespace ecs {
 		//if (!active_) { return; }
 
 		for (auto const& e : entities_) {
-			auto& moveDirSource = ecs_.GetComponent<MoveDirectionSource>(e);
+			auto moveDirSource = ecs_.GetComponent<MoveDirectionSource>(e);
 			// targetName‚©‚çtarget‚ð‰ðŒˆ
 			auto entitiesWithName = ecs_.GetEntitiesWithComponent<Name>();
 			for (auto const& targetEntity : entitiesWithName) {
-				auto& nameComp = ecs_.GetComponent<ecs::Name>(targetEntity);
-				if (nameComp.value == moveDirSource.targetName) {
-					moveDirSource.target = targetEntity;
+				auto nameComp = ecs_.GetComponent<ecs::Name>(targetEntity);
+				if (nameComp->value == moveDirSource->targetName) {
+					moveDirSource->target = targetEntity;
 					break;
 				}
 			}

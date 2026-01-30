@@ -398,30 +398,28 @@ template<> struct ecs_serial::TypeReflection<Type> { \
 	* @tparam ComponentT	コンポーネント型
 	*/
 #define REGISTER_COMPONENT_REFLECTION(ComponentT) \
-	do { \
-		ecs_serial::ComponentRegistry::Get().Register( \
-			ecs_serial::TypeReflection<ComponentT>::Name(), \
-			[](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
-				/* JSON -> Component 実体 */ \
-				auto componentPtr = std::make_shared<ComponentT>( \
-					ecs_serial::Deserialize<ComponentT>(_j) \
-				); \
-				\
-				const auto type = _coord.GetComponentType<ComponentT>(); \
-				\
-				/* Flush 時に実行される */ \
-				_coord.RequestAddComponentRaw( \
-					_e, type, \
-					[coord = &_coord, e = _e, componentPtr]() { \
-						coord->AddComponent<ComponentT>(e, *componentPtr); \
-					} \
-				); \
-			}, \
-			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
-				return _coord.HasComponent<ComponentT>(_e); \
-			}, \
-			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
-				return ecs_serial::Serialize(_coord.GetComponent<ComponentT>(_e)); \
-			} \
-		); \
-	} while(0)
+    do { \
+        ecs_serial::ComponentRegistry::Get().Register( \
+            ecs_serial::TypeReflection<ComponentT>::Name(), \
+            [](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
+                auto componentPtr = std::make_shared<ComponentT>( \
+                    ecs_serial::Deserialize<ComponentT>(_j) \
+                ); \
+                const auto type = _coord.GetComponentType<ComponentT>(); \
+                _coord.RequestAddComponentRaw( \
+                    _e, type, \
+                    [coord = &_coord, e = _e, componentPtr]() { \
+                        coord->AddComponent<ComponentT>(e, *componentPtr); \
+                    } \
+                ); \
+            }, \
+            [](ecs::Coordinator& _coord, ecs::Entity _e) { \
+                return _coord.HasComponent<ComponentT>(_e); \
+            }, \
+            [](ecs::Coordinator& _coord, ecs::Entity _e) { \
+                auto* p = _coord.GetComponent<ComponentT>(_e); \
+                if (!p) { return nlohmann::json::object(); } \
+                return ecs_serial::Serialize(*p); \
+            } \
+        ); \
+    } while(0)

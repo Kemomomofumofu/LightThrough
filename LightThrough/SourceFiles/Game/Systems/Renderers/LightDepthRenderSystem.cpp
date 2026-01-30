@@ -100,12 +100,12 @@ namespace ecs {
 		for (auto& e : ecs_.GetEntitiesWithComponents<LightCommon>()) {
 			if (shadowIndex >= MAX_SHADOW_LIGHTS) { break; }
 
-			auto& common = ecs_.GetComponent<LightCommon>(e);
-			if (!common.enabled) { continue; }
-			auto& tf = ecs_.GetComponent<Transform>(e);
+			auto common = ecs_.GetComponent<LightCommon>(e);
+			if (!common->enabled) { continue; }
+			auto tf = ecs_.GetComponent<Transform>(e);
 			SpotLight* spot = nullptr;
 			if (ecs_.HasComponent<SpotLight>(e)) {
-				spot = &ecs_.GetComponent<SpotLight>(e);
+				spot = ecs_.GetComponent<SpotLight>(e);
 			}
 
 			LightViewProj vp = BuildLightViewProj(tf, spot);
@@ -163,11 +163,11 @@ namespace ecs {
 
 		// Entity一覧を走査してバッチ化
 		for (auto& e : entities_) {
-			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
-			auto& tf = ecs_.GetComponent<Transform>(e);
+			auto mesh = ecs_.GetComponent<MeshRenderer>(e);
+			auto tf = ecs_.GetComponent<Transform>(e);
 
 			auto& mr = engine_.GetMeshRegistry();
-			auto meshData = mr.Get(mesh.handle);
+			auto meshData = mr.Get(mesh->handle);
 
 			if (!meshData) continue;
 
@@ -192,7 +192,7 @@ namespace ecs {
 
 			// インスタンスデータ追加
 			dx3d::InstanceDataShadow ds{};
-			ds.world = tf.world;
+			ds.world = tf->world;
 			shadow_batches_[batchIndex].instances.emplace_back(ds);
 		}
 	}
@@ -303,8 +303,8 @@ namespace ecs {
 		auto& deferredContext = engine_.GetDeferredContext();
 		auto contextD3D = deferredContext.GetDeferredContext();
 		// ライト行列の作成
-		auto& tf = ecs_.GetComponent<Transform>(_entry.light);
-		SpotLight* spotPtr = ecs_.HasComponent<SpotLight>(_entry.light) ? &ecs_.GetComponent<SpotLight>(_entry.light) : nullptr;
+		auto tf = ecs_.GetComponent<Transform>(_entry.light);
+		SpotLight* spotPtr = ecs_.HasComponent<SpotLight>(_entry.light) ? ecs_.GetComponent<SpotLight>(_entry.light) : nullptr;
 
 		// 現在のRTV、DSVを退避
 		ID3D11RenderTargetView* prevRTV = nullptr;

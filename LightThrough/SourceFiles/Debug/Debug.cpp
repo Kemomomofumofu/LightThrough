@@ -39,6 +39,8 @@ namespace debug {
 		if (_showConsole && !console_allocated_)
 		{
 			AllocConsole();
+			MoveWindow(GetConsoleWindow(), 100, 100, 800, 600, TRUE);
+
 			FILE* fp = nullptr;
 			freopen_s(&fp, "CONOUT$", "w", stdout);
 			freopen_s(&fp, "CONOUT$", "w", stderr);

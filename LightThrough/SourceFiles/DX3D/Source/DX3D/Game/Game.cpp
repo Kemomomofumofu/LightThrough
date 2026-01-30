@@ -31,6 +31,7 @@
 #include <Game/Systems/PlayerControllerSystem.h>
 #include <Game/Systems/Scenes/TitleSceneSystem.h>
 #include <Game/Systems/Gimmicks/ShadowTestSystem.h>
+#include <Game/Systems/Gimmicks/LightSpawnSystem.h>
 
 #include <Game/Components/Render/MeshRenderer.h>
 #include <Game/Components/Core/Transform.h>
@@ -45,6 +46,7 @@
 #include <Game/Components/Core/Name.h>
 #include <Game/Components/Core/ObjectRoot.h>
 #include <Game/Components/Core/ObjectChild.h>
+#include <Game/Components/GamePlay/LightPlaceRequest.h>
 
 #include <Debug/DebugUI.h>
 #include <Debug/Debug.h>
@@ -73,6 +75,7 @@ namespace {
 		_ecs.RegisterComponent<ecs::Name>();
 		_ecs.RegisterComponent<ecs::ObjectRoot>();
 		_ecs.RegisterComponent<ecs::ObjectChild>();
+		_ecs.RegisterComponent<ecs::LightPlaceRequest>();
 	}
 	/**
 	 * @brief システムの登録
@@ -92,6 +95,8 @@ namespace {
 
 		// 入力関係
 		ecs.RegisterSystem<ecs::PlayerControllerSystem>(_systemDesc);
+
+		ecs.RegisterSystem<ecs::LightSpawnSystem>(_systemDesc);
 
 		// 力の集計
 		ecs.RegisterSystem<ecs::ForceAccumulationSystem>(_systemDesc);
@@ -127,9 +132,8 @@ namespace {
 		ecs.RegisterSystem<ecs::RenderSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::OutlineRenderSystem>(_systemDesc);
 
-#if defined(_DEBUG) || defined(DEBUG)
+
 		ecs.RegisterSystem<ecs::DebugRenderSystem>(_systemDesc);
-#endif
 
 		// 全システム初期化
 		ecs.InitAllSystems();

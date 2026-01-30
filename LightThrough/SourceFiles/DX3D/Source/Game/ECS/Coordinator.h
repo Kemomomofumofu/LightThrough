@@ -102,6 +102,8 @@ namespace ecs {
 		 */
 		void RequestAddComponentRaw(Entity _e, ComponentType _type, std::function<void()> _apply);
 		template<typename Com>
+		void RequestAddComponent(Entity _e, const Com& _component);
+		template<typename Com>
 		void RequestRemoveComponent(Entity _e);	// Componentの削除リクエスト
 
 

@@ -28,6 +28,6 @@ namespace ecs {
 		void Update(float _dt) override;
 
 	private:
-		void UpdateController(float _dt, Entity _cameraEntity, Transform& _tf, CameraController& _ctrl);
+		void UpdateController(float _dt, Entity _cameraEntity, Transform* _tf, CameraController* _ctrl);
 	};
 }

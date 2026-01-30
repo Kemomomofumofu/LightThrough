@@ -78,7 +78,7 @@ namespace ecs {
 		}
 
 		/**
-		 * @brief 
+		 * @brief
 		 */
 		void SyncEulerFromQuat() const
 		{
@@ -309,7 +309,7 @@ namespace ecs {
 		{
 			const float fx = forward.x;
 			const float fz = forward.z;
-			if(fabsf(fx) < 1e-6f && fabsf(fz) < 1e-6f) {
+			if (fabsf(fx) < 1e-6f && fabsf(fz) < 1e-6f) {
 				return 0.0f;
 			}
 
@@ -342,9 +342,42 @@ namespace ecs {
 		}
 
 
+		// ---------- WorldŽQÆ ---------- // 
+		XMFLOAT3 GetWorldPosition() const noexcept
+		{
+			return { world._41, world._42, world._43 };
+		};
+		XMFLOAT3 GetWorldForward() const noexcept
+		{
+			return { world._31, world._32, world._33 };
+		}
+		XMFLOAT3 GetWorldUp() const noexcept
+		{
+			return { world._21,  world._22, world._23 };
+		}
+		XMFLOAT3 GetWorldRight() const noexcept
+		{
+			return { world._11, world._12, world._13 };
+		}
+		// Vector”Å
+		XMVECTOR GetWorldPositionV() const noexcept
+		{
+			return XMVectorSet(world._41, world._42, world._43, 1.0f);
+		};
+		XMVECTOR GetWorldForwardV() const noexcept
+		{
+			return XMVectorSet(world._31, world._32, world._33, 0.0f);
+		}
+		XMVECTOR GetWorldUpV() const noexcept
+		{
+			return XMVectorSet(world._21, world._22, world._23, 0.0f);
+		}
+		XMVECTOR GetWorldRightV() const noexcept
+		{
+			return XMVectorSet(world._11, world._12, world._13, 0.0f);
+		}
 	};
-}
-
+} // namespace ecs
 
 ECS_REFLECT_BEGIN(ecs::Transform)
 ECS_REFLECT_FIELD(position),

@@ -39,9 +39,9 @@ namespace ecs {
 		if (!crs) { return; }
 
 		for (Entity e : entities_) {
-			auto& gc = ecs_.GetComponent<GroundContact>(e);
-			gc.isGrounded = false;
-			gc.groundNormalY = -1.0f;
+			auto gc = ecs_.GetComponent<GroundContact>(e);
+			gc->isGrounded = false;
+			gc->groundNormalY = -1.0f;
 		}
 
 		constexpr float GROUND_NORMAL_Y_THRESHOLD = 0.7f;
@@ -68,7 +68,7 @@ namespace ecs {
 	{
 		if (!ecs_.HasComponent<GroundContact>(_e)) { return; }
 
-		auto& gc = ecs_.GetComponent<GroundContact>(_e);
+		auto gc = ecs_.GetComponent<GroundContact>(_e);
 
 		// 法線を正規化
 		DirectX::XMFLOAT3 n = math::Normalize(_normal);
@@ -81,9 +81,9 @@ namespace ecs {
 		// Y 成分のみを用いて最大値を採用する
 		float ny = n.y;
 		// gc.groundNormalY は FixedUpdate で -1.0f に初期化されている想定
-		if (ny > gc.groundNormalY) {
-			gc.isGrounded = true;
-			gc.groundNormalY = ny;
+		if (ny > gc->groundNormalY) {
+			gc->isGrounded = true;
+			gc->groundNormalY = ny;
 		}
 	}
 

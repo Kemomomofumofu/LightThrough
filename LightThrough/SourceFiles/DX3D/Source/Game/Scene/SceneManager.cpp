@@ -28,6 +28,7 @@
 #include <Game/Components/Core/Name.h>
 #include <Game/Components/Core/ObjectRoot.h>
 #include <Game/Components/Core/ObjectChild.h>
+#include <Game/Components/GamePlay/LightPlaceRequest.h>
 
 #include <Game/ECS/ECSUtils.h>
 #include <Game/GameLogUtils.h>
@@ -236,8 +237,8 @@ namespace scene {
 		try {
 			SceneData scene = serializer_->DeserializeScene(_name);
 			auto& id = scene.id_;	// moveの後で使うためキャッシュ
-			scenes_.emplace(scene.id_, std::move(scene));	// シーンの追加
 			active_scene_ = id;	// アクティブに
+			scenes_.emplace(id, std::move(scene));	// シーンの追加
 			return true;
 		}
 		catch (const std::exception& e) {
@@ -457,8 +458,8 @@ namespace scene {
 
 		// レイアウトの計算
 		const float windowWidth = ImGui::GetContentRegionAvail().x;
-		const float leftW = windowWidth * 0.20f;			// Scene
-		const float middleW = windowWidth * 0.40f;			// entities
+		const float leftW = windowWidth * 0.2f;			// Scene
+		const float middleW = windowWidth * 0.4f;			// entities
 		const float rightW = windowWidth - leftW - middleW;	// Inspector
 
 
@@ -530,11 +531,9 @@ namespace scene {
 				ImGui::Text("Entity Count: %d", static_cast<int>(ents.size()));
 				ImGui::Spacing();
 
-				if (ImGui::BeginTable("SceneEntities", 3,
+				if (ImGui::BeginTable("SceneEntities", 1,
 					ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable)) {
 					ImGui::TableSetupColumn("Entity", ImGuiTableColumnFlags_WidthStretch);
-					ImGui::TableSetupColumn("Persistent", ImGuiTableColumnFlags_WidthFixed, 70.0f);
-					ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 					ImGui::TableHeadersRow();
 
 					for (auto& e : ents) {
@@ -545,7 +544,7 @@ namespace scene {
 						// 表示名
 						std::string label;
 						if (ecs_.HasComponent<ecs::Name>(e)) {
-							label = ecs_.GetComponent<ecs::Name>(e).value;
+							label = ecs_.GetComponent<ecs::Name>(e)->value;
 						}
 						else {
 							label = "Idx:" + std::to_string(e.Index()) + "Ver:" + std::to_string(e.Version());
@@ -556,20 +555,6 @@ namespace scene {
 							debug_selected_entity_ = e;
 						}
 						ImGui::PopID();
-
-						// Column 1: 永続化切り替え
-						ImGui::TableSetColumnIndex(1);
-						bool persistent = (persistent_entities_.count(e) != 0);
-						bool toggled = persistent;
-						ImGui::PushID(static_cast<int>(e.Index()) + 10000);
-						if (ImGui::Checkbox("##persist", &toggled)) {
-							MarkPersistentEntity(e, toggled);
-						}
-						ImGui::PopID();
-
-						// Column 2: State
-						ImGui::TableSetColumnIndex(2);
-						ImGui::TextUnformatted(e.IsInitialized() ? "Initialized" : "Uninitialized");
 					}
 					ImGui::EndTable();
 				}
@@ -631,19 +616,20 @@ namespace scene {
 				ecs::LightCommon,
 				ecs::SpotLight,
 				ecs::ObjectRoot,
-				ecs::ObjectChild
+				ecs::ObjectChild,
+				ecs::LightPlaceRequest
 			>;
 
 			// メタループ
 			ecs_serial::for_each(AllComponents{}, [&](auto&& dummyComp) {
 				using CompT = std::decay_t<decltype(dummyComp)>;
 				if (ecs_.HasComponent<CompT>(e)) {
-					auto& comp = ecs_.GetComponent<CompT>(e);
+					auto* compPtr = ecs_.GetComponent<CompT>(e);
 					const char* compName = ecs_serial::TypeReflection<CompT>::Name().data();
 					ImGui::PushID(compName);
 					if (ImGui::CollapsingHeader(compName)) {
-						DrawReflectedComponentFields(comp, baseSpeed);
-
+						auto& compRef = *compPtr;
+						DrawReflectedComponentFields(compRef, baseSpeed);
 						// コンポーネント削除ボタン
 						if (ImGui::Button("Remove Component")) {
 							removeComponentType = ecs_.GetComponentType<CompT>();
@@ -668,7 +654,10 @@ namespace scene {
 
 					if (ImGui::Selectable(name.c_str())) {
 						// コンポーネント追加待機リストに追加
-						registry.AddIfExists(ecs_, e, name, nlohmann::json::object());
+						bool result = registry.AddIfExists(ecs_, e, name, nlohmann::json::object());
+						if (!result) {
+							DebugLogError("[SceneManager] コンポーネントの追加に失敗: {}", name);
+						}
 					}
 				}
 				ImGui::EndPopup();

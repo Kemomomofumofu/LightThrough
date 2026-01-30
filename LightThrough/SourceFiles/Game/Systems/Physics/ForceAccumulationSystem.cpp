@@ -31,25 +31,25 @@ namespace ecs {
 
 
 		for (auto& e : entities_) {
-			auto& rb = ecs_.GetComponent<Rigidbody>(e);
+			auto rb = ecs_.GetComponent<Rigidbody>(e);
 
-			if (rb.isStatic || rb.isKinematic) { continue; }
+			if (rb->isStatic || rb->isKinematic) { continue; }
 
 
 			// d—Í
-			if (rb.useGravity) {
-				rb.force.y += rb.mass * gravity_;
+			if (rb->useGravity) {
+				rb->force.y += rb->mass * gravity_;
 			}
 
 			// Œ¸Š
 			// memo: ŠÈˆÕƒ‚ƒfƒ‹: (Fd = -drag * v)
-			rb.force.x += -rb.drag * rb.linearVelocity.x;
-			rb.force.y += -rb.drag * rb.linearVelocity.y;
-			rb.force.z += -rb.drag * rb.linearVelocity.z;
+			rb->force.x += -rb->drag * rb->linearVelocity.x;
+			rb->force.y += -rb->drag * rb->linearVelocity.y;
+			rb->force.z += -rb->drag * rb->linearVelocity.z;
 			// memo: ŠÈˆÕƒ‚ƒfƒ‹: (Td = -angularDrag * ƒÖ)
-			rb.torque.x += -rb.angularDrag * rb.angularVelocity.x;
-			rb.torque.y += -rb.angularDrag * rb.angularVelocity.y;
-			rb.torque.z += -rb.angularDrag * rb.angularVelocity.z;
+			rb->torque.x += -rb->angularDrag * rb->angularVelocity.x;
+			rb->torque.y += -rb->angularDrag * rb->angularVelocity.y;
+			rb->torque.z += -rb->angularDrag * rb->angularVelocity.z;
 		}
 	}
 }

@@ -66,13 +66,13 @@ namespace ecs {
 			if (!ecs_.HasComponent<ecs::Transform>(e)) { continue; }
 			if (!ecs_.HasComponent<ecs::LightCommon>(e)) { continue; }
 
-			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
+			auto tf = ecs_.GetComponent<ecs::Transform>(e);
 
 
 			// TitleMotion が無い場合: for 文内でエンティティごとの差を生成する（決定論的）
 			// Entity の識別子を使って簡易ハッシュを作る（同じエンティティで常に同じ差が出る）
 			uint32_t seed = 0u;
-			// ここでは Entity が public な id_ を持つ前提（既存コードで使用されているため）
+			// ここでは Entity が public な id_ を持つ前提
 			seed = static_cast<uint32_t>(e.id_);
 
 			// Knuth の乗算ハッシュで拡散
@@ -106,7 +106,7 @@ namespace ecs {
 			};
 
 			// Transform をライト方向に向ける
-			tf.SetRotationFromDirection(dir);
+			tf->SetRotationFromDirection(dir);
 		}
 	}
 

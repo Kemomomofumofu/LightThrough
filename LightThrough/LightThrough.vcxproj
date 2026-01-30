@@ -155,6 +155,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.cpp" />
@@ -185,7 +186,7 @@
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\RenderSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Factorys\PrefabFactory.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\InputSystem\InputSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Core\Base.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="SourceFiles\Game\Components\Core\ObjectChild.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\ObjectRoot.h" />
     <ClInclude Include="SourceFiles\Game\Components\Input\PlayerController.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.h" />
@@ -262,7 +264,6 @@
     <ClInclude Include="SourceFiles\Game\Components\Physics\Collider.h" />
     <ClInclude Include="SourceFiles\Game\Components\Render\Material.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ISystem.h" />
-    <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Transform.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ECSUtils.h" />
@@ -280,7 +281,7 @@
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\RenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Render\MeshRenderer.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Factorys\PrefabFactory.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\InputSystem\InputSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\All.h" />
@@ -347,10 +348,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Pixel\PS_Default.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -362,15 +363,6 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Assets\Shaders\Pixel\PS_Outline.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
     <FxCompile Include="Assets\Shaders\Pixel\PS_ShadowMapDebug.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -379,6 +371,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -389,15 +384,6 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Assets\Shaders\Vertex\VS_Fullscreen.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

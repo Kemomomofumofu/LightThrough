@@ -86,7 +86,7 @@ float4 PSMain(PSIN _pin) : SV_Target
     if (totalLight <= 0.0f)
     {
 
-        return float4(1, 0, 1, 0.2);
+        // return float4(1, 0, 1, 0.2);
         discard;
     }
 

@@ -15,12 +15,8 @@ namespace ecs
 	 */
 	struct LightPlaceRequest {
 		// int lightType{ 0 };			// ライトタイプ memo: 今後ポイントライトなどが追加した時用
-		bool requested = false;
 		DirectX::XMFLOAT3 spawnPos{};		// 生成位置
 		DirectX::XMFLOAT3 spawnDir{};		// 生成方向
 	};
 } // namespace ecs
 
-
-ECS_REFLECT_BEGIN(ecs::LightPlaceRequest)
-ECS_REFLECT_END()
