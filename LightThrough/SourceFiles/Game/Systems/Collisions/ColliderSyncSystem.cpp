@@ -14,6 +14,8 @@
 #include <Game/Components/Core/Transform.h>
 #include <Game/Components/Physics/Collider.h>
 
+#include <DX3D/Math/MathUtils.h>
+
 
 
 namespace ecs {
@@ -44,10 +46,7 @@ namespace ecs {
 			auto col = ecs_.GetComponent<Collider>(e);
 
 			// Transformに変更がなかった場合のみ更新
-			if (col->isStatic && !col->shapeDirty && !tf->dirty) { continue; }
-
-			// ワールド行列の更新
-			if (tf->dirty) { tf->BuildWorld(); }
+			//if (!col->shapeDirty && !tf->dirty) { continue; }
 
 			// 形状の更新
 			switch (col->type) {
@@ -73,7 +72,8 @@ namespace ecs {
 	void ColliderSyncSystem::BuildSphere(const Transform* _tf, Collider* _col)
 	{
 		const auto& s = _col->sphere;
-		float maxScale = (std::max)({ _tf->scale.x, _tf->scale.y, _tf->scale.z });
+		const auto ws = _tf->GetWorldScaleCached();
+		float maxScale = (std::max)({ ws.x, ws.y, ws.z });
 		_col->worldSphere.center = _tf->GetWorldPosition();
 		_col->worldSphere.radius = s.radius * maxScale;
 		_col->broadPhaseRadius = _col->worldSphere.radius;
@@ -83,30 +83,29 @@ namespace ecs {
 	void ColliderSyncSystem::BuildOBB(const Transform* _tf, Collider* _col)
 	{
 		using namespace DirectX;
-		
-		const auto& b = _col->box;
-		// クォータニオンから直接軸を計算
-		XMVECTOR q = XMQuaternionNormalize(XMLoadFloat4(&_tf->rotationQuat));
-		
-		// 基底軸をクォータニオンで回転
-		XMVECTOR axisX = XMVector3Rotate(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), q);
-		XMVECTOR axisY = XMVector3Rotate(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), q);
-		XMVECTOR axisZ = XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), q);
 
-		// 正規化して格納
-		XMStoreFloat3(&_col->worldOBB.axis[0], XMVector3Normalize(axisX));
-		XMStoreFloat3(&_col->worldOBB.axis[1], XMVector3Normalize(axisY));
-		XMStoreFloat3(&_col->worldOBB.axis[2], XMVector3Normalize(axisZ));
+		const auto& b = _col->box;
+
+		// 軸の取得
+		XMFLOAT3 r = _tf->GetWorldRightCached();
+		XMFLOAT3 u = _tf->GetWorldUpCached();
+		XMFLOAT3 f = _tf->GetWorldForwardCached();
+
+
+		_col->worldOBB.axis[0] = math::Normalize(r);
+		_col->worldOBB.axis[1] = math::Normalize(u);
+		_col->worldOBB.axis[2] = math::Normalize(f);
 
 		// 中心と半径
 		_col->worldOBB.center = _tf->GetWorldPosition();
-		_col->worldOBB.half = {
-			b.halfExtents.x * _tf->scale.x,
-			b.halfExtents.y * _tf->scale.y,
-			b.halfExtents.z * _tf->scale.z,
-		};
 
+		const auto ws = _tf->GetWorldScaleCached();
+		_col->worldOBB.half = {
+			b.halfExtents.x * ws.x,
+			b.halfExtents.y * ws.y,
+			b.halfExtents.z * ws.z,
+		};
 		const auto& h = _col->worldOBB.half;
-		_col->broadPhaseRadius = std::sqrt(h.x * h.x + h.y * h.y + h.z * h.z);
+		_col->broadPhaseRadius = math::Length(h);
 	}
 }

@@ -239,19 +239,6 @@ namespace ecs_serial {
 				assign_value(_dst[i], _j.at(i));
 			}
 		}
-		// —v‘f‚ªŽO‚Â‚Ì‚à‚Ì
-		else if constexpr (Vec3Like<T>) {
-			if (_j.is_object()) {
-				_dst.x = _j.value("x", 0.0f);
-				_dst.y = _j.value("y", 0.0f);
-				_dst.z = _j.value("z", 0.0f);
-			}
-			else {
-				_dst.x = _j.size() > 0 ? _j.at(0).get<float>() : 0.0f;
-				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
-				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
-			}
-		}
 		// —v‘f‚ªŽl‚Â‚Ì‚à‚Ì
 		else if constexpr (Vec4Like<T>) {
 			if (_j.is_object()) {
@@ -266,6 +253,19 @@ namespace ecs_serial {
 				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
 				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
 				_dst.w = _j.size() > 3 ? _j.at(3).get<float>() : 1.0f;
+			}
+		}
+		// —v‘f‚ªŽO‚Â‚Ì‚à‚Ì
+		else if constexpr (Vec3Like<T>) {
+			if (_j.is_object()) {
+				_dst.x = _j.value("x", 0.0f);
+				_dst.y = _j.value("y", 0.0f);
+				_dst.z = _j.value("z", 0.0f);
+			}
+			else {
+				_dst.x = _j.size() > 0 ? _j.at(0).get<float>() : 0.0f;
+				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
+				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
 			}
 		}
 		// ƒNƒ‰ƒXŒ^
@@ -310,13 +310,13 @@ namespace ecs_serial {
 			}
 			return arr;
 		}
-		// —v‘f‚ªŽO‚Â‚Ì‚à‚Ì
-		else if constexpr (Vec3Like<T>) {
-			return json{ {"x", _src.x}, {"y", _src.y}, {"z", _src.z} };
-		}
 		// —v‘f‚ªŽl‚Â‚Ì‚à‚Ì
 		else if constexpr (Vec4Like<T>) {
 			return json{ {"x", _src.x}, {"y", _src.y}, {"z", _src.z}, {"w", _src.w} };
+		}
+		// —v‘f‚ªŽO‚Â‚Ì‚à‚Ì
+		else if constexpr (Vec3Like<T>) {
+			return json{ {"x", _src.x}, {"y", _src.y}, {"z", _src.z} };
 		}
 		// ƒNƒ‰ƒXŒ^
 		else if constexpr (std::is_class_v<T>) {

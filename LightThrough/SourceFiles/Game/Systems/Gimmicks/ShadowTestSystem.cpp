@@ -250,8 +250,8 @@ namespace ecs {
 			// ÉâÉCÉgèÓïÒ
 			auto lightTf = ecs_.GetComponent<Transform>(entry.light);
 			auto lightCommon = ecs_.GetComponent<LightCommon>(entry.light);
-			params.lightPos = lightTf->position;
-			params.lightDir = lightTf->GetForward();
+			params.lightPos = lightTf->GetWorldPosition();
+			params.lightDir = lightTf->GetWorldForwardCached();
 			params.cosOuterAngle = -1.0f;
 			params.cosInnerAngle = -1.0f;
 			params.lightRange = 100000.0f;
@@ -346,7 +346,7 @@ namespace ecs {
 				staging_buffer_->Unmap();
 
 #if defined(DEBUG) || defined(_DEBUG)
-				/*
+				
 				DebugLogInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outUV={}, outZ={}, zeroW={}, outRange={}, outSideCone={}",
 					entry.light.id_,
 					countLit,
@@ -357,7 +357,7 @@ namespace ecs {
 					countOutRange,
 					countOutSideCone
 				);
-				*/
+				
 #endif // DEBUG
 			}
 		}

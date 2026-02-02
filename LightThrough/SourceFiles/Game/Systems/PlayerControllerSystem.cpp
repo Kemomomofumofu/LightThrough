@@ -117,7 +117,7 @@ namespace ecs {
 				LightPlaceRequest req{};
 				auto camTf = ecs_.GetComponent<Transform>(camEntity);
 				req.spawnPos = camTf->GetWorldPosition();
-				req.spawnDir = camTf->GetWorldForward();
+				req.spawnDir = camTf->GetWorldForwardCached();
 
 				ecs_.RequestAddComponent<LightPlaceRequest>(e, req);
 			}

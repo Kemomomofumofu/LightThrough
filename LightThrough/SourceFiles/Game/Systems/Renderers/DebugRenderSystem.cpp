@@ -105,11 +105,7 @@ namespace ecs {
 #if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
-		const auto S = XMMatrixScaling(_transform->scale.x, _transform->scale.y, _transform->scale.z);
-		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform->rotationQuat));
-		const auto T = XMMatrixTranslation(_transform->position.x, _transform->position.y, _transform->position.z);
-		auto worldM = S * R * T;
-		XMStoreFloat4x4(&cmd.world, worldM);
+		cmd.world = _transform->world;
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 #endif
@@ -123,11 +119,7 @@ namespace ecs {
 #if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
-		const auto S = XMMatrixScaling(_transform->scale.x, _transform->scale.y, _transform->scale.z);
-		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform->rotationQuat));
-		const auto T = XMMatrixTranslation(_transform->position.x, _transform->position.y, _transform->position.z);
-		auto worldM = S * R * T;
-		XMStoreFloat4x4(&cmd.world, worldM);
+		cmd.world = _transform->world;
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
 #endif

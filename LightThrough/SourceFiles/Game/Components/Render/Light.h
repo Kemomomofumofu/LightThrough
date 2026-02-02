@@ -100,7 +100,7 @@ namespace ecs {
 		LightCPU L{};
 
 		const XMFLOAT3& pos = _tf->GetWorldPosition();
-		const XMFLOAT3& fwd = _tf->GetWorldForward();
+		const XMFLOAT3& fwd = _tf->GetWorldForwardCached();
 		L.pos_type = { pos.x, pos.y, pos.z, 0.0f };
 		L.dir_range = { fwd.x, fwd.y, fwd.z, 0.0f };
 		L.color = {
@@ -121,13 +121,16 @@ namespace ecs {
 		return L;
 	}
 
-	inline LightViewProj BuildLightViewProj(const Transform* _tf, const SpotLight* _spot, float _nearZ = 0.1f)
+	inline LightViewProj BuildLightViewProj(const Transform* _tf, const SpotLight* _spot, float _nearZ = 0.005f)
 	{
 		using namespace DirectX;
 		
 		// Transformの現在の方向ベクトルを取得
-		XMVECTOR f = _tf->GetWorldForwardV();
-		XMVECTOR u = _tf->GetWorldUpV();
+		XMFLOAT3 ff3 = _tf->GetWorldForwardCached();
+		XMFLOAT3 uf3 = _tf->GetWorldUpCached();
+
+		XMVECTOR f = XMVector3Normalize(XMLoadFloat3(&ff3));
+		XMVECTOR u = XMVector3Normalize(XMLoadFloat3(&uf3));
 		
 		// 前方向と上方向がほぼ平行な場合は別の上方向を使用
 		float dotFU = XMVectorGetX(XMVector3Dot(f, u));

@@ -186,8 +186,6 @@ namespace dx3d {
 			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_ };
 			RegisterAllSystems(systemDesc);
 
-
-
 			// ŠÔ‰Šú‰»
 			last_time_ = std::chrono::high_resolution_clock::now();
 

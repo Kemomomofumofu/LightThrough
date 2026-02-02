@@ -79,20 +79,20 @@ namespace {
 			if (ch) { _value = static_cast<T>(static_cast<UT>(tmp)); }
 			return ch;
 		}
-		// Vec3Like
-		else if constexpr (ecs_serial::Vec3Like<T>) {
-			float arr[3]{ _value.x, _value.y, _value.z };
-			if (ImGui::DragFloat3(_label, arr, _speed)) {
-				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2];
-				return true;
-			}
-			return false;
-		}
 		// Vec4Like
 		else if constexpr (ecs_serial::Vec4Like<T>) {
 			float arr[4]{ _value.x, _value.y, _value.z, _value.w };
 			if (ImGui::DragFloat4(_label, arr, _speed)) {
 				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2]; _value.w = arr[3];
+				return true;
+			}
+			return false;
+		}
+		// Vec3Like
+		else if constexpr (ecs_serial::Vec3Like<T>) {
+			float arr[3]{ _value.x, _value.y, _value.z };
+			if (ImGui::DragFloat3(_label, arr, _speed)) {
+				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2];
 				return true;
 			}
 			return false;
