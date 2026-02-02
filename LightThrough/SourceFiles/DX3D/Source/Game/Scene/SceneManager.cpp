@@ -435,6 +435,17 @@ namespace scene {
 		}
 	}
 
+	void SceneManager::OnEntityDestroyed(ecs::Entity _e)
+	{
+		// 永続化リストから削除
+		persistent_entities_.erase(_e);
+		// すべてのシーンから削除
+		for (auto& kv : scenes_) {
+			auto& ents = kv.second.entities_;
+			ents.erase(std::remove(ents.begin(), ents.end(), _e), ents.end());
+		}
+	}
+
 	/**
 	 * @brief シーンIDを生成
 	 * @param _base	ベースとなる名前

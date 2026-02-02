@@ -75,7 +75,12 @@ namespace scene {
 		// 永続化
 		void MarkPersistentEntity(ecs::Entity _e, bool _persistent = true); // Entityを永続化するかどうか
 
-
+		/**
+		 * @brief Entity破棄時コールバック
+		 * @param _e 破棄されたEntity
+		 */
+		void OnEntityDestroyed(ecs::Entity _e);
+		
 		// イベント [ToDo] まだ仮置き
 		//OnSceneEvent OnAfterSceneUnload;
 		//OnSceneEvent OnBeforeSceneLoad;

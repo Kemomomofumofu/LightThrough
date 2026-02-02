@@ -189,6 +189,14 @@ namespace dx3d {
 			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_ };
 			RegisterAllSystems(systemDesc);
 
+			// Entity破棄時コールバック設定
+			// sceneからEntityを破棄するため
+			ecs_coordinator_->SetOnEntityDestroyedCallback(
+				[this](ecs::Entity _e) {
+					scene_manager_->OnEntityDestroyed(_e);
+				}
+			);
+
 			// 時間初期化
 			last_time_ = std::chrono::high_resolution_clock::now();
 

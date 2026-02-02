@@ -45,9 +45,15 @@ namespace ecs {
 		}
 		// Entityが破棄されたことをComponentManagerとSystemManagerに通知
 		// [ToDo] メソッド名が悪い
+
 		component_manager_->EntityDestroyed(_e);
 		system_manager_->EntityDestroyed(_e);
 		entity_manager_->Destroy(_e);
+
+		if (on_entity_destroyed_) {
+			on_entity_destroyed_(_e);
+		}
+
 	}
 
 	/**

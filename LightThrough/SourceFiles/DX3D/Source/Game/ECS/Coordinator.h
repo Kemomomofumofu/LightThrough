@@ -131,6 +131,10 @@ namespace ecs {
 
 		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
 
+		// ---------- コールバック設定 ---------- //
+		using OnEntityDestroyed = std::function<void(Entity)>;
+		void SetOnEntityDestroyedCallback(OnEntityDestroyed _callback) {on_entity_destroyed_ = std::move(_callback); }
+
 	private:
 		/**
 		 * @brief 保留中の追加操作
@@ -156,6 +160,8 @@ namespace ecs {
 		std::vector<PendingAdd> pending_adds_{};		// 保留中の追加操作
 		std::vector<PendingRemove> pending_removes_{};	// 保留中の削除操作
 		std::vector<Entity> pending_destroys_{};		// 保留中の破棄操作
+
+		OnEntityDestroyed on_entity_destroyed_{};	// Entity破棄時のコールバック
 
 	};
 }
