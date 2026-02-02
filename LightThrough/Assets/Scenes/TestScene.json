@@ -43,9 +43,9 @@
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": -2.4269862174987793,
+                        "x": -3.109215259552002,
                         "y": -8.512724876403809,
-                        "z": -3.7998111248016357
+                        "z": -2.9232378005981445
                     },
                     "rotationQuat": {
                         "w": 1.0,
@@ -60,7 +60,7 @@
                     }
                 }
             },
-            "id": 150994949
+            "id": 16777217
         },
         {
             "components": {
@@ -103,7 +103,7 @@
                     }
                 }
             },
-            "id": 150994950
+            "id": 16777218
         },
         {
             "components": {
@@ -129,8 +129,8 @@
                         "z": 0.0
                     },
                     "orbitYaw": 1.8999505043029785,
-                    "pitch": 0.26279541850090027,
-                    "yaw": 13.848522186279297
+                    "pitch": 0.49879544973373413,
+                    "yaw": 13.910517692565918
                 },
                 "ecs::Name": {
                     "value": "PlayerCamera"
@@ -145,10 +145,10 @@
                         "z": 0.0
                     },
                     "rotationQuat": {
-                        "w": 0.7945442199707031,
-                        "x": 0.10500631481409073,
-                        "y": 0.592902421951294,
-                        "z": -0.0783575028181076
+                        "w": 0.7583218812942505,
+                        "x": 0.19314494729042053,
+                        "y": 0.6033470034599304,
+                        "z": -0.15367276966571808
                     },
                     "scale": {
                         "x": 1.0,
@@ -157,7 +157,7 @@
                     }
                 }
             },
-            "id": 150994951
+            "id": 16777219
         },
         {
             "components": {
@@ -177,10 +177,7 @@
                     "type": 1
                 },
                 "ecs::MeshRenderer": {
-                    "handle": {
-                        "id": 1
-                    },
-                    "materialId": 0
+                    "meshName": "Cube"
                 },
                 "ecs::Name": {
                     "value": "Box_1"
@@ -204,7 +201,7 @@
                     }
                 }
             },
-            "id": 150994952
+            "id": 16777220
         },
         {
             "components": {
@@ -224,10 +221,7 @@
                     "type": 1
                 },
                 "ecs::MeshRenderer": {
-                    "handle": {
-                        "id": 1
-                    },
-                    "materialId": 0
+                    "meshName": "Cube"
                 },
                 "ecs::Name": {
                     "value": "Box_2"
@@ -261,7 +255,7 @@
                     }
                 }
             },
-            "id": 150994954
+            "id": 16777221
         },
         {
             "components": {
@@ -281,10 +275,7 @@
                     "type": 1
                 },
                 "ecs::MeshRenderer": {
-                    "handle": {
-                        "id": 1
-                    },
-                    "materialId": 0
+                    "meshName": "Cube"
                 },
                 "ecs::Name": {
                     "value": "Ground_1"
@@ -308,7 +299,7 @@
                     }
                 }
             },
-            "id": 167772172
+            "id": 16777222
         },
         {
             "components": {
@@ -328,10 +319,7 @@
                     "type": 1
                 },
                 "ecs::MeshRenderer": {
-                    "handle": {
-                        "id": 1
-                    },
-                    "materialId": 0
+                    "meshName": "Cube"
                 },
                 "ecs::Name": {
                     "value": "Ground_2"
@@ -355,7 +343,7 @@
                     }
                 }
             },
-            "id": 150994957
+            "id": 16777223
         },
         {
             "components": {
@@ -375,10 +363,7 @@
                     "type": 1
                 },
                 "ecs::MeshRenderer": {
-                    "handle": {
-                        "id": 1
-                    },
-                    "materialId": 0
+                    "meshName": "Cube"
                 },
                 "ecs::Name": {
                     "value": "Box_3"
@@ -412,7 +397,7 @@
                     }
                 }
             },
-            "id": 167772171
+            "id": 16777224
         },
         {
             "components": {
@@ -432,10 +417,7 @@
                     "type": 1
                 },
                 "ecs::MeshRenderer": {
-                    "handle": {
-                        "id": 1
-                    },
-                    "materialId": 0
+                    "meshName": "Cube"
                 },
                 "ecs::Name": {
                     "value": "Box_4"
@@ -469,7 +451,7 @@
                     }
                 }
             },
-            "id": 167772169
+            "id": 16777225
         },
         {
             "components": {
@@ -489,10 +471,7 @@
                     "type": 1
                 },
                 "ecs::MeshRenderer": {
-                    "handle": {
-                        "id": 1
-                    },
-                    "materialId": 0
+                    "meshName": "Cube"
                 },
                 "ecs::Name": {
                     "value": "Box_5"
@@ -526,7 +505,7 @@
                     }
                 }
             },
-            "id": 167772161
+            "id": 16777226
         },
         {
             "components": {
@@ -566,7 +545,7 @@
                     }
                 }
             },
-            "id": 167772162
+            "id": 16777227
         },
         {
             "components": {
@@ -606,7 +585,51 @@
                     }
                 }
             },
-            "id": 167772163
+            "id": 16777228
+        },
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": false,
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "meshName": "Cube"
+                },
+                "ecs::Name": {
+                    "value": "Entity_12"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 1.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 16777229
         }
     ],
     "sceneId": "TestScene",

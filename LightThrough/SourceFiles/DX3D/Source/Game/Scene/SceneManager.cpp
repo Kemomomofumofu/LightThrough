@@ -324,10 +324,17 @@ namespace scene {
 		//}
 
 		// Entity‚Ì”jŠü
-		// [ToDo] Scene‘JˆÚ‚Å‚Ìíœ‚·‚é/‚µ‚È‚¢‚ğScene‚ÅŠÇ—‚·‚é‚×‚«‚È‚Ì‚©Entity‚ÅŠÇ—‚·‚é‚×‚«‚È‚Ì‚©...‚½‚Ô‚ñScene‘¤‚Ì‚Ù‚¤‚ª–³‘Ê‚Èƒƒ‚ƒŠ‚ÍŒ¸‚ç‚¹‚é‚Ì‚©‚È‚Ÿ...
 		if (_destroyEntities) {
-			for (auto& e : it->second.entities_) {
-				if (persistent_entities_.count(e)) { continue; }	// ‰i‘±‰»‚³‚ê‚Ä‚¢‚é‚È‚çíœ‚µ‚È‚¢
+			// memo: ‘–¸’†‚É—v‘f”‚ª•Ï‚í‚é‚Ì‚ÅAˆê“x•ÊƒRƒ“ƒeƒi‚É‘Î”ä‚µ‚Ä‚©‚ç”jŠü‚·‚éB
+			std::vector<ecs::Entity> toDestroy;
+			toDestroy.reserve(it->second.entities_.size());
+
+			for (auto e : it->second.entities_) {
+				if (persistent_entities_.count(e)) { continue; } // ‰i‘±‰»‚³‚ê‚Ä‚¢‚é‚È‚çíœ‚µ‚È‚¢
+				toDestroy.push_back(e);
+			}
+
+			for (auto& e : toDestroy) {
 				ecs_.DestroyEntity(e);	// Entity‚Ì”jŠü
 			}
 		}

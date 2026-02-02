@@ -225,6 +225,7 @@
     <ClInclude Include="SourceFiles\Game\Components\GamePlay\LightPlaceRequest.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -327,6 +328,7 @@
     <ClCompile Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />

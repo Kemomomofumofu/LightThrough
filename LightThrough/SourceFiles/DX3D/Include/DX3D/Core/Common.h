@@ -103,6 +103,9 @@ namespace dx3d {
 namespace scene {
 	class SceneManager;
 }
+namespace dx3d {
+	class MeshRegistry;
+}
 
 namespace ecs {
 	class Coordinator;
@@ -112,6 +115,7 @@ namespace ecs {
 		Coordinator& ecs; // Coordinatorへの参照
 		scene::SceneManager& sceneManager; // SceneManagerへの参照
 		dx3d::GraphicsEngine& graphicsEngine;
+		dx3d::MeshRegistry& meshRegistry; // メッシュレジストリへの参照
 		bool oneShot = false; // 一度だけ実行するシステムか
 	};
 }

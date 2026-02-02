@@ -17,6 +17,7 @@
 #include <Game/Systems/Initialization/Resolve/ObjectResolveSystem.h>
 #include <Game/Systems/Initialization/Resolve/MoveDirectionSourceResolveSystem.h>
 #include <Game/Systems/Initialization/Resolve/LightReferenceResolveSystem.h>
+#include <Game/Systems/Initialization/Resolve/MeshHandleResolveSystem.h>
 
 #include <Game/Systems/TransformSystem.h>
 #include <Game/Systems/CameraSystem.h>
@@ -92,6 +93,7 @@ namespace {
 		ecs.RegisterSystem<ecs::ObjectResolveSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::MoveDirectionSourceResolveSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::LightReferenceResolveSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::MeshHandleResolveSystem>(_systemDesc);
 
 		// ---------- ƒQ[ƒ€ŠÖŒW ----------
 		_systemDesc.oneShot = false;
@@ -186,7 +188,7 @@ namespace dx3d {
 			ChangeScene("TestScene");
 
 			// System‚Ì“o˜^
-			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_ };
+			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_, graphics_engine_->GetMeshRegistry()};
 			RegisterAllSystems(systemDesc);
 
 			// Entity”jŠüƒR[ƒ‹ƒoƒbƒNİ’è
