@@ -281,6 +281,11 @@ namespace scene {
 			return false;
 		}
 
+		// システムにシーンロード通知
+		for (auto& system : ecs_.GetAllSystems()) {
+			system->OnSceneLoaded();
+		}
+
 		return true;
 	}
 
@@ -370,6 +375,11 @@ namespace scene {
 
 		// アクティブなシーンを切り替え
 		active_scene_ = _id;
+
+		// システムにシーンロード通知
+		for (auto& system : ecs_.GetAllSystems()) {
+			system->OnSceneLoaded();
+		}
 
 		// アクティブ後処理
 		if (OnAfterSceneLoad) { OnAfterSceneLoad(_id); }

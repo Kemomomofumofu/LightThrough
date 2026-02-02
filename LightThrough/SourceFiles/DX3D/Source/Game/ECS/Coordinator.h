@@ -69,6 +69,13 @@ namespace ecs {
 		void RequestDestroyEntity(Entity _e);
 
 		/**
+		 * @brief 指定したSignatureを持っているEntityの一覧を取得
+		 * @param _signature: 指定するSignature
+		 * @return 該当するEntityの一覧
+		 */
+		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
+
+		/**
 		 * @brief Entityが有効かどうかを確認
 		 * @param _e : 確認するEntity
 		 * @return true: 有効, false: 無効
@@ -113,7 +120,7 @@ namespace ecs {
 		void RequestRemoveComponent(Entity _e);	// Componentの削除リクエスト
 
 
-
+		// ---------- System関連 ---------- //
 		template<typename Sys>
 		void RegisterSystem(const SystemDesc& _desc);		// Systemの登録
 		template<typename Sys>
@@ -122,6 +129,8 @@ namespace ecs {
 		std::shared_ptr<Sys> GetSystem();	// Systemの取得
 		void ReactivateAllSystems(); // 登録されたSystemをすべて再アクティブ化
 
+		const std::vector<std::shared_ptr<ISystem>>& GetAllSystems();
+
 
 
 		void InitAllSystems();	// 登録されたSystemの初期化
@@ -129,7 +138,7 @@ namespace ecs {
 		void UpdateAllSystems(float _dt);	// 登録されたSystemの更新
 		void FlushPending(); // 保留中の変更を反映
 
-		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
+
 
 		// ---------- コールバック設定 ---------- //
 		using OnEntityDestroyed = std::function<void(Entity)>;

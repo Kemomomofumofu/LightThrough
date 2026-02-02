@@ -131,6 +131,11 @@ namespace ecs {
 		system_manager_->ReactivateAllSystems();
 	}
 
+	const std::vector<std::shared_ptr<ISystem>>& Coordinator::GetAllSystems()
+	{
+		return system_manager_->GetAllSystemsInOrder();
+	}
+
 	/**
 	* @brief ‚·‚×‚Ä‚ÌSystem‚ğ‰Šú‰»
 	*/

@@ -25,20 +25,15 @@ namespace ecs {
 	using namespace DirectX;
 
 	namespace {
+		constexpr int SAMPLE_POINT_GRID = 2; // サンプル点のグリッド数
+
+
 		template <class ...Ts>
 		struct Overloaded : Ts... { using Ts::operator()...; };
 		template <class... Ts>
 		Overloaded(Ts...) -> Overloaded< Ts...>;
-
-		// ---------- 小物ユーティリティ ----------
-		inline bool IsZeroVec(const XMFLOAT3& v) noexcept
-		{
-			return std::fabs(v.x) + std::fabs(v.y) + std::fabs(v.z) < 1e-8f;
-		}
-		inline XMFLOAT3 Neg(const XMFLOAT3& v) noexcept { return { -v.x, -v.y, -v.z }; }
-
-		// Narrow phase dispatch（既存関数と整合）
-		std::optional<collision::ContactResult> DispatchContact(const Collider* a, const Collider* b)
+		// ナローフェーズの当たり判定ディスパッチャー
+		std::optional<collision::ContactResult> DispatchContact(const Collider* _a, const Collider* _b)
 		{
 			using collision::SphereShape;
 			using collision::BoxShape;
@@ -46,108 +41,66 @@ namespace ecs {
 			return std::visit(
 				Overloaded{
 					[&](const SphereShape&, const SphereShape&) {
-						return collision::IntersectSphere(a->worldSphere, b->worldSphere);
+						return collision::IntersectSphere(_a->worldSphere, _b->worldSphere);
 					},
 					[&](const SphereShape&, const BoxShape&) {
-						return collision::IntersectSphereOBB(a->worldSphere, b->worldOBB);
+						return collision::IntersectSphereOBB(_a->worldSphere, _b->worldOBB);
 					},
 					[&](const BoxShape&, const SphereShape&) {
-						return collision::IntersectSphereOBB(b->worldSphere, a->worldOBB);
+						return collision::IntersectSphereOBB(_b->worldSphere, _a->worldOBB);
 					},
 					[&](const BoxShape&, const BoxShape&) {
-						return collision::IntersectOBB(a->worldOBB, b->worldOBB);
+						return collision::IntersectOBB(_a->worldOBB, _b->worldOBB);
 					}
 				},
-				a->shape, b->shape
+				_a->shape, _b->shape
 			);
 		}
 
-		// サンプル点生成（影判定用）
-		void GenerateSurfaceSamplePoints(
-			const XMFLOAT3& center,
-			const XMFLOAT3& normal,
-			float radius,
-			std::vector<XMFLOAT3>& out,
-			int grid = 3)
-		{
-			XMFLOAT3 t1{}, t2{};
-			if (std::fabs(normal.y) < 0.99f) {
-				t1 = math::Normalize(math::Cross(normal, { 0,1,0 }));
-			}
-			else {
-				t1 = math::Normalize(math::Cross(normal, { 1,0,0 }));
-			}
-			t2 = math::Normalize(math::Cross(normal, t1));
-
-			const float step = (grid > 1) ? (2.0f * radius / (grid - 1)) : 0.0f;
-			const float start = -radius;
-
-			for (int i = 0; i < grid; ++i) {
-				for (int j = 0; j < grid; ++j) {
-					const float u = start + step * i;
-					const float v = start + step * j;
-					out.push_back(math::Add(center,
-						math::Add(math::Scale(t1, u), math::Scale(t2, v))));
-				}
-			}
-		}
-
-		float GetSampleRadius(const Collider* col)
-		{
-			if (col->type == collision::ShapeType::Sphere) {
-				return col->worldSphere.radius * 0.5f;
-			}
-			float m = (std::min)({
-				col->worldOBB.half.x,
-				col->worldOBB.half.y,
-				col->worldOBB.half.z });
-			return m * 0.8f;
-		}
-
 		// Transform 変更直後に Collider の world 情報を即時更新するヘルパー
-		void UpdateColliderWorldFromTransform(Entity e, Transform* tf, Collider* col)
+		void UpdateColliderWorldFromTransform(Entity _e, Transform* _tf, Collider* _col)
 		{
 			// Transform 側の world 行列が必要なら BuildWorld を呼ぶ（Transform 側が dirty を管理しているならそちらで）
 			// ここでは Transform の position/rotation/scale の値を直接使って world 情報だけ更新する。
-			switch (col->type) {
+			switch (_col->type) {
 			case collision::ShapeType::Sphere:
 			{
 				// スケールは最大軸で扱う（既存実装と一致させる）
-				float maxScale = (std::max)({ tf->scale.x, tf->scale.y, tf->scale.z });
-				col->worldSphere.center = tf->position;
-				col->worldSphere.radius = col->sphere.radius * maxScale;
-				col->broadPhaseRadius = col->worldSphere.radius;
+				float maxScale = (std::max)({ _tf->scale.x, _tf->scale.y, _tf->scale.z });
+				_col->worldSphere.center = _tf->position;
+				_col->worldSphere.radius = _col->sphere.radius * maxScale;
+				_col->broadPhaseRadius = _col->worldSphere.radius;
 				break;
 			}
 			case collision::ShapeType::Box:
 			{
 				// rotationQuat から軸を計算して worldOBB.axis を更新（ColliderSync::BuildOBB と同一処理）
 				using namespace DirectX;
-				XMVECTOR q = XMQuaternionNormalize(XMLoadFloat4(&tf->rotationQuat));
+				XMVECTOR q = XMQuaternionNormalize(XMLoadFloat4(&_tf->rotationQuat));
 
 				XMVECTOR axisX = XMVector3Rotate(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), q);
 				XMVECTOR axisY = XMVector3Rotate(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), q);
 				XMVECTOR axisZ = XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), q);
 
-				XMStoreFloat3(&col->worldOBB.axis[0], XMVector3Normalize(axisX));
-				XMStoreFloat3(&col->worldOBB.axis[1], XMVector3Normalize(axisY));
-				XMStoreFloat3(&col->worldOBB.axis[2], XMVector3Normalize(axisZ));
+				XMStoreFloat3(&_col->worldOBB.axis[0], XMVector3Normalize(axisX));
+				XMStoreFloat3(&_col->worldOBB.axis[1], XMVector3Normalize(axisY));
+				XMStoreFloat3(&_col->worldOBB.axis[2], XMVector3Normalize(axisZ));
 
-				col->worldOBB.center = tf->position;
-				col->worldOBB.half = {
-					col->box.halfExtents.x * tf->scale.x,
-					col->box.halfExtents.y * tf->scale.y,
-					col->box.halfExtents.z * tf->scale.z
+				_col->worldOBB.center = _tf->position;
+				_col->worldOBB.half = {
+					_col->box.halfExtents.x * _tf->scale.x,
+					_col->box.halfExtents.y * _tf->scale.y,
+					_col->box.halfExtents.z * _tf->scale.z
 				};
 
-				const auto& h = col->worldOBB.half;
-				col->broadPhaseRadius = std::sqrt(h.x * h.x + h.y * h.y + h.z * h.z);
+				const auto& h = _col->worldOBB.half;
+				_col->broadPhaseRadius = std::sqrt(h.x * h.x + h.y * h.y + h.z * h.z);
 				break;
 			}			default:
 				break;
 			}
 			// Collider に即時反映したことを示す旗（使っているならセット）
-			col->shapeDirty = false;
+			_col->shapeDirty = false;
 		}
 
 		struct ContactRecord {
@@ -159,12 +112,12 @@ namespace ecs {
 
 	} // namespace anonymous
 
-	// ---------- System 本体 ----------
-
-	CollisionResolveSystem::CollisionResolveSystem(const SystemDesc& desc)
-		: ISystem(desc) {
+	//! @brief コンストラクタ
+	CollisionResolveSystem::CollisionResolveSystem(const SystemDesc& _desc)
+		: ISystem(_desc) {
 	}
 
+	//! @brief 初期化
 	void CollisionResolveSystem::Init()
 	{
 		Signature sig;
@@ -175,12 +128,21 @@ namespace ecs {
 		shadow_test_system_ = ecs_.GetSystem<ShadowTestSystem>();
 	}
 
-	void CollisionResolveSystem::FixedUpdate(float fixedDt)
+	//! @brief 固定更新
+	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
+		// 初期生成じにすり抜けてしまう問題を避けるため、最初の数フレームは影判定をスキップする
+		constexpr float SHADOW_SKIP_Time = 0.2f;
+		if (time_ < SHADOW_SKIP_Time) { time_ += _fixedDt; }
+		bool skipShadowCheck = (time_ < SHADOW_SKIP_Time);
+
+
 		auto shadow = shadow_test_system_.lock();
 		contacts_.clear();
+		// 全ペアも記憶する
+		std::unordered_set<std::pair<Entity, Entity>, EntityPairHash> currentContacts;
 
-		// ---------- 接触収集 ----------
+		// ---------- 接触収集 ---------- //
 		std::vector<Entity> ents(entities_.begin(), entities_.end());
 		const size_t n = ents.size();
 
@@ -202,11 +164,23 @@ namespace ecs {
 				if (!c || c->penetration <= 1e-6f) { continue; }
 
 				contacts_.push_back(ContactRecord{ eA, eB, *c, {} });
+				currentContacts.insert(std::minmax(eA, eB));
 			}
 		}
 
-		// ---------- Contact の正規化 ----------
-		// ここで normal の向きを一度だけ確定する（以降は rec.contact.normal を唯一の法線として使う）
+		// ---------- 影判定スキップリスト更新 ---------- //
+		for (auto it = shadow_skip_pairs_.begin(); it != shadow_skip_pairs_.end();) {
+			// 今回の接触リストに存在しないペアは削除
+			if (currentContacts.count(*it) == 0) {
+				it = shadow_skip_pairs_.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+
+		// ---------- Contact の正規化 ---------- // 
+		// 以降は rec.contact.normal を唯一の法線として使う
 		for (auto& rec : contacts_) {
 			auto colA = ecs_.GetComponent<Collider>(rec.a);
 			auto colB = ecs_.GetComponent<Collider>(rec.b);
@@ -214,27 +188,27 @@ namespace ecs {
 			// Normal を正規化
 			XMFLOAT3 n = math::Normalize(rec.contact.normal);
 
-			// 片側が static の場合、常に rec.a を dynamic 側にする（取り扱い単純化）
+			// 片側が static の場合、常に rec.a を dynamic 側に
 			if (colA->isStatic && !colB->isStatic) {
 				std::swap(rec.a, rec.b);
-				n = Neg(n);
+				n = math::Negate(n);
 			}
-			// ここで rec.a が常に dynamic 側（少なくとも one-of が dynamic の時）になっていることに注意
+
 			rec.contact.normal = n;
 		}
 
-		// ---------- Shadow サンプル（確定 normal を使う） ----------
-		if (shadow_collision_enabled_ && shadow) {
+		// ---------- 影判定用サンプル点登録 ---------- // 
+		if (!skipShadowCheck && shadow_collision_enabled_ && shadow) {
 			for (auto& rec : contacts_) {
-				auto baseCol = ecs_.GetComponent<Collider>(rec.a); // rec.a は base（サンプリング基準）
+				auto baseCol = ecs_.GetComponent<Collider>(rec.a);
+				auto otherCol = ecs_.GetComponent<Collider>(rec.b);
 				const XMFLOAT3 n = rec.contact.normal;
 
-				// 代表点の取得は ColliderUtils の関数を利用
+				// 代表点の取得
 				XMFLOAT3 center = collision::GetRepresentativeContactPointOnOBB(baseCol->worldOBB, n);
-				float radius = GetSampleRadius(baseCol);
-				GenerateSurfaceSamplePoints(center, n, radius, rec.samplePoints);
+				collision::GenerateOverlapSamplePoints(baseCol->worldOBB, otherCol->worldOBB, rec.samplePoints);
 
-				constexpr float EPS = 0.005f;
+				constexpr float EPS = 0.00005f; // 少しだけ法線方向にオフセットして登録
 				for (auto& p : rec.samplePoints) {
 					p = math::Add(p, math::Scale(n, EPS));
 					shadow->RegisterCollisionPair(rec.a, rec.b, p);
@@ -242,14 +216,21 @@ namespace ecs {
 			}
 		}
 
-		// ---------- 解決フェーズ ----------
+		// ---------- 解決フェーズ ---------- //
 		const float baumgarte = 0.2f;
 
 		for (auto& rec : contacts_) {
 
 			// Shadow によって衝突自体を無視するケース
-			if (shadow_collision_enabled_ && shadow) {
-				if (shadow->AreBothInShadow(rec.a, rec.b)) { continue; }
+			if (!skipShadowCheck) {
+				std::pair<Entity, Entity> key = std::minmax(rec.a, rec.b);
+				if (shadow_skip_pairs_.count(key)) {
+					continue; // スキップ対象なら即スキップ
+				}
+				if (shadow_collision_enabled_ && shadow && shadow->AreBothInShadow(rec.a, rec.b)) {
+					shadow_skip_pairs_.insert(key); // 今回新たにスキップ対象に追加
+					continue;
+				}
 			}
 
 			// 再取得（rec.a/rec.b は正規化後の順序）
@@ -263,12 +244,12 @@ namespace ecs {
 				collision::ComputePushOut(rec.contact, colA->isStatic, colB->isStatic, solve_percent_, solve_slop_);
 
 			// Transform を直接更新（position を変えたら必ず Collider の world 情報も即時更新する）
-			if (!colA->isStatic && !IsZeroVec(dispA)) {
+			if (!colA->isStatic && !math::IsZeroVec(dispA)) {
 				tfA->AddPosition(dispA);
 				tfA->dirty = true; // Transform の dirty フラグ（Transform 実装に合わせて）
 				UpdateColliderWorldFromTransform(rec.a, tfA, colA); // 即時反映
 			}
-			if (!colB->isStatic && !IsZeroVec(dispB)) {
+			if (!colB->isStatic && !math::IsZeroVec(dispB)) {
 				tfB->AddPosition(dispB);
 				tfB->dirty = true;
 				UpdateColliderWorldFromTransform(rec.b, tfB, colB);
@@ -296,7 +277,7 @@ namespace ecs {
 			const bool bothDynamic = !(colA->isStatic || colB->isStatic);
 
 			// bias は基本的に dynamic-dynamic のみ効かせ、static-dynamic では 0 にして静的オブジェクトが「速度によって」押される事を防ぐ
-			const float bias = (bothDynamic && pen > 0.0f && fixedDt > 0.0f) ? (baumgarte * (pen / fixedDt)) : 0.0f;
+			const float bias = (bothDynamic && pen > 0.0f && _fixedDt > 0.0f) ? (baumgarte * (pen / _fixedDt)) : 0.0f;
 
 			// 速度差（vB - vA）
 			XMFLOAT3 vA{ 0,0,0 }, vB{ 0,0,0 };
@@ -354,7 +335,25 @@ namespace ecs {
 			}
 		}
 
-		// end FixedUpdate
+		// ---------- 影衝突スキップペアの更新 ---------- //
+		std::unordered_set<std::pair<Entity, Entity>, EntityPairHash> newShadowSkips;
+		for (const auto& rec : contacts_) {
+			if (shadow_collision_enabled_ && shadow) {
+				std::pair<Entity, Entity> key = std::minmax(rec.a, rec.b);
+				if (shadow_skip_pairs_.count(key)) {
+					newShadowSkips.insert(key); // 衝突し続けているもののみ維持
+				}
+			}
+		}
+		shadow_skip_pairs_ = std::move(newShadowSkips);
+	}
+
+	//! @brief シーン読み込み時処理
+	void CollisionResolveSystem::OnSceneLoaded()
+	{
+		contacts_.clear();
+		shadow_skip_pairs_.clear();
+		time_ = 0.0f;
 	}
 
 } // namespace ecs

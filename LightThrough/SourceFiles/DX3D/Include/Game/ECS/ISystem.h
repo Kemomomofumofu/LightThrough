@@ -30,6 +30,7 @@ namespace ecs {
 		virtual void Update(float _dt) {}
 		virtual void FixedUpdate(float _fixedDt) {}
 		virtual void OnEntityDestroyed(Entity _e) {}
+		virtual void OnSceneLoaded() {}
 
 		/**
 		 * @brief 一度だけ実行するシステムか
