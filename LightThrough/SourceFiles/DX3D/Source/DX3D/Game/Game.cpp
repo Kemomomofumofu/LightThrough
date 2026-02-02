@@ -14,10 +14,12 @@
 #include <Game/Scene/SceneManager.h>
 #include <Game/InputSystem/InputSystem.h>
 
-#include <Game/Systems/TransformSystem.h>
-#include <Game/Systems/CameraSystem.h>
 #include <Game/Systems/Initialization/Resolve/ObjectResolveSystem.h>
 #include <Game/Systems/Initialization/Resolve/MoveDirectionSourceResolveSystem.h>
+#include <Game/Systems/Initialization/Resolve/LightReferenceResolveSystem.h>
+
+#include <Game/Systems/TransformSystem.h>
+#include <Game/Systems/CameraSystem.h>
 #include <Game/Systems/Renderers/LightDepthRenderSystem.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
 #include <Game/Systems/Renderers/OutlineRenderSystem.h>
@@ -89,6 +91,7 @@ namespace {
 		_systemDesc.oneShot = true;
 		ecs.RegisterSystem<ecs::ObjectResolveSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::MoveDirectionSourceResolveSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::LightReferenceResolveSystem>(_systemDesc);
 
 		// ---------- ÉQÅ[ÉÄä÷åW ----------
 		_systemDesc.oneShot = false;

@@ -79,6 +79,12 @@ namespace ecs {
 		pending_destroys_.push_back(_e);
 	}
 
+	//! @brief Entity‚ª—LŒø‚©‚Ç‚¤‚©‚ğŠm”F
+	bool Coordinator::IsValidEntity(Entity _e)
+	{
+		return entity_manager_->IsValid(_e);
+	}
+
 	/**
 	 * @brief Entity‚ÉComponent‚ğ’Ç‰Á
 	 * @param _e ’Ç‰Áæ‚ÌEntity

@@ -68,6 +68,12 @@ namespace ecs {
 		 */
 		void RequestDestroyEntity(Entity _e);
 
+		/**
+		 * @brief Entityが有効かどうかを確認
+		 * @param _e : 確認するEntity
+		 * @return true: 有効, false: 無効
+		 */
+		bool IsValidEntity(Entity _e);
 
 		// ---------- Component関連 ---------- //
 		template<typename Com>

@@ -15,6 +15,7 @@
 #include <Game/Components/Input/MoveDirectionSource.h>
 #include <Game/Components/Input/CameraController.h>
 #include <Game/Components/GamePlay/LightPlaceRequest.h>
+#include <Game/Components/Render/Light.h>
 
 #include <DX3D/Math/MathUtils.h>
 #include <Debug/Debug.h>
@@ -47,11 +48,10 @@ namespace ecs {
 
 		// ライト生成リクエスト取得
 		if (input.IsMouseTrigger(input::MouseButton::Left)) { request_spawn_light_ = true; }
+		if (input.IsMouseTrigger(input::MouseButton::Right)) { request_despawn_light_ = true; }
 
 		// 手持ちライト切り替え
-		// 左クリック
-		if (input.IsMouseTrigger(input::MouseButton::Middle)) {
-		}
+		if (input.IsMouseTrigger(input::MouseButton::Middle)) { toggle_hand_light_ = true; }
 	}
 
 	//! @brief 固定更新
@@ -59,7 +59,7 @@ namespace ecs {
 	{
 		using namespace DirectX;
 
-		
+
 		for (auto e : entities_) {
 			auto tf = ecs_.GetComponent<Transform>(e);
 			auto pc = ecs_.GetComponent<PlayerController>(e);
@@ -105,7 +105,6 @@ namespace ecs {
 
 			// ---------- ライト生成 ---------- // 
 			if (request_spawn_light_) {
-				
 				Entity camEntity{};
 				if (mds->target.IsInitialized()) {
 					camEntity = mds->target;
@@ -121,6 +120,26 @@ namespace ecs {
 
 				ecs_.RequestAddComponent<LightPlaceRequest>(e, req);
 			}
+			// ---------- ライト破棄 ---------- //
+			if (request_despawn_light_) {
+				if (pc->ownedLights.size() != 0) {
+					Entity lightEntity = pc->ownedLights.front();
+					pc->ownedLights.pop_front();
+					ecs_.RequestDestroyEntity(lightEntity);
+				}
+			}
+
+
+			// ---------- 手持ちライトON/OFF ---------- //
+			if(toggle_hand_light_) {
+				if (pc->handLight.IsInitialized() && ecs_.IsValidEntity(pc->handLight)) {
+					auto lightCommon = ecs_.GetComponent<LightCommon>(pc->handLight);
+					lightCommon->enabled = !lightCommon->enabled;
+				}
+				else {
+					DebugLogError("[PlayerControllerSystem] 手持ちライトが存在しない。\n");
+				}
+			}
 		}
 
 		// フラグリセット
@@ -130,6 +149,8 @@ namespace ecs {
 		move_right_ = false;
 		request_jump_ = false;
 		request_spawn_light_ = false;
+		request_despawn_light_ = false;
+		toggle_hand_light_ = false;
 
 	}
 } // namespace ecs

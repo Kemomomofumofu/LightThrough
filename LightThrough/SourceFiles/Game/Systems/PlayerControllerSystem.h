@@ -23,7 +23,11 @@ namespace ecs {
 		bool move_right_	= false;
 		bool request_jump_ = false;
 
-		// ライト生成リクエスト
+		// ライトリクエスト
 		bool request_spawn_light_ = false;
+		bool request_despawn_light_ = false;
+
+		// 手持ちライトON/OFF
+		bool toggle_hand_light_ = false;
 	};
 } // namespace ecs

@@ -347,16 +347,16 @@ namespace ecs {
 
 #if defined(DEBUG) || defined(_DEBUG)
 				
-				DebugLogInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outUV={}, outZ={}, zeroW={}, outRange={}, outSideCone={}",
-					entry.light.id_,
-					countLit,
-					countShadow,
-					countOutUV,
-					countOutZ,
-					countZeroW,
-					countOutRange,
-					countOutSideCone
-				);
+				//DebugLogInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outUV={}, outZ={}, zeroW={}, outRange={}, outSideCone={}",
+				//	entry.light.id_,
+				//	countLit,
+				//	countShadow,
+				//	countOutUV,
+				//	countOutZ,
+				//	countZeroW,
+				//	countOutRange,
+				//	countOutSideCone
+				//);
 				
 #endif // DEBUG
 			}
