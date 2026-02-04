@@ -17,7 +17,7 @@ namespace ecs {
 		Entity handLight{}; // 手に持っているライトのエンティティ
 		std::string handLightName = "PlayerLight"; // 手に持つライト名前
 		std::deque<Entity> ownedLights{}; // 所持しているライトのエンティティ
-		size_t maxOwnedLights = 8; // 所持可能なライトの最大数
+		size_t maxOwnedLights = 1; // 所持可能なライトの最大数
 	};
 }
 

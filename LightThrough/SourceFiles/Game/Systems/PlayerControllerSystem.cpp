@@ -50,8 +50,8 @@ namespace ecs {
 		if (input.IsMouseTrigger(input::MouseButton::Left)) { request_spawn_light_ = true; }
 		if (input.IsMouseTrigger(input::MouseButton::Right)) { request_despawn_light_ = true; }
 
-		// 手持ちライト切り替え
-		if (input.IsMouseTrigger(input::MouseButton::Middle)) { toggle_hand_light_ = true; }
+		//// 手持ちライト切り替え
+		//if (input.IsMouseTrigger(input::MouseButton::Middle)) { toggle_hand_light_ = true; }
 	}
 
 	//! @brief 固定更新

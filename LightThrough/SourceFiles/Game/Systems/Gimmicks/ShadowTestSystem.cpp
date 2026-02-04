@@ -302,6 +302,7 @@ namespace ecs {
 			void* mappedData = staging_buffer_->Map();
 			if (mappedData) {
 
+#if defined(DEBUG) || defined(_DEBUG)
 				// デバッグ用カウンタ
 				uint32_t countLit = 0;
 				uint32_t countShadow = 0;
@@ -310,7 +311,7 @@ namespace ecs {
 				uint32_t countZeroW = 0;
 				uint32_t countOutRange = 0;
 				uint32_t countOutSideCone = 0;
-
+#endif // DEBUG
 				// outFlags: 0 = lit, 1 = shadow, 2 = outUV, 3 = outZ, 4 = wZero, 5 = outRange, 6 = outSideCone
 				auto* flags = static_cast<const uint32_t*>(mappedData);
 				for (size_t j = 0; j < testPoints.size(); ++j)
@@ -318,9 +319,12 @@ namespace ecs {
 					switch (flags[j])
 					{
 					case 0: // lit
+#if defied(DEBUG) || defined(_DEBUG)
 						++countLit;
+#endif // DEBUG
 						isLitByAnyLight[j] = true;
 						break;
+#if defined(DEBUG) || defined(_DEBUG)
 					case 1: // shadow
 						++countShadow;
 						break;
@@ -339,6 +343,7 @@ namespace ecs {
 					case 6: // outSideCone
 						++countOutSideCone;
 						break;
+#endif // DEBUG
 					default:
 						break;
 					}

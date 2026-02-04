@@ -121,7 +121,7 @@ namespace ecs {
 		return L;
 	}
 
-	inline LightViewProj BuildLightViewProj(const Transform* _tf, const SpotLight* _spot, float _nearZ = 0.005f)
+	inline LightViewProj BuildLightViewProj(const Transform* _tf, const SpotLight* _spot, float _nearZ = 0.0045f)
 	{
 		using namespace DirectX;
 		

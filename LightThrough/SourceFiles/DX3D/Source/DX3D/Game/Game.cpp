@@ -252,12 +252,13 @@ namespace dx3d {
 		{
 			scene_manager_->ChangeScene("TestScene");
 		}
-
+#if defined(_DEBUG) || defined(DEBUG)
 		// シーンの保存
 		if (input::InputSystem::Get().IsKeyTrigger('T'))
 		{
 			SaveScene();
 		}
+#endif 
 		// シーンリロード
 		if (input::InputSystem::Get().IsKeyTrigger('R')) {
 			ReloadScene();

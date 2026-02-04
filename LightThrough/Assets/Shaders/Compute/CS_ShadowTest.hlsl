@@ -83,7 +83,7 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
 
     
     // SampleCmpLevelZero: uvw.z <= stored ‚È‚ç 1.0 (Œõ‚Ì’†)
-    float bias = 0.0000125f;
+    float bias = 0.000025f;
     float shadowFactor = shadowMap.SampleCmpLevelZero(
         shadowSampler,
         float3(uvw.xy, sliceIndex),

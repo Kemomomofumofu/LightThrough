@@ -58,7 +58,7 @@ namespace ecs {
 		std::vector<ContactRecord> contacts_; // 衝突リスト
 		std::unordered_set<std::pair<Entity, Entity>, EntityPairHash> shadow_skip_pairs_{}; // 影で衝突解消をスキップするペア集合
 
-		float solve_percent_ = 1.0f; // 解消割合
+		float solve_percent_ = 2.0f; // 解消割合
 		float solve_slop_ = 0.01f;   // 微小貫通を無視する閾値
 		bool shadow_collision_enabled_ = true;	// 影での衝突解消を有効にするか
 

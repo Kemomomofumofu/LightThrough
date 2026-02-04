@@ -8,7 +8,9 @@
 
 // ---------- インクルード ---------- // 
 #include <Game/ECS/Entity.h>
-#include "ComponentArray.h"
+#include <Game/ECS/ComponentArray.h>
+
+#include <Debug/Debug.h>
 
 
 namespace ecs {
@@ -36,7 +38,7 @@ namespace ecs {
 		auto it = entity_to_index_.find(_e);
 		// 見つからなかったら
 		if (it == entity_to_index_.end()) {
-			assert(false && "[ComponentArray] RemoveでEntityが見つからなかった");
+			DebugLogError("[ComponentArray] 指定されたEntityのComponentが存在しない", _e.id_);
 			return;
 		}
 

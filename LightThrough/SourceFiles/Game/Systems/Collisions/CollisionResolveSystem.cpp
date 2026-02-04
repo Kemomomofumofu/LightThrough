@@ -25,7 +25,6 @@ namespace ecs {
 	using namespace DirectX;
 
 	namespace {
-		constexpr int SAMPLE_POINT_GRID = 2; // サンプル点のグリッド数
 
 
 		template <class ...Ts>
@@ -132,7 +131,7 @@ namespace ecs {
 	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
 		// 初期生成じにすり抜けてしまう問題を避けるため、最初の数フレームは影判定をスキップする
-		constexpr float SHADOW_SKIP_Time = 0.2f;
+		constexpr float SHADOW_SKIP_Time = 1.0f;
 		if (time_ < SHADOW_SKIP_Time) { time_ += _fixedDt; }
 		bool skipShadowCheck = (time_ < SHADOW_SKIP_Time);
 
