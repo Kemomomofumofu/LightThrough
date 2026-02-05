@@ -153,7 +153,6 @@
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.cpp" />
@@ -169,7 +168,6 @@
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\CollisionResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Debug\DebugUI.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.cpp" />
@@ -221,7 +219,6 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\MathUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
     <ClInclude Include="SourceFiles\Game\Components\GamePlay\LightPlaceRequest.h" />
@@ -255,7 +252,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\InstanceData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\Texture.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\Serialization\ComponentReflection.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
@@ -266,7 +262,6 @@
     <ClInclude Include="SourceFiles\DX3D\Include\Game\Collisions\CollisionUtils.h" />
     <ClInclude Include="SourceFiles\Game\Components\Input\CameraController.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\Collider.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Render\Material.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ISystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Transform.h" />

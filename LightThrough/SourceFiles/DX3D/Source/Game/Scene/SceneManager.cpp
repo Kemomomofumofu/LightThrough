@@ -17,6 +17,7 @@
 #include <Game/ECS/Coordinator.h>
 #include <Game/Components/Core/Transform.h>
 #include <Game/Components/Render/MeshRenderer.h>
+#include <Game/Components/Render/SpriteRenderer.h>
 #include <Game/Components/Camera/Camera.h>
 #include <Game/Components/Input/CameraController.h>
 #include <Game/Components/Physics/Collider.h>
@@ -211,11 +212,7 @@ namespace scene {
 
 	}
 
-	/**
-	 * @brief SceneDataの生成
-	 * @param _name		SceneData名
-	 * @return 生成したSceneDataのID
-	 */
+	//! @brief シーン生成
 	SceneData::Id SceneManager::CreateScene(const std::string& _name)
 	{
 		SceneData::Id id = GenerateId(_name);
@@ -226,12 +223,7 @@ namespace scene {
 		return id;
 	}
 
-	/**
-	 * @brief ファイルからSceneDataを読み込む
-	 * @param _path		ファイルパス
-	 * @param _id		シーンID
-	 * @return 成功したらTrue, 失敗したらFalse
-	 */
+	//! @brief シーンをファイルから読み込む
 	bool SceneManager::LoadSceneFromFile(const std::string& _name)
 	{
 		try {
@@ -247,6 +239,7 @@ namespace scene {
 		}
 	}
 
+	//! @brief シーン切り替え
 	bool SceneManager::ChangeScene(const SceneData::Id& _newScene, bool _unloadPrev)
 	{
 		// すでにアクティブならスキップ
@@ -289,10 +282,8 @@ namespace scene {
 		return true;
 	}
 
-	/**
-	 * @brief アクティブなSceneDataを保存する
-	 * @return 成功: true, 失敗: false
-	 */
+
+	//! @brief アクティブなSceneDataを保存する
 	bool SceneManager::SaveActiveScene()
 	{
 		if (!active_scene_) {
@@ -312,12 +303,7 @@ namespace scene {
 
 
 
-	/**
-	 * @brief SceneDataをアンロードする
-	 * @param _id	シーンID
-	 * @param _destroyEntities	シーンに含まれるEntityを破棄するかどうか
-	 * @return 成功: true、失敗: false
-	 */
+	//! @brief SceneDataのアンロード
 	bool SceneManager::UnloadScene(SceneData::Id _id, bool _destroyEntities)
 	{
 		auto it = scenes_.find(_id);
@@ -354,12 +340,7 @@ namespace scene {
 		return true;
 	}
 
-	/**
-	 * @brief SceneDataをアクティブにする
-	 * @param _id			シーンID
-	 * @param unloadPrev	前のシーンをアンロードするかどうか
-	 * @return 成功したらTrue、失敗したらFalse
-	 */
+	//! @brief アクティブなシーンを設定
 	bool SceneManager::SetActiveScene(const SceneData::Id& _id, bool _unloadPrev)
 	{
 		if (scenes_.find(_id) == scenes_.end()) { return false; } // 存在しないシーン
@@ -387,20 +368,13 @@ namespace scene {
 		return true;
 	}
 
-	/**
-	 * @brief アクティブなSceneDataのIDを取得
-	 * @return アクティブなSceneDataのID, 無い場合: nullopt
-	 */
+	//! @brief アクティブなシーンIDを取得
 	std::optional<SceneData::Id> SceneManager::GetActiveScene() const
 	{
 		return active_scene_;
 	}
 
-	/**
-	 * @brief SceneDataにEntityを追加
-	 * @param _id	シーンID
-	 * @param _e	追加するEntity
-	 */
+	//! @brief SceneDataにEntityを追加
 	void SceneManager::AddEntityToScene(const SceneData::Id& _id, ecs::Entity _e)
 	{
 		auto it = scenes_.find(_id);
@@ -409,11 +383,7 @@ namespace scene {
 		it->second.entities_.push_back(_e);
 	}
 
-	/**
-	 * @brief SceneDataからEntityを削除
-	 * @param _id	シーンID
-	 * @param _e	削除するEntity
-	 */
+	//! @brief SceneDataからEntityを削除
 	void SceneManager::RemoveEntityFromScene(const SceneData::Id& _id, ecs::Entity _e)
 	{
 		auto it = scenes_.find(_id);
@@ -422,11 +392,7 @@ namespace scene {
 		ents.erase(std::remove(ents.begin(), ents.end(), _e), ents.end());
 	}
 
-	/**
-	 * @brief SceneDataに含まれるEntityの一覧を取得
-	 * @param _id	シーンID
-	 * @return EntityのVector型リスト
-	 */
+	//! @brief SceneDataに含まれるEntity一覧を取得
 	const std::vector<ecs::Entity>& SceneManager::GetEntitiesInScene(const SceneData::Id& _id) const
 	{
 		auto it = scenes_.find(_id);
@@ -436,12 +402,8 @@ namespace scene {
 		} // 存在しないシーン
 		return it->second.entities_;
 	}
-
-	/**
-	 * @brief Entityを永続化するかどうかを設定
-	 * @param _e			Entity
-	 * @param _persistent	永続化するかどうか
-	 */
+	
+	//! @brief Entityを永続化するかどうか
 	void SceneManager::MarkPersistentEntity(ecs::Entity _e, bool _persistent)
 	{
 		if (_persistent) {
@@ -452,6 +414,7 @@ namespace scene {
 		}
 	}
 
+	//! @brief Entity破棄時コールバック
 	void SceneManager::OnEntityDestroyed(ecs::Entity _e)
 	{
 		// 永続化リストから削除

@@ -12,6 +12,7 @@
 #include <DX3D/Game/Display.h>
 #include <DX3D/Math/Point.h>
 #include <Game/Scene/SceneManager.h>
+#include <DX3D/Graphics/Textures/TextureRegistry.h>
 #include <Game/InputSystem/InputSystem.h>
 
 #include <Game/Systems/Initialization/Resolve/ObjectResolveSystem.h>
@@ -162,15 +163,22 @@ namespace dx3d {
 
 		// 描画エンジンの生成
 		graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });
-
 		// ウィンドウの生成
 		display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
 		try {
+			// COMの初期化(WIC/DirectXTex用
+			HRESULT hrCo = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+			if (FAILED(hrCo) && hrCo != RPC_E_CHANGED_MODE) {
+				DebugLogError("[Game] CoInitializeExに失敗\n");
+				__debugbreak();
+			}			
+
 			// ImGuiの初期化
 			ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
 			ID3D11DeviceContext* context = graphics_engine_->GetDeferredContext().GetDeferredContext().Get();
 			void* hwnd = display_->GetHandle();
 			debug::DebugUI::Init(device, context, hwnd);
+
 
 			// InputSystem初期化
 			input::InputSystem::Get().Init(static_cast<HWND>(display_->GetHandle()));

@@ -22,11 +22,7 @@
  * Ç»ÇÒÇ©ï`âÊÇ∑ÇÈä¥Ç∂ÅH
  */
 namespace dx3d {
-
-	namespace texture {
-		class TextureRegistry;
-	} // namespace texture
-
+	class TextureRegistry;
 
 	struct GraphicsEngineDesc {
 		BaseDesc base;
@@ -66,6 +62,6 @@ namespace dx3d {
 		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};
 		std::unique_ptr<MeshRegistry> mesh_registry_{};
-		std::unique_ptr<texture::TextureRegistry> texture_registry_{};
+		std::unique_ptr<TextureRegistry> texture_registry_{};
 	};
 }

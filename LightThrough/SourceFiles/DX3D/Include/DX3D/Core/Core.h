@@ -1,13 +1,10 @@
 #pragma once
 /**
  * @file Core.h
- * @brief 前方宣言をいっぱいしてくれる
- * @author Arima Keita
- * @date 2025-06-25
+ * @brief 前方宣言をいっぱいする
  */
 
  /*---------- インクルード ----------*/
-#include <stdexcept>
 #include <memory>
 
 

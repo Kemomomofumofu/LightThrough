@@ -27,26 +27,26 @@ namespace dx3d {
 	{
 		graphics_device_ = std::make_shared<GraphicsDevice>(GraphicsDeviceDesc{ logger_ });
 		
-		auto& device = *graphics_device_;
-		deferred_context_ = device.CreateDeviceContext();
+		deferred_context_ = graphics_device_->CreateDeviceContext();
 
 		// シェーダーキャッシュの生成
-		shader_cache_ = device.CreateShaderCache({});
+		shader_cache_ = graphics_device_->CreateShaderCache({});
 
 		// パイプラインキャッシュの生成
-		pipeline_cache_ = device.CreatePipelineCache({*shader_cache_});
+		pipeline_cache_ = graphics_device_->CreatePipelineCache({*shader_cache_});
 
 		// メッシュレジストリの生成
 		mesh_registry_ = std::make_unique<MeshRegistry>();
 		
 		// Meshを事前に生成しておく
-		PrimitiveFactory::CreateCube(device, *mesh_registry_);
-		PrimitiveFactory::CreateSphere(device, *mesh_registry_);
-		PrimitiveFactory::CreateQuad(device, *mesh_registry_);
-		//PrimitiveFactory::CreateLine(device, *mesh_registry_);
+		PrimitiveFactory::CreateCube(*graphics_device_, *mesh_registry_);
+		PrimitiveFactory::CreateSphere(*graphics_device_, *mesh_registry_);
+		PrimitiveFactory::CreateQuad(*graphics_device_, *mesh_registry_);
+		//PrimitiveFactory::CreateLine(*graphics_device_, *mesh_registry_);
 
 		// テクスチャレジストリの生成
-		texture_registry_ = std::make_unique<texture::TextureRegistry>(*graphics_device_->GetD3DDevice().Get());
+		ID3D11Device* devicePtr = graphics_device_->GetD3DDevice().Get();
+		texture_registry_ = std::make_unique<TextureRegistry>(devicePtr);
 	}
 
 	//! @brief デストラクタ
