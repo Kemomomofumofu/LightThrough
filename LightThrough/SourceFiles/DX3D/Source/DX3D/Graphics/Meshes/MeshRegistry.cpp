@@ -1,8 +1,6 @@
 /**
  * @file MeshRegistry.cpp
  * @brief メッシュの登録・管理を行うクラス
- * @author Arima Keita
- * @date 2025-10-16
  */
 
  // ---------- インクルード ---------- //

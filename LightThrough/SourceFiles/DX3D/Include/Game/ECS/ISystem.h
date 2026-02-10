@@ -21,6 +21,7 @@ namespace ecs {
 	public:
 		explicit ISystem(const SystemDesc& _desc)
 			: dx3d::Base(_desc.base)
+			, engine_(_desc.graphicsEngine)
 			, ecs_(_desc.ecs)
 			, scene_manager_(_desc.sceneManager)
 			, one_shot_(_desc.oneShot){}
@@ -50,6 +51,7 @@ namespace ecs {
 	protected:
 		ecs::Coordinator& ecs_; // ecs::Coordinatorへの参照
 		scene::SceneManager& scene_manager_;
+		dx3d::GraphicsEngine& engine_;
 
 		bool one_shot_ = false; // 一度だけ実行するシステムか
 		bool active_ = true; // システムがアクティブか

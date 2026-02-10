@@ -25,4 +25,9 @@ namespace dx3d {
 	struct InstanceDataShadow {
 		DirectX::XMFLOAT4X4 world;	// ワールド行列
 	};
+
+	struct InstanceDataSprite {
+		DirectX::XMFLOAT4X4 world;	// ワールド行列
+		DirectX::XMFLOAT4 color{1, 1, 1, 1};	// インスタンスカラー
+	};
 }

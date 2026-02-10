@@ -45,7 +45,6 @@ namespace ecs {
 	 */
 	LightDepthRenderSystem::LightDepthRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
-		, engine_(_desc.graphicsEngine)
 	{
 		//light_view_proj_matrices_.resize(MAX_SHADOW_LIGHTS);
 	}

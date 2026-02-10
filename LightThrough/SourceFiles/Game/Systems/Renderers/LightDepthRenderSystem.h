@@ -107,7 +107,6 @@ namespace ecs {
 		// ライトごとのシャドウ情報
 		std::vector<ShadowLightEntry> shadow_lights_;
 
-		dx3d::GraphicsEngine& engine_;
 	};
 
 }

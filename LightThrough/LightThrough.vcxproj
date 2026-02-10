@@ -156,6 +156,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
@@ -205,6 +206,7 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Window\Win32\Win32Window.cpp" />
     <ClCompile Include="SourceFiles\Game\main.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\TransformSystem.cpp" />
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_demo.cpp" />
@@ -219,6 +221,7 @@
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\MathUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureHandle.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
     <ClInclude Include="SourceFiles\Game\Components\GamePlay\LightPlaceRequest.h" />
@@ -229,8 +232,10 @@
     <ClInclude Include="SourceFiles\Game\Components\Core\ObjectChild.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\ObjectRoot.h" />
     <ClInclude Include="SourceFiles\Game\Components\Input\PlayerController.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Render\SpriteRenderer.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.h" />
@@ -302,6 +307,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderBinary.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h" />
@@ -373,6 +379,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Sprite.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

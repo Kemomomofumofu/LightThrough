@@ -28,8 +28,7 @@ namespace ecs {
 
 	//! @brief コンストラクタ
 	ShadowTestSystem::ShadowTestSystem(const SystemDesc& _desc)
-		:ISystem(_desc),
-		engine_(_desc.graphicsEngine)
+		:ISystem(_desc)
 	{
 	}
 

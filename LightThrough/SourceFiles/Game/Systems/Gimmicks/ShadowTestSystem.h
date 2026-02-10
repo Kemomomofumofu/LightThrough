@@ -114,7 +114,6 @@ namespace ecs {
 		};
 
 	private:
-		dx3d::GraphicsEngine& engine_;
 		std::weak_ptr<LightDepthRenderSystem> light_depth_system_{};
 		std::weak_ptr<DebugRenderSystem> debug_render_system_{};
 

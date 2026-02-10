@@ -57,9 +57,7 @@ namespace ecs {
 			dx3d::PipelineKey key{};
 			float sortKey = 0.0f; // ソート用キー
 		};
-	private: 
-
-		dx3d::GraphicsEngine& engine_;
+	private:
 		// バッチ
 		std::vector<InstanceBatchMain> opaque_batches_{};
 		std::vector<InstanceBatchMain> transparent_batches_{};

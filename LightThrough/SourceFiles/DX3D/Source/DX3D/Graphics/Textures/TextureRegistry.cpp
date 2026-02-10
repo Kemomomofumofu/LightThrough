@@ -13,6 +13,7 @@
 namespace dx3d {
 
 	namespace {
+		// UTF-8文字列をワイド文字列に変換
 		std::wstring ToWide(const std::string& _s)
 		{
 			if (_s.empty()) return{};
@@ -29,7 +30,17 @@ namespace dx3d {
 			return w;
 		}
 
-		//! @brief テクスチャーを読み込む
+		// _strが_prefixで始まるかどうか
+		bool StartsWith(const std::string& _s, const std::string& _prefix)
+		{
+			return _s.size() >= _prefix.size() && std::equal(_prefix.begin(), _prefix.end(), _s.begin());
+		}
+		// 文字列にスラッシュが含まれているかどうか
+		bool HasAnySlash(const std::string& _s)
+		{
+			return _s.find('/') != std::string::npos || _s.find('\\') != std::string::npos;
+		}
+
 		TexturePtr LoadTextureSRGB(ID3D11Device* _device, const std::string& _path)
 		{
 			if (!_device) { return nullptr; }
@@ -49,7 +60,7 @@ namespace dx3d {
 				image);
 
 			if (FAILED(hr)) {
-				DebugLogError("[TextureRegistry] テクスチャ読み込みに失敗: " + _path + "\n");
+				DebugLogError("[TextureRegistry] テクスチャ読み込みに失敗: {}(hr=0x{:08X})\n ", _path, static_cast<uint32_t>(hr));
 				return nullptr;
 			}
 
@@ -67,13 +78,13 @@ namespace dx3d {
 				converted);
 
 			if (FAILED(hr)) {
-				DebugLogError("[TextureRegistry] テクスチャ変換に失敗: " + _path + "\n");
+				DebugLogError("[TextureRegistry] テクスチャ変換に失敗: {}\n", _path);
 				return nullptr;
 			}
 
 
 			// リソース作成
-			const auto& meta = converted.GetMetadata();			
+			const auto& meta = converted.GetMetadata();
 			Microsoft::WRL::ComPtr<ID3D11Resource> resource;
 			hr = DirectX::CreateTexture(
 				_device,
@@ -84,7 +95,7 @@ namespace dx3d {
 			);
 
 			if (FAILED(hr)) {
-				DebugLogError("[TextureRegistry] リソースの作成に失敗 " + _path + "\n");
+				DebugLogError("[TextureRegistry] リソースの作成に失敗 {}\n", _path);
 			}
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -96,7 +107,7 @@ namespace dx3d {
 			Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
 			hr = _device->CreateShaderResourceView(resource.Get(), &srvDesc, srv.GetAddressOf());
 			if (FAILED(hr)) {
-				DebugLogError("[TextureRegistry] シェーダーリソースビューの作成に失敗 " + _path + "\n");
+				DebugLogError("[TextureRegistry] シェーダーリソースビューの作成に失敗 {}\n", _path);
 				return nullptr;
 			}
 
@@ -115,18 +126,72 @@ namespace dx3d {
 	{
 	}
 
+	//! @brief テクスチャーをロードしてハンドルを取得
+	TextureHandle TextureRegistry::Load(const std::string& _path)
+	{
+		const std::string full = NormalizePath(_path);
+
+		if (full.empty()) {
+			DebugLogError("[TextureRegistry] 空のパスが指定されました。\n");
+			return TextureHandle{};
+		}
+
+		if(auto it = path_to_handle_.find(full); it != path_to_handle_.end()) {return it->second;}
+
+
+		DebugLogInfo("[TextureRegistry] テクスチャをロード: {}\n", full);
+
+
+		auto texture = LoadTextureSRGB(device_, full);
+		if (!texture) { return TextureHandle{}; }
+
+		TextureHandle handle{};
+		handle.id = next_id_++;
+		path_to_handle_.emplace(full, handle);
+		id_to_texture_.emplace(handle.id, texture);
+
+		return handle;
+	}
+
 	//! @brief テクスチャーを取得
 	const TexturePtr TextureRegistry::Get(const std::string& _path)
 	{
+		const std::string full = NormalizePath(_path);
+		if(full.empty()){
+			DebugLogError("[TextureRegistry] 空のパスが指定されました。\n");
+			return nullptr;
+		}
+
 		// キャッシュヒット
-		if (auto it = cache_.find(_path); it != cache_.end()) { return it->second; }
+		if (auto it = path_to_handle_.find(full); it != path_to_handle_.end()) { return Get(it->second); }
 
 		// 存在しない場合はロードしてキャッシュに保存
-		auto texture = LoadTextureSRGB(device_, _path);
+		auto texture = LoadTextureSRGB(device_, full);
 		if (!texture) { return nullptr; }
 
-		cache_.emplace(_path, texture);
+		TextureHandle handle{};
+		handle.id = next_id_++;
+		path_to_handle_.emplace(full, handle);
+		id_to_texture_.emplace(handle.id, texture);
 
 		return texture;
+	}
+	const TexturePtr TextureRegistry::Get(const TextureHandle& _handle)
+	{
+		if (auto it = id_to_texture_.find(_handle.id); it != id_to_texture_.end()) { return it->second; }
+
+		DebugLogError("[TextureRegistry] 存在しないハンドルが指定されました。id: {}\n", _handle.id);
+		return nullptr;
+	}
+
+	// ファイルパスの正規化
+	std::string TextureRegistry::NormalizePath(const std::string& _path) const
+	{
+		if (_path.empty()) { return _path; }
+
+		// すでにベースパスが含まれている場合はそのまま返す
+		if (!base_path_.empty() && StartsWith(_path, base_path_)) { return _path; }
+
+		return base_path_ + _path;
 	}
 } // namespace dx3d

@@ -223,6 +223,10 @@
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Render\SpriteRenderer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureHandle.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -324,6 +328,8 @@
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
@@ -342,5 +348,6 @@
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_ShadowMapDebug.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Sprite.hlsl" />
   </ItemGroup>
 </Project>

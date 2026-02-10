@@ -47,6 +47,8 @@ namespace dx3d {
 		// テクスチャレジストリの生成
 		ID3D11Device* devicePtr = graphics_device_->GetD3DDevice().Get();
 		texture_registry_ = std::make_unique<TextureRegistry>(devicePtr);
+
+		texture_registry_->Load("hogehoge.png");
 	}
 
 	//! @brief デストラクタ

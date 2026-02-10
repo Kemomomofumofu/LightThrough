@@ -52,6 +52,7 @@ namespace dx3d {
 		case PixelShaderKind::Default: file = paths_.psDefault; break;
 		case PixelShaderKind::Color: file = paths_.psColor; break;
 		case PixelShaderKind::Outline: file = paths_.psColor; break;
+		case PixelShaderKind::Sprite: file = paths_.psSprite; break;
 		case PixelShaderKind::ShadowDebug: file = paths_.psShadowDebug; break;
 		default: DX3DLogThrowError("[ShaderCache] 未対応のピクセルシェーダー");
 		}

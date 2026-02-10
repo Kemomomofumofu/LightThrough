@@ -1,8 +1,6 @@
 /**
  * @file Game.cpp
  * @brief ゲーム
- * @author Arima Keita
- * @date 2025-06-25
  */
 
  /*---------- インクルード ----------*/
@@ -19,11 +17,13 @@
 #include <Game/Systems/Initialization/Resolve/MoveDirectionSourceResolveSystem.h>
 #include <Game/Systems/Initialization/Resolve/LightReferenceResolveSystem.h>
 #include <Game/Systems/Initialization/Resolve/MeshHandleResolveSystem.h>
+#include <Game/Systems/Initialization/Resolve/TextureHandleResolveSystem.h>
 
 #include <Game/Systems/TransformSystem.h>
 #include <Game/Systems/CameraSystem.h>
 #include <Game/Systems/Renderers/LightDepthRenderSystem.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
+#include <Game/Systems/Renderers/SpriteRenderSystem.h>
 #include <Game/Systems/Renderers/OutlineRenderSystem.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
@@ -37,19 +37,20 @@
 #include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 #include <Game/Systems/Gimmicks/LightSpawnSystem.h>
 
-#include <Game/Components/Render/MeshRenderer.h>
+#include <Game/Components/Core/Name.h>
 #include <Game/Components/Core/Transform.h>
+#include <Game/Components/Core/ObjectRoot.h>
+#include <Game/Components/Core/ObjectChild.h>
+#include <Game/Components/Render/MeshRenderer.h>
+#include <Game/Components/Render/SpriteRenderer.h>
+#include <Game/Components/Render/Light.h>
 #include <Game/Components/Camera/Camera.h>
 #include <Game/Components/Input/CameraController.h>
+#include <Game/Components/Input/PlayerController.h>
+#include <Game/Components/Input/MoveDirectionSource.h>
 #include <Game/Components/Physics/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
 #include <Game/Components/Physics/GroundContact.h>
-#include <Game/Components/Render/Light.h>
-#include <Game/Components/Input/PlayerController.h>
-#include <Game/Components/Input/MoveDirectionSource.h>
-#include <Game/Components/Core/Name.h>
-#include <Game/Components/Core/ObjectRoot.h>
-#include <Game/Components/Core/ObjectChild.h>
 #include <Game/Components/GamePlay/LightPlaceRequest.h>
 
 #include <Debug/DebugUI.h>
@@ -67,6 +68,7 @@ namespace {
 		// todo: 自動でComponentを登録する機能が欲しいかも。システム登録段階で、コンポーネントマネージャの中にすでに登録してあったらそのシグネチャを使い、なければ新たにとか...
 		_ecs.RegisterComponent<ecs::Transform>();
 		_ecs.RegisterComponent<ecs::MeshRenderer>();
+		_ecs.RegisterComponent<ecs::SpriteRenderer>();
 		_ecs.RegisterComponent<ecs::Camera>();
 		_ecs.RegisterComponent<ecs::CameraController>();
 		_ecs.RegisterComponent<ecs::Collider>();
@@ -95,6 +97,7 @@ namespace {
 		ecs.RegisterSystem<ecs::MoveDirectionSourceResolveSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::LightReferenceResolveSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::MeshHandleResolveSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::TextureHandleResolveSystem>(_systemDesc);
 
 		// ---------- ゲーム関係 ----------
 		_systemDesc.oneShot = false;
@@ -137,6 +140,7 @@ namespace {
 		ecs.RegisterSystem<ecs::CameraSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::RenderSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::OutlineRenderSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::SpriteRenderSystem>(_systemDesc);
 
 
 		ecs.RegisterSystem<ecs::DebugRenderSystem>(_systemDesc);
@@ -160,19 +164,19 @@ namespace dx3d {
 	{
 		// デバッグログ初期化
 		debug::Debug::Init(true);
+		// COMの初期化(WIC/DirectXTex用
+		HRESULT hrCo = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+		if (FAILED(hrCo) && hrCo != RPC_E_CHANGED_MODE) {
+			DebugLogError("[Game] CoInitializeExに失敗\n");
+			__debugbreak();
+		}
+
 
 		// 描画エンジンの生成
 		graphics_engine_ = std::make_unique<GraphicsEngine>(GraphicsEngineDesc{ logger_ });
 		// ウィンドウの生成
 		display_ = std::make_unique<Display>(DisplayDesc{ {logger_, _desc.windowSize}, graphics_engine_->GetGraphicsDevice() });
 		try {
-			// COMの初期化(WIC/DirectXTex用
-			HRESULT hrCo = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-			if (FAILED(hrCo) && hrCo != RPC_E_CHANGED_MODE) {
-				DebugLogError("[Game] CoInitializeExに失敗\n");
-				__debugbreak();
-			}			
-
 			// ImGuiの初期化
 			ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
 			ID3D11DeviceContext* context = graphics_engine_->GetDeferredContext().GetDeferredContext().Get();
@@ -196,7 +200,7 @@ namespace dx3d {
 			ChangeScene("TestScene");
 
 			// Systemの登録
-			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_, graphics_engine_->GetMeshRegistry()};
+			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_, graphics_engine_->GetMeshRegistry(), graphics_engine_->GetTextureRegistry()};
 			RegisterAllSystems(systemDesc);
 
 			// Entity破棄時コールバック設定
@@ -330,7 +334,7 @@ namespace dx3d {
 		scene_manager_->ReloadActiveScene();		// シーンリロード
 		ecs_coordinator_->ReactivateAllSystems();	// システムの再アクティブ化
 		ecs_coordinator_->FlushPending();			// 保留中の変更を反映
-		
+
 	}
 
 	void Game::ChangeScene(const scene::SceneData::Id& _newScene)

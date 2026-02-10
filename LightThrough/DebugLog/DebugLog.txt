@@ -1,59 +1,66 @@
-2026-02-03 15:46:14 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/TestScene.json'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] sceneId ='TestScene' sceneName = 'TestScene'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] entities count = '8'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:56 [INFO] [TextureRegistry] テクスチャをロード: Assets/Textures/hogehoge.png
+
+2026-02-10 16:42:57 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/TestScene.json'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] sceneId ='TestScene' sceneName = 'TestScene'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] entities count = '9'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=0
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=1
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=2
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=3
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=4
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=5
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=6
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] 
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
 [SceneSerializer] DeserializeEntity index=7
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-03 15:46:14 [INFO] [SceneSerializer] DeserializeScene done
-2026-02-03 15:46:17 [INFO] ゲーム終了処理中...
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] 
+[SceneSerializer] DeserializeEntity index=8
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::SpriteRenderer'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-02-10 16:42:57 [INFO] [SceneSerializer] DeserializeScene done
+2026-02-10 16:42:59 [INFO] ゲーム終了処理中...

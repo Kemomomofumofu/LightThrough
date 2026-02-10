@@ -187,7 +187,14 @@ namespace ecs_serial {
 	template<class T> inline constexpr bool is_std_array_v = is_std_array<T>::value;
 
 
-	// Vec3, Vec4 判定ヘルパー
+	// Vec2, Vec3, Vec4 判定ヘルパー
+	template<class T>
+	concept Vec2Like = requires(T _v)
+	{
+		{ _v.x } -> std::convertible_to<float>;
+		{ _v.y } -> std::convertible_to<float>;
+	};
+
 	template<class T>
 	concept Vec3Like = requires(T _v)
 	{
@@ -268,6 +275,16 @@ namespace ecs_serial {
 				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
 			}
 		}
+		else if constexpr (Vec2Like<T>) {
+			if (_j.is_object()) {
+				_dst.x = _j.value("x", 0.0f);
+				_dst.y = _j.value("y", 0.0f);
+			}
+			else {
+				_dst.x = _j.size() > 0 ? _j.at(0).get<float>() : 0.0f;
+				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
+			}
+		}
 		// クラス型
 		else if constexpr (std::is_class_v<T>) {
 			_dst = Deserialize<T>(_j);
@@ -317,6 +334,10 @@ namespace ecs_serial {
 		// 要素が三つのもの
 		else if constexpr (Vec3Like<T>) {
 			return json{ {"x", _src.x}, {"y", _src.y}, {"z", _src.z} };
+		}
+		// 要素が二つのもの
+		else if constexpr (Vec2Like<T>) {
+			return json{ {"x", _src.x}, {"y", _src.y} };
 		}
 		// クラス型
 		else if constexpr (std::is_class_v<T>) {

@@ -98,6 +98,14 @@ namespace {
 			}
 			return false;
 		}
+		else if constexpr (ecs_serial::Vec2Like<T>) {
+			float arr[2]{ _value.x, _value.y };
+			if (ImGui::DragFloat2(_label, arr, _speed)) {
+				_value.x = arr[0]; _value.y = arr[1];
+				return true;
+			}
+			return false;
+		}
 		// –¢‘Î‰ž
 		else {
 			ImGui::TextDisabled("%s (unsupported type)", _label);
@@ -197,7 +205,7 @@ namespace {
 		ImGui::Checkbox("IsStatic", &c.isStatic);
 	}
 
-} // unnamed namespace
+} // namespace anonymous
 
 namespace scene {
 	SceneManager::SceneManager(const SceneManagerDesc& _base)
@@ -598,6 +606,7 @@ namespace scene {
 				ecs::Transform,
 				ecs::GroundContact,
 				ecs::MeshRenderer,
+				ecs::SpriteRenderer,
 				ecs::Camera,
 				ecs::CameraController,
 				ecs::PlayerController,

@@ -40,6 +40,7 @@ namespace dx3d {
 		
 		//! @brief メッシュレジストリ取得
 		MeshRegistry& GetMeshRegistry() noexcept;
+		TextureRegistry& GetTextureRegistry() noexcept { return *texture_registry_; }
 		//! @brief シェーダーキャッシュ取得
 		ShaderCache& GetShaderCache() noexcept { return *shader_cache_; };
 		const Rect& GetScreenSize() { return swap_chain_->GetSize(); }

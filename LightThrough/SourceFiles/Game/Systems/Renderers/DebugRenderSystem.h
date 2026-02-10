@@ -82,7 +82,6 @@ namespace ecs {
 			int textureLayer = 0;
 		};
 
-		dx3d::GraphicsEngine& engine_;
 		std::vector<DebugCommand> commands_{};
 		dx3d::ConstantBufferPtr cb_per_frame_{};
 		dx3d::ConstantBufferPtr cb_per_object_{};

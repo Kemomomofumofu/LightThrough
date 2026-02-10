@@ -43,7 +43,6 @@ namespace ecs {
 	 */
 	RenderSystem::RenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
-		, engine_(_desc.graphicsEngine)
 	{
 	}
 

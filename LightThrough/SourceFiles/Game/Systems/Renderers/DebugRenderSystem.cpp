@@ -42,7 +42,6 @@ namespace ecs {
 	//! @brief コンストラクタ
 	DebugRenderSystem::DebugRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
-		, engine_(_desc.graphicsEngine)
 	{
 
 	}
