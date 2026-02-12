@@ -215,6 +215,9 @@ namespace ecs {
 			}
 		}
 
+		// test
+		shadow->ExecuteShadowTests();
+
 		// ---------- 解決フェーズ ---------- //
 		const float baumgarte = 0.2f;
 

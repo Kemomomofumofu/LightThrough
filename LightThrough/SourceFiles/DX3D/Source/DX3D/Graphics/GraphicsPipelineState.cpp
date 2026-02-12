@@ -124,4 +124,15 @@ namespace dx3d {
 			"CreateDepthStencilState に失敗"
 		);
 	}
+
+	//! @brief パイプラインステートを適用する
+	void GraphicsPipelineState::Apply(ID3D11DeviceContext* _context) const
+	{
+		_context->IASetInputLayout(layout_.Get());
+		_context->VSSetShader(vs_.Get(), nullptr, 0);
+		_context->PSSetShader(ps_.Get(), nullptr, 0);
+		_context->RSSetState(rast_state_.Get());
+		_context->OMSetBlendState(blend_state_.Get(), nullptr, 0xFFFFFFFF);
+		_context->OMSetDepthStencilState(depth_state_.Get(), 0);
+	}
 }

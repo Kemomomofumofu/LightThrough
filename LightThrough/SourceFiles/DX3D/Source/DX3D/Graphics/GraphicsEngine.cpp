@@ -105,7 +105,7 @@ namespace dx3d {
 		deferred_context_->DrawIndexed(_ib.GetIndexCount(), 0, 0);
 	}
 
-	//! @brief インスタンス描画処理
+	//! @brief 遅延コンテキストでのインスタンス描画
 	void dx3d::GraphicsEngine::RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance, PipelineKey _key)
 	{
 		auto pso = pipeline_cache_->GetOrCreate(_key);
@@ -117,6 +117,25 @@ namespace dx3d {
 		deferred_context_->SetVertexBuffers(_vb, _instanceVB);
 		deferred_context_->SetIndexBuffer(_ib);
 		deferred_context_->DrawIndexedInstanced(_ib.GetIndexCount(), _instanceCount, 0, 0, _startInstance);
+	}
+	//! @brief 即時コンテキストでのインスタンス描画
+	void GraphicsEngine::RenderInstancedOnImmediate(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance, PipelineKey _key)
+	{
+		auto immediateContext = graphics_device_->GetImmediateContext();
+
+		// 即時コンテキストにパイプラインステートをセット
+		auto pso = pipeline_cache_->GetOrCreate(_key);
+		pso->Apply(immediateContext);
+
+		ID3D11Buffer* vbs[2] = { _vb.GetBuffer(), _instanceVB.GetBuffer() };
+		UINT strides[2] = { _vb.GetVertexSize(), _instanceVB.GetVertexSize() };
+		UINT offsets[2] = { 0, 0 };
+		immediateContext->IASetVertexBuffers(0, 2, vbs, strides, offsets);
+
+		immediateContext->IASetIndexBuffer(_ib.GetBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		// 描画
+		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		immediateContext->DrawIndexedInstanced(_ib.GetIndexCount(), _instanceCount, 0, 0, _startInstance);
 	}
 
 	//! @brief 描画終了処理

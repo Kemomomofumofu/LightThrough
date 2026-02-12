@@ -7,6 +7,7 @@
  */
 
  // ---------- インクルード ---------- // 
+#include <d3d11.h>
 #include <DirectXMath.h>
 #include <DX3D/Graphics/GraphicsResource.h>
 #include <DX3D/Graphics/DeviceContext.h>
@@ -48,6 +49,17 @@ namespace dx3d {
 
 			memcpy(mapped.pData, _data, _size);
 			context->Unmap(buffer_.Get(), 0);
+		}
+
+		void Update(ID3D11DeviceContext* _cxt, const void* _data, size_t _size)
+		{
+			if (!_cxt || !_data || _size == 0) { return; }
+
+			D3D11_MAPPED_SUBRESOURCE mapped{};
+			_cxt->Map(buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+
+			memcpy(mapped.pData, _data, _size);
+			_cxt->Unmap(buffer_.Get(), 0);
 		}
 
 		ID3D11Buffer* GetBuffer() const noexcept

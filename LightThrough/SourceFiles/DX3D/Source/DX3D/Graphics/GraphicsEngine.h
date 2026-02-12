@@ -52,6 +52,16 @@ namespace dx3d {
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib, PipelineKey _key = { VertexShaderKind::Default,
 			PixelShaderKind::Default });
 		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0, PipelineKey _key = {VertexShaderKind::Instanced, PixelShaderKind::Default});
+		/**
+		 * @brief 
+		 * @param _vb
+		 * @param _ib
+		 * @param _instanceVB インスタンス用頂点バッファ
+		 * @param _instanceCount インスタンス数
+		 * @param _startInstance インスタンスの開始位置
+		 * @param _key PipelineStateのキー情報
+		 */
+		void RenderInstancedOnImmediate(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0, PipelineKey _key = { VertexShaderKind::Instanced, PixelShaderKind::Default });
 		void EndFrame();
 
 	private:

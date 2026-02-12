@@ -28,18 +28,34 @@
 
 #include <Debug/Debug.h>
 
-namespace {
-	struct CBPerFrame {
-		DirectX::XMMATRIX view;	// ビュー行列
-		DirectX::XMMATRIX proj;	// プロジェクション行列
-	};
-	struct CBPerObject {
-		DirectX::XMMATRIX world;	// ワールド行列
-		DirectX::XMFLOAT4 color;	// 色
-	};
-}
 
-namespace ecs {
+namespace ecs
+{
+	namespace
+	{
+		struct CBPerFrame {
+			DirectX::XMMATRIX view;	// ビュー行列
+			DirectX::XMMATRIX proj;	// プロジェクション行列
+		};
+		struct CBPerObject {
+			DirectX::XMMATRIX world;	// ワールド行列
+			DirectX::XMFLOAT4 color;	// 色
+		};
+
+		D3D11_VIEWPORT BuildViewport(float _width, float _height)
+		{
+			D3D11_VIEWPORT vp{};
+			vp.TopLeftX = 0.0f;
+			vp.TopLeftY = 0.0f;
+			vp.Width = _width;
+			vp.Height = _height;
+			vp.MinDepth = 0.0f;
+			vp.MaxDepth = 1.0f;
+			return vp;
+		}
+
+	} // namespace anonymous
+
 	/**
 	 * @brief コンストラクタ
 	 */
@@ -297,31 +313,34 @@ namespace ecs {
 	 */
 	void LightDepthRenderSystem::RenderShadowPass(ShadowLightEntry _entry, ID3D11DepthStencilView* _dsv)
 	{
+		// todo: 即時コンテキストを直叩きからAPIに置き換える
+
 		auto debugRenderSystem = debug_render_system_.lock();
+		auto immediateContext = engine_.GetImmediateContext();
 
-		auto& deferredContext = engine_.GetDeferredContext();
-		auto contextD3D = deferredContext.GetDeferredContext();
-		// ライト行列の作成
-		auto tf = ecs_.GetComponent<Transform>(_entry.light);
-		SpotLight* spotPtr = ecs_.HasComponent<SpotLight>(_entry.light) ? ecs_.GetComponent<SpotLight>(_entry.light) : nullptr;
-
-		// 現在のRTV、DSVを退避
+		// jRTV/DSV退避
 		ID3D11RenderTargetView* prevRTV = nullptr;
 		ID3D11DepthStencilView* prevDSV = nullptr;
-		contextD3D->OMGetRenderTargets(1, &prevRTV, &prevDSV);
+		immediateContext->OMGetRenderTargets(1, &prevRTV, &prevDSV);
+		// 一応ビューポートも退避
+		D3D11_VIEWPORT prevVPs[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE]{};
+		UINT prevVPCount = D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE;
+		immediateContext->RSGetViewports(&prevVPCount, prevVPs);
 
 		// シャドウ用DSVをセット
-		contextD3D->OMSetRenderTargets(0, nullptr, _dsv);
-		contextD3D->ClearDepthStencilView(_dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
-		deferredContext.SetViewportSize({ static_cast<int32_t>(SHADOW_MAP_WIDTH), static_cast<int32_t>(SHADOW_MAP_HEIGHT) });
+		immediateContext->OMSetRenderTargets(0, nullptr, _dsv);
+		immediateContext->ClearDepthStencilView(_dsv, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
+		auto vp = BuildViewport(static_cast<float>(SHADOW_MAP_WIDTH), static_cast<float>(SHADOW_MAP_HEIGHT));
+		immediateContext->RSSetViewports(1, &vp);
 
-		// ライト行列をセット
+		// ConstantBuffer
 		{
 			CBLightMatrix lm{};
 			lm.lightViewProj = _entry.lightViewProj;
-			cb_light_matrix_->Update(deferredContext, &lm, sizeof(lm));
-			deferredContext.VSSetConstantBuffer(1, *cb_light_matrix_);
+			cb_light_matrix_->Update(immediateContext, &lm, sizeof(lm));
+			ID3D11Buffer* cb = cb_light_matrix_->GetBuffer();
+			immediateContext->VSSetConstantBuffers(1, 1, &cb);
 		}
 
 
@@ -333,19 +352,19 @@ namespace ecs {
 			dx3d::RasterMode::SolidBack,
 			dx3d::PipelineFlags::Instancing
 		);
+
+
 		// 描画
 		for (auto& b : shadow_batches_) {
 			const uint32_t instanceCount = static_cast<uint32_t>(b.instances.size());
 			if (instanceCount == 0) { continue; }
-			engine_.RenderInstanced(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, b.instanceOffset, psoKey);
+			engine_.RenderInstancedOnImmediate(*b.vb, *b.ib, *instance_buffer_shadow_, instanceCount, (uint32_t)b.instanceOffset, psoKey);
 		}
 
 		// 退避していたRTV、DSVを復元
-		{
-			contextD3D->OMSetRenderTargets(1, &prevRTV, prevDSV);
-			if (prevRTV) { prevRTV->Release(); }
-			if (prevDSV) { prevDSV->Release(); }
-		}
-
+		immediateContext->OMSetRenderTargets(1, &prevRTV, prevDSV);
+		if (prevRTV) { prevRTV->Release(); }
+		if (prevDSV) { prevDSV->Release(); }
+		immediateContext->RSSetViewports(prevVPCount, prevVPs);
 	}
 }

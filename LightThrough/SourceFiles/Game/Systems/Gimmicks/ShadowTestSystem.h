@@ -34,7 +34,6 @@ namespace ecs {
 		void Init() override;
 		//! @brief XV
 		void Update(float _dt) override;
-		void FixedUpdate(float _fixedDt) override;
 
 		/**
 		 * @brief ‰e”»’è‚ÌŒ‹‰Ê‚ğæ“¾

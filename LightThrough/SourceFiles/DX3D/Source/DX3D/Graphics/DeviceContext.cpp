@@ -41,15 +41,10 @@ namespace dx3d {
 		deferred_context_->OMSetRenderTargets(1, &rtv, dsv);
 	}
 
-
+	//! @brief グラフィックスパイプラインステートをセット
 	void DeviceContext::SetGraphicsPipelineState(const GraphicsPipelineState& _pipeline)
 	{
-		deferred_context_->IASetInputLayout(_pipeline.layout_.Get());
-		deferred_context_->VSSetShader(_pipeline.vs_.Get(), nullptr, 0);
-		deferred_context_->PSSetShader(_pipeline.ps_.Get(), nullptr, 0);
-		deferred_context_->RSSetState(_pipeline.rast_state_.Get());
-		deferred_context_->OMSetBlendState(_pipeline.blend_state_.Get(), nullptr, 0xffffffff);
-		deferred_context_->OMSetDepthStencilState(_pipeline.depth_state_.Get(), 0);
+		_pipeline.Apply(deferred_context_.Get());
 	}
 
 

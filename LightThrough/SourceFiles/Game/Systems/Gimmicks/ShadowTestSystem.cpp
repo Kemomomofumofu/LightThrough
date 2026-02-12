@@ -76,7 +76,7 @@ namespace ecs {
 #if defined(DEBUG) || defined(_DEBUG)
 
 		DebugCheckSliceIndex();
-		
+
 		// デバッグ表示
 		if (show_debug_points_) {
 			auto debugRenderSystem = debug_render_system_.lock();
@@ -95,11 +95,6 @@ namespace ecs {
 			}
 		}
 #endif
-	}
-
-	void ShadowTestSystem::FixedUpdate(float _fixedDt)
-	{
-		ExecuteShadowTests();
 	}
 
 	//! @brief 影判定結果の取得
@@ -199,7 +194,6 @@ namespace ecs {
 				shadow_results_[key] = result;
 			}
 #if defined(DEBUG) || defined(_DEBUG)
-			// ライトがない場合はすべて影として表示
 			debug_test_points_.clear();
 			for (const auto& point : pending_contact_points_) {
 				debug_test_points_.push_back({ point, true });
@@ -344,13 +338,14 @@ namespace ecs {
 						break;
 #endif // DEBUG
 					default:
+						isLitByAnyLight[j] = false;
 						break;
 					}
 				}
 				staging_buffer_->Unmap();
 
 #if defined(DEBUG) || defined(_DEBUG)
-				
+
 				//DebugLogInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outUV={}, outZ={}, zeroW={}, outRange={}, outSideCone={}",
 				//	entry.light.id_,
 				//	countLit,
@@ -361,7 +356,7 @@ namespace ecs {
 				//	countOutRange,
 				//	countOutSideCone
 				//);
-				
+
 #endif // DEBUG
 			}
 		}
