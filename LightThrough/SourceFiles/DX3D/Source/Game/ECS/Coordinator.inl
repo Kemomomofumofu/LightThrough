@@ -36,13 +36,15 @@ namespace ecs {
 	 * @param _component 追加するComponentの参照
 	 */
 	template<typename Com>
-	void Coordinator::AddComponent(Entity _e, const Com& _component)
+	Com* Coordinator::AddComponent(Entity _e, const Com& _component)
 	{
 		ComponentType type = component_manager_->GetComponentType<Com>();
 		// 追加
 		AddComponentRaw(_e, type, static_cast<const void*>(&_component));
-	}
 
+		return GetComponent<Com>(_e);
+	}
+	 
 
 	/**
 	 * @brief EntityからComponentを削除
@@ -63,7 +65,7 @@ namespace ecs {
 	 * @param _e 削除先のEntity
 	 */
 	template<typename Com>
-	Com& Coordinator::GetComponent(Entity _e)
+	Com* Coordinator::GetComponent(Entity _e)
 	{
 		return component_manager_->GetComponent<Com>(_e);
 	}
@@ -107,7 +109,7 @@ namespace ecs {
 	 * @param <Com> 確認するComponentの種類
 	 * @param _e 確認するEntity
 	 * @return true: 持っている, false: 持っていない
-	 * 
+	 *
 	 * [ToDo] 直接ComponentArrayの中身を探しているので、Bitsetで管理するようにして高速化を図るべき
 	 */
 	template<typename Com>
@@ -127,6 +129,15 @@ namespace ecs {
 		return component_manager_->GetComponentType<Com>();
 	}
 
+
+	template<typename Com>
+	inline void Coordinator::RequestAddComponent(Entity _e, const Com& _component)
+	{
+		const ComponentType type = GetComponentType<Com>();
+		RequestAddComponentRaw(_e, type, [this, _e, _component]() mutable {
+			AddComponent<Com>(_e, _component);
+			});
+	}
 
 	/**
 	 * @brief EntityからComponentの削除リクエストを出す
@@ -156,7 +167,7 @@ namespace ecs {
 	 * @param <Sys> Signatureを設定するSystemの種類
 	 * @param _signature 設定するSignature
 	 */
-	// todo: 登録する際に、普通に間違えてComponent渡す可能性あるの怖い。対策すべきでは？
+	 // todo: 登録する際に、普通に間違えてComponent渡す可能性あるの怖い。対策すべきでは？
 	template<typename Sys>
 	void Coordinator::SetSystemSignature(Signature& _signature)
 	{

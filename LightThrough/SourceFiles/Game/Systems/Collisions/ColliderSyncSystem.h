@@ -27,7 +27,7 @@ namespace ecs {
 		void FixedUpdate(float _fixedDt) override;
 
 	private:
-		void BuildSphere(const Transform& _tf, Collider& _col);
-		void BuildOBB(const Transform& _tf, Collider& _com);
+		void BuildSphere(const Transform* _tf, Collider* _col);
+		void BuildOBB(const Transform* _tf, Collider* _col);
 	};
 }

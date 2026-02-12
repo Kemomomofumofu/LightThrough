@@ -34,7 +34,6 @@ namespace ecs {
 		void Init() override;
 		//! @brief XV
 		void Update(float _dt) override;
-		void FixedUpdate(float _fixedDt) override;
 
 		/**
 		 * @brief ‰e”»’è‚ÌŒ‹‰Ê‚ğæ“¾
@@ -114,7 +113,6 @@ namespace ecs {
 		};
 
 	private:
-		dx3d::GraphicsEngine& engine_;
 		std::weak_ptr<LightDepthRenderSystem> light_depth_system_{};
 		std::weak_ptr<DebugRenderSystem> debug_render_system_{};
 

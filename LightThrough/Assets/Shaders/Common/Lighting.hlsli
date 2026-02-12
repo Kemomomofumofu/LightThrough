@@ -11,8 +11,8 @@ cbuffer LightBuffer : register(b0)
 {
     int lightCount;
     float3 _pad0;
-    LightPacked lights[16];
-    row_major matrix lightViewProjs[16];
+    LightPacked lights[64];
+    row_major matrix lightViewProjs[64];
 };
 
 
@@ -68,15 +68,15 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
         return 0.0;
     }
     
-    // memo: 中心からの減衰を入れたい場合はこっち
+    // 中心からの減衰
     float spot = saturate((angle - outer) / max(inner - outer, 1e-4));
-    return ndotl * spot;
-    
-    //// 光の影響を受けているか。を分かりやすくしたいため、距離減衰は無し
+    // 距離減衰付き
     //float atten = 1.0 - saturate(dist / max(range, 1e-4));
+    
+    return ndotl * spot;
     //return ndotl * spot * atten;
 
-    //if (angle < inner)
+    //if (angle > inner)
     //{
     //    return 1.0f;
     //}

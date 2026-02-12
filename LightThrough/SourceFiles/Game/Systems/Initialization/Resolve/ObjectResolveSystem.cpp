@@ -44,36 +44,36 @@ namespace ecs {
 		// ルートオブジェクトのマップを作成
 		for (auto e : ecs_.GetEntitiesWithComponent<ObjectRoot>()) {
 			const auto& r = ecs_.GetComponent<ObjectRoot>(e);
-			rootMap.emplace(r.name, e);
+			rootMap.emplace(r->name, e);
 		}
 
 		// 一応名前付きオブジェクトも登録
 		for (auto e : ecs_.GetEntitiesWithComponent<Name>()) {
-			if (rootMap.find(ecs_.GetComponent<Name>(e).value) == rootMap.end()) {
-				rootMap.emplace(ecs_.GetComponent<Name>(e).value, e);
+			if (rootMap.find(ecs_.GetComponent<Name>(e)->value) == rootMap.end()) {
+				rootMap.emplace(ecs_.GetComponent<Name>(e)->value, e);
 			}
 		}
 
 		// 子オブジェクトの親を解決
 		bool anyUnresolved = false;
 		for (auto e : entities_) {
-			auto& child = ecs_.GetComponent<ObjectChild>(e);
-			if (child.root.IsInitialized()) { continue; } // すでに親がセット済みならスキップ
+			auto child = ecs_.GetComponent<ObjectChild>(e);
+			if (child->root.IsInitialized()) { continue; } // すでに親がセット済みならスキップ
 
 			// 親の名前が空なら解決できないのでスキップ
-			if (child.rootName.empty()) {
+			if (child->rootName.empty()) {
 				anyUnresolved = true;
 				continue;
 			}
 
 			// マップから親を探す
-			auto it = rootMap.find(child.rootName);
+			auto it = rootMap.find(child->rootName);
 			if (it != rootMap.end()) {
-				child.root = it->second;
-				GameLogFInfo("Root: {}, Child: {}", child.rootName, ecs_.GetComponent<Name>(e).value);
+				child->root = it->second;
+				GameLogFInfo("Root: {}, Child: {}", child->rootName, ecs_.GetComponent<Name>(e)->value);
 			}
 			else {
-				GameLogFWarning("[ObjectResolveSystem] 親オブジェクト '{}' が見つかりません。", child.rootName);
+				GameLogFWarning("[ObjectResolveSystem] 親オブジェクト '{}' が見つかりません。", child->rootName);
 				anyUnresolved = true;
 			}
 

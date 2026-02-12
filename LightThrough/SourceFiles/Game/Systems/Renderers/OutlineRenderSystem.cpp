@@ -9,7 +9,6 @@ namespace ecs
 {
 	OutlineRenderSystem::OutlineRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
-		, engine_(_desc.graphicsEngine)
 	{
 	}
 

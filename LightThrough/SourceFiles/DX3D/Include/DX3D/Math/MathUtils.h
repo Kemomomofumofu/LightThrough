@@ -14,65 +14,48 @@ namespace dx3d {
 
 		/**
 		 * @brief 減算
-		 * @param _a ベクトルA
-		 * @param _b ベクトルB
-		 * @return 差
 		 */
-		[[nodiscard]] inline XMFLOAT3 Sub(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline XMFLOAT3 Sub(const XMFLOAT3& _a, const XMFLOAT3& _b) noexcept
 		{
 			return { _a.x - _b.x, _a.y - _b.y, _a.z - _b.z };
 		}
 
 		/**
 		 * @brief 加算
-		 * @param _a ベクトルA
-		 * @param _b ベクトルB
-		 * @return 和
 		 */
-		[[nodiscard]] inline XMFLOAT3 Add(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline XMFLOAT3 Add(const XMFLOAT3& _a, const XMFLOAT3& _b) noexcept
 		{
 			return { _a.x + _b.x, _a.y + _b.y, _a.z + _b.z };
 		}
 
 		/**
 		 * @brief スカラー倍
-		 * @param _v ベクトル
-		 * @param _s スカラー値
-		 * @return スカラー倍されたベクトル
 		 */
-		[[nodiscard]] inline XMFLOAT3 Scale(const XMFLOAT3& _v, float _s)
+		[[nodiscard]] inline XMFLOAT3 Scale(const XMFLOAT3& _v, float _s) noexcept
 		{
 			return { _v.x * _s, _v.y * _s, _v.z * _s };
 		}
 
 		/**
-		 * @brief 否定
-		 * @param _v ベクトル
-		 * @return 反転されたベクトル
+		 * @brief ベクトルの反転
 		 */
-		[[nodiscard]] inline XMFLOAT3 Negate(const XMFLOAT3& _v)
+		[[nodiscard]] inline XMFLOAT3 Negate(const XMFLOAT3& _v) noexcept
 		{
 			return { -_v.x, -_v.y, -_v.z };
 		}
 
 		/**
 		 * @brief 内積
-		 * @param _a ベクトルA
-		 * @param _b ベクトルB
-		 * @return 内積
 		 */
-		[[nodiscard]] inline float Dot(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline float Dot(const XMFLOAT3& _a, const XMFLOAT3& _b) noexcept
 		{
 			return (_a.x * _b.x) + (_a.y * _b.y) + (_a.z * _b.z);
 		}
 
 		/**
 		 * @brief 外積
-		 * @param _a ベクトルA
-		 * @param _b ベクトルB
-		 * @return 外積
 		 */
-		[[nodiscard]] inline XMFLOAT3 Cross(const XMFLOAT3& _a, const XMFLOAT3& _b)
+		[[nodiscard]] inline XMFLOAT3 Cross(const XMFLOAT3& _a, const XMFLOAT3& _b) noexcept
 		{
 			return {
 				_a.y * _b.z - _a.z * _b.y,
@@ -83,21 +66,17 @@ namespace dx3d {
 
 
 		/**
-		 * @brief ベクトルの長さ
-		 * @param _v ベクトル
-		 * @return 長さ
+		 * @brief ベクトルの長さの二乗
 		 */
-		[[nodiscard]] inline float LengthSq(const XMFLOAT3& _v)
+		[[nodiscard]] inline float LengthSq(const XMFLOAT3& _v) noexcept
 		{
 			return Dot(_v, _v);
 		}
 
 		/**
 		 * @brief ベクトルの長さ
-		 * @param _v ベクトル
-		 * @return 長さ
 		 */
-		[[nodiscard]] inline float Length(const XMFLOAT3& _v)
+		[[nodiscard]] inline float Length(const XMFLOAT3& _v) noexcept
 		{
 			return std::sqrt(LengthSq(_v));
 		}
@@ -107,12 +86,36 @@ namespace dx3d {
 		 * @param _v 正規化するベクトル
 		 * @return 正規化されたベクトル
 		 */
-		[[nodiscard]] inline XMFLOAT3 Normalize(const XMFLOAT3& _v)
+		[[nodiscard]] inline XMFLOAT3 Normalize(const XMFLOAT3& _v) noexcept
 		{
 			float len = math::Length(_v);
 			if (len < 1e-6f) { return{ 0, 0, 0 }; }
 			return { _v.x / len, _v.y / len, _v.z / len };
 		}
+
+		/**
+		 * @brief 2点間の距離の二乗
+		 */
+		[[nodiscard]] inline float DistSq(const XMFLOAT3& _a, const XMFLOAT3& _b) noexcept
+		{
+			auto diff = Sub(_a, _b);
+			return Dot(diff, diff);
+		}
+
+		/**
+		 * @brief 限りなくゼロに近いか
+		 * @return true: ゼロに近い, false: そうでない
+		 */
+		[[nodiscard]] inline bool IsZeroVec(const XMFLOAT3& v) noexcept
+		{
+			return std::fabs(v.x) + std::fabs(v.y) + std::fabs(v.z) < 1e-8f;
+		}
+		[[nodiscard]] inline bool IsZeroDisp(float _v) noexcept
+		{
+			const float eps = 1e-6f;
+			return (std::fabs(_v) < eps);
+		}
+
 
 	} // namespace math
 } // namespace dx3d

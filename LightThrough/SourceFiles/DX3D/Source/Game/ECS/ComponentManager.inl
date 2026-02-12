@@ -42,9 +42,9 @@ namespace ecs {
 	 * @return Component
 	 */
 	template<typename Com>
-	Com& ComponentManager::GetComponent(Entity _e)
+	Com* ComponentManager::GetComponent(Entity _e)
 	{
-		return GetComponentArray<Com>()->Get(_e);
+		return &GetComponentArray<Com>()->Get(_e);
 	}
 
 	/**

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="DX3D">
@@ -142,7 +142,6 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\SystemManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\ECS\Coordinator.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\ECS\ComponentArray.h" />
-    <ClInclude Include="SourceFiles\Game\GameObjectType.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\IndexBuffer.h">
       <Filter>DX3D\Source\DX3D\Graphics</Filter>
     </ClInclude>
@@ -176,11 +175,9 @@
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\Game\Scene\SceneData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Factorys\PrefabFactory.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\InstanceData.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.h" />
-    <ClInclude Include="SourceFiles\Game\Components\Render\Material.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\Texture.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineKey.h" />
@@ -211,7 +208,6 @@
     <ClInclude Include="SourceFiles\Game\Components\Input\PlayerController.h" />
     <ClInclude Include="SourceFiles\Game\Systems\PlayerControllerSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Input\MoveDirectionSource.h" />
-    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.h" />
     <ClInclude Include="SourceFiles\ThirdParty\DirectXTex\include\DirectXTex.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Name.h" />
@@ -223,6 +219,14 @@
     <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\GamePlay\LightPlaceRequest.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Render\SpriteRenderer.h" />
+    <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureHandle.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -298,9 +302,8 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_demo.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\Factorys\PrefabSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Factorys\PrefabFactory.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Material.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
@@ -318,11 +321,15 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\PlayerControllerSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.cpp" />
-    <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureLoader.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
@@ -339,9 +346,8 @@
     <FxCompile Include="Assets\Shaders\Vertex\VS_Default.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Instanced.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Shadow.hlsl" />
-    <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
-    <FxCompile Include="Assets\Shaders\Pixel\PS_Outline.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_ShadowMapDebug.hlsl" />
-    <FxCompile Include="Assets\Shaders\Vertex\VS_Fullscreen.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_Sprite.hlsl" />
   </ItemGroup>
 </Project>

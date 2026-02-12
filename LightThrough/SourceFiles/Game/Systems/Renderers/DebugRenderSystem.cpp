@@ -42,7 +42,6 @@ namespace ecs {
 	//! @brief コンストラクタ
 	DebugRenderSystem::DebugRenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
-		, engine_(_desc.graphicsEngine)
 	{
 
 	}
@@ -100,37 +99,34 @@ namespace ecs {
 	}
 
 	//! @brief 立方体描画
-	void DebugRenderSystem::DrawCube(const Transform& _transform, DirectX::XMFLOAT4 _color)
+	void DebugRenderSystem::DrawCube(const Transform* _transform, DirectX::XMFLOAT4 _color)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
-		const auto S = XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z);
-		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform.rotationQuat));
-		const auto T = XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
-		auto worldM = S * R * T;
-		XMStoreFloat4x4(&cmd.world, worldM);
+		cmd.world = _transform->world;
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 
 
 	// -------------------- 球描画 -------------------- // 
 	//! @brief Transform版
-	void DebugRenderSystem::DrawSphere(const Transform& _transform, DirectX::XMFLOAT4 _color)
+	void DebugRenderSystem::DrawSphere(const Transform* _transform, DirectX::XMFLOAT4 _color)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
-		const auto S = XMMatrixScaling(_transform.scale.x, _transform.scale.y, _transform.scale.z);
-		const auto R = XMMatrixRotationQuaternion(XMLoadFloat4(&_transform.rotationQuat));
-		const auto T = XMMatrixTranslation(_transform.position.x, _transform.position.y, _transform.position.z);
-		auto worldM = S * R * T;
-		XMStoreFloat4x4(&cmd.world, worldM);
+		cmd.world = _transform->world;
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 	//! @brief 中心座標＋半径版
 	void DebugRenderSystem::DrawSphere(const DirectX::XMFLOAT3& _center, float _radius, DirectX::XMFLOAT4 _color)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
 		auto worldM =
@@ -139,10 +135,12 @@ namespace ecs {
 		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 	//! @brief WorldSphere版
 	void DebugRenderSystem::DrawSphere(const collision::WorldSphere& _sphere, DirectX::XMFLOAT4 _color)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
 		auto worldM =
@@ -151,10 +149,12 @@ namespace ecs {
 		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 	// ! @brief WorldSphereワイヤーフレーム版
 	void DebugRenderSystem::DrawSphereWireframe(const collision::WorldSphere& _sphere, DirectX::XMFLOAT4 _color)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
 		auto worldM =
@@ -164,11 +164,13 @@ namespace ecs {
 		cmd.color = _color;
 		cmd.wireframe = true;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 
 	//! @brief ポイント描画
 	void DebugRenderSystem::DrawPoint(const DirectX::XMFLOAT3& _position, DirectX::XMFLOAT4 _color, float _size)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = sphere_mesh_;
 		auto worldM =
@@ -177,12 +179,14 @@ namespace ecs {
 		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 
 
 	//! @brief OBB描画
 	void DebugRenderSystem::DrawOBB(const collision::WorldOBB& _obb, DirectX::XMFLOAT4 _color)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
 
@@ -203,10 +207,12 @@ namespace ecs {
 		XMStoreFloat4x4(&cmd.world, worldM);
 		cmd.color = _color;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 	//! @brief OBBワイヤーフレーム描画
 	void DebugRenderSystem::DrawOBBWireframe(const collision::WorldOBB& _obb, DirectX::XMFLOAT4 _color)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = cube_mesh_;
 
@@ -224,6 +230,7 @@ namespace ecs {
 		cmd.color = _color;
 		cmd.wireframe = true;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 
 	//! @brief すべてのコライダー描画
@@ -234,15 +241,15 @@ namespace ecs {
 		auto entities = ecs_.GetEntitiesWithComponent<Collider>();
 
 		for (auto& e : entities) {
-			auto& col = ecs_.GetComponent<Collider>(e);
+			auto col = ecs_.GetComponent<Collider>(e);
 			DirectX::XMFLOAT4 color = { 0.0f, 1.0f, 1.0f, _alpha };  // シアン
 
-			switch (col.type) {
+			switch (col->type) {
 			case collision::ShapeType::Box:
-				DrawOBBWireframe(col.worldOBB, color);
+				DrawOBBWireframe(col->worldOBB, color);
 				break;
 			case collision::ShapeType::Sphere:
-				DrawSphereWireframe(col.worldSphere, color);
+				DrawSphereWireframe(col->worldSphere, color);
 				break;
 			default:
 				break;
@@ -255,12 +262,14 @@ namespace ecs {
 	//! @brief シャドウマップ描画
 	void DebugRenderSystem::DrawShadowMap(ID3D11ShaderResourceView* _shadowSRV)
 	{
+#if defined(DEBUG) || defined(_DEBUG)
 		DebugCommand cmd;
 		cmd.mesh = quad_mesh_;
 		cmd.world = {}; // 単位行列でスクリーン上に描画
 		XMStoreFloat4x4(&cmd.world, DirectX::XMMatrixScaling(2.0f, 2.0f, 1.0f)); // フルスクリーン Quad
 		cmd.textureSRV = _shadowSRV;
 		commands_.emplace_back(std::move(cmd));
+#endif
 	}
 
 
@@ -289,8 +298,8 @@ namespace ecs {
 		}
 		// メインカメラを探す
 		for (auto& e : camEntities) {
-			auto& cameraComp = ecs_.GetComponent<Camera>(e);
-			if (cameraComp.isActive && cameraComp.isMain) {
+			auto cameraComp = ecs_.GetComponent<Camera>(e);
+			if (cameraComp->isActive && cameraComp->isMain) {
 				cameraEnt = e;
 				break;
 			}
@@ -299,13 +308,13 @@ namespace ecs {
 			GameLogWarning("[DebugRenderSystem] アクティブなメインカメラが存在しない");
 			return;
 		}
-		auto& cam = ecs_.GetComponent<Camera>(cameraEnt);
+		auto cam = ecs_.GetComponent<Camera>(cameraEnt);
 
 		// 定数バッファ更新
 		// フレーム単位の定数バッファ更新
 		CBPerFrame cbPerFrameData{};
-		cbPerFrameData.proj = cam.proj;
-		cbPerFrameData.view = cam.view;
+		cbPerFrameData.proj = cam->proj;
+		cbPerFrameData.view = cam->view;
 
 		cb_per_frame_->Update(dc, &cbPerFrameData, sizeof(cbPerFrameData));
 		dc.VSSetConstantBuffer(0, *cb_per_frame_);

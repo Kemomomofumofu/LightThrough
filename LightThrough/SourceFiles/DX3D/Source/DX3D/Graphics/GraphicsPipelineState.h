@@ -33,8 +33,6 @@ namespace dx3d {
 		bool antiAliasedLineEnable = false;
 	};
 	
-
-
 	struct GraphicsPipelineStateDesc {
 		const VertexShaderSignature& vs;
 		const ShaderBinary* ps{};
@@ -53,6 +51,12 @@ namespace dx3d {
 	class GraphicsPipelineState final : public GraphicsResource {
 	public:
 		GraphicsPipelineState(const GraphicsPipelineStateDesc& _desc, const GraphicsResourceDesc& _gDesc);
+
+		/**
+		 * @brief パイプラインステートを適用する
+		 * @param _context 
+		 */
+		void Apply(ID3D11DeviceContext* _context) const;
 	private:
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> vs_{};
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>  ps_{};
@@ -63,6 +67,4 @@ namespace dx3d {
 
 		friend class DeviceContext;
 	};
-
-
 }

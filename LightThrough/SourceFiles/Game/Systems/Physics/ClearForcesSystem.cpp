@@ -21,10 +21,10 @@ namespace ecs {
 	void ClearForcesSystem::FixedUpdate(float _fixedDt)
 	{
 		for (auto& e : entities_) {
-			auto& rb = ecs_.GetComponent<ecs::Rigidbody>(e);
+			auto rb = ecs_.GetComponent<ecs::Rigidbody>(e);
 			// 外力・トルクリセット
-			rb.force = { 0.0f, 0.0f, 0.0f };
-			rb.torque = { 0.0f, 0.0f, 0.0f };
+			rb->force = { 0.0f, 0.0f, 0.0f };
+			rb->torque = { 0.0f, 0.0f, 0.0f };
 		}
 	}
 }

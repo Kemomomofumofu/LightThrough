@@ -12,7 +12,7 @@
 
 namespace ecs {
 
-	constexpr int MAX_LIGHTS = 16;
+	constexpr int MAX_LIGHTS = 64;
 
 	struct LightViewProj
 	{
@@ -31,7 +31,7 @@ namespace ecs {
 	struct LightCommon
 	{
 		DirectX::XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };	// 色
-		float intensity = 1.0f;									// 乗算係数
+		float intensity = 100.0f;									// 乗算係数
 		bool enabled = true;									// 有効フラグ
 		uint32_t _pad0[3]{};
 	};
@@ -48,7 +48,7 @@ namespace ecs {
 	//! @brief スポットライト
 	struct SpotLight
 	{
-		float range = 10.0f;	// 到達距離
+		float range = 100.0f;	// 到達距離
 		float innerCos = 0.9f;	// 内側コサイン
 		float outerCos = 0.8f;	// 外側コサイン
 		uint32_t _pad0{};
@@ -94,18 +94,19 @@ namespace ecs {
 	 * @param _spot spotLightComponentのポインタ(スポットライトでない場合はnullptr)
 	 * @return 構築されたLightCPU
 	 */
-	inline LightCPU BuildLightCPU(const Transform& _tf, const LightCommon& _common, const SpotLight* _spot)
+	inline LightCPU BuildLightCPU(const Transform* _tf, const LightCommon* _common, const SpotLight* _spot)
 	{
 		using namespace DirectX;
 		LightCPU L{};
 
-		const XMFLOAT3& fwd = _tf.GetForward();
-		L.pos_type = { _tf.position.x, _tf.position.y, _tf.position.z, 0.0f };
+		const XMFLOAT3& pos = _tf->GetWorldPosition();
+		const XMFLOAT3& fwd = _tf->GetWorldForwardCached();
+		L.pos_type = { pos.x, pos.y, pos.z, 0.0f };
 		L.dir_range = { fwd.x, fwd.y, fwd.z, 0.0f };
 		L.color = {
-			_common.color.x * _common.intensity,
-			_common.color.y * _common.intensity,
-			_common.color.z * _common.intensity,
+			_common->color.x * _common->intensity,
+			_common->color.y * _common->intensity,
+			_common->color.z * _common->intensity,
 			1.0f
 		};
 		L.spotAngles_shadowIndex = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -120,13 +121,16 @@ namespace ecs {
 		return L;
 	}
 
-	inline LightViewProj BuildLightViewProj(const Transform& _tf, const SpotLight* _spot, float _nearZ = 0.1f)
+	inline LightViewProj BuildLightViewProj(const Transform* _tf, const SpotLight* _spot, float _nearZ = 0.0045f)
 	{
 		using namespace DirectX;
 		
 		// Transformの現在の方向ベクトルを取得
-		XMVECTOR f = XMVector3Normalize(XMLoadFloat3(&_tf.GetForward()));
-		XMVECTOR u = XMVector3Normalize(XMLoadFloat3(&_tf.GetUp()));
+		XMFLOAT3 ff3 = _tf->GetWorldForwardCached();
+		XMFLOAT3 uf3 = _tf->GetWorldUpCached();
+
+		XMVECTOR f = XMVector3Normalize(XMLoadFloat3(&ff3));
+		XMVECTOR u = XMVector3Normalize(XMLoadFloat3(&uf3));
 		
 		// 前方向と上方向がほぼ平行な場合は別の上方向を使用
 		float dotFU = XMVectorGetX(XMVector3Dot(f, u));
@@ -144,7 +148,7 @@ namespace ecs {
 		}
 		
 		// ビュー行列を構築
-		XMVECTOR eye = XMLoadFloat3(&_tf.position);
+		XMVECTOR eye = _tf->GetWorldPositionV();
 		XMMATRIX view = XMMatrixLookToLH(eye, f, u);
 
 		// 射影行列を構築

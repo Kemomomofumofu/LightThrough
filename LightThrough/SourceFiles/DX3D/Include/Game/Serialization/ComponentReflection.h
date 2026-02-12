@@ -187,7 +187,14 @@ namespace ecs_serial {
 	template<class T> inline constexpr bool is_std_array_v = is_std_array<T>::value;
 
 
-	// Vec3, Vec4 判定ヘルパー
+	// Vec2, Vec3, Vec4 判定ヘルパー
+	template<class T>
+	concept Vec2Like = requires(T _v)
+	{
+		{ _v.x } -> std::convertible_to<float>;
+		{ _v.y } -> std::convertible_to<float>;
+	};
+
 	template<class T>
 	concept Vec3Like = requires(T _v)
 	{
@@ -239,19 +246,6 @@ namespace ecs_serial {
 				assign_value(_dst[i], _j.at(i));
 			}
 		}
-		// 要素が三つのもの
-		else if constexpr (Vec3Like<T>) {
-			if (_j.is_object()) {
-				_dst.x = _j.value("x", 0.0f);
-				_dst.y = _j.value("y", 0.0f);
-				_dst.z = _j.value("z", 0.0f);
-			}
-			else {
-				_dst.x = _j.size() > 0 ? _j.at(0).get<float>() : 0.0f;
-				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
-				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
-			}
-		}
 		// 要素が四つのもの
 		else if constexpr (Vec4Like<T>) {
 			if (_j.is_object()) {
@@ -266,6 +260,29 @@ namespace ecs_serial {
 				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
 				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
 				_dst.w = _j.size() > 3 ? _j.at(3).get<float>() : 1.0f;
+			}
+		}
+		// 要素が三つのもの
+		else if constexpr (Vec3Like<T>) {
+			if (_j.is_object()) {
+				_dst.x = _j.value("x", 0.0f);
+				_dst.y = _j.value("y", 0.0f);
+				_dst.z = _j.value("z", 0.0f);
+			}
+			else {
+				_dst.x = _j.size() > 0 ? _j.at(0).get<float>() : 0.0f;
+				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
+				_dst.z = _j.size() > 2 ? _j.at(2).get<float>() : 0.0f;
+			}
+		}
+		else if constexpr (Vec2Like<T>) {
+			if (_j.is_object()) {
+				_dst.x = _j.value("x", 0.0f);
+				_dst.y = _j.value("y", 0.0f);
+			}
+			else {
+				_dst.x = _j.size() > 0 ? _j.at(0).get<float>() : 0.0f;
+				_dst.y = _j.size() > 1 ? _j.at(1).get<float>() : 0.0f;
 			}
 		}
 		// クラス型
@@ -310,13 +327,17 @@ namespace ecs_serial {
 			}
 			return arr;
 		}
+		// 要素が四つのもの
+		else if constexpr (Vec4Like<T>) {
+			return json{ {"x", _src.x}, {"y", _src.y}, {"z", _src.z}, {"w", _src.w} };
+		}
 		// 要素が三つのもの
 		else if constexpr (Vec3Like<T>) {
 			return json{ {"x", _src.x}, {"y", _src.y}, {"z", _src.z} };
 		}
-		// 要素が四つのもの
-		else if constexpr (Vec4Like<T>) {
-			return json{ {"x", _src.x}, {"y", _src.y}, {"z", _src.z}, {"w", _src.w} };
+		// 要素が二つのもの
+		else if constexpr (Vec2Like<T>) {
+			return json{ {"x", _src.x}, {"y", _src.y} };
 		}
 		// クラス型
 		else if constexpr (std::is_class_v<T>) {
@@ -398,30 +419,28 @@ template<> struct ecs_serial::TypeReflection<Type> { \
 	* @tparam ComponentT	コンポーネント型
 	*/
 #define REGISTER_COMPONENT_REFLECTION(ComponentT) \
-	do { \
-		ecs_serial::ComponentRegistry::Get().Register( \
-			ecs_serial::TypeReflection<ComponentT>::Name(), \
-			[](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
-				/* JSON -> Component 実体 */ \
-				auto componentPtr = std::make_shared<ComponentT>( \
-					ecs_serial::Deserialize<ComponentT>(_j) \
-				); \
-				\
-				const auto type = _coord.GetComponentType<ComponentT>(); \
-				\
-				/* Flush 時に実行される */ \
-				_coord.RequestAddComponentRaw( \
-					_e, type, \
-					[coord = &_coord, e = _e, componentPtr]() { \
-						coord->AddComponent<ComponentT>(e, *componentPtr); \
-					} \
-				); \
-			}, \
-			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
-				return _coord.HasComponent<ComponentT>(_e); \
-			}, \
-			[](ecs::Coordinator& _coord, ecs::Entity _e) { \
-				return ecs_serial::Serialize(_coord.GetComponent<ComponentT>(_e)); \
-			} \
-		); \
-	} while(0)
+    do { \
+        ecs_serial::ComponentRegistry::Get().Register( \
+            ecs_serial::TypeReflection<ComponentT>::Name(), \
+            [](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
+                auto componentPtr = std::make_shared<ComponentT>( \
+                    ecs_serial::Deserialize<ComponentT>(_j) \
+                ); \
+                const auto type = _coord.GetComponentType<ComponentT>(); \
+                _coord.RequestAddComponentRaw( \
+                    _e, type, \
+                    [coord = &_coord, e = _e, componentPtr]() { \
+                        coord->AddComponent<ComponentT>(e, *componentPtr); \
+                    } \
+                ); \
+            }, \
+            [](ecs::Coordinator& _coord, ecs::Entity _e) { \
+                return _coord.HasComponent<ComponentT>(_e); \
+            }, \
+            [](ecs::Coordinator& _coord, ecs::Entity _e) { \
+                auto* p = _coord.GetComponent<ComponentT>(_e); \
+                if (!p) { return nlohmann::json::object(); } \
+                return ecs_serial::Serialize(*p); \
+            } \
+        ); \
+    } while(0)

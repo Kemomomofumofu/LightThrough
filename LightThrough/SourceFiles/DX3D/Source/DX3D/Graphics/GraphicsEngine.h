@@ -22,11 +22,7 @@
  * なんか描画する感じ？
  */
 namespace dx3d {
-
-	namespace texture {
-		class TextureRegistry;
-	} // namespace texture
-
+	class TextureRegistry;
 
 	struct GraphicsEngineDesc {
 		BaseDesc base;
@@ -44,6 +40,7 @@ namespace dx3d {
 		
 		//! @brief メッシュレジストリ取得
 		MeshRegistry& GetMeshRegistry() noexcept;
+		TextureRegistry& GetTextureRegistry() noexcept { return *texture_registry_; }
 		//! @brief シェーダーキャッシュ取得
 		ShaderCache& GetShaderCache() noexcept { return *shader_cache_; };
 		const Rect& GetScreenSize() { return swap_chain_->GetSize(); }
@@ -55,6 +52,16 @@ namespace dx3d {
 		void Render(VertexBuffer& _vb, IndexBuffer& _ib, PipelineKey _key = { VertexShaderKind::Default,
 			PixelShaderKind::Default });
 		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0, PipelineKey _key = {VertexShaderKind::Instanced, PixelShaderKind::Default});
+		/**
+		 * @brief 
+		 * @param _vb
+		 * @param _ib
+		 * @param _instanceVB インスタンス用頂点バッファ
+		 * @param _instanceCount インスタンス数
+		 * @param _startInstance インスタンスの開始位置
+		 * @param _key PipelineStateのキー情報
+		 */
+		void RenderInstancedOnImmediate(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0, PipelineKey _key = { VertexShaderKind::Instanced, PixelShaderKind::Default });
 		void EndFrame();
 
 	private:
@@ -66,6 +73,6 @@ namespace dx3d {
 		std::unique_ptr<PipelineCache> pipeline_cache_{};
 		SwapChain* swap_chain_{};
 		std::unique_ptr<MeshRegistry> mesh_registry_{};
-		std::unique_ptr<texture::TextureRegistry> texture_registry_{};
+		std::unique_ptr<TextureRegistry> texture_registry_{};
 	};
 }

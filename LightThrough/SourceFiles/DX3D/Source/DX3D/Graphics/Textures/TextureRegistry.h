@@ -1,47 +1,59 @@
 #pragma once
 /**
  * @file TextureRegistry.h
- * @brief 読み込まれたテクスチャをidで管理するレジストリクラス
  */
 
  // ---------- インクルード ---------- //
 #include <string>
 #include <unordered_map>
 #include <memory>
-#include <filesystem>
+#include <DX3D/Core/Core.h>
+#include <DX3D/Graphics/Textures/TextureHandle.h>
 
-#include <DX3D/Graphics/GraphicsResource.h>
-#include <DX3D/Graphics/Textures/Texture.h>
-#include <DX3D/Graphics/Textures/TextureLoader.h>
-
+struct ID3D11Device;
+struct ID3D11ShaderResourceView;
 
 namespace dx3d {
-	namespace texture {
+	class Texture;
+	/**
+	 * @brief 読み込まれたテクスチャをidで管理するレジストリクラス
+	 * @details 現状UIのみでの使用を想定しているため、sRGBでの読み込みのみ実装
+	 *
+	 */
+	class TextureRegistry
+	{
+	public:
+		explicit TextureRegistry(ID3D11Device* _device);
 
 		/**
-		 * @brief テクスチャーレジストリクラス
+		 * @brief テクスチャーをロードしてハンドルを取得
+		 * @param _path ファイルパス
+		 * @return テクスチャーハンドル
 		 */
-		class TextureRegistry
-		{
-		public:
-			//! @brief コンストラクタ
-			explicit TextureRegistry(ID3D11Device& _device);
+		TextureHandle Load(const std::string& _path);
 
-			/**
-			 * @brief テクスチャーを取得
-			 * @param _path ファイルパス
-			 * @param srgb sRGBとして読み込むかどうか
-			 * @return テクスチャーポインタ
-			 * 
-			 * memo: キャッシュに存在しない場合はロードしてキャッシュに保存する
-			 */
-			const std::shared_ptr<Texture> Get(const std::wstring& _path, bool srgb = true);
+		/**
+		 * @brief テクスチャーを取得
+		 * @param _path ファイルパス
+		 * @return テクスチャーポインタ
+		 *
+		 * @details キャッシュに存在しない場合はロードしてキャッシュに保存する
+		 */
+		const TexturePtr Get(const std::string& _path);
+		const TexturePtr Get(const TextureHandle& _handle);
 
-		private:
-			std::unique_ptr<TextureLoader> loader_{}; // テクスチャーローダー
-			std::unordered_map<std::wstring, std::shared_ptr<Texture>> cache_; // テクスチャキャッシュ
+	private:
+		std::string NormalizePath(const std::string& _path) const;
 
-		};
 
-	} // namespace texture
+	private:
+		ID3D11Device* device_{};
+
+		int next_id_ = 1; // 次に割り当てるID
+
+		std::unordered_map<std::string, TextureHandle	> path_to_handle_{}; // key -> handle
+		std::unordered_map<int, TexturePtr> id_to_texture_{}; // handle.id -> Texture
+
+		std::string base_path_ = "Assets/Textures/"; // テクスチャのベースパス
+	};
 } // namespace dx3d

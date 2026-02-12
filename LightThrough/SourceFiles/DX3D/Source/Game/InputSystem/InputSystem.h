@@ -18,6 +18,13 @@ namespace input {
 		Disabled,
 	};
 
+	enum class MouseButton {
+		Left = 0,
+		Right, 
+		Middle,
+		Max,
+	};
+
 	/**
 	 * @brief インプットシステム
 	 *
@@ -41,6 +48,10 @@ namespace input {
 		bool IsKeyUp(int _key) const;	// キーが離されているか
 		bool IsKeyTrigger(int _key) const;	// キーが押された瞬間か
 		bool IsKeyRelease(int _key) const;	// キーが離された瞬間か
+
+		bool IsMouseDown(MouseButton _button) const;
+		bool IsMouseTrigger(MouseButton _button) const;
+		bool IsMouseRelease(MouseButton _button) const;
 		dx3d::Point GetMouseDelta();
 		float GetWheelDelta() const;
 
@@ -79,13 +90,18 @@ namespace input {
 
 		void ReRegisterRawMouse(bool _gameplay);	// RawInputの登録
 		void ClearFrameMouse();		// フレーム開始処理
+		void UpdateMouseButtons();		// マウスボタン状態更新
 
 		void ApplyModeState(); // mode適用
 
 	private:
 		unsigned char keys_state_[256] = {};			// キーステート
 		unsigned char old_keys_state_[256] = {};		// 前回のキーステート
+
+		bool mouse_buttons_[static_cast<size_t>(MouseButton::Max)]{};
+		bool old_mouse_buttons_[static_cast<size_t>(MouseButton::Max)]{};
 		dx3d::Point mouse_delta_{};						// マウスの移動量
+
 		float wheel_delta_{};							// ホイールの移動量
 
 		bool first_time_ = true;

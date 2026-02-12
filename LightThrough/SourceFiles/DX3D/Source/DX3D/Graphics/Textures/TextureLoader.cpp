@@ -13,7 +13,6 @@
 
 
 namespace dx3d {
-	namespace texture {
 		using namespace DirectX;
 		using Microsoft::WRL::ComPtr;
 
@@ -102,5 +101,4 @@ namespace dx3d {
 			// テクスチャーを返す
 			return std::make_shared<Texture>(std::move(texture), std::move(srv));
 		}
-	} // namespace texture
 } // namespace dx3d

@@ -17,6 +17,7 @@
 #include <Game/ECS/Coordinator.h>
 #include <Game/Components/Core/Transform.h>
 #include <Game/Components/Render/MeshRenderer.h>
+#include <Game/Components/Render/SpriteRenderer.h>
 #include <Game/Components/Camera/Camera.h>
 #include <Game/Components/Input/CameraController.h>
 #include <Game/Components/Physics/Collider.h>
@@ -28,6 +29,7 @@
 #include <Game/Components/Core/Name.h>
 #include <Game/Components/Core/ObjectRoot.h>
 #include <Game/Components/Core/ObjectChild.h>
+#include <Game/Components/GamePlay/LightPlaceRequest.h>
 
 #include <Game/ECS/ECSUtils.h>
 #include <Game/GameLogUtils.h>
@@ -78,6 +80,15 @@ namespace {
 			if (ch) { _value = static_cast<T>(static_cast<UT>(tmp)); }
 			return ch;
 		}
+		// Vec4Like
+		else if constexpr (ecs_serial::Vec4Like<T>) {
+			float arr[4]{ _value.x, _value.y, _value.z, _value.w };
+			if (ImGui::DragFloat4(_label, arr, _speed)) {
+				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2]; _value.w = arr[3];
+				return true;
+			}
+			return false;
+		}
 		// Vec3Like
 		else if constexpr (ecs_serial::Vec3Like<T>) {
 			float arr[3]{ _value.x, _value.y, _value.z };
@@ -87,11 +98,10 @@ namespace {
 			}
 			return false;
 		}
-		// Vec4Like
-		else if constexpr (ecs_serial::Vec4Like<T>) {
-			float arr[4]{ _value.x, _value.y, _value.z, _value.w };
-			if (ImGui::DragFloat4(_label, arr, _speed)) {
-				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2]; _value.w = arr[3];
+		else if constexpr (ecs_serial::Vec2Like<T>) {
+			float arr[2]{ _value.x, _value.y };
+			if (ImGui::DragFloat2(_label, arr, _speed)) {
+				_value.x = arr[0]; _value.y = arr[1];
 				return true;
 			}
 			return false;
@@ -195,7 +205,7 @@ namespace {
 		ImGui::Checkbox("IsStatic", &c.isStatic);
 	}
 
-} // unnamed namespace
+} // namespace anonymous
 
 namespace scene {
 	SceneManager::SceneManager(const SceneManagerDesc& _base)
@@ -210,11 +220,7 @@ namespace scene {
 
 	}
 
-	/**
-	 * @brief SceneDataの生成
-	 * @param _name		SceneData名
-	 * @return 生成したSceneDataのID
-	 */
+	//! @brief シーン生成
 	SceneData::Id SceneManager::CreateScene(const std::string& _name)
 	{
 		SceneData::Id id = GenerateId(_name);
@@ -225,19 +231,14 @@ namespace scene {
 		return id;
 	}
 
-	/**
-	 * @brief ファイルからSceneDataを読み込む
-	 * @param _path		ファイルパス
-	 * @param _id		シーンID
-	 * @return 成功したらTrue, 失敗したらFalse
-	 */
+	//! @brief シーンをファイルから読み込む
 	bool SceneManager::LoadSceneFromFile(const std::string& _name)
 	{
 		try {
 			SceneData scene = serializer_->DeserializeScene(_name);
 			auto& id = scene.id_;	// moveの後で使うためキャッシュ
-			scenes_.emplace(scene.id_, std::move(scene));	// シーンの追加
 			active_scene_ = id;	// アクティブに
+			scenes_.emplace(id, std::move(scene));	// シーンの追加
 			return true;
 		}
 		catch (const std::exception& e) {
@@ -246,6 +247,7 @@ namespace scene {
 		}
 	}
 
+	//! @brief シーン切り替え
 	bool SceneManager::ChangeScene(const SceneData::Id& _newScene, bool _unloadPrev)
 	{
 		// すでにアクティブならスキップ
@@ -280,13 +282,16 @@ namespace scene {
 			return false;
 		}
 
+		// システムにシーンロード通知
+		for (auto& system : ecs_.GetAllSystems()) {
+			system->OnSceneLoaded();
+		}
+
 		return true;
 	}
 
-	/**
-	 * @brief アクティブなSceneDataを保存する
-	 * @return 成功: true, 失敗: false
-	 */
+
+	//! @brief アクティブなSceneDataを保存する
 	bool SceneManager::SaveActiveScene()
 	{
 		if (!active_scene_) {
@@ -306,12 +311,7 @@ namespace scene {
 
 
 
-	/**
-	 * @brief SceneDataをアンロードする
-	 * @param _id	シーンID
-	 * @param _destroyEntities	シーンに含まれるEntityを破棄するかどうか
-	 * @return 成功: true、失敗: false
-	 */
+	//! @brief SceneDataのアンロード
 	bool SceneManager::UnloadScene(SceneData::Id _id, bool _destroyEntities)
 	{
 		auto it = scenes_.find(_id);
@@ -323,10 +323,17 @@ namespace scene {
 		//}
 
 		// Entityの破棄
-		// [ToDo] Scene遷移での削除する/しないをSceneで管理するべきなのかEntityで管理するべきなのか...たぶんScene側のほうが無駄なメモリは減らせるのかなぁ...
 		if (_destroyEntities) {
-			for (auto& e : it->second.entities_) {
-				if (persistent_entities_.count(e)) { continue; }	// 永続化されているなら削除しない
+			// memo: 走査中に要素数が変わるので、一度別コンテナに対比してから破棄する。
+			std::vector<ecs::Entity> toDestroy;
+			toDestroy.reserve(it->second.entities_.size());
+
+			for (auto e : it->second.entities_) {
+				if (persistent_entities_.count(e)) { continue; } // 永続化されているなら削除しない
+				toDestroy.push_back(e);
+			}
+
+			for (auto& e : toDestroy) {
 				ecs_.DestroyEntity(e);	// Entityの破棄
 			}
 		}
@@ -341,12 +348,7 @@ namespace scene {
 		return true;
 	}
 
-	/**
-	 * @brief SceneDataをアクティブにする
-	 * @param _id			シーンID
-	 * @param unloadPrev	前のシーンをアンロードするかどうか
-	 * @return 成功したらTrue、失敗したらFalse
-	 */
+	//! @brief アクティブなシーンを設定
 	bool SceneManager::SetActiveScene(const SceneData::Id& _id, bool _unloadPrev)
 	{
 		if (scenes_.find(_id) == scenes_.end()) { return false; } // 存在しないシーン
@@ -363,26 +365,24 @@ namespace scene {
 		// アクティブなシーンを切り替え
 		active_scene_ = _id;
 
+		// システムにシーンロード通知
+		for (auto& system : ecs_.GetAllSystems()) {
+			system->OnSceneLoaded();
+		}
+
 		// アクティブ後処理
 		if (OnAfterSceneLoad) { OnAfterSceneLoad(_id); }
 
 		return true;
 	}
 
-	/**
-	 * @brief アクティブなSceneDataのIDを取得
-	 * @return アクティブなSceneDataのID, 無い場合: nullopt
-	 */
+	//! @brief アクティブなシーンIDを取得
 	std::optional<SceneData::Id> SceneManager::GetActiveScene() const
 	{
 		return active_scene_;
 	}
 
-	/**
-	 * @brief SceneDataにEntityを追加
-	 * @param _id	シーンID
-	 * @param _e	追加するEntity
-	 */
+	//! @brief SceneDataにEntityを追加
 	void SceneManager::AddEntityToScene(const SceneData::Id& _id, ecs::Entity _e)
 	{
 		auto it = scenes_.find(_id);
@@ -391,11 +391,7 @@ namespace scene {
 		it->second.entities_.push_back(_e);
 	}
 
-	/**
-	 * @brief SceneDataからEntityを削除
-	 * @param _id	シーンID
-	 * @param _e	削除するEntity
-	 */
+	//! @brief SceneDataからEntityを削除
 	void SceneManager::RemoveEntityFromScene(const SceneData::Id& _id, ecs::Entity _e)
 	{
 		auto it = scenes_.find(_id);
@@ -404,11 +400,7 @@ namespace scene {
 		ents.erase(std::remove(ents.begin(), ents.end(), _e), ents.end());
 	}
 
-	/**
-	 * @brief SceneDataに含まれるEntityの一覧を取得
-	 * @param _id	シーンID
-	 * @return EntityのVector型リスト
-	 */
+	//! @brief SceneDataに含まれるEntity一覧を取得
 	const std::vector<ecs::Entity>& SceneManager::GetEntitiesInScene(const SceneData::Id& _id) const
 	{
 		auto it = scenes_.find(_id);
@@ -418,12 +410,8 @@ namespace scene {
 		} // 存在しないシーン
 		return it->second.entities_;
 	}
-
-	/**
-	 * @brief Entityを永続化するかどうかを設定
-	 * @param _e			Entity
-	 * @param _persistent	永続化するかどうか
-	 */
+	
+	//! @brief Entityを永続化するかどうか
 	void SceneManager::MarkPersistentEntity(ecs::Entity _e, bool _persistent)
 	{
 		if (_persistent) {
@@ -431,6 +419,18 @@ namespace scene {
 		}
 		else {
 			persistent_entities_.erase(_e);
+		}
+	}
+
+	//! @brief Entity破棄時コールバック
+	void SceneManager::OnEntityDestroyed(ecs::Entity _e)
+	{
+		// 永続化リストから削除
+		persistent_entities_.erase(_e);
+		// すべてのシーンから削除
+		for (auto& kv : scenes_) {
+			auto& ents = kv.second.entities_;
+			ents.erase(std::remove(ents.begin(), ents.end(), _e), ents.end());
 		}
 	}
 
@@ -457,8 +457,8 @@ namespace scene {
 
 		// レイアウトの計算
 		const float windowWidth = ImGui::GetContentRegionAvail().x;
-		const float leftW = windowWidth * 0.20f;			// Scene
-		const float middleW = windowWidth * 0.40f;			// entities
+		const float leftW = windowWidth * 0.2f;			// Scene
+		const float middleW = windowWidth * 0.4f;			// entities
 		const float rightW = windowWidth - leftW - middleW;	// Inspector
 
 
@@ -530,11 +530,9 @@ namespace scene {
 				ImGui::Text("Entity Count: %d", static_cast<int>(ents.size()));
 				ImGui::Spacing();
 
-				if (ImGui::BeginTable("SceneEntities", 3,
+				if (ImGui::BeginTable("SceneEntities", 1,
 					ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable)) {
 					ImGui::TableSetupColumn("Entity", ImGuiTableColumnFlags_WidthStretch);
-					ImGui::TableSetupColumn("Persistent", ImGuiTableColumnFlags_WidthFixed, 70.0f);
-					ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 					ImGui::TableHeadersRow();
 
 					for (auto& e : ents) {
@@ -545,7 +543,7 @@ namespace scene {
 						// 表示名
 						std::string label;
 						if (ecs_.HasComponent<ecs::Name>(e)) {
-							label = ecs_.GetComponent<ecs::Name>(e).value;
+							label = ecs_.GetComponent<ecs::Name>(e)->value;
 						}
 						else {
 							label = "Idx:" + std::to_string(e.Index()) + "Ver:" + std::to_string(e.Version());
@@ -556,20 +554,6 @@ namespace scene {
 							debug_selected_entity_ = e;
 						}
 						ImGui::PopID();
-
-						// Column 1: 永続化切り替え
-						ImGui::TableSetColumnIndex(1);
-						bool persistent = (persistent_entities_.count(e) != 0);
-						bool toggled = persistent;
-						ImGui::PushID(static_cast<int>(e.Index()) + 10000);
-						if (ImGui::Checkbox("##persist", &toggled)) {
-							MarkPersistentEntity(e, toggled);
-						}
-						ImGui::PopID();
-
-						// Column 2: State
-						ImGui::TableSetColumnIndex(2);
-						ImGui::TextUnformatted(e.IsInitialized() ? "Initialized" : "Uninitialized");
 					}
 					ImGui::EndTable();
 				}
@@ -622,6 +606,7 @@ namespace scene {
 				ecs::Transform,
 				ecs::GroundContact,
 				ecs::MeshRenderer,
+				ecs::SpriteRenderer,
 				ecs::Camera,
 				ecs::CameraController,
 				ecs::PlayerController,
@@ -631,19 +616,20 @@ namespace scene {
 				ecs::LightCommon,
 				ecs::SpotLight,
 				ecs::ObjectRoot,
-				ecs::ObjectChild
+				ecs::ObjectChild,
+				ecs::LightPlaceRequest
 			>;
 
 			// メタループ
 			ecs_serial::for_each(AllComponents{}, [&](auto&& dummyComp) {
 				using CompT = std::decay_t<decltype(dummyComp)>;
 				if (ecs_.HasComponent<CompT>(e)) {
-					auto& comp = ecs_.GetComponent<CompT>(e);
+					auto* compPtr = ecs_.GetComponent<CompT>(e);
 					const char* compName = ecs_serial::TypeReflection<CompT>::Name().data();
 					ImGui::PushID(compName);
 					if (ImGui::CollapsingHeader(compName)) {
-						DrawReflectedComponentFields(comp, baseSpeed);
-
+						auto& compRef = *compPtr;
+						DrawReflectedComponentFields(compRef, baseSpeed);
 						// コンポーネント削除ボタン
 						if (ImGui::Button("Remove Component")) {
 							removeComponentType = ecs_.GetComponentType<CompT>();
@@ -668,7 +654,10 @@ namespace scene {
 
 					if (ImGui::Selectable(name.c_str())) {
 						// コンポーネント追加待機リストに追加
-						registry.AddIfExists(ecs_, e, name, nlohmann::json::object());
+						bool result = registry.AddIfExists(ecs_, e, name, nlohmann::json::object());
+						if (!result) {
+							DebugLogError("[SceneManager] コンポーネントの追加に失敗: {}", name);
+						}
 					}
 				}
 				ImGui::EndPopup();

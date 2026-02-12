@@ -37,9 +37,9 @@ namespace ecs {
 		void Init() override;
 
 		void DrawLine(DirectX::XMFLOAT3 _start, DirectX::XMFLOAT3 _end, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
-		void DrawCube(const Transform& _transform, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+		void DrawCube(const Transform* _transform, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
 
-		void DrawSphere(const Transform& _transform, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+		void DrawSphere(const Transform* _transform, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
 		void DrawSphere(const DirectX::XMFLOAT3& _center, float _radius, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
 		void DrawSphere(const collision::WorldSphere& _sphere, DirectX::XMFLOAT4 _color = {1.0f, 1.0f, 1.0f, 1.0f });
 		void DrawSphereWireframe(const collision::WorldSphere& _sphere, DirectX::XMFLOAT4 _color = { 1.0f, 1.0f, 1.0f, 1.0f });
@@ -82,7 +82,6 @@ namespace ecs {
 			int textureLayer = 0;
 		};
 
-		dx3d::GraphicsEngine& engine_;
 		std::vector<DebugCommand> commands_{};
 		dx3d::ConstantBufferPtr cb_per_frame_{};
 		dx3d::ConstantBufferPtr cb_per_object_{};

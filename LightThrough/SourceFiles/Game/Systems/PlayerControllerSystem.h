@@ -21,6 +21,13 @@ namespace ecs {
 		bool move_back_		= false;
 		bool move_left_		= false;
 		bool move_right_	= false;
-		bool move_jump_ = false;
+		bool request_jump_ = false;
+
+		// ライトリクエスト
+		bool request_spawn_light_ = false;
+		bool request_despawn_light_ = false;
+
+		// 手持ちライトON/OFF
+		bool toggle_hand_light_ = false;
 	};
 } // namespace ecs

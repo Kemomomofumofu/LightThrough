@@ -3,6 +3,7 @@ struct VSVertex
     float3 pos : POSITION0;
     float4 color : COLOR0;
     float3 normal : NORMAL0;
+    float2 uv : TEXCOORD0;
 };
 
 struct VSInstance
@@ -21,6 +22,7 @@ struct VSOUT
     float3 normalWS : NORMAL0;
     float3 worldPos : WORLDPOS;
     float4 posLight : TEXCOORD0;
+    float2 uv : TEXCOORD1;
 };
 
 cbuffer cbperFrame : register(b0)
@@ -51,6 +53,8 @@ VSOUT VSMain(VSVertex _vin, VSInstance _inst)
     
     // êF
     vout.color = _vin.color * _inst.color;
+    
+    vout.uv = _vin.uv;
 
     return vout;
 }

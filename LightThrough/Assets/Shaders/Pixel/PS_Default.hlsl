@@ -34,29 +34,14 @@ float CalcShadowFactor(float3 _worldPos, int _shadowIndex, row_major float4x4 _l
         return 1.0f; // Œõ‘¤
     }
     
-    // PCFƒTƒ“ƒvƒŠƒ“ƒO
-    uint w, h, layers;
-    shadowMap.GetDimensions(w, h, layers);
-    float2 texel = 1.0f / float2(w, h);
-    float result = 0.0f;
-    [unroll]
-    for (int y = -1; y <= 1; ++y)
-    {
-        [unroll]
-        for (int x = -1; x <= 1; ++x)
-        {
-            float2 offset = float2(x, y) * texel;
-            result += shadowMap.SampleCmpLevelZero(
-            shadowSampler,
-            float3(uvw.xy + offset, _shadowIndex),
-            uvw.z
-            );
-        }
-    }
-
-    
-    return result / 9.0;
+    float bias = 0.0f;
+    return shadowMap.SampleCmpLevelZero(
+        shadowSampler,
+        float3(uvw.xy, _shadowIndex),
+        uvw.z - bias
+    );
 }
+
 
 
 float4 PSMain(PSIN _pin) : SV_Target
@@ -86,7 +71,7 @@ float4 PSMain(PSIN _pin) : SV_Target
     if (totalLight <= 0.0f)
     {
 
-        return float4(1, 0, 1, 0.2);
+        // return float4(1, 0, 1, 0.2);
         discard;
     }
 

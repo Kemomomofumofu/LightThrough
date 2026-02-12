@@ -45,9 +45,15 @@ namespace ecs {
 		}
 		// Entityが破棄されたことをComponentManagerとSystemManagerに通知
 		// [ToDo] メソッド名が悪い
+
 		component_manager_->EntityDestroyed(_e);
 		system_manager_->EntityDestroyed(_e);
 		entity_manager_->Destroy(_e);
+
+		if (on_entity_destroyed_) {
+			on_entity_destroyed_(_e);
+		}
+
 	}
 
 	/**
@@ -77,6 +83,12 @@ namespace ecs {
 	void Coordinator::RequestDestroyEntity(Entity _e)
 	{
 		pending_destroys_.push_back(_e);
+	}
+
+	//! @brief Entityが有効かどうかを確認
+	bool Coordinator::IsValidEntity(Entity _e)
+	{
+		return entity_manager_->IsValid(_e);
 	}
 
 	/**
@@ -117,6 +129,11 @@ namespace ecs {
 	void Coordinator::ReactivateAllSystems()
 	{
 		system_manager_->ReactivateAllSystems();
+	}
+
+	const std::vector<std::shared_ptr<ISystem>>& Coordinator::GetAllSystems()
+	{
+		return system_manager_->GetAllSystemsInOrder();
 	}
 
 	/**

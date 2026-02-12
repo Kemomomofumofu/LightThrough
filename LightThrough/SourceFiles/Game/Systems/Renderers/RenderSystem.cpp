@@ -43,7 +43,6 @@ namespace ecs {
 	 */
 	RenderSystem::RenderSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
-		, engine_(_desc.graphicsEngine)
 	{
 	}
 
@@ -89,10 +88,10 @@ namespace ecs {
 			return;
 		}
 		// カメラ
-		auto& cam = ecs_.GetComponent<Camera>(camEntities[0]);
+		auto cam = ecs_.GetComponent<Camera>(camEntities[0]);
 		CBPerFrame cbPerFrameData{};
-		cbPerFrameData.view = cam.view;
-		cbPerFrameData.proj = cam.proj;
+		cbPerFrameData.view = cam->view;
+		cbPerFrameData.proj = cam->proj;
 
 		// 定数バッファ更新
 		cb_per_frame_->Update(context, &cbPerFrameData, sizeof(cbPerFrameData));
@@ -111,11 +110,11 @@ namespace ecs {
 			if (lightSum >= MAX_LIGHTS) { break; }
 
 			const auto& entry = shadowLights[i];
-			auto& tf = ecs_.GetComponent<Transform>(entry.light);
-			auto& common = ecs_.GetComponent<LightCommon>(entry.light);
+			auto tf = ecs_.GetComponent<Transform>(entry.light);
+			auto common = ecs_.GetComponent<LightCommon>(entry.light);
 			SpotLight* spotLight = nullptr;
 			if (ecs_.HasComponent<SpotLight>(entry.light)) {
-				spotLight = &ecs_.GetComponent<SpotLight>(entry.light);
+				spotLight = ecs_.GetComponent<SpotLight>(entry.light);
 			}
 
 			lightData.lights[lightSum] = BuildLightCPU(tf, common, spotLight);
@@ -144,7 +143,7 @@ namespace ecs {
 		// バッチ処理
 		opaque_batches_.clear();	// バッチクリア
 		transparent_batches_.clear();
-		auto camPos = ecs_.GetComponent<Transform>(camEntities[0]).position;
+		auto camPos = ecs_.GetComponent<Transform>(camEntities[0])->GetWorldPosition();
 		CollectBatches(camPos);	// バッチ収集
 		UpdateBatches();	// バッチ更新
 
@@ -181,11 +180,11 @@ namespace ecs {
 
 		// Entity一覧を走査してバッチ化 // todo: 毎フレーム全Entityに対して処理するのはあまりにも無駄なので、差分更新とかにしたい。
 		for (auto& e : entities_) {
-			auto& mesh = ecs_.GetComponent<MeshRenderer>(e);
-			auto& tf = ecs_.GetComponent<ecs::Transform>(e);
+			auto mesh = ecs_.GetComponent<MeshRenderer>(e);
+			auto tf = ecs_.GetComponent<ecs::Transform>(e);
 
 			auto& mr = engine_.GetMeshRegistry();
-			auto meshData = mr.Get(mesh.handle);
+			auto meshData = mr.Get(mesh->handle);
 
 			// todo: マテリアルからpsoを取得するつくりにする
 			// auto& material = ecs_.GetComponent<Material>(e);
@@ -231,13 +230,13 @@ namespace ecs {
 
 			// インスタンスデータ追加
             dx3d::InstanceDataMain dm{};
-			dm.world = tf.world;
+			dm.world = tf->world;
 			dm.color = { 1, 1, 1, 1 };	// todo: 色実装次第、参照するように
             (*targetBatches)[batchIndex].instances.emplace_back(dm);
 
 			// 半透明なら
 			if (psoKey.GetBlend() == dx3d::BlendMode::Alpha) {
-				DirectX::XMVECTOR pos = DirectX::XMLoadFloat3(&tf.position);
+				DirectX::XMVECTOR pos = tf->GetWorldPositionV();
 				DirectX::XMVECTOR camPos = DirectX::XMLoadFloat3(&_camPos);
 				float distance = DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(DirectX::XMVectorSubtract(pos, camPos)));
 				(*targetBatches)[batchIndex].sortKey = distance;

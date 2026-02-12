@@ -68,13 +68,26 @@ namespace ecs {
 		 */
 		void RequestDestroyEntity(Entity _e);
 
+		/**
+		 * @brief 指定したSignatureを持っているEntityの一覧を取得
+		 * @param _signature: 指定するSignature
+		 * @return 該当するEntityの一覧
+		 */
+		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
+
+		/**
+		 * @brief Entityが有効かどうかを確認
+		 * @param _e : 確認するEntity
+		 * @return true: 有効, false: 無効
+		 */
+		bool IsValidEntity(Entity _e);
 
 		// ---------- Component関連 ---------- //
 		template<typename Com>
 		void RegisterComponent();	// Componentリストの登録
 
 		template<typename Com>
-		void AddComponent(Entity _e, const Com& _component);	// Componentの追加
+		Com* AddComponent(Entity _e, const Com& _component);	// Componentの追加
 		void AddComponentRaw(Entity _e, ComponentType _type, const void* _data);
 
 		template<typename Com>
@@ -89,7 +102,7 @@ namespace ecs {
 		bool HasComponent(Entity _e);
 
 		template<typename Com>
-		Com& GetComponent(Entity _e);	// Componentの取得
+		Com* GetComponent(Entity _e);	// Componentの取得
 
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
@@ -102,10 +115,12 @@ namespace ecs {
 		 */
 		void RequestAddComponentRaw(Entity _e, ComponentType _type, std::function<void()> _apply);
 		template<typename Com>
+		void RequestAddComponent(Entity _e, const Com& _component);
+		template<typename Com>
 		void RequestRemoveComponent(Entity _e);	// Componentの削除リクエスト
 
 
-
+		// ---------- System関連 ---------- //
 		template<typename Sys>
 		void RegisterSystem(const SystemDesc& _desc);		// Systemの登録
 		template<typename Sys>
@@ -114,6 +129,8 @@ namespace ecs {
 		std::shared_ptr<Sys> GetSystem();	// Systemの取得
 		void ReactivateAllSystems(); // 登録されたSystemをすべて再アクティブ化
 
+		const std::vector<std::shared_ptr<ISystem>>& GetAllSystems();
+
 
 
 		void InitAllSystems();	// 登録されたSystemの初期化
@@ -121,7 +138,11 @@ namespace ecs {
 		void UpdateAllSystems(float _dt);	// 登録されたSystemの更新
 		void FlushPending(); // 保留中の変更を反映
 
-		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
+
+
+		// ---------- コールバック設定 ---------- //
+		using OnEntityDestroyed = std::function<void(Entity)>;
+		void SetOnEntityDestroyedCallback(OnEntityDestroyed _callback) {on_entity_destroyed_ = std::move(_callback); }
 
 	private:
 		/**
@@ -148,6 +169,8 @@ namespace ecs {
 		std::vector<PendingAdd> pending_adds_{};		// 保留中の追加操作
 		std::vector<PendingRemove> pending_removes_{};	// 保留中の削除操作
 		std::vector<Entity> pending_destroys_{};		// 保留中の破棄操作
+
+		OnEntityDestroyed on_entity_destroyed_{};	// Entity破棄時のコールバック
 
 	};
 }

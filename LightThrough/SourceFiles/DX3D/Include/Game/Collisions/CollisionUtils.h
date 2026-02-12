@@ -265,7 +265,7 @@ namespace dx3d {
 			};
 		}
 
-		// ComputePushOut, GetOBBCorners, GetSphereSamplePoints はそのまま
+		// 押し出し量
 		inline std::pair<XMFLOAT3, XMFLOAT3> ComputePushOut(
 			const ContactResult& _contact,
 			bool _isStaticA, bool _isStaticB,
@@ -330,58 +330,42 @@ namespace dx3d {
 			}
 		}
 
+		inline bool IsPointInsideOBB(const XMFLOAT3& _point, const WorldOBB& _obb)
+		{
+			XMFLOAT3 d = math::Sub(_point, _obb.center);
+			for (int i = 0; i < 3; ++i) {
+				float dist = math::Dot(d, _obb.axis[i]);
+
+				float halfLength = 0.0f;
+				switch (i) {
+				case 0: halfLength = _obb.half.x; break;
+				case 1: halfLength = _obb.half.y; break;
+				case 2: halfLength = _obb.half.z; break;
+				}
+
+				if (dist > halfLength || dist < -halfLength) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+
 		/**
-		 * @brief OBB同士の重なり領域からサンプルポイントを生成
-		 * @details 代表点は小さい方OBB上の面に作り、その面を中心にグリッドサンプリングする
+		 * @brief OBB同士の重なり部分のサンプル点を生成
 		 */
 		inline void GenerateOverlapSamplePoints(
-			const WorldOBB& _targetOBB,
-			const XMFLOAT3& _contactNormal,
-			std::vector<XMFLOAT3>& _outPoints,
-			int _samplesPerAxis = 3
+			const WorldOBB& _obbA,
+			const WorldOBB& _obbB,
+			std::vector<XMFLOAT3>& _outPoints
 		)
 		{
-			XMFLOAT3 normal = math::Normalize(_contactNormal);
+			XMFLOAT3 corners[8]{};
+			GetOBBCorners(_obbA, corners);
 
-			// 代表接触点を取得
-			XMFLOAT3 center = GetRepresentativeContactPointOnOBB(_targetOBB, normal);
-
-			// サンプリング範囲の決定
-			float minHalf = (std::min)({
-					_targetOBB.half.x,
-					_targetOBB.half.y,
-					_targetOBB.half.z
-				});
-			float sampleRadius = minHalf * 0.8f;
-
-			// 法線に垂直な基底を作りグリッド状にサンプリング
-			XMFLOAT3 tangent1{}, tangent2{};
-			if (std::fabs(normal.y) < 0.99f) {
-				XMFLOAT3 up{ 0, 1, 0 };
-				tangent1 = math::Cross(normal, up);
-			}
-			else {
-				XMFLOAT3 right{ 1, 0, 0 };
-				tangent1 = math::Cross(normal, right);
-			}
-			tangent1 = math::Normalize(tangent1);
-			tangent2 = math::Normalize(math::Cross(normal, tangent1));
-
-			float step = (_samplesPerAxis > 1) ? (2.0f * sampleRadius / (_samplesPerAxis - 1)) : 0.0f;
-			float startOffset = -sampleRadius;
-
-			for (int i = 0; i < _samplesPerAxis; ++i) {
-				for (int j = 0; j < _samplesPerAxis; ++j) {
-					float offsetU = (_samplesPerAxis > 1) ? (startOffset + step * i) : 0.0f;
-					float offsetV = (_samplesPerAxis > 1) ? (startOffset + step * j) : 0.0f;
-
-					XMFLOAT3 samplePoint{
-						center.x + tangent1.x * offsetU + tangent2.x * offsetV,
-						center.y + tangent1.y * offsetU + tangent2.y * offsetV,
-						center.z + tangent1.z * offsetU + tangent2.z * offsetV
-					};
-
-					_outPoints.push_back(samplePoint);
+			for (int i = 0; i < 8; ++i) {
+				if (IsPointInsideOBB(corners[i], _obbB)) {
+					_outPoints.push_back(corners[i]);
 				}
 			}
 		}

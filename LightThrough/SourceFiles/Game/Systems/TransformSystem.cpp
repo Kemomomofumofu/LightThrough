@@ -14,11 +14,77 @@
 #include <Game/ECS/Coordinator.h>
 #include <Game/Components/Core/Transform.h>
 #include <Game/Components/Core/ObjectChild.h>
-
 #include <Game/Components/Core/Name.h>
+
+#include <DX3D/Math/MathUtils.h>
 #include <Debug/DebugUI.h>
 
-namespace ecs {
+namespace ecs
+{
+
+	namespace
+	{
+		// 行列から回転基底ベクトルとスケールを抽出
+		inline void ExtractCacheFromMatrix(
+			const DirectX::XMFLOAT4X4& _m,
+			DirectX::XMFLOAT3& _outRight,
+			DirectX::XMFLOAT3& _outUp,
+			DirectX::XMFLOAT3& _outForward,
+			DirectX::XMFLOAT3& _outScale)
+		{
+			using namespace DirectX;
+			using namespace math;
+
+			XMFLOAT3 r{ _m._11, _m._12, _m._13 };
+			XMFLOAT3 u{ _m._21, _m._22, _m._23 };
+			XMFLOAT3 f{ _m._31, _m._32, _m._33 };
+
+			// スケール
+			float sx = Length(r);
+			float sy = Length(u);
+			float sz = Length(f);
+			_outScale = XMFLOAT3{ sx, sy, sz };
+			// ゼロ除算防止
+			if (!IsZeroDisp(sx)) { r = Scale(r, 1.0f / sx); }
+			if (!IsZeroDisp(sy)) { u = Scale(u, 1.0f / sy); }
+			if (!IsZeroDisp(sz)) { f = Scale(f, 1.0f / sz); }
+			// 直行化
+			r = Normalize(r);
+			u = Normalize(Sub(u, Scale(r, Dot(u, r))));
+			f = Normalize(Cross(r, u));
+			r = Normalize(Cross(u, f));
+
+			_outRight = r;
+			_outUp = u;
+			_outForward = f;
+		}
+
+		// 回転行列からクォータニオンを生成
+		inline DirectX::XMFLOAT4 BasisToQuat(
+			const DirectX::XMFLOAT3& _r,
+			const DirectX::XMFLOAT3& _u,
+			const DirectX::XMFLOAT3& _f)
+		{
+			using namespace DirectX;
+			using namespace math;
+
+			XMMATRIX rot = XMMATRIX(
+				_r.x, _r.y, _r.z, 0.0f,
+				_u.x, _u.y, _u.z, 0.0f,
+				_f.x, _f.y, _f.z, 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f
+			);
+
+			XMVECTOR q = XMQuaternionRotationMatrix(rot);
+			q = XMQuaternionNormalize(q);
+
+			XMFLOAT4 out{};
+			XMStoreFloat4(&out, q);
+			return out;
+		}
+	}
+
+
 	/**
 	 * @brief コンストラクタ
 	 * @param _desc
@@ -64,12 +130,13 @@ namespace ecs {
 						"[TransformSystem] 親子関係にサイクルを検出。Entity ID: {}",
 						e.id_
 					);
+					visited.insert(e);
 					return;
 				}
 
 				visiting.insert(e);
 
-				auto& tf = ecs_.GetComponent<Transform>(e);
+				auto tf = ecs_.GetComponent<Transform>(e);
 
 				bool hasParent = false;
 				XMMATRIX parentWorld = XMMatrixIdentity();
@@ -77,34 +144,46 @@ namespace ecs {
 				// 親がいるなら先に親を更新
 				if (ecs_.HasComponent<ObjectChild>(e)) {
 					const auto& child = ecs_.GetComponent<ObjectChild>(e);
-					if (child.root.IsInitialized() &&
-						ecs_.HasComponent<Transform>(child.root))
+					if (child->root.IsInitialized() &&
+						ecs_.HasComponent<Transform>(child->root))
 					{
 						hasParent = true;
-						updateWorld(child.root);
+						updateWorld(child->root);
 
 						const auto& parentTf =
-							ecs_.GetComponent<Transform>(child.root);
-						parentWorld = XMLoadFloat4x4(&parentTf.world);
+							ecs_.GetComponent<Transform>(child->root);
+						parentWorld = XMLoadFloat4x4(&parentTf->world);
 					}
 				}
 
-				if (tf.dirty || hasParent) {
-					XMMATRIX S = XMMatrixScaling(tf.scale.x, tf.scale.y, tf.scale.z);
-					XMMATRIX R = XMMatrixRotationQuaternion(
-						XMLoadFloat4(&tf.rotationQuat)
-					);
-					XMMATRIX T = XMMatrixTranslation(
-						tf.position.x, tf.position.y, tf.position.z
-					);
+				if (tf->dirty || tf->worldDirty || hasParent) {
+					XMMATRIX S = XMMatrixScaling(tf->scale.x, tf->scale.y, tf->scale.z);
+					XMMATRIX R = XMMatrixRotationQuaternion(XMLoadFloat4(&tf->rotationQuat));
+					XMMATRIX T = XMMatrixTranslation(tf->position.x, tf->position.y, tf->position.z);
 
 					XMMATRIX local = S * R * T;
 					XMMATRIX world = hasParent
 						? XMMatrixMultiply(local, parentWorld)
 						: local;
 
-					XMStoreFloat4x4(&tf.world, world);
-					tf.dirty = false;
+					XMStoreFloat4x4(&tf->world, world);
+
+					// 物理用キャッシュ抽出
+					ExtractCacheFromMatrix(
+						tf->world,
+						tf->worldRight,
+						tf->worldUp,
+						tf->worldForward,
+						tf->worldScale
+					);
+					tf->worldRotationQuat = BasisToQuat(
+						tf->worldRight,
+						tf->worldUp,
+						tf->worldForward
+					);
+
+					tf->dirty = false;
+					tf->worldDirty = false;
 				}
 
 				visited.insert(e);
@@ -134,17 +213,16 @@ namespace ecs {
 
 			if (ecs_.HasComponent<ObjectChild>(e)) {
 				const auto& child = ecs_.GetComponent<ObjectChild>(e);
-				if (child.root.IsInitialized()) {
+				if (child->root.IsInitialized()) {
 					// 親が存在し、かつその親がこのシステムで扱われていれば登録
 					// 親が Transform を持つことが前提
-					if (ecs_.HasComponent<Transform>(child.root)) {
-						childrenMap[child.root].push_back(e);
+					if (ecs_.HasComponent<Transform>(child->root)) {
+						childrenMap[child->root].push_back(e);
 						hasParent.insert(e);
 					}
 				}
 			}
 
-			// Ensure the node exists in map so that leafs are present
 			if (childrenMap.find(e) == childrenMap.end()) {
 				childrenMap.emplace(e, std::vector<Entity>{});
 			}
@@ -166,7 +244,7 @@ namespace ecs {
 				// 表示ラベルを決定（Nameコンポーネントがあればそれを使う）
 				std::string label;
 				if (ecs_.HasComponent<Name>(e)) {
-					label = ecs_.GetComponent<Name>(e).value;
+					label = ecs_.GetComponent<Name>(e)->value;
 				}
 				else {
 					label = "Idx:" + std::to_string(e.Index()) + " Ver:" + std::to_string(e.Version());

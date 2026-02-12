@@ -14,9 +14,5 @@ namespace ecs
 	public:
 		explicit OutlineRenderSystem(const SystemDesc& _desc);
 
-
-	private:
-		dx3d::GraphicsEngine& engine_;
-
 	};
 }

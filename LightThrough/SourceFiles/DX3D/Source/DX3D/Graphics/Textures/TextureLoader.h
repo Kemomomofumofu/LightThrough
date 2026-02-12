@@ -12,8 +12,6 @@
 #include <DirectXTex.h>
 
 namespace dx3d {
-	namespace texture {
-		// ‘O•ûéŒ¾
 		class Texture;
 
 		/**
@@ -37,5 +35,4 @@ namespace dx3d {
 			ID3D11Device& device_;
 
 		};
-	} // namespace texture
 } // namespace dx3d

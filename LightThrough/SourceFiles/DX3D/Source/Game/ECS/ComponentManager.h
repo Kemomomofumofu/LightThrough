@@ -12,11 +12,12 @@
 #include <memory>
 #include <cassert>
 #include <array>
+
+#include <Game/ECS/Entity.h>
 #include <Game/ECS/ECSUtils.h>
 
 namespace ecs {
 	// ---------- 前方宣言 ---------- //
-	struct Entity;			// Entityクラス
 	class IComponentArray;	// コンポーネント配列のインターフェース
 	template<typename Com> class ComponentArray;	// コンポーネント配列クラス
 
@@ -31,7 +32,7 @@ namespace ecs {
 		template<typename Com>
 		void RegisterComponent();	// Componentリストの登録
 		template<typename Com>
-		Com& GetComponent(Entity _e);	// Componentの取得
+		Com* GetComponent(Entity _e);	// Componentの取得
 		template<typename Com>
 		bool HasComponent(Entity _e);	// Componentを持っているか
 		template<typename Com>

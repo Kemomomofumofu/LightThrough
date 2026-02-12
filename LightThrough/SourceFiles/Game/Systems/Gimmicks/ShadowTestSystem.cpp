@@ -28,8 +28,7 @@ namespace ecs {
 
 	//! @brief コンストラクタ
 	ShadowTestSystem::ShadowTestSystem(const SystemDesc& _desc)
-		:ISystem(_desc),
-		engine_(_desc.graphicsEngine)
+		:ISystem(_desc)
 	{
 	}
 
@@ -77,7 +76,7 @@ namespace ecs {
 #if defined(DEBUG) || defined(_DEBUG)
 
 		DebugCheckSliceIndex();
-		
+
 		// デバッグ表示
 		if (show_debug_points_) {
 			auto debugRenderSystem = debug_render_system_.lock();
@@ -96,11 +95,6 @@ namespace ecs {
 			}
 		}
 #endif
-	}
-
-	void ShadowTestSystem::FixedUpdate(float _fixedDt)
-	{
-		ExecuteShadowTests();
 	}
 
 	//! @brief 影判定結果の取得
@@ -200,7 +194,6 @@ namespace ecs {
 				shadow_results_[key] = result;
 			}
 #if defined(DEBUG) || defined(_DEBUG)
-			// ライトがない場合はすべて影として表示
 			debug_test_points_.clear();
 			for (const auto& point : pending_contact_points_) {
 				debug_test_points_.push_back({ point, true });
@@ -248,19 +241,19 @@ namespace ecs {
 			params.shadowHeight = lightDepthSystem->GetShadowMapHeight();
 			params.sliceIndex = entry.sliceIndex;
 			// ライト情報
-			auto& lightTf = ecs_.GetComponent<Transform>(entry.light);
-			auto& lightCommon = ecs_.GetComponent<LightCommon>(entry.light);
-			params.lightPos = lightTf.position;
-			params.lightDir = lightTf.GetForward();
+			auto lightTf = ecs_.GetComponent<Transform>(entry.light);
+			auto lightCommon = ecs_.GetComponent<LightCommon>(entry.light);
+			params.lightPos = lightTf->GetWorldPosition();
+			params.lightDir = lightTf->GetWorldForwardCached();
 			params.cosOuterAngle = -1.0f;
 			params.cosInnerAngle = -1.0f;
 			params.lightRange = 100000.0f;
 			// スポットライトなら
 			if (ecs_.HasComponent<SpotLight>(entry.light)) {
-				auto& spot = ecs_.GetComponent<SpotLight>(entry.light);
-				params.cosOuterAngle = spot.outerCos;
-				params.cosInnerAngle = spot.innerCos;
-				params.lightRange = spot.range;
+				auto spot = ecs_.GetComponent<SpotLight>(entry.light);
+				params.cosOuterAngle = spot->outerCos;
+				params.cosInnerAngle = spot->innerCos;
+				params.lightRange = spot->range;
 			}
 			// CB更新
 			D3D11_MAPPED_SUBRESOURCE mapped{};
@@ -302,6 +295,7 @@ namespace ecs {
 			void* mappedData = staging_buffer_->Map();
 			if (mappedData) {
 
+#if defined(DEBUG) || defined(_DEBUG)
 				// デバッグ用カウンタ
 				uint32_t countLit = 0;
 				uint32_t countShadow = 0;
@@ -310,7 +304,7 @@ namespace ecs {
 				uint32_t countZeroW = 0;
 				uint32_t countOutRange = 0;
 				uint32_t countOutSideCone = 0;
-
+#endif // DEBUG
 				// outFlags: 0 = lit, 1 = shadow, 2 = outUV, 3 = outZ, 4 = wZero, 5 = outRange, 6 = outSideCone
 				auto* flags = static_cast<const uint32_t*>(mappedData);
 				for (size_t j = 0; j < testPoints.size(); ++j)
@@ -318,9 +312,12 @@ namespace ecs {
 					switch (flags[j])
 					{
 					case 0: // lit
+#if defied(DEBUG) || defined(_DEBUG)
 						++countLit;
+#endif // DEBUG
 						isLitByAnyLight[j] = true;
 						break;
+#if defined(DEBUG) || defined(_DEBUG)
 					case 1: // shadow
 						++countShadow;
 						break;
@@ -339,25 +336,27 @@ namespace ecs {
 					case 6: // outSideCone
 						++countOutSideCone;
 						break;
+#endif // DEBUG
 					default:
+						isLitByAnyLight[j] = false;
 						break;
 					}
 				}
 				staging_buffer_->Unmap();
 
 #if defined(DEBUG) || defined(_DEBUG)
-				/*
-				DebugLogInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outUV={}, outZ={}, zeroW={}, outRange={}, outSideCone={}",
-					entry.light.id_,
-					countLit,
-					countShadow,
-					countOutUV,
-					countOutZ,
-					countZeroW,
-					countOutRange,
-					countOutSideCone
-				);
-				*/
+
+				//DebugLogInfo("[ShadowTestSystem] Light Entity {}: lit={}, shadow={}, outUV={}, outZ={}, zeroW={}, outRange={}, outSideCone={}",
+				//	entry.light.id_,
+				//	countLit,
+				//	countShadow,
+				//	countOutUV,
+				//	countOutZ,
+				//	countZeroW,
+				//	countOutRange,
+				//	countOutSideCone
+				//);
+
 #endif // DEBUG
 			}
 		}
@@ -412,19 +411,19 @@ namespace ecs {
 	void ShadowTestSystem::CollectTestPoints(Entity _entity, std::vector<DirectX::XMFLOAT3>& _outPoints)
 	{
 		if (ecs_.HasComponent<Collider>(_entity)) {
-			auto& col = ecs_.GetComponent<Collider>(_entity);
+			auto col = ecs_.GetComponent<Collider>(_entity);
 
-			switch (col.type) {
+			switch (col->type) {
 			case collision::ShapeType::Box: {
 				DirectX::XMFLOAT3 corners[8];
-				collision::GetOBBCorners(col.worldOBB, corners);
+				collision::GetOBBCorners(col->worldOBB, corners);
 				for (int i = 0; i < 8; ++i) {
 					_outPoints.push_back(corners[i]);
 				}
 				break;
 			}
 			case collision::ShapeType::Sphere: {
-				collision::GetSphereSamplePoints(col.worldSphere, _outPoints, true);
+				collision::GetSphereSamplePoints(col->worldSphere, _outPoints, true);
 				break;
 			}
 			default:
