@@ -39,6 +39,7 @@ namespace ecs {
 	private:
 		std::vector<uint32_t> versions_{};	// versions_[index] => version
 		std::queue<uint32_t> free_index_{};		// Ä—˜—p‰Â”\‚ÈID
+		std::vector<uint8_t> alive_{};			 // ¶‘¶ŠÇ—
 		uint32_t next_index_ = 0;	// Ÿ‚ÌIndex (0‚ÍNullˆµ‚¢)
 		std::vector<Signature> signatures_{};	// Entity‚ÌSignature
 	};

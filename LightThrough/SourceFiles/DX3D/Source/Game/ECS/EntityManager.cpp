@@ -15,8 +15,11 @@
 namespace ecs {
 	EntityManager::EntityManager()
 	{
-		versions_.resize(1);	// 初期化: 0番目のIndexはNull扱い
+		versions_.resize(1);	// 初期化 // memo: 0番目のIndexはNull扱い
 		versions_[0] = 0;
+
+		alive_.resize(1);		// 生存管理の初期化
+		alive_[0] = 0;
 
 		signatures_.resize(1);
 	}
@@ -49,7 +52,9 @@ namespace ecs {
 			signatures_[index].reset();	// Signatureを初期化
 		}
 
-		uint32_t version = versions_[index];
+		uint32_t version = versions_[index]; // 現在のVersionを取得
+		alive_[index] = 1;	// 生存フラグを立てる
+
 		// Entityを生成
 		return Entity{ ecs::CreateEntity(index, version) };
 	}
@@ -64,6 +69,9 @@ namespace ecs {
 		uint32_t index = _entity.Index();	// EntityのIndexを取得
 		if (index == 0) { return; }	// Indexが0ならnull扱いなので何もしない
 		if (index >= versions_.size()) { return; }
+		if (!IsValid(_entity)) { return; }	// 無効なEntityなら何もしない
+		
+		alive_[index] = 0;	// 生存フラグを下ろす
 
 		versions_[index] = (versions_[index] + 1u) & ecs::VERSION_MASK;	// Versionを進めて無効化
 		if (index < signatures_.size()) {
@@ -82,9 +90,10 @@ namespace ecs {
 		uint32_t index = _entity.Index();	// EntityのIndexを取得
 		if (index == 0) { return false; }
 		if (index >= versions_.size()) { return false; }
+		if (index >= alive_.size()) { return false; }
 
-		// Versionが同じなら有効
-		return versions_[index] == _entity.Version();
+		// 生存かつVersionが同じなら有効
+		return (alive_[index] != 0) && (versions_[index] == _entity.Version());
 	}
 
 
@@ -141,6 +150,7 @@ namespace ecs {
 			// サイズを拡張
 			versions_.resize(_index + 1);
 			signatures_.resize(_index + 1);
+			alive_.resize(_index + 1);
 		}
 	}
 
