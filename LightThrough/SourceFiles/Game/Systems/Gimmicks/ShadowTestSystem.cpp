@@ -338,7 +338,6 @@ namespace ecs {
 						break;
 #endif // DEBUG
 					default:
-						isLitByAnyLight[j] = false;
 						break;
 					}
 				}
