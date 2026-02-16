@@ -79,7 +79,7 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 
 	switch (_msg)
 	{
-		// フォーカスが当たった
+	// フォーカスが当たった
 	case WM_SETFOCUS:
 	{
 		inputSystem.SetFocus(true);
@@ -127,9 +127,10 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 	}
 	// キー
 	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
 	{
-		// F1: Cemera <-> Cursor
-		if (_wparam == VK_F1) {
+		// Camera <-> Cursor
+		if (_wparam == VK_MENU) {
 			if (inputSystem.GetMouseMode() == input::MouseMode::Camera) {
 				inputSystem.SetMouseMode(input::MouseMode::Cursor);
 			}
@@ -140,7 +141,7 @@ static LRESULT CALLBACK WindowProcedure(HWND _hwnd, UINT _msg, WPARAM _wparam, L
 			return 0;
 		}
 
-		// ESC: Disabled
+		// フォーカス解除
 		if (_wparam == VK_ESCAPE) {
 
 			if (inputSystem.GetMouseMode() != input::MouseMode::Disabled)
