@@ -34,6 +34,7 @@ namespace ecs {
 			Entity b;
 			collision::ContactResult contact;
 			std::vector<DirectX::XMFLOAT3> samplePoints;
+			bool shadowSkiped = false; // 影判定でスキップされたか
 		};
 
 		explicit CollisionResolveSystem(const SystemDesc& _desc);

@@ -48,6 +48,9 @@ namespace ecs {
 
 		// 衝突結果の走査
 		for (const auto& c : crs->GetContacts()) {
+			// 陰によりスキップされた衝突は地面判定に使わない
+			if (c.shadowSkiped) { continue; }
+
 			const auto& n = c.contact.normal;
 			DirectX::XMFLOAT3 normalForA = math::Normalize(math::Negate(n));
 			DirectX::XMFLOAT3 normalForB = math::Normalize(n);

@@ -102,12 +102,7 @@ namespace ecs {
 			_col->shapeDirty = false;
 		}
 
-		struct ContactRecord {
-			Entity a;
-			Entity b;
-			collision::ContactResult contact;
-			std::vector<XMFLOAT3> samplePoints;
-		};
+
 
 	} // namespace anonymous
 
@@ -130,7 +125,7 @@ namespace ecs {
 	//! @brief 固定更新
 	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
-		// 初期生成じにすり抜けてしまう問題を避けるため、最初の数フレームは影判定をスキップする
+		// 初期生成時にすり抜けてしまう問題を避けるため、最初の数フレームは影判定をスキップする (応急的な措置ではあるので、一フレームは必ずdeltaTimeを0にするような仕組みがあるといいかも。)
 		constexpr float SHADOW_SKIP_Time = 1.0f;
 		if (time_ < SHADOW_SKIP_Time) { time_ += _fixedDt; }
 		bool skipShadowCheck = (time_ < SHADOW_SKIP_Time);
@@ -227,10 +222,12 @@ namespace ecs {
 			if (!skipShadowCheck) {
 				std::pair<Entity, Entity> key = std::minmax(rec.a, rec.b);
 				if (shadow_skip_pairs_.count(key)) {
+					rec.shadowSkiped = true;
 					continue; // スキップ対象なら即スキップ
 				}
 				if (shadow_collision_enabled_ && shadow && shadow->AreBothInShadow(rec.a, rec.b)) {
 					shadow_skip_pairs_.insert(key); // 今回新たにスキップ対象に追加
+					rec.shadowSkiped = true;
 					continue;
 				}
 			}
@@ -241,7 +238,7 @@ namespace ecs {
 			auto tfA = ecs_.GetComponent<Transform>(rec.a);
 			auto tfB = ecs_.GetComponent<Transform>(rec.b);
 
-			// ---------- 押し出し（位置補正） ----------
+			// ---------- 押し出し（位置補正） ---------- //
 			auto [dispA, dispB] =
 				collision::ComputePushOut(rec.contact, colA->isStatic, colB->isStatic, solve_percent_, solve_slop_);
 
@@ -257,7 +254,7 @@ namespace ecs {
 				UpdateColliderWorldFromTransform(rec.b, tfB, colB);
 			}
 
-			// ---------- インパルス解決 ----------
+			// ---------- インパルス解決 ---------- //
 			// ここでは "Static-Static" はスキップ、"Dynamic-Dynamic" と "Static-Dynamic" を扱う
 			if (colA->isStatic && colB->isStatic) {
 				continue; // 両方 static => 何もしない
@@ -312,7 +309,7 @@ namespace ecs {
 				rbB->linearVelocity = math::Add(rbB->linearVelocity, math::Scale(impulseN, invB));
 			}
 
-			// ---------- 摩擦処理 ----------
+			// ---------- 摩擦処理 ---------- //
 			XMFLOAT3 t = math::Sub(vRel, math::Scale(rec.contact.normal, vRelN));
 			const float tLen = math::Length(t);
 			if (tLen > 1e-6f) {
