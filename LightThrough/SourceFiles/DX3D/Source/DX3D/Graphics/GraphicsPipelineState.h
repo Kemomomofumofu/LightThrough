@@ -24,8 +24,8 @@ namespace dx3d {
 		FillMode fillMode = FillMode::Solid;
 		CullMode cullMode = CullMode::Back;
 		bool frontCounterClockwise = true;
-		int depthBias = 1;
-		float slopeScaledDepthBias = 3.0f;
+		int depthBias = 0;
+		float slopeScaledDepthBias = 0.0f;
 		float depthBiasClamp = 0.0f;
 		bool depthClipEnable = true;
 		bool scissorEnable = false;

@@ -37,10 +37,19 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
     // ライト位置からポイントへのベクトルと距離
     float3 toPoint = P - lightPos;
     float dist = length(toPoint);
+    // ライト方向へ少しオフセット
+    float3 toLight = normalize(-toPoint);
+    float normalBias = 0.5f;
+    float3 biasedP = P + toLight * normalBias;
     
     // クリップ座標に変換
-    float4 clip = mul(float4(P, 1.0f), lightViewProj);
-
+    float4 clip = mul(float4(biasedP, 1.0f), lightViewProj);
+    // wが0に近い場合
+    if (abs(clip.w) < 1e-6f)
+    {
+        outFlags[idx] = 4u;
+        return;
+    }    
     float3 ndc = clip.xyz / clip.w;
     
     // UV座標変換
@@ -56,12 +65,6 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
     if (uvw.z < 0.0f || uvw.z > 1.0f)
     {
         outFlags[idx] = 3u; // 範囲外扱い
-        return;
-    }
-    // wが0に近い場合
-    if (abs(clip.w) < 1e-6f)
-    {
-        outFlags[idx] = 4u;
         return;
     }
     
@@ -83,11 +86,10 @@ void CSMain(uint3 _tid : SV_DispatchThreadID)
 
     
     // SampleCmpLevelZero: uvw.z <= stored なら 1.0 (光の中)
-    float bias = 0.000025f;
     float shadowFactor = shadowMap.SampleCmpLevelZero(
         shadowSampler,
         float3(uvw.xy, sliceIndex),
-        uvw.z - bias
+        uvw.z
     );
     
     // shadowFactor: 1.0 = 光の中, 0.0 = 影

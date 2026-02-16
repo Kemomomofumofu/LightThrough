@@ -83,7 +83,7 @@ namespace ecs
 
 		{
 			D3D11_SAMPLER_DESC sd{};
-			sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+			sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 			sd.AddressU = sd.AddressV = sd.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
 			sd.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 			sd.BorderColor[0] = sd.BorderColor[1] = sd.BorderColor[2] = sd.BorderColor[3] = 1.0f;

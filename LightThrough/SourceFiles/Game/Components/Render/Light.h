@@ -160,7 +160,7 @@ namespace ecs {
 		}
 		else {
 			float orthoSize = 20.0f;
-			proj = XMMatrixOrthographicLH(orthoSize * 2.0f, orthoSize * 2.0f, 0.1f, 1000.0f);
+			proj = XMMatrixOrthographicLH(orthoSize * 2.0f, orthoSize * 2.0f, _nearZ, 1000.0f);
 		}
 
 		return { view, proj };

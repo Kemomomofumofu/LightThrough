@@ -23,6 +23,7 @@ float CalcShadowFactor(float3 _worldPos, int _shadowIndex, row_major float4x4 _l
     }
     
     float4 lightPos = mul(float4(_worldPos, 1), _lightVP);
+    if( abs(lightPos.w) < 1e-6f ) { return 1.0f; }
     float3 uvw = lightPos.xyz / lightPos.w;
     
     // UV•ÏŠ·
@@ -34,11 +35,10 @@ float CalcShadowFactor(float3 _worldPos, int _shadowIndex, row_major float4x4 _l
         return 1.0f; // Œõ‘¤
     }
     
-    float bias = 0.0f;
     return shadowMap.SampleCmpLevelZero(
         shadowSampler,
         float3(uvw.xy, _shadowIndex),
-        uvw.z - bias
+        uvw.z
     );
 }
 
