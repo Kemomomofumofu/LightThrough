@@ -312,7 +312,7 @@ namespace ecs {
 					switch (flags[j])
 					{
 					case 0: // lit
-#if defied(DEBUG) || defined(_DEBUG)
+#if defined(DEBUG) || defined(_DEBUG)
 						++countLit;
 #endif // DEBUG
 						isLitByAnyLight[j] = true;
