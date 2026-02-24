@@ -17,8 +17,6 @@ namespace ecs {
 		virtual void Init() override;
 		virtual void Update(float _dt) override;
 
-		void DebugTitleScene();
-
 	private:
 		float time_sec_ = 0.0f;
 

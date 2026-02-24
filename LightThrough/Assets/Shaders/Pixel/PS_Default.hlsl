@@ -59,7 +59,6 @@ float4 PSMain(PSIN _pin) : SV_Target
         // シャドウ計算
         int shadowIndex = (int) lights[i].spotAngles_shadowIndex.z;
         float shadowFactor = CalcShadowFactor(_pin.worldPos, shadowIndex, lightViewProjs[i]);
-        //float shadowFactor = 1.0f; // シャドウ無効化
         
         
         float effectiveLight = li * shadowFactor;
@@ -70,8 +69,6 @@ float4 PSMain(PSIN _pin) : SV_Target
     // 光が当たっていない場合は破棄
     if (totalLight <= 0.0f)
     {
-
-        // return float4(1, 0, 1, 0.2);
         discard;
     }
 

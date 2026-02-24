@@ -18,7 +18,7 @@
 namespace dx3d {
 	class GraphicsEngine;
 	class Texture;
-	class Mesh;
+	struct Mesh;
 }
 
 namespace ecs {
