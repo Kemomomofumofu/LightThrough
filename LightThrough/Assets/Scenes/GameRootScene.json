@@ -1,0 +1,166 @@
+{
+  "entities": [
+    {
+      "components": {
+        "ecs::Collider": {
+          "box": {
+            "halfExtents": {
+              "x": 0.5,
+              "y": 0.5,
+              "z": 0.5
+            }
+          },
+          "isStatic": false,
+          "isTrigger": false,
+          "sphere": {
+            "radius": 0.5
+          },
+          "type": 1
+        },
+        "ecs::GroundContact": {
+          "isGrounded": true
+        },
+        "ecs::MoveDirectionSource": {
+          "targetName": "PlayerCamera"
+        },
+        "ecs::Name": {
+          "value": "Player"
+        },
+        "ecs::PlayerController": {
+          "handLightName": "PlayerSpotLight",
+          "jumpForce": 6.5,
+          "moveSpeed": 25.0
+        },
+        "ecs::Rigidbody": {
+          "angularDrag": 1.0,
+          "drag": 2.0,
+          "friction": 1.0,
+          "isKinematic": false,
+          "isStatic": false,
+          "mass": 1.0,
+          "restitution": 0.0,
+          "useGravity": true
+        },
+        "ecs::Transform": {
+          "position": {
+            "x": -0.11505254358053207,
+            "y": 0.9876113533973694,
+            "z": 5.076033592224121
+          },
+          "rotationQuat": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 1
+    },
+    {
+      "components": {
+        "ecs::LightCommon": {
+          "color": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.0
+          },
+          "enabled": false,
+          "intensity": 100.0
+        },
+        "ecs::Name": {
+          "value": "PlayerSpotLight"
+        },
+        "ecs::ObjectChild": {
+          "rootName": "PlayerCamera"
+        },
+        "ecs::SpotLight": {
+          "innerCos": 1.0,
+          "outerCos": 0.800000011920929,
+          "range": 100.0
+        },
+        "ecs::Transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotationQuat": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 2
+    },
+    {
+      "components": {
+        "ecs::Camera": {
+          "aspectRatio": 1.7777777910232544,
+          "farZ": 100.0,
+          "fovY": 100.0,
+          "isActive": true,
+          "isMain": true,
+          "nearZ": 0.10000000149011612
+        },
+        "ecs::CameraController": {
+          "enableMove": false,
+          "invertY": false,
+          "mode": 0,
+          "mouseSensitivity": 0.0020000000949949026,
+          "moveSpeed": 5.0,
+          "orbitDistance": 5.0,
+          "orbitPitch": 0.13079412281513214,
+          "orbitTarget": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "orbitYaw": 1.8999505043029785,
+          "pitch": 0.09479638934135437,
+          "yaw": 3.1505470275878906
+        },
+        "ecs::Name": {
+          "value": "PlayerCamera"
+        },
+        "ecs::ObjectChild": {
+          "rootName": "Player"
+        },
+        "ecs::Transform": {
+          "position": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.0
+          },
+          "rotationQuat": {
+            "w": -0.004471996333450079,
+            "x": -0.0002121234283549711,
+            "y": 0.9988669157028198,
+            "z": -0.047379978001117706
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 3
+    }
+  ],
+  "sceneId": "GameRootScene",
+  "sceneName": "GameRootScene",
+  "version": 1
+}

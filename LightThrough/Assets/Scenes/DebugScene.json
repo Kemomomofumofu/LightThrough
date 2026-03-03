@@ -1,0 +1,58 @@
+{
+    "entities": [
+        {
+            "components": {
+                "ecs::Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 100.0,
+                    "fovY": 100.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 0.10000000149011612
+                },
+                "ecs::CameraController": {
+                    "enableMove": true,
+                    "invertY": false,
+                    "mode": 0,
+                    "mouseSensitivity": 0.0020000000949949026,
+                    "moveSpeed": 5.0,
+                    "orbitDistance": 5.0,
+                    "orbitPitch": 0.13079412281513214,
+                    "orbitTarget": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "orbitYaw": 1.8999505043029785,
+                    "pitch": 1.022796630859375,
+                    "yaw": 13.964500427246094
+                },
+                "ecs::Name": {
+                    "value": "PlayerCamera"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": -10.084277153015137,
+                        "y": 14.567534446716309,
+                        "z": 10.472691535949707
+                    },
+                    "rotationQuat": {
+                        "w": 0.6675142049789429,
+                        "x": 0.37460631132125854,
+                        "y": 0.5611730813980103,
+                        "z": -0.3149280548095703
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 1
+        }
+    ],
+    "sceneId": "DebugScene",
+    "sceneName": "DebugScene",
+    "version": 1
+}

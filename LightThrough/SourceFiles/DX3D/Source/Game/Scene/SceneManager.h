@@ -29,8 +29,6 @@ namespace scene {
 
 	/**
 	 * @brief Scene管理クラス。
-	 *
-	 * シーンはイベントフックで切り替える。
 	 */
 	class SceneManager : public dx3d::Base {
 	public:
@@ -63,6 +61,13 @@ namespace scene {
 		 */
 		bool SaveActiveScene();
 		/**
+		 * @brief Sceneの保存
+		 * @param _id 保存するSceneDataのID
+		 * @return 成功: true, 失敗: false
+		 */
+		bool SaveScene(const SceneData::Id& _id);
+
+		/**
 		* @brief ファイルからSceneDataを読み込む
 		* @param _path	: ファイルパス
 		* @param _id	: シーンID
@@ -71,11 +76,32 @@ namespace scene {
 		bool LoadSceneFromFile(const std::string& _name);
 
 		/**
+		 * @brief シーンをプリロードする
+		 * @param _name : シーンID
+		 * @return 成功: True, 失敗: False
+		 */
+		bool PreloadScene(const std::string& _name);
+
+		/**
+		 * @brief プリロードされたシーンを有効化する
+		 * @param _name : シーン名
+		 * @return 成功: True, 失敗: False
+		 */
+		bool ActivatePreloadedScene(const std::string& _name);
+
+		/**
 		 * @brief Scene切り替え
-		 * @param _newScene 新しいシーンID
+		 * @param _newScene : 新しいシーンID
 		 * @return 成功: True、失敗: False
 		 */
 		bool ChangeScene(const SceneData::Id& _newScene, bool _unloadPrev = true);
+
+		/**
+		 * @brief シーンの追加
+		 * @param _id 追加するシーンID
+		 * @return 成功: True, 失敗: False
+		 */
+		bool AddScene(const SceneData::Id& _id);
 
 		/**
 		 * @brief アクティブなシーンをリロード
@@ -117,13 +143,6 @@ namespace scene {
 		const std::vector<ecs::Entity>& GetEntitiesInScene(const SceneData::Id& _id) const;
 
 		/**
-		 * @brief Entityを永続化するかどうかを設定
-		 * @param _e			: Entity
-		 * @param _persistent	: 永続化するかどうか
-		 */
-		void MarkPersistentEntity(ecs::Entity _e, bool _persistent = true); // Entityを永続化するかどうか
-
-		/**
 		 * @brief Entity破棄時コールバック
 		 * @param _e 破棄されたEntity
 		 */
@@ -144,8 +163,8 @@ namespace scene {
 	private:
 		ecs::Coordinator& ecs_;
 		std::unordered_map<SceneData::Id, SceneData> scenes_{};		// シーン一覧
+		std::unordered_map<std::string, SceneData> preloaded_scenes_{};	// プリロードされたシーン一覧
 		std::optional<SceneData::Id> active_scene_{};				// アクティブなシーンID
-		std::unordered_set<ecs::Entity> persistent_entities_{};		// 永続化するEntity一覧
 		std::unique_ptr<ecs_serial::SceneSerializer> serializer_{};	// シーンシリアライザー
 
 
@@ -155,5 +174,8 @@ namespace scene {
 		void DebugCurrentScene();
 	private:
 		std::optional<ecs::Entity> debug_selected_entity_{};
+		std::string debug_scene_name_input_{};
+		std::string debug_load_name_input_{};
+		std::optional<SceneData::Id> debug_selected_scene_{};
 	};
 }

@@ -10,165 +10,6 @@
                             "z": 0.5
                         }
                     },
-                    "isStatic": false,
-                    "isTrigger": false,
-                    "sphere": {
-                        "radius": 0.5
-                    },
-                    "type": 1
-                },
-                "ecs::GroundContact": {
-                    "isGrounded": true
-                },
-                "ecs::MoveDirectionSource": {
-                    "targetName": "PlayerCamera"
-                },
-                "ecs::Name": {
-                    "value": "Player"
-                },
-                "ecs::PlayerController": {
-                    "handLightName": "PlayerSpotLight",
-                    "jumpForce": 6.5,
-                    "moveSpeed": 25.0
-                },
-                "ecs::Rigidbody": {
-                    "angularDrag": 1.0,
-                    "drag": 2.0,
-                    "friction": 1.0,
-                    "isKinematic": false,
-                    "isStatic": false,
-                    "mass": 1.0,
-                    "restitution": 0.0,
-                    "useGravity": true
-                },
-                "ecs::Transform": {
-                    "position": {
-                        "x": -0.11505254358053207,
-                        "y": 0.9876113533973694,
-                        "z": 5.076033592224121
-                    },
-                    "rotationQuat": {
-                        "w": 1.0,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "scale": {
-                        "x": 1.0,
-                        "y": 1.0,
-                        "z": 1.0
-                    }
-                }
-            },
-            "id": 1
-        },
-        {
-            "components": {
-                "ecs::LightCommon": {
-                    "color": {
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 1.0
-                    },
-                    "enabled": false,
-                    "intensity": 100.0
-                },
-                "ecs::Name": {
-                    "value": "PlayerSpotLight"
-                },
-                "ecs::ObjectChild": {
-                    "rootName": "PlayerCamera"
-                },
-                "ecs::SpotLight": {
-                    "innerCos": 1.0,
-                    "outerCos": 0.800000011920929,
-                    "range": 100.0
-                },
-                "ecs::Transform": {
-                    "position": {
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "rotationQuat": {
-                        "w": 1.0,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "scale": {
-                        "x": 1.0,
-                        "y": 1.0,
-                        "z": 1.0
-                    }
-                }
-            },
-            "id": 2
-        },
-        {
-            "components": {
-                "ecs::Camera": {
-                    "aspectRatio": 1.7777777910232544,
-                    "farZ": 100.0,
-                    "fovY": 100.0,
-                    "isActive": true,
-                    "isMain": true,
-                    "nearZ": 0.10000000149011612
-                },
-                "ecs::CameraController": {
-                    "enableMove": false,
-                    "invertY": false,
-                    "mode": 0,
-                    "mouseSensitivity": 0.0020000000949949026,
-                    "moveSpeed": 5.0,
-                    "orbitDistance": 5.0,
-                    "orbitPitch": 0.13079412281513214,
-                    "orbitTarget": {
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "orbitYaw": 1.8999505043029785,
-                    "pitch": 0.09479638934135437,
-                    "yaw": 3.1505470275878906
-                },
-                "ecs::Name": {
-                    "value": "PlayerCamera"
-                },
-                "ecs::ObjectChild": {
-                    "rootName": "Player"
-                },
-                "ecs::Transform": {
-                    "position": {
-                        "x": 0.0,
-                        "y": 1.0,
-                        "z": 0.0
-                    },
-                    "rotationQuat": {
-                        "w": -0.004471996333450079,
-                        "x": -0.0002121234283549711,
-                        "y": 0.9988669157028198,
-                        "z": -0.047379978001117706
-                    },
-                    "scale": {
-                        "x": 1.0,
-                        "y": 1.0,
-                        "z": 1.0
-                    }
-                }
-            },
-            "id": 3
-        },
-        {
-            "components": {
-                "ecs::Collider": {
-                    "box": {
-                        "halfExtents": {
-                            "x": 0.5,
-                            "y": 0.5,
-                            "z": 0.5
-                        }
-                    },
                     "isStatic": true,
                     "isTrigger": false,
                     "sphere": {
@@ -201,7 +42,7 @@
                     }
                 }
             },
-            "id": 4
+            "id": 16777218
         },
         {
             "components": {
@@ -218,14 +59,14 @@
                     "value": "StartLight"
                 },
                 "ecs::SpotLight": {
-                    "innerCos": 1.0,
-                    "outerCos": 0.800000011920929,
+                    "innerAngleRad": 0.49000000953674316,
+                    "outerAngleRad": 0.5,
                     "range": 50.0
                 },
                 "ecs::Transform": {
                     "position": {
                         "x": 0.0,
-                        "y": 11.050000190734863,
+                        "y": 10.0,
                         "z": 0.0
                     },
                     "rotationQuat": {
@@ -241,7 +82,7 @@
                     }
                 }
             },
-            "id": 5
+            "id": 16777219
         },
         {
             "components": {
@@ -258,8 +99,8 @@
                     "value": "GoalLight"
                 },
                 "ecs::SpotLight": {
-                    "innerCos": 0.8999999761581421,
-                    "outerCos": 0.800000011920929,
+                    "innerAngleRad": 0.49000000953674316,
+                    "outerAngleRad": 0.5,
                     "range": 50.0
                 },
                 "ecs::Transform": {
@@ -281,7 +122,7 @@
                     }
                 }
             },
-            "id": 6
+            "id": 16777220
         },
         {
             "components": {
@@ -318,9 +159,9 @@
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": -0.04106812924146652,
-                        "y": 1.487287163734436,
-                        "z": 1.913218379020691
+                        "x": 0.49521300196647644,
+                        "y": 1.4893710613250732,
+                        "z": 3.9233055114746094
                     },
                     "rotationQuat": {
                         "w": 1.0,
@@ -335,7 +176,7 @@
                     }
                 }
             },
-            "id": 7
+            "id": 16777221
         },
         {
             "components": {
@@ -379,10 +220,10 @@
                     }
                 }
             },
-            "id": 8
+            "id": 16777222
         }
     ],
-    "sceneId": "TestScene",
-    "sceneName": "TestScene",
+    "sceneId": "Stage_1",
+    "sceneName": "Stage_1",
     "version": 1
 }

@@ -197,7 +197,13 @@ namespace dx3d {
 			RegisterAllComponents(*ecs_coordinator_);
 
 			// Sceneの生成・読み込み・アクティベート
-			ChangeScene("TestScene");
+#if defined(_DEBUG) || defined(DEBUG)
+			scene_manager_->AddScene("DebugScene");
+#else
+			scene_manager_->AddScene("GameRootScene");
+#endif
+			ChangeScene("Stage_2");
+
 
 			// Systemの登録
 			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_, graphics_engine_->GetMeshRegistry(), graphics_engine_->GetTextureRegistry()};
@@ -296,7 +302,7 @@ namespace dx3d {
 		// 描画
 		graphics_engine_->EndFrame();
 
-#ifdef defined(_DEBUG) || defined(DEBUG)
+#if defined(_DEBUG) || defined(DEBUG)
 		if (auto* dev = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get()) {
 			const HRESULT hr = dev->GetDeviceRemovedReason();
 			if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || FAILED(hr)) {

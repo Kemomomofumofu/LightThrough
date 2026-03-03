@@ -237,7 +237,6 @@ namespace scene {
 		try {
 			SceneData scene = serializer_->DeserializeScene(_name);
 			auto& id = scene.id_;	// moveの後で使うためキャッシュ
-			active_scene_ = id;	// アクティブに
 			scenes_.emplace(id, std::move(scene));	// シーンの追加
 			return true;
 		}
@@ -245,6 +244,47 @@ namespace scene {
 			GameLogFError("[SceneManager] シーンの読み込みに失敗: {} ", std::string(e.what()));
 			return false;
 		}
+	}
+
+	//! @brief シーンをプリロードする
+	bool SceneManager::PreloadScene(const std::string& _name)
+	{
+		// すでに読み込み済み
+		if (preloaded_scenes_.find(_name) != preloaded_scenes_.end()) {
+			DebugLogError("[SceneManager] すでにプリロードされたシーン: {}", _name);
+			return false;
+		}
+		// すでに存在
+		if (scenes_.find(_name) != scenes_.end()) {
+			DebugLogError("[SceneManager] すでに存在するシーン: {}", _name);
+			return false;
+		}
+
+
+		try {
+			SceneData scene = serializer_->DeserializeScene(_name);
+			preloaded_scenes_.emplace(_name, std::move(scene));
+			return true;
+		}
+		catch (const std::exception& _e) {
+			DebugLogError("[SceneManager] シーンのプリロードに失敗: {}", std::string(_e.what()));
+			return false;
+		}
+	}
+
+	//! @brief プリロードされたシーンをアクティブにする
+	bool SceneManager::ActivatePreloadedScene(const std::string& _name)
+	{
+		auto it = preloaded_scenes_.find(_name);
+		if(it == preloaded_scenes_.end()) {
+			DebugLogError("[SceneManager] プリロードされたシーンが見つからない: {}", _name);
+			return false;
+		}
+
+		auto& id = it->second.id_;
+		scenes_.emplace(id, std::move(it->second));
+		preloaded_scenes_.erase(it);
+		return true;
 	}
 
 	//! @brief シーン切り替え
@@ -265,6 +305,22 @@ namespace scene {
 
 		return true;
 	}
+
+	//! @brief シーンの追加
+	bool SceneManager::AddScene(const SceneData::Id& _id)
+	{
+		if (scenes_.find(_id) != scenes_.end()) { return false; }
+		try {
+			SceneData scene = serializer_->DeserializeScene(_id);
+			scenes_.emplace(_id, std::move(scene));
+			return true;
+		}
+		catch (const std::exception& _e) {
+			DebugLogError("[SceneManager] シーンの追加に失敗: {}", std::string(_e.what()));
+			return false;
+		}
+	}
+
 
 	//! @brief アクティブなSceneDataをリロードする
 	bool SceneManager::ReloadActiveScene()
@@ -309,6 +365,18 @@ namespace scene {
 		return serializer_->SerializeScene(it->second);
 	}
 
+	//! @brief Sceneの保存
+	bool SceneManager::SaveScene(const SceneData::Id& _id)
+	{
+		auto it = scenes_.find(_id);
+		if (it == scenes_.end()) {
+			DebugLogError("[SceneManager] シーンが存在しない: {}", _id);
+			return false;
+		}
+
+		return serializer_->SerializeScene(it->second);
+	}
+
 
 
 	//! @brief SceneDataのアンロード
@@ -329,7 +397,6 @@ namespace scene {
 			toDestroy.reserve(it->second.entities_.size());
 
 			for (auto e : it->second.entities_) {
-				if (persistent_entities_.count(e)) { continue; } // 永続化されているなら削除しない
 				toDestroy.push_back(e);
 			}
 
@@ -410,23 +477,11 @@ namespace scene {
 		} // 存在しないシーン
 		return it->second.entities_;
 	}
-	
-	//! @brief Entityを永続化するかどうか
-	void SceneManager::MarkPersistentEntity(ecs::Entity _e, bool _persistent)
-	{
-		if (_persistent) {
-			persistent_entities_.insert(_e);
-		}
-		else {
-			persistent_entities_.erase(_e);
-		}
-	}
+
 
 	//! @brief Entity破棄時コールバック
 	void SceneManager::OnEntityDestroyed(ecs::Entity _e)
 	{
-		// 永続化リストから削除
-		persistent_entities_.erase(_e);
 		// すべてのシーンから削除
 		for (auto& kv : scenes_) {
 			auto& ents = kv.second.entities_;
@@ -463,10 +518,108 @@ namespace scene {
 
 
 		// ---------- Scene ---------- // 
-		ImGui::BeginChild("ScenePane", ImVec2(leftW, 0), true);
+		// LoadScene
+		{
+			ImGui::BeginChild("ScenePane", ImVec2(leftW, 0), true);
+
+			ImGui::Text("Scene Ops");
+			ImGui::Separator();
+
+			// シーン名入力
+			char buf[256]{};
+			std::snprintf(buf, sizeof(buf), "%s", debug_load_name_input_.c_str());
+			if (ImGui::InputText("LoadName", buf, sizeof(buf))) {
+				debug_load_name_input_ = buf;
+			}
+
+			// シーンロードボタン
+			if (ImGui::Button("Load Scene")) {
+				if (!debug_load_name_input_.empty()) {
+					bool ok = LoadSceneFromFile(debug_load_name_input_);
+					if (ok) {
+						debug_selected_scene_ = *active_scene_; // ロードしたシーンを選択状態にする
+						debug_selected_entity_.reset();
+					}
+				}
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Reload Active Scene")) {
+				ReloadActiveScene();
+				debug_selected_entity_.reset();
+			}
+		}
+
+		// Create Scene
+		{
+			char buf[256]{};
+			std::snprintf(buf, sizeof(buf), "%s", debug_scene_name_input_.c_str());
+			if (ImGui::InputText("NewSceneName", buf, sizeof(buf))) {
+				debug_scene_name_input_ = buf;
+			}
+
+			if (ImGui::Button("Create Scene")) {
+				if (!debug_scene_name_input_.empty()) {
+					auto id = CreateScene(debug_scene_name_input_);
+					debug_selected_scene_ = id;
+				}
+			}
+		}
+
+		ImGui::Spacing();
+		ImGui::Separator();
+
+		// Selected Scene ops
+		SceneData::Id targetScene;
+		bool hasTarget = false;
+
+		if (debug_selected_scene_) {
+			targetScene = *debug_selected_scene_;
+			hasTarget = true;
+		}
+
+		if (hasTarget) {
+			ImGui::Text("Target: %s", targetScene.c_str());
+
+			if (ImGui::Button("Set Active")) {
+				SetActiveScene(targetScene, false);
+				debug_selected_entity_.reset();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Save")) {
+				SaveScene(targetScene);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Unload")) {
+				ImGui::OpenPopup("ConfirmUnloadScene");
+			}
+
+			if (ImGui::BeginPopupModal("ConfirmUnloadScene", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+				ImGui::Text("Unload scene '%s' ?", targetScene.c_str());
+				ImGui::Separator();
+
+				if (ImGui::Button("OK")) {
+					if (active_scene_ && *active_scene_ == targetScene) {
+						DebugLogError("[SceneManager] アクティブなシーンはアンロードできません\n");
+					}
+					else {
+						UnloadScene(targetScene, true);
+					}
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel")) {
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+		}
+		else {
+			ImGui::TextDisabled("No target scene.");
+		}
+
 		ImGui::Text("Scenes");
 		ImGui::Separator();
-		// アクティブなScene
+		// 選択されているScene
 		const char* activeName = "<none>";
 		if (active_scene_) {
 			activeName = active_scene_->c_str();
@@ -476,12 +629,33 @@ namespace scene {
 		if (ImGui::CollapsingHeader("Loaded Scenes", ImGuiTreeNodeFlags_DefaultOpen)) {
 			for (auto& kv : scenes_) {
 				const std::string& id = kv.first;
+
 				bool isActive = (active_scene_ && *active_scene_ == id);
+				bool isSelected = (debug_selected_scene_ && *debug_selected_scene_ == id);
+
 				ImGui::PushID(id.c_str());
-				if (ImGui::Selectable(id.c_str(), isActive)) {
-					SetActiveScene(id, false);
+
+				// 選択の見た目を isSelected にしたいなら第2引数を isSelected にする
+				if (ImGui::Selectable(id.c_str(), isSelected)) {
+					debug_selected_scene_ = id;
 					debug_selected_entity_.reset();
 				}
+
+				// Activeにする操作は別ボタンに分ける（誤爆防止）
+				if (isSelected) {
+					ImGui::SameLine();
+					if (ImGui::SmallButton("Activate")) {
+						SetActiveScene(id, false);
+						debug_selected_entity_.reset();
+					}
+				}
+
+				// Active表示
+				if (isActive) {
+					ImGui::SameLine();
+					ImGui::TextDisabled("(Active)");
+				}
+
 				ImGui::PopID();
 			}
 		}
@@ -504,20 +678,20 @@ namespace scene {
 			nameComp.value = "Entity_" + std::to_string(e.Index());
 			ecs_.AddComponent<ecs::Name>(e, nameComp);
 
-			// アクティブ Scene に登録
-			if (active_scene_) {
-				AddEntityToScene(*active_scene_, e);
+			// Scene に登録
+			if (debug_selected_scene_) {
+				AddEntityToScene(*debug_selected_scene_, e);
 			}
 		}
 
 
-		if (!active_scene_) {
-			ImGui::TextUnformatted("Active scene is not loaded.");
+		if (!debug_selected_scene_) {
+			ImGui::TextUnformatted("No scene selected.");
 		}
 		else {
-			auto it = scenes_.find(*active_scene_);
+			auto it = scenes_.find(*debug_selected_scene_);
 			if (it == scenes_.end()) {
-				ImGui::TextUnformatted("Active scene is not loaded.");
+				ImGui::TextUnformatted("Selected scene is not loaded.");
 			}
 			else {
 				auto& ents = it->second.entities_;
