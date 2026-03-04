@@ -27,6 +27,11 @@ namespace scene {
 		ecs::Coordinator& ecs;
 	};
 
+	struct SceneTransitionInfo {
+		DirectX::XMFLOAT3 goalPosition{};	// 前シーンのゴール位置
+		std::string startPointName = "StartLight";	// 次シーンのスタートEntity名
+	};
+
 	/**
 	 * @brief Scene管理クラス。
 	 */
@@ -97,6 +102,30 @@ namespace scene {
 		bool ChangeScene(const SceneData::Id& _newScene, bool _unloadPrev = true);
 
 		/**
+		 * @brief Scene切り替えリクエスト
+		 * @param _newScene : 新しいシーンID
+		 */
+		void RequestChangeScene(const SceneData::Id& _newScene);
+		/**
+		 * @brief Scene切り替えリクエスト（遷移情報付き）
+		 * @param _newScene : 新しいシーンID
+		 * @param _info : シーン遷移情報
+		 */
+		void RequestChangeScene(const SceneData::Id& _newScene, const SceneTransitionInfo& _info);
+
+		/**
+		 * @brief 保留中のシーン切り替えリクエストを実行
+		 * @return 成功: True、失敗: False
+		 */
+		bool FlushSceneChangeRequest();
+
+		/**
+		 * @brief 保留中のシーン切り替えリクエストがあるか
+		 * @return True: ある, False: ない
+		 */
+		bool HasPendingSceneChange() const { return pending_scene_change_.has_value(); }
+
+		/**
 		 * @brief シーンの追加
 		 * @param _id 追加するシーンID
 		 * @return 成功: True, 失敗: False
@@ -148,9 +177,22 @@ namespace scene {
 		 */
 		void OnEntityDestroyed(ecs::Entity _e);
 
+		/**
+		 * @brief 保留中のシーン遷移情報を取得
+		 * @return 保留中のシーン遷移情報, 無い場合: nullopt
+		 */
+		const std::optional<SceneTransitionInfo>& GetPendingTransitionInfo() const { return pending_transition_info_; }
+		
+		/**
+		 * @brief 保留中のシーン遷移情報を削除
+		 */
+		void ClearPendingTransitionInfo() { pending_transition_info_.reset(); }
+
 		// イベント [ToDo] まだ仮置き
 		//OnSceneEvent OnAfterSceneUnload;
 		//OnSceneEvent OnBeforeSceneLoad;
+
+
 
 	private:
 		/**
@@ -165,6 +207,8 @@ namespace scene {
 		std::unordered_map<SceneData::Id, SceneData> scenes_{};		// シーン一覧
 		std::unordered_map<std::string, SceneData> preloaded_scenes_{};	// プリロードされたシーン一覧
 		std::optional<SceneData::Id> active_scene_{};				// アクティブなシーンID
+		std::optional<SceneData::Id> pending_scene_change_{};		// 保留中のシーン変更
+		std::optional<SceneTransitionInfo> pending_transition_info_{};	// 保留中のシーン遷移情報（シーン切り替えとセットで使用）
 		std::unique_ptr<ecs_serial::SceneSerializer> serializer_{};	// シーンシリアライザー
 
 

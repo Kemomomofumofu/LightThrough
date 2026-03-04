@@ -49,6 +49,11 @@ namespace dx3d {
 		 * @param _newScene 新しいシーンID
 		 */
 		void ChangeScene(const scene::SceneData::Id& _newScene);
+
+		/**
+		 * @brief シーン遷移のオフセットを適用
+		 */
+		void ApplySceneTransitionOffset();
 	private:
 		std::unique_ptr<Logger>logger_ptr_{};
 		std::unique_ptr<GraphicsEngine> graphics_engine_{};

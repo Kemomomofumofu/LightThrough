@@ -26,8 +26,6 @@ namespace ecs {
 	using namespace DirectX;
 
 	namespace {
-
-
 		template <class ...Ts>
 		struct Overloaded : Ts... { using Ts::operator()...; };
 		template <class... Ts>
@@ -55,6 +53,19 @@ namespace ecs {
 				},
 				_a->shape, _b->shape
 			);
+		}
+
+		// コライダーのワールド中心を取得するヘルパー
+		XMFLOAT3 GetColliderWorldCenter(const Collider* _col)
+		{
+			switch (_col->type) {
+			case collision::ShapeType::Sphere:
+				return _col->worldSphere.center;
+			case collision::ShapeType::Box:
+				return _col->worldOBB.center;
+			default:
+				return { 0, 0, 0 };
+			}
 		}
 
 		// Transform 変更直後に Collider の world 情報を即時更新するヘルパー
@@ -152,8 +163,14 @@ namespace ecs {
 			RegisterShadowTestPoints();
 		}
 
-		// test
+		// ---------- 影判定実行 ---------- //
 		shadow->ExecuteShadowTests();
+
+		// ---------- 影判定結果に基づくフィルタリング ---------- //
+		ShadowFilterCollisions();
+
+		// ---------- トリガーイベント処理 ---------- //
+		ProcessTriggerEvents();
 
 		// ---------- 解決フェーズ ---------- //
 		SolvePenetration();
@@ -169,6 +186,7 @@ namespace ecs {
 	void CollisionResolveSystem::OnSceneLoaded()
 	{
 		contact_records_.clear();
+		trigger_records_.clear();
 		shadow_skip_pairs_.clear();
 		time_ = 0.0f;
 	}
@@ -177,6 +195,7 @@ namespace ecs {
 	void CollisionResolveSystem::CollectCollisionPairs(std::unordered_set<std::pair<Entity, Entity>, EntityPairHash>& _currentContacts)
 	{
 		contact_records_.clear();
+		trigger_records_.clear();
 
 		std::vector<Entity> ents(entities_.begin(), entities_.end());
 		const size_t n = ents.size();
@@ -185,24 +204,30 @@ namespace ecs {
 			const Entity eA = ents[i];
 			auto tfA = ecs_.GetComponent<Transform>(eA);
 			auto colA = ecs_.GetComponent<Collider>(eA);
-			if (colA->isTrigger) { continue; }
 
 			for (size_t j = i + 1; j < n; ++j) {
 				const Entity eB = ents[j];
 				auto tfB = ecs_.GetComponent<Transform>(eB);
 				auto colB = ecs_.GetComponent<Collider>(eB);
-				if (colB->isTrigger) { continue; }
 
+				// ブロードフェーズ
+				const XMFLOAT3 centerA = GetColliderWorldCenter(colA);
+				const XMFLOAT3 centerB = GetColliderWorldCenter(colB);
 				const float r = colA->broadPhaseRadius + colB->broadPhaseRadius;
-				if (math::DistSq(tfA->position, tfB->position) > r * r) { continue; }
+				if (math::DistSq(centerA, centerB) > r * r) { continue; }
+
 				auto c = DispatchContact(colA, colB);
 				if (!c || c->penetration <= 1e-6f) { continue; }
+
+				if(colA->isTrigger || colB->isTrigger) {
+					trigger_records_.push_back(TriggerRecord{ eA, eB });
+					continue;
+				}
 
 				contact_records_.push_back(ContactRecord{ eA, eB, *c, {} });
 				_currentContacts.insert(std::minmax(eA, eB));
 			}
 		}
-
 	}
 
 	//! @brief 衝突法線の正規化
@@ -241,7 +266,7 @@ namespace ecs {
 				XMFLOAT3 center = collision::GetRepresentativeContactPointOnOBB(baseCol->worldOBB, n);
 				collision::GenerateOverlapSamplePoints(baseCol->worldOBB, otherCol->worldOBB, rec.samplePoints);
 
-				constexpr float EPS = 0.00000f; // 少しだけ法線方向にオフセットして登録
+				constexpr float EPS = 0.00005f; // 少しだけ法線方向にオフセットして登録
 				for (auto& p : rec.samplePoints) {
 					p = math::Add(p, math::Scale(n, EPS));
 					shadow->RegisterCollisionPair(rec.a, rec.b, p);
@@ -251,8 +276,35 @@ namespace ecs {
 
 	}
 
+	//! @brief トリガーイベントの処理
 	void CollisionResolveSystem::ProcessTriggerEvents()
 	{
+		for (const auto& rec : trigger_records_) {
+			// イベント通知用のメソッド
+			auto emitTrigger = [&](Entity _self, Entity _other) {
+				if (!ecs_.HasComponent<TriggerTag>(_other)) { return; }
+				const auto* tag = ecs_.GetComponent<TriggerTag>(_other);
+
+				TriggerContact::Entry entry{};
+				entry.other = _other;
+				entry.type = static_cast<TriggerType>(tag->type);
+				entry.param = tag->param;
+
+				// トリガーコンタクトを付与
+				if (ecs_.HasComponent<TriggerContact>(_self)) {
+					ecs_.GetComponent<TriggerContact>(_self)->entries.push_back(entry);
+				}
+				else {
+					TriggerContact tc{};
+					tc.entries.push_back(entry);
+					ecs_.RequestAddComponent(_self, tc);
+				}
+			};
+
+			// 双方向にイベント通知
+			emitTrigger(rec.a, rec.b);
+			emitTrigger(rec.b, rec.a);
+		}
 	}
 
 	//! @brief 影判定
@@ -325,9 +377,7 @@ namespace ecs {
 			Rigidbody* rbA = ecs_.HasComponent<Rigidbody>(rec.a) ? ecs_.GetComponent<Rigidbody>(rec.a) : nullptr;
 			Rigidbody* rbB = ecs_.HasComponent<Rigidbody>(rec.b) ? ecs_.GetComponent<Rigidbody>(rec.b) : nullptr;
 
-			if ((!rbA || rbA->isStatic || rbA->isKinematic) && (!rbB || rbB->isStatic || rbB->isKinematic)) {
-				continue;
-			}
+			if ((!rbA || rbA->isStatic || rbA->isKinematic) && (!rbB || rbB->isStatic || rbB->isKinematic)) { continue; }
 
 			// penetration と bias の算出
 			const float pen = (std::max)(rec.contact.penetration - solve_slop_, 0.0f);

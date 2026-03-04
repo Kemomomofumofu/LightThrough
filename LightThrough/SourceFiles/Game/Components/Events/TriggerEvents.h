@@ -46,7 +46,7 @@ namespace ecs
 	};
 
 	/**
-	 * @brief つかみリクエスト
+	 * @brief つかみリクエスト todo: システムが未実装
 	 */
 	struct GrabRequest
 	{
@@ -58,4 +58,10 @@ namespace ecs
 ECS_REFLECT_BEGIN(ecs::TriggerTag)
 ECS_REFLECT_FIELD(type),
 ECS_REFLECT_FIELD(param)
+ECS_REFLECT_END()
+
+ECS_REFLECT_BEGIN(ecs::TriggerContact)
+ECS_REFLECT_END()
+
+ECS_REFLECT_BEGIN(ecs::GrabRequest)
 ECS_REFLECT_END()

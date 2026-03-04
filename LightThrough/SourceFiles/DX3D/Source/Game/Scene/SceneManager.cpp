@@ -30,9 +30,11 @@
 #include <Game/Components/Core/ObjectRoot.h>
 #include <Game/Components/Core/ObjectChild.h>
 #include <Game/Components/GamePlay/LightPlaceRequest.h>
+#include <Game/Components/Events/TriggerEvents.h>
 
 #include <Game/ECS/ECSUtils.h>
 #include <Game/GameLogUtils.h>
+#include <DX3D/Math/MathUtils.h>
 #include <Debug/DebugUI.h>
 
 // JSONライブラリ
@@ -201,6 +203,12 @@ namespace {
 			break;
 		}
 
+		XMFLOAT3 offset = c.offset;
+		if (DrawValueWidget("Offset", offset, speed)) {
+			c.offset = offset;
+			c.shapeDirty = true;
+		}
+
 		ImGui::Checkbox("IsTrigger", &c.isTrigger);
 		ImGui::Checkbox("IsStatic", &c.isStatic);
 	}
@@ -208,6 +216,7 @@ namespace {
 } // namespace anonymous
 
 namespace scene {
+	//! @brief コンストラクタ
 	SceneManager::SceneManager(const SceneManagerDesc& _base)
 		: dx3d::Base(_base.base)
 		, ecs_(_base.ecs)
@@ -217,7 +226,6 @@ namespace scene {
 
 		// デバッグメソッドの登録
 		debug::DebugUI::ResistDebugFunction([this]() { DebugCurrentScene(); });
-
 	}
 
 	//! @brief シーン生成
@@ -276,7 +284,7 @@ namespace scene {
 	bool SceneManager::ActivatePreloadedScene(const std::string& _name)
 	{
 		auto it = preloaded_scenes_.find(_name);
-		if(it == preloaded_scenes_.end()) {
+		if (it == preloaded_scenes_.end()) {
 			DebugLogError("[SceneManager] プリロードされたシーンが見つからない: {}", _name);
 			return false;
 		}
@@ -300,10 +308,39 @@ namespace scene {
 			scenes_.emplace(_newScene, std::move(scene));	// シーンの追加
 		}
 
+
 		// 新しいSceneをアクティブに
 		if (!SetActiveScene(_newScene, _unloadPrev)) { return false; }
 
 		return true;
+	}
+
+
+	//! @brief シーン切り替えリクエスト
+	void SceneManager::RequestChangeScene(const SceneData::Id& _newScene)
+	{
+		if (pending_scene_change_) {
+			DebugLogWarning("[SceneManager] 保留中のシーン切り替えを上書き {} -> {}", *pending_scene_change_, _newScene);
+		}
+		pending_scene_change_ = _newScene;
+		DebugLogInfo("[SceneManager] シーン切り替えリクエスト: {}", _newScene);
+	}
+	//! @brief シーン切り替えリクエスト（遷移情報付き）
+	void SceneManager::RequestChangeScene(const SceneData::Id& _newScene, const SceneTransitionInfo& _info)
+	{
+		pending_transition_info_ = _info;
+		RequestChangeScene(_newScene);
+	}
+
+	//! @brief 保留中のシーン切り替えリクエストを実行
+	bool SceneManager::FlushSceneChangeRequest()
+	{
+		if (!pending_scene_change_) { return false; }
+
+		SceneData::Id newScene = std::move(*pending_scene_change_);
+		pending_scene_change_.reset();
+
+		return ChangeScene(newScene);
 	}
 
 	//! @brief シーンの追加
@@ -325,7 +362,7 @@ namespace scene {
 	//! @brief アクティブなSceneDataをリロードする
 	bool SceneManager::ReloadActiveScene()
 	{
-		const auto id = *active_scene_;
+		const auto& id = *active_scene_;
 		// アンロード
 		if (!UnloadScene(id)) {
 			GameLogFError("[SceneManager] シーンのアンロードに失敗: {}", id);
@@ -396,7 +433,7 @@ namespace scene {
 			std::vector<ecs::Entity> toDestroy;
 			toDestroy.reserve(it->second.entities_.size());
 
-			for (auto e : it->second.entities_) {
+			for (auto& e : it->second.entities_) {
 				toDestroy.push_back(e);
 			}
 
@@ -791,7 +828,8 @@ namespace scene {
 				ecs::SpotLight,
 				ecs::ObjectRoot,
 				ecs::ObjectChild,
-				ecs::LightPlaceRequest
+				ecs::LightPlaceRequest,
+				ecs::TriggerTag
 			>;
 
 			// メタループ

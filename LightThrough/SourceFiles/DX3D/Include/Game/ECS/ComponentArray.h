@@ -40,7 +40,7 @@ namespace ecs
 	class ComponentArray : public IComponentArray {
 	public:
 		void Insert(Entity _e, const Com& _component);
-		Com& Get(Entity _e);
+		Com* Get(Entity _e);
 		//const std::vector<Com>& GetAllComponents() const;
 		//const std::vector<Entity>& GetAllEntityIDs() const;
 		

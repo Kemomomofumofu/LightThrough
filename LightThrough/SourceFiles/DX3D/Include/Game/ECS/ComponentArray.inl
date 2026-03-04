@@ -64,10 +64,11 @@ namespace ecs {
 	 * @return			æ“¾‚µ‚½Component‚ÌQÆ
 	 */
 	template<typename Com>
-	Com& ComponentArray<Com>::Get(Entity _e)
+	Com* ComponentArray<Com>::Get(Entity _e)
 	{
-		assert(entity_to_index_.find(_e) != entity_to_index_.end());
-		return components_[entity_to_index_[_e]];
+		auto it = entity_to_index_.find(_e);
+		if (it == entity_to_index_.end()) { return nullptr; }
+		return &components_[it->second];
 	}
 
 	/**

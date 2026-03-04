@@ -39,12 +39,12 @@ namespace ecs {
 	 * @brief Componentの取得
 	 * @param <Com> 取得するComponentの種類
 	 * @param _e 取得先のComponent
-	 * @return Component
+	 * @return Componentのポインタ（存在しない場合はnullptr）
 	 */
 	template<typename Com>
 	Com* ComponentManager::GetComponent(Entity _e)
 	{
-		return &GetComponentArray<Com>()->Get(_e);
+		return GetComponentArray<Com>()->Get(_e);
 	}
 
 	/**
@@ -75,13 +75,12 @@ namespace ecs {
 	/**
 	 * @brief Componentリストの取得
 	 * @param <Com> 取得したいComponentの種類
-	 * @return Componentリスト
+	 * @return Componentリストのポインタ（存在しない場合はnullptr）
 	 */
 	template<typename Com>
 	ComponentArray<Com>* ComponentManager::GetComponentArray()
 	{
 		const std::type_index type = typeid(Com);
-		assert(component_arrays_.find(type) != component_arrays_.end());
 		return static_cast<ComponentArray<Com>*>(component_arrays_[type].get());
 	}
 }

@@ -36,6 +36,7 @@
 #include <Game/Systems/Scenes/TitleSceneSystem.h>
 #include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 #include <Game/Systems/Gimmicks/LightSpawnSystem.h>
+#include <Game/Systems/Events/TriggerEventDispatchSystem.h>
 
 #include <Game/Components/Core/Name.h>
 #include <Game/Components/Core/Transform.h>
@@ -52,6 +53,7 @@
 #include <Game/Components/Physics/Rigidbody.h>
 #include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/GamePlay/LightPlaceRequest.h>
+#include <Game/Components/Events/TriggerEvents.h>
 
 #include <Debug/DebugUI.h>
 #include <Debug/Debug.h>
@@ -82,6 +84,9 @@ namespace {
 		_ecs.RegisterComponent<ecs::ObjectRoot>();
 		_ecs.RegisterComponent<ecs::ObjectChild>();
 		_ecs.RegisterComponent<ecs::LightPlaceRequest>();
+		_ecs.RegisterComponent<ecs::TriggerTag>();
+		_ecs.RegisterComponent<ecs::TriggerContact>();
+		_ecs.RegisterComponent<ecs::GrabRequest>();
 	}
 
 	/**
@@ -123,6 +128,8 @@ namespace {
 		ecs.RegisterSystem<ecs::ShadowTestSystem>(_systemDesc);
 		// 押し出し・反発・摩擦など
 		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_systemDesc);
+		// トリガーイベント消化
+		ecs.RegisterSystem<ecs::TriggerEventDispatchSystem>(_systemDesc);
 		// 地面接地判定
 		ecs.RegisterSystem<ecs::GroundDetectionSystem>(_systemDesc);
 
@@ -196,16 +203,14 @@ namespace dx3d {
 			RegisterAllComponents(*ecs_coordinator_);
 
 			// Sceneの生成・読み込み・アクティベート
-#if defined(_DEBUG) || defined(DEBUG)
-			scene_manager_->AddScene("DebugScene");
-#else
+
+			//scene_manager_->AddScene("DebugScene");
 			scene_manager_->AddScene("GameRootScene");
-#endif
-			ChangeScene("Stage_2");
+			ChangeScene("Stage_1");
 
 
 			// Systemの登録
-			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_, graphics_engine_->GetMeshRegistry(), graphics_engine_->GetTextureRegistry()};
+			ecs::SystemDesc systemDesc{ {logger_ }, *ecs_coordinator_, *scene_manager_, *graphics_engine_, graphics_engine_->GetMeshRegistry(), graphics_engine_->GetTextureRegistry() };
 			RegisterAllSystems(systemDesc);
 
 			// Entity破棄時コールバック設定
@@ -295,6 +300,15 @@ namespace dx3d {
 		ecs_coordinator_->UpdateAllSystems(dt);
 		ecs_coordinator_->FlushPending();
 
+		// シーン切り替えリクエストのフラッシュ
+		if (scene_manager_->FlushSceneChangeRequest()) {
+			ecs_coordinator_->ReactivateAllSystems();
+			ecs_coordinator_->FlushPending();
+
+			// シーン遷移オフセットの適用
+			ApplySceneTransitionOffset();
+		}
+
 		// デバッグUIの描画
 		debug::DebugUI::Render();
 
@@ -326,8 +340,11 @@ namespace dx3d {
 		scene_manager_->SaveActiveScene();
 	}
 
+	//! @brief シーンのリロード
 	void Game::ReloadScene()
 	{
+		// todo: 全シーンをリロードするシステムにしたい
+
 		if (!ecs_coordinator_) {
 			DX3DLogError("ECS::Coordinatorが存在しない。");
 			return;
@@ -342,6 +359,7 @@ namespace dx3d {
 
 	}
 
+	//! @brief シーンの切り替え
 	void Game::ChangeScene(const scene::SceneData::Id& _newScene)
 	{
 		scene_manager_->ChangeScene(_newScene);
@@ -349,4 +367,64 @@ namespace dx3d {
 		ecs_coordinator_->FlushPending();			// 保留中の変更を反映
 	}
 
+	//! @brief シーン遷移のオフセットを適用
+	void Game::ApplySceneTransitionOffset()
+	{
+		auto& transitionInfo = scene_manager_->GetPendingTransitionInfo();
+		if (!transitionInfo) { return; }
+
+		const auto& activeScene = scene_manager_->GetActiveScene();
+		if (!activeScene) {
+			scene_manager_->ClearPendingTransitionInfo();
+			return;
+		}
+
+		const auto& entities = scene_manager_->GetEntitiesInScene(*activeScene);
+
+		DirectX::XMFLOAT3 startPos{ 0, 0, 0 };
+		bool foundStart = false;
+		// スタートポイントとなるEntityを探索
+		for (const auto& e : entities) {
+			auto* nameComp = ecs_coordinator_->GetComponent<ecs::Name>(e);
+			if (nameComp && nameComp->value == transitionInfo->startPointName) {
+				auto* tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
+				if (tf) {
+					// 子オブジェクトの場合は警告（ローカル座標では正しく計算できない）
+					if (ecs_coordinator_->HasComponent<ecs::ObjectChild>(e)) {
+						DebugLogWarning("[Game] StartPoint '{}' は子オブジェクトです。ルートに配置してください。",
+							transitionInfo->startPointName);
+					}
+					startPos = tf->position;
+					foundStart = true;
+				}
+				break;
+			}
+		}
+		// 見つからないならオフセットなし
+		if (!foundStart) {
+			DebugLogWarning("[Game] StartPoint '{}' が見つからない", transitionInfo->startPointName);
+			scene_manager_->ClearPendingTransitionInfo();
+			return;
+		}
+
+		// オフセットを計算
+		DirectX::XMFLOAT3 offset = math::Sub(transitionInfo->goalPosition, startPos);
+
+		DebugLogInfo("[Game] goalPos=({}, {}, {}), startPos=({}, {}, {}), offset=({}, {}, {})",
+			transitionInfo->goalPosition.x, transitionInfo->goalPosition.y, transitionInfo->goalPosition.z,
+			startPos.x, startPos.y, startPos.z,
+			offset.x, offset.y, offset.z);
+
+		// オフセットを適用
+		for (const auto& e : entities) {
+			// 子オブジェクトの場合はオフセットは適用しない（親のTransformに追従するため）
+			auto* childComp = ecs_coordinator_->GetComponent<ecs::ObjectChild>(e);
+			if (childComp) { continue; }
+			auto* tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
+			if (tf) { tf->SetPosition(math::Add(tf->position, offset)); }
+		}
+
+		DebugLogInfo("[Game] シーン遷移オフセットを適用: offset=({}, {}, {})", offset.x, offset.y, offset.z);
+		scene_manager_->ClearPendingTransitionInfo();
+	};
 }
