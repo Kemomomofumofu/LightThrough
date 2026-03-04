@@ -83,6 +83,7 @@ namespace {
 		_ecs.RegisterComponent<ecs::ObjectChild>();
 		_ecs.RegisterComponent<ecs::LightPlaceRequest>();
 	}
+
 	/**
 	 * @brief システムの登録
 	 * @param _ecs ECSのコーディネーター
@@ -104,7 +105,6 @@ namespace {
 
 		// 入力関係
 		ecs.RegisterSystem<ecs::PlayerControllerSystem>(_systemDesc);
-
 		ecs.RegisterSystem<ecs::LightSpawnSystem>(_systemDesc);
 
 		// 力の集計
@@ -125,7 +125,6 @@ namespace {
 		ecs.RegisterSystem<ecs::CollisionResolveSystem>(_systemDesc);
 		// 地面接地判定
 		ecs.RegisterSystem<ecs::GroundDetectionSystem>(_systemDesc);
-
 
 		// 力のクリア等
 		ecs.RegisterSystem<ecs::ClearForcesSystem>(_systemDesc);

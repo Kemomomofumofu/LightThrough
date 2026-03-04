@@ -136,7 +136,7 @@
                     "intensity": 100.0
                 },
                 "ecs::Name": {
-                    "value": "Entity_5"
+                    "value": "SpotLight_1"
                 },
                 "ecs::SpotLight": {
                     "innerAngleRad": 0.49000000953674316,

@@ -227,6 +227,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureHandle.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Events\TriggerEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">

@@ -224,6 +224,7 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureHandle.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Events\TriggerEvents.h" />
     <ClInclude Include="SourceFiles\Game\Components\GamePlay\LightPlaceRequest.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
     <ClInclude Include="SourceFiles\Game\Components\Render\Light.h" />
