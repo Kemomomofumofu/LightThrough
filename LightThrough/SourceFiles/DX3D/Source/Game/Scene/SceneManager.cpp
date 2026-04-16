@@ -40,180 +40,6 @@
 // JSONライブラリ
 using json = nlohmann::json;
 using namespace DirectX;
-// ---------------- 追加ヘルパ ---------------- //
-namespace {
-
-	template<class T>
-	bool DrawValueWidget(const char* _label, T& _value, float _speed = 0.05f)
-	{
-		// bool
-		if constexpr (std::is_same_v<T, bool>) {
-			return ImGui::Checkbox(_label, &_value);
-		}
-		// 浮動小数
-		else if constexpr (std::is_same_v<T, float>) {
-			return ImGui::DragFloat(_label, &_value, _speed);
-		}
-		// 整数
-		else if constexpr (std::is_same_v<T, int>) {
-			return ImGui::DragInt(_label, &_value, static_cast<int>(_speed * 10.0f));
-		}
-		else if constexpr (std::is_same_v<T, uint32_t>) {
-			int tmp = static_cast<int>(_value);
-			bool ch = ImGui::DragInt(_label, &tmp, static_cast<int>(_speed * 10.0f), 0);
-			if (ch) { _value = static_cast<uint32_t>((std::max)(tmp, 0)); }
-			return ch;
-		}
-		// 文字列
-		else if constexpr (std::is_same_v<T, std::string>) {
-			char buf[256];
-			std::snprintf(buf, sizeof(buf), "%s", _value.c_str());
-			if (ImGui::InputText(_label, buf, sizeof(buf))) {
-				_value = buf;
-				return true;
-			}
-			return false;
-		}
-		// enum (整数として編集)
-		else if constexpr (std::is_enum_v<T>) {
-			using UT = std::underlying_type_t<T>;
-			int tmp = static_cast<int>(static_cast<UT>(_value));
-			bool ch = ImGui::DragInt(_label, &tmp, 1, (std::numeric_limits<int>::min)(), (std::numeric_limits<int>::max)());
-			if (ch) { _value = static_cast<T>(static_cast<UT>(tmp)); }
-			return ch;
-		}
-		// Vec4Like
-		else if constexpr (ecs_serial::Vec4Like<T>) {
-			float arr[4]{ _value.x, _value.y, _value.z, _value.w };
-			if (ImGui::DragFloat4(_label, arr, _speed)) {
-				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2]; _value.w = arr[3];
-				return true;
-			}
-			return false;
-		}
-		// Vec3Like
-		else if constexpr (ecs_serial::Vec3Like<T>) {
-			float arr[3]{ _value.x, _value.y, _value.z };
-			if (ImGui::DragFloat3(_label, arr, _speed)) {
-				_value.x = arr[0]; _value.y = arr[1]; _value.z = arr[2];
-				return true;
-			}
-			return false;
-		}
-		else if constexpr (ecs_serial::Vec2Like<T>) {
-			float arr[2]{ _value.x, _value.y };
-			if (ImGui::DragFloat2(_label, arr, _speed)) {
-				_value.x = arr[0]; _value.y = arr[1];
-				return true;
-			}
-			return false;
-		}
-		// 未対応
-		else {
-			ImGui::TextDisabled("%s (unsupported type)", _label);
-			return false;
-		}
-	}
-
-	template<class Comp>
-	void DrawReflectedComponentFields(Comp& comp, float speed)
-	{
-		auto fields = ecs_serial::TypeReflection<Comp>::Fields();
-		ecs_serial::for_each(fields, [&](auto&& fieldInfo) {
-			auto& member = comp.*(fieldInfo.member);
-			const char* fname = fieldInfo.name.data();
-			DrawValueWidget(fname, member, speed);
-			});
-	}
-
-	template<>
-	void DrawReflectedComponentFields<ecs::Transform>(ecs::Transform& _tf, float _speed)
-	{
-		// position
-		{
-			XMFLOAT3 tmp = _tf.position;
-			if (DrawValueWidget("Position", tmp, _speed)) {
-				_tf.SetPosition(tmp);
-			}
-		}
-		// scale
-		{
-			XMFLOAT3 tmp = _tf.scale;
-			if (DrawValueWidget("Scale", tmp, _speed)) {
-				_tf.SetScale(tmp);
-			}
-		}
-		// rotation (quat + euler)
-		{
-			XMFLOAT4 qtmp = _tf.rotationQuat;
-			if (DrawValueWidget("Rotation (Quat)", qtmp, _speed * 0.5f)) {
-				XMVECTOR q = XMVectorSet(qtmp.x, qtmp.y, qtmp.z, qtmp.w);
-				q = XMQuaternionNormalize(q);
-				XMFLOAT4 norm; XMStoreFloat4(&norm, q);
-				_tf.SetRotation(norm);
-			}
-			_tf.SyncEulerFromQuat();
-			auto euler = _tf.GetRotationEulerDeg();
-			float deg[3]{ euler.x, euler.y, euler.z };
-			if (ImGui::DragFloat3("Rotation (deg)", deg, 0.5f)) {
-				_tf.SetRotationEulerDeg({ deg[0], deg[1], deg[2] });
-			}
-		}
-
-		ImGui::Separator();
-		// 方向ベクトル確認表示
-		{
-			auto& f = _tf.GetForward();
-			auto& r = _tf.GetRight();
-			auto& u = _tf.GetUp();
-			ImGui::Text("Fwd:(%.2f %.2f %.2f)", f.x, f.y, f.z);
-			ImGui::Text("Right:(%.2f %.2f %.2f)", r.x, r.y, r.z);
-			ImGui::Text("Up:(%.2f %.2f %.2f)", u.x, u.y, u.z);
-		}
-	}
-
-	template<>
-	void DrawReflectedComponentFields<ecs::Collider>(ecs::Collider& c, float speed)
-	{
-		const char* shapeItems[] = { "Sphere", "Box" };
-		int current = static_cast<int>(c.type);
-
-		if (ImGui::Combo("ShapeType", &current, shapeItems, IM_ARRAYSIZE(shapeItems))) {
-			c.type = static_cast<collision::ShapeType>(current);
-			c.shapeDirty = true;
-		}
-
-		switch (c.type)
-		{
-		case collision::ShapeType::Sphere:
-		{
-			if (ImGui::DragFloat("Radius", &c.sphere.radius, speed, 0.01f)) {
-				c.shapeDirty = true;
-			}
-			break;
-		}
-		case collision::ShapeType::Box:
-		{
-			if (ImGui::DragFloat3("HalfExtents", &c.box.halfExtents.x, speed)) {
-				c.shapeDirty = true;
-			}
-			break;
-		}
-		default:
-			break;
-		}
-
-		XMFLOAT3 offset = c.offset;
-		if (DrawValueWidget("Offset", offset, speed)) {
-			c.offset = offset;
-			c.shapeDirty = true;
-		}
-
-		ImGui::Checkbox("IsTrigger", &c.isTrigger);
-		ImGui::Checkbox("IsStatic", &c.isStatic);
-	}
-
-} // namespace anonymous
 
 namespace scene {
 	//! @brief コンストラクタ
@@ -373,6 +199,45 @@ namespace scene {
 		if (!LoadSceneFromFile(id)) {
 			GameLogFError("[SceneManager] シーンのロードに失敗: {}", id);
 			return false;
+		}
+
+		// システムにシーンロード通知
+		for (auto& system : ecs_.GetAllSystems()) {
+			system->OnSceneLoaded();
+		}
+
+		return true;
+	}
+
+	//! @brief 全てのシーンをリロードする
+	bool SceneManager::ReloadAllScene()
+	{
+		// 走査中にコンテナが変更されるため、先にIDを全て収集する
+		std::vector<SceneData::Id> ids;
+		ids.reserve(scenes_.size());
+		for (const auto& [id, _] : scenes_) {
+			ids.push_back(id);
+		}
+
+		// 現在のアクティブシーンを保持
+		auto prevActive = active_scene_;
+
+		for (const auto& id : ids) {
+			// アンロード
+			if (!UnloadScene(id)) {
+				GameLogFError("[SceneManager] シーンのアンロードに失敗: {}", id);
+				return false;
+			}
+			// ロード
+			if (!LoadSceneFromFile(id)) {
+				GameLogFError("[SceneManager] シーンのロードに失敗: {}", id);
+				return false;
+			}
+		}
+
+		// アクティブシーンを復元
+		if (prevActive) {
+			active_scene_ = *prevActive;
 		}
 
 		// システムにシーンロード通知
@@ -774,23 +639,13 @@ namespace scene {
 		ImGui::SameLine();
 
 		// ---------- Inspector ---------- //
-		std::optional<ecs::ComponentType> removeComponentType;
-
-		ImGui::BeginChild("InspectorPane", ImVec2(rightW, 0), true);
-		ImGui::Text("Inspector");
-		ImGui::Separator();
-
-		if (!debug_selected_entity_) {
-			ImGui::TextUnformatted("No entity selected.");
-		}
-		else {
+		ImGui::BeginChild("InspectorPane", ImVec2(0, 0), true);
+		if (debug_selected_entity_) {
 			ecs::Entity e = *debug_selected_entity_;
 
 			// Entity削除ボタン
 			if (ImGui::Button("Delete Entity")) {
-				// Entityの削除待機リストに追加する
 				ecs_.RequestDestroyEntity(e);
-
 				debug_selected_entity_.reset();
 				ImGui::EndChild();
 				ImGui::End();
@@ -798,82 +653,52 @@ namespace scene {
 			}
 			ImGui::Separator();
 
-			// Entity情報
 			ImGui::Text("Entity Id: %u (Ver:%u)", e.Index(), e.Version());
 			if (ImGui::Button("Deselect")) {
 				debug_selected_entity_.reset();
 			}
 			ImGui::Separator();
 
-			// 調整速度 (Ctrl / Shift)
 			float baseSpeed = 0.05f;
 			const ImGuiIO& io = ImGui::GetIO();
 			if (io.KeyCtrl)  baseSpeed *= 0.2f;
 			if (io.KeyShift) baseSpeed *= 4.0f;
 
-			// ここで列挙したい全コンポーネント型タプル
-			using AllComponents = std::tuple<
-				ecs::Name,
-				ecs::Transform,
-				ecs::GroundContact,
-				ecs::MeshRenderer,
-				ecs::SpriteRenderer,
-				ecs::Camera,
-				ecs::CameraController,
-				ecs::PlayerController,
-				ecs::MoveDirectionSource,
-				ecs::Collider,
-				ecs::Rigidbody,
-				ecs::LightCommon,
-				ecs::SpotLight,
-				ecs::ObjectRoot,
-				ecs::ObjectChild,
-				ecs::LightPlaceRequest,
-				ecs::TriggerTag
-			>;
+			auto& registry = ecs_serial::ComponentRegistry::Get();
+			for (const auto& [name, entry] : registry.GetAllEntries()) {
+				if (!entry.has || !entry.has(ecs_, e)) { continue; }
 
-			// メタループ
-			ecs_serial::for_each(AllComponents{}, [&](auto&& dummyComp) {
-				using CompT = std::decay_t<decltype(dummyComp)>;
-				if (ecs_.HasComponent<CompT>(e)) {
-					auto* compPtr = ecs_.GetComponent<CompT>(e);
-					const char* compName = ecs_serial::TypeReflection<CompT>::Name().data();
-					ImGui::PushID(compName);
-					if (ImGui::CollapsingHeader(compName)) {
-						auto& compRef = *compPtr;
-						DrawReflectedComponentFields(compRef, baseSpeed);
-						// コンポーネント削除ボタン
-						if (ImGui::Button("Remove Component")) {
-							removeComponentType = ecs_.GetComponentType<CompT>();
-							// コンポーネント削除待機リストに追加
-							ecs_.RequestRemoveComponent<CompT>(e);
-						}
+				ImGui::PushID(name.c_str());
+				if (ImGui::CollapsingHeader(name.c_str())) {
+					// Inspector描画
+					if (entry.inspect) {
+						entry.inspect(ecs_, e, baseSpeed);
 					}
-					ImGui::PopID();
-					ImGui::Separator();
+					// コンポーネント削除ボタン
+					if (entry.remove && ImGui::Button("Remove Component")) {
+						entry.remove(ecs_, e);
+					}
 				}
-				});
+				ImGui::PopID();
+				ImGui::Separator();
+			}
 
 			// Add Component Popup
 			if (ImGui::Button("Add Component")) {
 				ImGui::OpenPopup("AddCompPopup");
 			}
 			if (ImGui::BeginPopup("AddCompPopup")) {
-				auto& registry = ecs_serial::ComponentRegistry::Get();
 				for (const auto& [name, entry] : registry.GetAllEntries()) {
-					// すでに持っているコンポーネントはスキップ
 					if (entry.has && entry.has(ecs_, e)) { continue; }
-
 					if (ImGui::Selectable(name.c_str())) {
-						// コンポーネント追加待機リストに追加
-						bool result = registry.AddIfExists(ecs_, e, name, nlohmann::json::object());
-						if (!result) {
-							DebugLogError("[SceneManager] コンポーネントの追加に失敗: {}", name);
-						}
+						registry.AddIfExists(ecs_, e, name, nlohmann::json::object());
 					}
 				}
 				ImGui::EndPopup();
 			}
+		}
+		else {
+			ImGui::TextUnformatted("No entity selected.");
 		}
 
 		ImGui::EndChild();

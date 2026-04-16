@@ -135,8 +135,11 @@ namespace ecs {
 	{
 		// memo: 初期生成時にすり抜けてしまう問題を避けるため、最初の数フレームは影判定をスキップする (応急的な措置ではあるので、一フレームは必ずdeltaTimeを0にするような仕組みがあるといいかも。)
 		constexpr float SHADOW_SKIP_Time = 1.0f;
-		if (time_ < SHADOW_SKIP_Time) { time_ += _fixedDt; }
-		bool skipShadowCheck = (time_ < SHADOW_SKIP_Time);
+		bool skipShadowCheck = false;
+		if (time_ < SHADOW_SKIP_Time) {
+			time_ += _fixedDt;
+			skipShadowCheck = (time_ < SHADOW_SKIP_Time);
+		}
 
 		auto shadow = shadow_test_system_.lock();
 
@@ -219,7 +222,7 @@ namespace ecs {
 				auto c = DispatchContact(colA, colB);
 				if (!c || c->penetration <= 1e-6f) { continue; }
 
-				if(colA->isTrigger || colB->isTrigger) {
+				if (colA->isTrigger || colB->isTrigger) {
 					trigger_records_.push_back(TriggerRecord{ eA, eB });
 					continue;
 				}
@@ -299,7 +302,7 @@ namespace ecs {
 					tc.entries.push_back(entry);
 					ecs_.RequestAddComponent(_self, tc);
 				}
-			};
+				};
 
 			// 双方向にイベント通知
 			emitTrigger(rec.a, rec.b);

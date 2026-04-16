@@ -137,6 +137,12 @@ namespace scene {
 		 * @return 成功: True、失敗: False
 		 */
 		bool ReloadActiveScene();
+		
+		/**
+		 * @brief 全てのシーンをリロード
+		 * @return 成功: True、失敗: False
+		 */
+		bool ReloadAllScene();
 
 		/**
 		 * @brief SceneDataをアクティブにする

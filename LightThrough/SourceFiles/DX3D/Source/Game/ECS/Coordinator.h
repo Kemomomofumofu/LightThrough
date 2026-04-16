@@ -54,7 +54,7 @@ namespace ecs {
 		 * @return true: 有効, false: 無効
 		 */
 		template<typename Com>
-		std::vector<Entity> GetEntitiesWithComponent();
+		const std::vector<Entity>& GetEntitiesWithComponent();
 		/**
 		 * @brief 複数のコンポーネントを持っているEntityの一覧を取得
 		 * @tparam ...Coms : コンポーネントの型リスト
@@ -73,10 +73,10 @@ namespace ecs {
 		 * @param _signature: 指定するSignature
 		 * @return 該当するEntityの一覧
 		 */
-		std::vector<Entity> GetEntitiesWithSignature(Signature _signature); // 指定したSignatureを持っているEntityの一覧を取得
+		std::vector<Entity> GetEntitiesWithSignature(Signature _signature);
 
 		/**
-		 * @brief Entityが有効かどうかを確認
+		 * @brief EntityがValidかどうかを確認
 		 * @param _e : 確認するEntity
 		 * @return true: 有効, false: 無効
 		 */
@@ -95,8 +95,8 @@ namespace ecs {
 		void RemoveComponent(Entity _e, ComponentType _type);
 		/**
 		 * @brief コンポーネントを持っているか
-		 * @param _確認先のEntity
-		 * @return true: 持ってる, false: 持ってない
+		 * @param _確認先Entity
+		 * @return true: 持っている, false: 持っていない
 		 */
 		template<typename Com>
 		bool HasComponent(Entity _e);
@@ -106,6 +106,14 @@ namespace ecs {
 
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
+
+		/**
+		 * @brief 指定した型のComponentを全走査してコールバックを呼び出す
+		 * @tparam Com コンポーネントの種類
+		 * @param _func コールバック関数 (Entity, const Com&) を受け取る
+		 */
+		template<typename Com>
+		void ForEachComponent(const std::function<void(Entity, const Com&)>& _func);
 
 		/**
 		 * @brief コンポーネントの追加リクエスト
@@ -146,7 +154,7 @@ namespace ecs {
 
 	private:
 		/**
-		 * @brief 保留中の追加操作
+		 * @brief 保留中の追加処理
 		 */
 		struct PendingAdd {
 			Entity e;
@@ -155,7 +163,7 @@ namespace ecs {
 		};
 
 		/**
-		 * @brief 保留中の削除操作
+		 * @brief 保留中の削除処理
 		 */
 		struct PendingRemove {
 			Entity e;
@@ -166,9 +174,9 @@ namespace ecs {
 		std::unique_ptr<ComponentManager> component_manager_{};	// Componentマネージャ
 		std::unique_ptr<SystemManager> system_manager_{};		// Systemマネージャ
 
-		std::vector<PendingAdd> pending_adds_{};		// 保留中の追加操作
-		std::vector<PendingRemove> pending_removes_{};	// 保留中の削除操作
-		std::vector<Entity> pending_destroys_{};		// 保留中の破棄操作
+		std::vector<PendingAdd> pending_adds_{};		// 保留中の追加処理
+		std::vector<PendingRemove> pending_removes_{};	// 保留中の削除処理
+		std::vector<Entity> pending_destroys_{};		// 保留中の破棄処理
 
 		OnEntityDestroyed on_entity_destroyed_{};	// Entity破棄時のコールバック
 

@@ -16,7 +16,7 @@
 namespace ecs {
 	/**
 	 * @brief Componentの追加
-	 * @param _e			追加先のEntity
+	 * @param _e			追加先Entity
 	 * @param _component	追加するComponentの参照
 	 */
 	template<typename Com>
@@ -30,7 +30,7 @@ namespace ecs {
 
 	/**
 	 * @brief Componentの削除
-	 * @param _e		削除先のEntity
+	 * @param _e		削除先Entity
 	 */
 	template<typename Com>
 	void ComponentArray<Com>::Remove(Entity _e)
@@ -60,7 +60,7 @@ namespace ecs {
 
 	/**
 	 * @brief Componentの取得
-	 * @param _e		取得先のEntity
+	 * @param _e		取得先Entity
 	 * @return			取得したComponentの参照
 	 */
 	template<typename Com>
@@ -74,12 +74,24 @@ namespace ecs {
 	/**
 	 * @brief EntityがComponentを持っているか
 	 * @param _e		確認対象のEntity
-	 * @return 有る: true, 無い: false
+	 * @return 有効: true, 無効: false
 	 */
 	template<typename Com>
 	bool ComponentArray<Com>::Has(Entity _e) const
 	{
 		return entity_to_index_.find(_e) != entity_to_index_.end();
+	}
+
+	/**
+	 * @brief 全Componentを走査してコールバックを呼び出す
+	 * @param _func コールバック関数 (Entity, const Com&) を受け取る
+	 */
+	template<typename Com>
+	void ComponentArray<Com>::ForEach(const std::function<void(Entity, const Com&)>& _func) const
+	{
+		for (size_t i = 0; i < components_.size(); ++i) {
+			_func(entity_IDs_[i], components_[i]);
+		}
 	}
 
 	/**
@@ -99,7 +111,7 @@ namespace ecs {
 
 	/**
 	 * @brief 生ポインタからComponentを追加
-	 * @param _e		追加先のEntity
+	 * @param _e		追加先Entity
 	 * @param _src		追加するComponentの生ポインタ
 	 */
 	template<typename Com>

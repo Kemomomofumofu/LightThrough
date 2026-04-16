@@ -54,6 +54,8 @@ namespace dx3d {
 		 * @brief シーン遷移のオフセットを適用
 		 */
 		void ApplySceneTransitionOffset();
+
+		void ResetPlayerToStart();
 	private:
 		std::unique_ptr<Logger>logger_ptr_{};
 		std::unique_ptr<GraphicsEngine> graphics_engine_{};

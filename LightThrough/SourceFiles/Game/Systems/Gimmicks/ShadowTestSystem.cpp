@@ -384,14 +384,6 @@ namespace ecs {
 					++litCount;
 				}
 			}
-#if defined(DEBUG) || defined(_DEBUG)
-			/*
-			DebugLogInfo("[ShadowTestSystem] Entity pair ({}, {}): {}/{} points lit, allInShadow={}",
-				test.a.id_, test.b.id_,
-				litCount, test.contactPointCount,
-				allContactPointsInShadow);
-			*/
-#endif // DEBUG || _DEBUG
 
 			ShadowTestResult result{};
 			result.allContactPointsInShadow = allContactPointsInShadow;

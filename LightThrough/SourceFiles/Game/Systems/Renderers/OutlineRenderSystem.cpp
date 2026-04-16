@@ -12,5 +12,9 @@ namespace ecs
 	{
 	}
 
+	void OutlineRenderSystem::Update(float _dt)
+	{
+	}
+
 
 }

@@ -14,5 +14,7 @@ namespace ecs
 	public:
 		explicit OutlineRenderSystem(const SystemDesc& _desc);
 
+		void Update(float _dt) override;
+
 	};
 }

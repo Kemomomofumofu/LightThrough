@@ -208,7 +208,9 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Window\Win32\Win32Window.cpp" />
     <ClCompile Include="SourceFiles\Game\main.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneInputSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneVisualSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\TransformSystem.cpp" />
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_demo.cpp" />
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_impl_dx11.cpp" />
@@ -219,6 +221,7 @@
     <ClCompile Include="SourceFiles\ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\Debug\ComponentInspector.h" />
     <ClInclude Include="SourceFiles\DX3D\Include\DX3D\Math\MathUtils.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\StructuredBuffers.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\ShaderCache.h" />
@@ -235,6 +238,8 @@
     <ClInclude Include="SourceFiles\Game\Components\Core\ObjectRoot.h" />
     <ClInclude Include="SourceFiles\Game\Components\Input\PlayerController.h" />
     <ClInclude Include="SourceFiles\Game\Components\Render\SpriteRenderer.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Scenes\TitleSceneItem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Scenes\TitleSceneState.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Events\TriggerEventDispatchSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\ShadowTestSystem.h" />
@@ -311,7 +316,9 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\SwapChain.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneInputSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneVisualSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\TransformSystem.h" />
     <ClInclude Include="SourceFiles\SubSystem\VertexBuffer.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\VertexShaderSignature.h" />

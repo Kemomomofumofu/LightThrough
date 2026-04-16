@@ -15,7 +15,7 @@ namespace ecs {
 
 		// キャッシュ
 		Entity handLight{}; // 手に持っているライトのエンティティ
-		std::string handLightName = "PlayerLight"; // 手に持つライト名前
+		std::string handLightName = "PlayerLight"; // 手持ちライト名前
 		std::deque<Entity> ownedLights{}; // 所持しているライトのエンティティ
 		size_t maxOwnedLights = 1; // 所持可能なライトの最大数
 	};
@@ -24,5 +24,6 @@ namespace ecs {
 ECS_REFLECT_BEGIN(ecs::PlayerController)
 ECS_REFLECT_FIELD(moveSpeed),
 ECS_REFLECT_FIELD(jumpForce),
-ECS_REFLECT_FIELD(handLightName)
+ECS_REFLECT_FIELD(handLightName),
+ECS_REFLECT_FIELD(maxOwnedLights)
 ECS_REFLECT_END()

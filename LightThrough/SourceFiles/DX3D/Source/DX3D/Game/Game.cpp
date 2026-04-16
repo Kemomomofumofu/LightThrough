@@ -137,7 +137,7 @@ namespace {
 		ecs.RegisterSystem<ecs::ClearForcesSystem>(_systemDesc);
 
 		// タイトル独自の更新
-		ecs.RegisterSystem<ecs::TitleSceneSystem>(_systemDesc);
+		//ecs.RegisterSystem<ecs::TitleSceneSystem>(_systemDesc);
 
 		// 親子解決など
 		ecs.RegisterSystem<ecs::TransformSystem>(_systemDesc);
@@ -148,7 +148,7 @@ namespace {
 		ecs.RegisterSystem<ecs::OutlineRenderSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::SpriteRenderSystem>(_systemDesc);
 
-
+		// デバッグ情報の描画
 		ecs.RegisterSystem<ecs::DebugRenderSystem>(_systemDesc);
 
 		// 全システム初期化
@@ -343,8 +343,6 @@ namespace dx3d {
 	//! @brief シーンのリロード
 	void Game::ReloadScene()
 	{
-		// todo: 全シーンをリロードするシステムにしたい
-
 		if (!ecs_coordinator_) {
 			DX3DLogError("ECS::Coordinatorが存在しない。");
 			return;
@@ -353,9 +351,11 @@ namespace dx3d {
 			DX3DLogError("SceneManagerが存在しない。");
 			return;
 		}
-		scene_manager_->ReloadActiveScene();		// シーンリロード
+		scene_manager_->ReloadAllScene();		// シーンリロード
 		ecs_coordinator_->ReactivateAllSystems();	// システムの再アクティブ化
 		ecs_coordinator_->FlushPending();			// 保留中の変更を反映
+
+		ResetPlayerToStart();	// プレイヤーをスタート位置にリセット
 
 	}
 
@@ -426,5 +426,61 @@ namespace dx3d {
 
 		DebugLogInfo("[Game] シーン遷移オフセットを適用: offset=({}, {}, {})", offset.x, offset.y, offset.z);
 		scene_manager_->ClearPendingTransitionInfo();
-	};
+	}
+
+	//! @brief プレイヤーをスタート位置にリセット
+	void Game::ResetPlayerToStart()
+	{
+		if (!ecs_coordinator_ || !scene_manager_) { return; }
+
+		const auto& activeScene = scene_manager_->GetActiveScene();
+		if (!activeScene) { return; }
+
+		// 全ロード済みシーンから "StartLight" を探す
+		DirectX::XMFLOAT3 startPos{ 0.0f, 2.0f, 0.0f }; // フォールバック
+		bool foundStart = false;
+
+		// アクティブシーンのEntityから探索
+		const auto& entities = scene_manager_->GetEntitiesInScene(*activeScene);
+		for (const auto& e : entities) {
+			auto* nameComp = ecs_coordinator_->GetComponent<ecs::Name>(e);
+			if (nameComp && nameComp->value == "StartLight") {
+				auto* tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
+				if (tf) {
+					// StartLightの直下位置（ライトは上から照らすのでy=1程度に補正）
+					startPos = { tf->position.x, 1.0f, tf->position.z };
+					foundStart = true;
+				}
+				break;
+			}
+		}
+
+		if (!foundStart) {
+			DebugLogWarning("[Game] StartLight が見つからないため、デフォルト位置を使用");
+		}
+
+		// "Player" を探してスタート位置に移動
+		// GameRootScene のEntityを探索
+		const auto& rootEntities = scene_manager_->GetEntitiesInScene("GameRootScene");
+		for (const auto& e : rootEntities) {
+			auto* nameComp = ecs_coordinator_->GetComponent<ecs::Name>(e);
+			if (nameComp && nameComp->value == "Player") {
+				auto* tf = ecs_coordinator_->GetComponent<ecs::Transform>(e);
+				if (tf) {
+					tf->SetPosition(startPos);
+				}
+				// Rigidbodyの速度もリセット
+				auto* rb = ecs_coordinator_->GetComponent<ecs::Rigidbody>(e);
+				if (rb) {
+					rb->linearVelocity = { 0.0f, 0.0f, 0.0f };
+					rb->angularVelocity = { 0.0f, 0.0f, 0.0f };
+					rb->force = { 0.0f, 0.0f, 0.0f };
+					rb->torque = { 0.0f, 0.0f, 0.0f };
+				}
+				DebugLogInfo("[Game] Player をスタート位置にリセット: ({}, {}, {})",
+					startPos.x, startPos.y, startPos.z);
+				break;
+			}
+		}
+	}
 }

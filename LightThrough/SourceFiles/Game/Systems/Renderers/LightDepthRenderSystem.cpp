@@ -108,7 +108,6 @@ namespace ecs
 		CollectBatches();			// バッチ収集
 		UpdateBatches();			// バッチ更新
 
-		// todo: シーンリロード時に他Systemが、shadow_lights_のclearより先にshadow_lights_にアクセスしてクラッシュする問題がある
 		shadow_lights_.clear();
 		// 深度パス実行
 		int32_t shadowIndex = 0;

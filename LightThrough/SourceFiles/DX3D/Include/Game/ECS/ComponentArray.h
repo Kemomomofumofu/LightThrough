@@ -12,6 +12,7 @@
 #include <typeindex>
 #include <type_traits>
 #include <cassert>
+#include <functional>
 #include <Game/ECS/Entity.h>
 
 namespace ecs
@@ -19,7 +20,7 @@ namespace ecs
 	/**
 	 * @brief コンポーネントリストのインターフェース
 	 *
-	 * コンポーネントリストが持つ基本機能を持っている
+	 * コンポーネントリストが持つ基本機能を定めている
 	 */
 	class IComponentArray {
 	public:
@@ -41,9 +42,20 @@ namespace ecs
 	public:
 		void Insert(Entity _e, const Com& _component);
 		Com* Get(Entity _e);
-		//const std::vector<Com>& GetAllComponents() const;
-		//const std::vector<Entity>& GetAllEntityIDs() const;
-		
+
+		/**
+		 * @brief このComponentを持つ全EntityのIDリストを取得
+		 * @return Entityの参照（コピーなし）
+		 */
+		const std::vector<Entity>& GetAllEntityIDs() const { return entity_IDs_; }
+
+		/**
+		 * @brief このComponentの全データを取得
+		 * @return Componentの参照（コピーなし）
+		 */
+		const std::vector<Com>& GetAllComponents() const { return components_; }
+
+		void ForEach(const std::function<void(Entity, const Com&)>& _func) const;
 
 		void EntityDestroyed(Entity _e) override;
 		void Remove(Entity _e) override;
@@ -51,9 +63,9 @@ namespace ecs
 		void AddRaw(Entity _e, const void* _src) override;
 
 	private:
-		std::vector<Com> components_{};	// ComponentのVector配列
-		std::vector<Entity> entity_IDs_{};	// Componentに対応するEntityのVector配列
-		std::unordered_map<Entity, size_t> entity_to_index_{};	// EntityとIndexを対応させるためのMap
+		std::vector<Com> components_{};
+		std::vector<Entity> entity_IDs_{};
+		std::unordered_map<Entity, size_t> entity_to_index_{};
 	};
 
 

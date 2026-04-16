@@ -49,6 +49,7 @@ namespace dx3d {
 		texture_registry_ = std::make_unique<TextureRegistry>(devicePtr);
 
 		texture_registry_->Load("hogehoge.png");
+		texture_registry_->Load("TitleLogo.png");
 	}
 
 	//! @brief デストラクタ

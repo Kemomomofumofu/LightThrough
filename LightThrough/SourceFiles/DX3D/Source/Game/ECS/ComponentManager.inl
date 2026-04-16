@@ -83,4 +83,26 @@ namespace ecs {
 		const std::type_index type = typeid(Com);
 		return static_cast<ComponentArray<Com>*>(component_arrays_[type].get());
 	}
+
+	/**
+	 * @brief 指定した型のComponentを持つ全EntityのIDリストを取得
+	 * @tparam Com コンポーネントの種類
+	 * @return Entityのリスト（const参照）
+	 */
+	template<typename Com>
+	const std::vector<Entity>& ComponentManager::GetEntitiesWithComponent()
+	{
+		return GetComponentArray<Com>()->GetAllEntityIDs();
+	}
+
+	/**
+	 * @brief 指定した型のComponentを全走査してコールバックを呼び出す
+	 * @tparam Com コンポーネントの種類
+	 * @param _func コールバック関数 (Entity, const Com&)
+	 */
+	template<typename Com>
+	void ComponentManager::ForEachComponent(const std::function<void(Entity, const Com&)>& _func)
+	{
+		GetComponentArray<Com>()->ForEach(_func);
+	}
 }

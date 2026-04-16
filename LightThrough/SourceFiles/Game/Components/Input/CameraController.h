@@ -1,7 +1,7 @@
 #pragma once
 /**
  * @file CameraController.h
- * @brief カメラ制御コンポーネント
+ * @brief カメラ操作コンポーネント
  * @author Arima Keita
  * @date 2025-09-05
  */
@@ -49,8 +49,8 @@ ECS_REFLECT_BEGIN(ecs::CameraController)
 ECS_REFLECT_FIELD(mode),
 ECS_REFLECT_FIELD(moveSpeed),
 ECS_REFLECT_FIELD(mouseSensitivity),
-ECS_REFLECT_FIELD(yaw),
-ECS_REFLECT_FIELD(pitch),
+ECS_REFLECT_FIELD_INSPECT_ONLY(yaw),
+ECS_REFLECT_FIELD_INSPECT_ONLY(pitch),
 ECS_REFLECT_FIELD(orbitTarget),
 ECS_REFLECT_FIELD(orbitDistance),
 ECS_REFLECT_FIELD(orbitYaw),
