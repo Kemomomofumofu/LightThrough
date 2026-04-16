@@ -220,7 +220,7 @@ namespace scene {
 		}
 
 		// 現在のアクティブシーンを保持
-		auto prevActive = active_scene_;
+		auto& prevActive = active_scene_;
 
 		for (const auto& id : ids) {
 			// アンロード

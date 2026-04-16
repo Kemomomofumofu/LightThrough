@@ -10,16 +10,20 @@
                     "isMain": true,
                     "nearZ": 200.0
                 },
+                "ecs::Name": {
+                    "value": "Camera"
+                },
                 "ecs::Transform": {
                     "position": {
                         "x": 0.0,
-                        "y": 200.0,
+                        "y": 0.0,
                         "z": 0.0
                     },
                     "rotationQuat": {
-                        "x": -0.7035623788833618,
-                        "y": 0.0002815896878018975,
-                        "z": -0.00027878780383616686
+                        "w": 1.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
                     },
                     "scale": {
                         "x": 1.0,
@@ -28,7 +32,120 @@
                     }
                 }
             },
-            "id": 33554433
+            "id": 1
+        },
+        {
+            "components": {
+                "ecs::Name": {
+                    "value": "TitleLogo"
+                },
+                "ecs::SpriteRenderer": {
+                    "color": {
+                        "w": 1.0,
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    },
+                    "layer": 0,
+                    "pivot": {
+                        "x": 0.0,
+                        "y": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0
+                    },
+                    "spriteName": "Assets/Textures/TitleLogo.png"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 1.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 0.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 2
+        },
+        {
+            "components": {
+                "ecs::Name": {
+                    "value": "UI_ToGameScene"
+                },
+                "ecs::TitleSceneItem": {
+                    "action": 0,
+                    "index": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 1.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 3
+        },
+        {
+            "components": {
+                "ecs::Name": {
+                    "value": "UI_ToEnd"
+                },
+                "ecs::TitleSceneItem": {
+                    "action": 1,
+                    "index": 0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 1.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 4
+        },
+        {
+            "components": {
+                "ecs::Name": {
+                    "value": "UI_TItleSceneItemManager"
+                },
+                "ecs::TitleSceneState": {}
+            },
+            "id": 5
         }
     ],
     "sceneId": "TitleScene",

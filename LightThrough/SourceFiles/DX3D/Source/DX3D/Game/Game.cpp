@@ -33,10 +33,12 @@
 #include <Game/Systems/Physics/IntegrationSystem.h>
 #include <Game/Systems/Physics/ClearForcesSystem.h>
 #include <Game/Systems/PlayerControllerSystem.h>
-#include <Game/Systems/Scenes/TitleSceneSystem.h>
 #include <Game/Systems/Gimmicks/ShadowTestSystem.h>
 #include <Game/Systems/Gimmicks/LightSpawnSystem.h>
 #include <Game/Systems/Events/TriggerEventDispatchSystem.h>
+
+#include <Game/Systems/Scenes/TitleSceneInputSystem.h>
+#include <Game/Systems/Scenes/TitleSceneVisualSystem.h>
 
 #include <Game/Components/Core/Name.h>
 #include <Game/Components/Core/Transform.h>
@@ -54,6 +56,9 @@
 #include <Game/Components/Physics/GroundContact.h>
 #include <Game/Components/GamePlay/LightPlaceRequest.h>
 #include <Game/Components/Events/TriggerEvents.h>
+#include <Game/Components/Scenes/TitleSceneItem.h>
+#include <Game/Components/Scenes/TitleSceneState.h>
+
 
 #include <Debug/DebugUI.h>
 #include <Debug/Debug.h>
@@ -87,6 +92,8 @@ namespace {
 		_ecs.RegisterComponent<ecs::TriggerTag>();
 		_ecs.RegisterComponent<ecs::TriggerContact>();
 		_ecs.RegisterComponent<ecs::GrabRequest>();
+		_ecs.RegisterComponent<ecs::TitleSceneItem>();
+		_ecs.RegisterComponent<ecs::TitleSceneState>();
 	}
 
 	/**
@@ -137,7 +144,8 @@ namespace {
 		ecs.RegisterSystem<ecs::ClearForcesSystem>(_systemDesc);
 
 		// タイトル独自の更新
-		//ecs.RegisterSystem<ecs::TitleSceneSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::TitleSceneInputSystem>(_systemDesc);
+		ecs.RegisterSystem<ecs::TitleSceneVisualSystem>(_systemDesc);
 
 		// 親子解決など
 		ecs.RegisterSystem<ecs::TransformSystem>(_systemDesc);
@@ -205,8 +213,10 @@ namespace dx3d {
 			// Sceneの生成・読み込み・アクティベート
 
 			//scene_manager_->AddScene("DebugScene");
-			scene_manager_->AddScene("GameRootScene");
-			ChangeScene("Stage_1");
+			//scene_manager_->AddScene("GameRootScene");
+			//ChangeScene("Stage_1");
+
+			scene_manager_->ChangeScene("TitleScene");
 
 
 			// Systemの登録
