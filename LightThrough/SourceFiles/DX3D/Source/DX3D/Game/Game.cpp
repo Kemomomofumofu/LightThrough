@@ -24,7 +24,6 @@
 #include <Game/Systems/Renderers/LightDepthRenderSystem.h>
 #include <Game/Systems/Renderers/RenderSystem.h>
 #include <Game/Systems/Renderers/SpriteRenderSystem.h>
-#include <Game/Systems/Renderers/OutlineRenderSystem.h>
 #include <Game/Systems/Renderers/DebugRenderSystem.h>
 #include <Game/Systems/Collisions/ColliderSyncSystem.h>
 #include <Game/Systems/Collisions/CollisionResolveSystem.h>
@@ -153,7 +152,6 @@ namespace {
 		// カメラ・描画系
 		ecs.RegisterSystem<ecs::CameraSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::RenderSystem>(_systemDesc);
-		ecs.RegisterSystem<ecs::OutlineRenderSystem>(_systemDesc);
 		ecs.RegisterSystem<ecs::SpriteRenderSystem>(_systemDesc);
 
 		// デバッグ情報の描画

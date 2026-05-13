@@ -23,6 +23,7 @@ namespace dx3d {
 		case VertexShaderKind::Default:   file = paths_.vsDefault; break;
 		case VertexShaderKind::Instanced: file = paths_.vsInstanced; break;
 		case VertexShaderKind::ShadowMap: file = paths_.vsShadow; break;
+		case VertexShaderKind::Fullscreen: file = paths_.vsFullscreen; break;
 		default: DX3DLogThrowError("[ShaderCache] 未対応の頂点シェーダー");
 		}
 
@@ -51,9 +52,10 @@ namespace dx3d {
 		case PixelShaderKind::None:    file = nullptr; break;
 		case PixelShaderKind::Default: file = paths_.psDefault; break;
 		case PixelShaderKind::Color: file = paths_.psColor; break;
-		case PixelShaderKind::Outline: file = paths_.psColor; break;
 		case PixelShaderKind::Sprite: file = paths_.psSprite; break;
 		case PixelShaderKind::ShadowDebug: file = paths_.psShadowDebug; break;
+		case PixelShaderKind::PostOutline: file = paths_.psPostOutline; break;
+		case PixelShaderKind::PostVhs: file = paths_.psPostVhs; break;
 		default: DX3DLogThrowError("[ShaderCache] 未対応のピクセルシェーダー");
 		}
 

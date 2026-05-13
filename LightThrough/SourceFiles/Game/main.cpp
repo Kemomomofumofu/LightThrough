@@ -6,7 +6,7 @@
  */
 
 
-/*----- インクルード -----*/
+ /*----- インクルード -----*/
 #include <DX3D/All.h>
 #include <Debug/Debug.h>
 
@@ -22,8 +22,9 @@ int main(void)
 
 	try {
 		dx3d::Game game({
-				{1920, 1080},					// ウィンドウサイズ
-				dx3d::Logger::LogLevel::Info	// ログ
+			// {1920, 1080},					// ウィンドウサイズ
+			{640, 360},
+			dx3d::Logger::LogLevel::Info	// ログ
 			});
 		game.Run();	// ゲーム実行
 	}

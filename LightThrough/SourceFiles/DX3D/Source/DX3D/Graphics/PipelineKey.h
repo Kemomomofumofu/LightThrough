@@ -21,9 +21,10 @@ namespace dx3d {
 		None = 0,
 		Default,
 		Color,
-		Outline,
 		Sprite,
 		ShadowDebug,
+		PostOutline,
+		PostVhs,
 		Max,
 	};
 

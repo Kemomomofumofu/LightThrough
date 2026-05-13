@@ -27,13 +27,15 @@ namespace dx3d {
 		const char* vsDefault = "Assets/Shaders/Vertex/VS_Default.hlsl";
 		const char* vsInstanced = "Assets/Shaders/Vertex/VS_Instanced.hlsl";
 		const char* vsShadow = "Assets/Shaders/Vertex/VS_Shadow.hlsl";
+		const char* vsFullscreen = "Assets/Shader/Vertex/VS_Fullscreen.hlsl";
 
 		// Pixel Shader
 		const char* psDefault = "Assets/Shaders/Pixel/PS_Default.hlsl";
 		const char* psColor = "Assets/Shaders/Pixel/PS_Color.hlsl";
-		const char* psOutline = "Assets/Shaders/Pixel/PS_Outline.hlsl";
 		const char* psSprite = "Assets/Shaders/Pixel/PS_Sprite.hlsl";
 		const char* psShadowDebug = "Assets/Shaders/Pixel/PS_ShadowMapDebug.hlsl";
+		const char* psPostOutline = "Assets/Shaders/Pixel/PS_PostOutline.hlsl";
+		const char* psPostVhs = "Assets/Shaders/Pixel/PS_PostVhs.hlsl";
 
 		// Compute Shader
 		const char* csShadowTest = "Assets/Shaders/Compute/CS_ShadowTest.hlsl";

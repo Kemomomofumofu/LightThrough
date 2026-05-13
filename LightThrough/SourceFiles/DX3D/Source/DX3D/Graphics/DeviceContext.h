@@ -39,6 +39,35 @@ namespace dx3d {
 		 */
 		void ClearAndSetBackBuffer(const SwapChain& _swapChain, const DirectX::XMFLOAT4& _color);
 
+      /**
+		 * @brief レンダーターゲットをクリアしてセット
+		 * @param _rtv レンダーターゲットビュー
+		 * @param _dsv 深度ステンシルビュー
+		 * @param _color クリアする色
+		 */
+		void ClearAndSetRenderTarget(ID3D11RenderTargetView* _rtv, ID3D11DepthStencilView* _dsv, const DirectX::XMFLOAT4& _color);
+       /**
+		 * @brief レンダーターゲットをセット
+		 * @param _numRtvs レンダーターゲットビュー数
+		 * @param _rtvs レンダーターゲットビュー配列
+		 * @param _dsv 深度ステンシルビュー
+		 */
+		void SetRenderTargets(uint32_t _numRtvs, ID3D11RenderTargetView* const* _rtvs, ID3D11DepthStencilView* _dsv);
+      /**
+		 * @brief レンダーターゲットをクリア
+		 * @param _rtv レンダーターゲットビュー
+		 * @param _color クリアする色
+		 */
+		void ClearRenderTarget(ID3D11RenderTargetView* _rtv, const DirectX::XMFLOAT4& _color);
+        /**
+		 * @brief 深度ステンシルをクリア
+		 * @param _dsv 深度ステンシルビュー
+		 * @param _depth クリアする深度値
+		 * @param _stencil クリアするステンシル値
+		 */
+		void ClearDepthStencil(ID3D11DepthStencilView* _dsv, float _depth = 1.0f, uint8_t _stencil = 0);
+
+
 		/**
 		 * @brief グラフィックスパイプラインステートをセット
 		 * @param _pipepline パイプラインステート
@@ -215,7 +244,12 @@ namespace dx3d {
 		 */
 		void DrawIndexedInstanced(uint32_t _indexCount, uint32_t _instanceCount, uint32_t _startIndex, uint32_t _baseVertex, uint32_t _startInstance);
 
-
+		/**
+		 * @brief バッファをリードバック
+		 * @param _dst 読み戻し先ステージングバッファ
+		 * @param _src 読み戻し元構造化バッファ
+		 * @return 読み戻したデータへのポインタ
+		 */
 		void* ReadbackBuffer(StagingBuffer& _dst, RWStructuredBuffer& _src);
 		// void UnmapReadback(StagingBuffer& _buffer);
 	private:
