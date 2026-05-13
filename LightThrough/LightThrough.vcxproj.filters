@@ -359,6 +359,6 @@
     <FxCompile Include="Assets\Shaders\Pixel\PS_Sprite.hlsl" />
     <FxCompile Include="Assets\Shaders\Vertex\VS_Fullscreen.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_PostVhs.hlsl" />
-    <FxCompile Include="Assets\Shaders\Pixel\PS_Outline.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_PostOutline.hlsl" />
   </ItemGroup>
 </Project>

@@ -211,10 +211,10 @@ namespace dx3d {
 			// Sceneの生成・読み込み・アクティベート
 
 			//scene_manager_->AddScene("DebugScene");
-			//scene_manager_->AddScene("GameRootScene");
-			//ChangeScene("Stage_1");
+			scene_manager_->AddScene("GameRootScene");
+			ChangeScene("Stage_1");
 
-			scene_manager_->ChangeScene("TitleScene");
+			//scene_manager_->ChangeScene("TitleScene");
 
 
 			// Systemの登録

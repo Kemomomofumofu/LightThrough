@@ -2,8 +2,6 @@
 /**
  * @file Base.h
  * @brief ベースクラス
- * @author Arima Keita
- * @date 2025-06-25
  */
 
  /*---------- インクルード ----------*/
@@ -20,7 +18,7 @@ namespace dx3d {
 	public:
 		explicit Base(const BaseDesc& _desc);
 		virtual ~Base();
-		virtual Logger& GetLogger() noexcept final;
+     virtual Logger& GetLogger() const noexcept final;
 
 	protected:
 		Base(const Base&) = delete;

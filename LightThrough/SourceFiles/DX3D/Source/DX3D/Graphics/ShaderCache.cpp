@@ -103,7 +103,9 @@ namespace dx3d {
 	{
 		std::ifstream ifs(_path);
 		if (!ifs) {
-			DX3DLogThrowError("[ShaderCache] シェーダファイルを開けません");
+          std::string message = "[ShaderCache] シェーダファイルを開けません: ";
+			message += _path ? _path : "(null)";
+			DX3DLogThrow(GetLogger(), std::runtime_error, Logger::LogLevel::Error, message.c_str());
 		}
 		return { std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>() };
 	}

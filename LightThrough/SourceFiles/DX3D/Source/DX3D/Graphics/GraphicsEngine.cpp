@@ -19,6 +19,7 @@
 #include <DX3D/Graphics/Meshes/PrimitiveFactory.h>
 #include <DX3D/Graphics/Textures/TextureRegistry.h>
 
+#include <DX3D/Graphics/GraphicsLogUtils.h>
 #include <Debug/Debug.h>
 
 namespace dx3d {
@@ -249,6 +250,127 @@ namespace dx3d {
 		if (!backBuffer) { return; }
 
 		ctx->CopyResource(backBuffer.Get(), scene_color_.texture.Get());
+	}
+
+	void GraphicsEngine::EnsureFrameResources()
+	{
+		if (!swap_chain_) { return; }
+
+		const Rect size = swap_chain_->GetSize();
+		if (size.width <= 0 || size.height <= 0) {
+			return;
+		}
+
+		if (frame_resource_size_.width == size.width &&
+			frame_resource_size_.height == size.height &&
+			scene_color_.texture &&
+			scene_depth_tex_) {
+			return;
+		}
+
+		frame_resource_size_ = size;
+
+		scene_color_ = {};
+		post_a_ = {};
+		post_b_ = {};
+		scene_depth_tex_.Reset();
+		scene_depth_dsv_.Reset();
+		scene_depth_srv_.Reset();
+
+		const uint32_t width = static_cast<uint32_t>((std::max)(1, size.width));
+		const uint32_t height = static_cast<uint32_t>((std::max)(1, size.height));
+
+		CreateOffscreenTarget(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, scene_color_);
+		CreateOffscreenTarget(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, post_a_);
+		CreateOffscreenTarget(width, height, DXGI_FORMAT_R8G8B8A8_UNORM, post_b_);
+
+		D3D11_TEXTURE2D_DESC depthDesc{};
+		depthDesc.Width = width;
+		depthDesc.Height = height;
+		depthDesc.MipLevels = 1;
+		depthDesc.ArraySize = 1;
+		depthDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+		depthDesc.SampleDesc.Count = 1;
+		depthDesc.SampleDesc.Quality = 0;
+		depthDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+
+		DX3DGraphicsLogThrowOnFail(
+			graphics_device_->CreateTexture2D(&depthDesc, nullptr, &scene_depth_tex_),
+			"CreateTexture2D(SceneDepth) ‚ÉŽ¸”s"
+		);
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+		dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Texture2D.MipSlice = 0;
+		DX3DGraphicsLogThrowOnFail(
+			graphics_device_->CreateDepthStencilView(scene_depth_tex_.Get(), &dsvDesc, &scene_depth_dsv_),
+			"CreateDepthStencilView(SceneDepth) ‚ÉŽ¸”s"
+		);
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		DX3DGraphicsLogThrowOnFail(
+			graphics_device_->CreateShaderResourceView(scene_depth_tex_.Get(), &srvDesc, &scene_depth_srv_),
+			"CreateShaderResourceView(SceneDepth) ‚ÉŽ¸”s"
+		);
+
+		if (!post_linear_sampler_) {
+			D3D11_SAMPLER_DESC samplerDesc{};
+			samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.MinLOD = 0.0f;
+			samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+			DX3DGraphicsLogThrowOnFail(
+				graphics_device_->GetD3DDevice()->CreateSamplerState(&samplerDesc, &post_linear_sampler_),
+				"CreateSamplerState(PostLinear) ‚ÉŽ¸”s"
+			);
+		}
+	}
+
+	void GraphicsEngine::CreateOffscreenTarget(uint32_t _width, uint32_t _height, DXGI_FORMAT _format, OffscreenTarget& _outTarget)
+	{
+		D3D11_TEXTURE2D_DESC texDesc{};
+		texDesc.Width = _width;
+		texDesc.Height = _height;
+		texDesc.MipLevels = 1;
+		texDesc.ArraySize = 1;
+		texDesc.Format = _format;
+		texDesc.SampleDesc.Count = 1;
+		texDesc.SampleDesc.Quality = 0;
+		texDesc.Usage = D3D11_USAGE_DEFAULT;
+		texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+		DX3DGraphicsLogThrowOnFail(
+			graphics_device_->CreateTexture2D(&texDesc, nullptr, &(_outTarget.texture)),
+			"CreateTexture2D(Offscreen) ‚ÉŽ¸”s"
+		);
+
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc{};
+		rtvDesc.Format = _format;
+		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		rtvDesc.Texture2D.MipSlice = 0;
+		DX3DGraphicsLogThrowOnFail(
+			graphics_device_->GetD3DDevice()->CreateRenderTargetView(_outTarget.texture.Get(), &rtvDesc, &(_outTarget.rtv)),
+			"CreateRenderTargetView(Offscreen) ‚ÉŽ¸”s"
+		);
+
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Format = _format;
+		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		DX3DGraphicsLogThrowOnFail(
+			graphics_device_->CreateShaderResourceView(_outTarget.texture.Get(), &srvDesc, &(_outTarget.srv)),
+			"CreateShaderResourceView(Offscreen) ‚ÉŽ¸”s"
+		);
 	}
 
 } // namespace dx3d
