@@ -12,6 +12,7 @@
 #include <memory>
 #include <cassert>
 #include <array>
+#include <functional>
 
 #include <Game/ECS/Entity.h>
 #include <Game/ECS/ECSUtils.h>
@@ -38,6 +39,17 @@ namespace ecs {
 		template<typename Com>
 		ComponentType GetComponentType();	// ComponentのTypeを取得
 
+		template<typename Com>
+		const std::vector<Entity>& GetEntitiesWithComponent();	// Componentを持つEntityの取得
+
+		/**
+		 * @brief 指定した型のComponentを全走査してコールバックを呼び出す
+		 * @tparam Com コンポーネントの種類
+		 * @param _func コールバック関数 (Entity, const Com&)
+		 */
+		template<typename Com>
+		void ForEachComponent(const std::function<void(Entity, const Com&)>& _func);
+
 		void AddComponent(Entity _e, ComponentType _type, const void* _data);
 		void RemoveComponent(Entity _e, ComponentType _type);	// Componentの削除
 		void EntityDestroyed(Entity _e);	// Entityが破棄された際に呼び出す
@@ -50,7 +62,7 @@ namespace ecs {
 		std::unordered_map<std::type_index, std::unique_ptr<IComponentArray>> component_arrays_;	// Componentリストを保持するMap
 		std::unordered_map<std::type_index, ComponentType> component_types_;	// コンポーネントに対応する整数を保持するMap
 		std::array<IComponentArray*, MAX_COMPONENTS> component_arrays_by_type_{}; // ComponentTypeからComponentArrayを取得するための配列
-		ComponentType next_component_type_ = 0;	// 次に登録されるコンポーネントのType
+		ComponentType next_component_type_ = 0;	// 次に登録するコンポーネントのType
 	};
 
 }

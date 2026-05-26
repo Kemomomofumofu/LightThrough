@@ -234,8 +234,8 @@ namespace ecs {
 			dx3d::InstanceDataSprite inst{};
 			const float cx = tf->position.x;
 			const float cy = tf->position.y;
-			const float w = spr->size.x * tf->scale.x;
-			const float h = spr->size.y * tf->scale.y;
+			const float w = spr->size.x;
+			const float h = spr->size.y;
 
 			inst.world = MakeUISpriteWorldCenteredOrigin(
 				tf->position.x, tf->position.y,

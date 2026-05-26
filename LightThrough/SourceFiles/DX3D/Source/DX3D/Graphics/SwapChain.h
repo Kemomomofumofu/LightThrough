@@ -1,10 +1,4 @@
 #pragma once
-/**
- * @file SwapChain.h
- * @brief スワップチェイン
- * @author Arima Keita
- * @date 2025-06-25
- */
 
  /*---------- インクルード ----------*/
 #include <DX3D/Graphics/GraphicsResource.h>
@@ -22,6 +16,8 @@ namespace dx3d {
 		void Clear(DeviceContext& _context, const DirectX::XMFLOAT4& _color);
 		void ClearAndBind(DeviceContext& _context, const DirectX::XMFLOAT4& _color);
 		void BindBackBuffer(DeviceContext& _context);
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> GetBackBufferTexture() const;
 
 		//25-11-05 todo: 仮でここに置いとく。最終的にはPipelineStateに統合するのが丸そう。
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> depth_tex_{};

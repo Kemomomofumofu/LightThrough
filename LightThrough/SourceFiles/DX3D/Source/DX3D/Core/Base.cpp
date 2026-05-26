@@ -1,8 +1,6 @@
 /**
  * @file Base.cpp
  * @brief 基底クラスさん
- * @author Arima Keita
- * @date 2025-06-25
  */
 
 /*---------- インクルード ----------*/
@@ -29,7 +27,7 @@ dx3d::Base::~Base()
  * @brief ロガーの取得
  * @return ロガー
  */
-Logger& dx3d::Base::GetLogger() noexcept
+Logger& dx3d::Base::GetLogger() const noexcept
 {
 	return logger_;
 }

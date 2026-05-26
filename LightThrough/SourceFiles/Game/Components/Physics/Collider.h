@@ -19,6 +19,7 @@ namespace ecs {
 
 		collision::BoxShape box;
 		collision::SphereShape sphere;
+		DirectX::XMFLOAT3 offset{};
 		bool isTrigger = false;
 		bool isStatic = false;
 		bool shapeDirty = true;	// å`èÛÇ™ïœçXÇ≥ÇÍÇΩÇ©
@@ -36,6 +37,7 @@ ECS_REFLECT_BEGIN(ecs::Collider)
 ECS_REFLECT_FIELD(type),
 ECS_REFLECT_FIELD(box),
 ECS_REFLECT_FIELD(sphere),
+ECS_REFLECT_FIELD(offset),
 ECS_REFLECT_FIELD(isTrigger),
 ECS_REFLECT_FIELD(isStatic)
 ECS_REFLECT_END()

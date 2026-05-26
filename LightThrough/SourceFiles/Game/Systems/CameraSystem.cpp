@@ -121,10 +121,11 @@ namespace ecs {
 			if (_controller->enableMove) {
 				XMVECTOR forward = XMVector3Rotate(XMVectorSet(0, 0, 1, 0), localQ);
 				XMVECTOR right = XMVector3Rotate(XMVectorSet(1, 0, 0, 0), localQ);
-				XMVECTOR up = XMVector3Rotate(XMVectorSet(0, 1, 0, 0), localQ);
+				XMVECTOR up = XMVectorSet(0, 1, 0, 0);
 
 				XMVECTOR pos = XMLoadFloat3(&_transform->position);
-				const float moveSpeed = _controller->moveSpeed * _dt;	// ë¨ìxåWêî
+				float moveSpeed = _controller->moveSpeed * _dt;	// ë¨ìxåWêî
+				if (input.IsKeyDown(VK_SHIFT)) { moveSpeed *= 2.0f; }	// ShiftÇ≈â¡ë¨
 				if (input.IsKeyDown('W')) { pos += forward * moveSpeed; }
 				if (input.IsKeyDown('S')) { pos -= forward * moveSpeed; }
 				if (input.IsKeyDown('A')) { pos -= right * moveSpeed; }

@@ -251,8 +251,8 @@ namespace ecs {
 			// スポットライトなら
 			if (ecs_.HasComponent<SpotLight>(entry.light)) {
 				auto spot = ecs_.GetComponent<SpotLight>(entry.light);
-				params.cosOuterAngle = spot->outerCos;
-				params.cosInnerAngle = spot->innerCos;
+				params.cosOuterAngle = spot->OuterCos();
+				params.cosInnerAngle = spot->InnerCos();
 				params.lightRange = spot->range;
 			}
 			// CB更新
@@ -273,7 +273,7 @@ namespace ecs {
 			ID3D11Buffer* cb = cb_params_->GetBuffer();
 			immediateContext->CSSetConstantBuffers(0, 1, &cb);
 			// SRV
-			ID3D11ShaderResourceView* csSrvs[2];
+			ID3D11ShaderResourceView* csSrvs[2]{};
 			csSrvs[0] = point_buffer_->GetSRV();
 			csSrvs[1] = lightDepthSystem->GetShadowMapSRVs();
 			immediateContext->CSSetShaderResources(0, 2, csSrvs);
@@ -290,7 +290,7 @@ namespace ecs {
 			uint32_t groupCount = static_cast<uint32_t>(testPoints.size() + CS_THREAD_GROUP_SIZE - 1) / CS_THREAD_GROUP_SIZE;
 			immediateContext->Dispatch(groupCount, 1, 1);
 
-			// GPUを待ってから結果を取得
+			//結果を取得
 			immediateContext->CopyResource(staging_buffer_->GetBuffer(), result_buffer_->GetBuffer());
 			void* mappedData = staging_buffer_->Map();
 			if (mappedData) {
@@ -384,14 +384,6 @@ namespace ecs {
 					++litCount;
 				}
 			}
-#if defined(DEBUG) || defined(_DEBUG)
-			/*
-			DebugLogInfo("[ShadowTestSystem] Entity pair ({}, {}): {}/{} points lit, allInShadow={}",
-				test.a.id_, test.b.id_,
-				litCount, test.contactPointCount,
-				allContactPointsInShadow);
-			*/
-#endif // DEBUG || _DEBUG
 
 			ShadowTestResult result{};
 			result.allContactPointsInShadow = allContactPointsInShadow;
@@ -439,7 +431,7 @@ namespace ecs {
 		debug_test_points_.reserve(_testPoints.size());
 
 		for (size_t i = 0; i < _testPoints.size(); ++i) {
-			DebugTestPoint debugPoint;
+			DebugTestPoint debugPoint{};
 			debugPoint.position = _testPoints[i];
 			// isLitByAnyLight が false の場合は影の中
 			debugPoint.isInShadow = !_isLitByAnyLight[i];

@@ -1,62 +1,822 @@
-2026-02-17 02:26:43 [INFO] [TextureRegistry] テクスチャをロード: Assets/Textures/hogehoge.png
+2026-05-26 19:10:28 [INFO] [TextureRegistry] テクスチャをロード: Assets/Textures/hogehoge.png
 
-2026-02-17 02:26:44 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/TestScene.json'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] sceneId ='TestScene' sceneName = 'TestScene'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] entities count = '8'
-2026-02-17 02:26:44 [INFO] 
+2026-05-26 19:10:28 [INFO] [TextureRegistry] テクスチャをロード: Assets/Textures/TitleLogo.png
+
+2026-05-26 19:10:29 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/GameRootScene.json'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] sceneId ='GameRootScene' sceneName = 'GameRootScene'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:10:29 [INFO] 
 [SceneSerializer] DeserializeEntity index=0
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] 
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:29 [INFO] 
 [SceneSerializer] DeserializeEntity index=1
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] 
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:29 [INFO] 
 [SceneSerializer] DeserializeEntity index=2
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] 
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:10:29 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_1.json'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] sceneId ='Stage_1' sceneName = 'Stage_1'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:10:29 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:29 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:29 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:10:29 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:10:34 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:10:34 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:10:34 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:10:34 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_2 -> Stage_2
+2026-05-26 19:10:34 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:10:34 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:10:34 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:34 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:34 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:10:34 [INFO] 
 [SceneSerializer] DeserializeEntity index=3
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] 
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:34 [INFO] 
 [SceneSerializer] DeserializeEntity index=4
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] 
-[SceneSerializer] DeserializeEntity index=5
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] 
-[SceneSerializer] DeserializeEntity index=6
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] 
-[SceneSerializer] DeserializeEntity index=7
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Name'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
-2026-02-17 02:26:44 [INFO] [SceneSerializer] DeserializeScene done
-2026-02-17 02:26:49 [INFO] [SceneSerializer] SerializeScene done
-2026-02-17 02:26:56 [INFO] ゲーム終了処理中...
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:34 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:10:34 [INFO] [Game] goalPos=(10, 10, 0), startPos=(10, 10, 0), offset=(0, 0, 0)
+2026-05-26 19:10:34 [INFO] [Game] シーン遷移オフセットを適用: offset=(0, 0, 0)
+2026-05-26 19:10:40 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/GameRootScene.json'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] sceneId ='GameRootScene' sceneName = 'GameRootScene'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:10:40 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:40 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:10:40 [INFO] [Game] Player をスタート位置にリセット: (10, 1, 0)
+2026-05-26 19:10:41 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/GameRootScene.json'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] sceneId ='GameRootScene' sceneName = 'GameRootScene'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:10:41 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:10:41 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:10:41 [INFO] [Game] Player をスタート位置にリセット: (10, 1, 0)
+2026-05-26 19:11:06 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:11:06 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:11:06 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:11:06 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_1 -> Stage_1
+2026-05-26 19:11:06 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:11:06 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_1.json'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] sceneId ='Stage_1' sceneName = 'Stage_1'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:11:06 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:06 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:06 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:11:06 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:11:06 [INFO] [Game] goalPos=(10, 10, 30), startPos=(0, 10, 0), offset=(10, 0, 30)
+2026-05-26 19:11:06 [INFO] [Game] シーン遷移オフセットを適用: offset=(10, 0, 30)
+2026-05-26 19:11:14 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:11:14 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:11:14 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:11:14 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_2 -> Stage_2
+2026-05-26 19:11:14 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:11:14 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:11:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:11:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:14 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:11:14 [INFO] [Game] goalPos=(20, 10, 30), startPos=(10, 10, 0), offset=(10, 0, 30)
+2026-05-26 19:11:14 [INFO] [Game] シーン遷移オフセットを適用: offset=(10, 0, 30)
+2026-05-26 19:11:16 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/GameRootScene.json'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] sceneId ='GameRootScene' sceneName = 'GameRootScene'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:11:16 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:16 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:11:16 [INFO] [Game] Player をスタート位置にリセット: (10, 1, 0)
+2026-05-26 19:11:42 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/GameRootScene.json'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] sceneId ='GameRootScene' sceneName = 'GameRootScene'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:11:42 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:42 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:11:42 [INFO] [Game] Player をスタート位置にリセット: (10, 1, 0)
+2026-05-26 19:11:58 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:11:58 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:11:58 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:11:58 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_1 -> Stage_1
+2026-05-26 19:11:58 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:11:58 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_1.json'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] sceneId ='Stage_1' sceneName = 'Stage_1'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:11:58 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:58 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:58 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:11:58 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:11:58 [INFO] [Game] goalPos=(10, 10, 30), startPos=(0, 10, 0), offset=(10, 0, 30)
+2026-05-26 19:11:58 [INFO] [Game] シーン遷移オフセットを適用: offset=(10, 0, 30)
+2026-05-26 19:12:00 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:12:00 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:12:00 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:12:00 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_2 -> Stage_2
+2026-05-26 19:12:00 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:12:00 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:12:00 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:00 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:00 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:12:00 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:00 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:00 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:12:00 [INFO] [Game] goalPos=(20, 10, 30), startPos=(10, 10, 0), offset=(10, 0, 30)
+2026-05-26 19:12:00 [INFO] [Game] シーン遷移オフセットを適用: offset=(10, 0, 30)
+2026-05-26 19:12:13 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/GameRootScene.json'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] sceneId ='GameRootScene' sceneName = 'GameRootScene'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::GroundContact'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::MoveDirectionSource'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::PlayerController'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Camera'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::CameraController'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::ObjectChild'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:12:13 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:13 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:12:13 [INFO] [Game] Player をスタート位置にリセット: (10, 1, 0)
+2026-05-26 19:12:20 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:12:20 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:12:20 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:12:20 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_1 -> Stage_1
+2026-05-26 19:12:20 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:12:20 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_1.json'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] sceneId ='Stage_1' sceneName = 'Stage_1'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:12:20 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:20 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:20 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:12:20 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:12:20 [INFO] [Game] goalPos=(10, 10, 30), startPos=(0, 10, 0), offset=(10, 0, 30)
+2026-05-26 19:12:20 [INFO] [Game] シーン遷移オフセットを適用: offset=(10, 0, 30)
+2026-05-26 19:12:41 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:12:41 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:12:41 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:12:41 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_2 -> Stage_2
+2026-05-26 19:12:41 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:12:41 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:12:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:12:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:41 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:12:41 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:12:41 [INFO] [Game] goalPos=(20, 10, 30), startPos=(10, 10, 0), offset=(10, 0, 30)
+2026-05-26 19:12:41 [INFO] [Game] シーン遷移オフセットを適用: offset=(10, 0, 30)
+2026-05-26 19:13:11 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:13:11 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:13:11 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:13:11 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_1 -> Stage_1
+2026-05-26 19:13:11 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:13:11 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_1.json'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] sceneId ='Stage_1' sceneName = 'Stage_1'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:13:11 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:11 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:11 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:13:11 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:13:11 [INFO] [Game] goalPos=(20, 10, 60), startPos=(0, 10, 0), offset=(20, 0, 60)
+2026-05-26 19:13:11 [INFO] [Game] シーン遷移オフセットを適用: offset=(20, 0, 60)
+2026-05-26 19:13:14 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:13:14 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:13:14 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:13:14 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_2 -> Stage_2
+2026-05-26 19:13:14 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:13:14 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:13:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:13:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:14 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:14 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:13:14 [INFO] [Game] goalPos=(30, 10, 60), startPos=(10, 10, 0), offset=(20, 0, 60)
+2026-05-26 19:13:14 [INFO] [Game] シーン遷移オフセットを適用: offset=(20, 0, 60)
+2026-05-26 19:13:18 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:13:18 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:13:18 [INFO] [TriggerEvents] Goal -> Stage_1
+
+2026-05-26 19:13:18 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_1 -> Stage_1
+2026-05-26 19:13:18 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_1
+2026-05-26 19:13:18 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_1.json'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] sceneId ='Stage_1' sceneName = 'Stage_1'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] entities count = '3'
+2026-05-26 19:13:18 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:18 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:18 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:13:18 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:13:18 [INFO] [Game] goalPos=(30, 10, 90), startPos=(0, 10, 0), offset=(30, 0, 90)
+2026-05-26 19:13:18 [INFO] [Game] シーン遷移オフセットを適用: offset=(30, 0, 90)
+2026-05-26 19:13:23 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:13:23 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:13:23 [INFO] [TriggerEvents] Goal -> Stage_2
+
+2026-05-26 19:13:23 [WARNING] [SceneManager] 保留中のシーン切り替えを上書き Stage_2 -> Stage_2
+2026-05-26 19:13:23 [INFO] [SceneManager] シーン切り替えリクエスト: Stage_2
+2026-05-26 19:13:23 [INFO] [SceneSerializer] DeserializeScene: open 'Assets/Scenes/Stage_2.json'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] sceneId ='Stage_2' sceneName = 'Stage_2'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] entities count = '5'
+2026-05-26 19:13:23 [INFO] 
+[SceneSerializer] DeserializeEntity index=0
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:23 [INFO] 
+[SceneSerializer] DeserializeEntity index=1
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:23 [INFO] 
+[SceneSerializer] DeserializeEntity index=2
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::LightCommon'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::SpotLight'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::TriggerTag'
+2026-05-26 19:13:23 [INFO] 
+[SceneSerializer] DeserializeEntity index=3
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Rigidbody'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:23 [INFO] 
+[SceneSerializer] DeserializeEntity index=4
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Collider'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::MeshRenderer'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Name'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] Adding component 'ecs::Transform'
+2026-05-26 19:13:23 [INFO] [SceneSerializer] DeserializeScene done
+2026-05-26 19:13:23 [INFO] [Game] goalPos=(40, 10, 90), startPos=(10, 10, 0), offset=(30, 0, 90)
+2026-05-26 19:13:23 [INFO] [Game] シーン遷移オフセットを適用: offset=(30, 0, 90)
+2026-05-26 19:13:35 [INFO] ゲーム終了処理中...

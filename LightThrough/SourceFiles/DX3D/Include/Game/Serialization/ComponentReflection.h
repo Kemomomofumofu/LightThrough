@@ -15,16 +15,36 @@
 #include <array>
 #include <nlohmann/json.hpp>
 
+#include <Game/ECS/Entity.h>
 
 #include <Debug/Debug.h>
 
 namespace ecs {
-	struct Entity;
 	class Coordinator;
 }
 
 namespace ecs_serial {
 	using json = nlohmann::json;
+
+	/**
+	 * @brief フィールドフラグ
+	 */
+	enum class FieldFlag : uint8_t
+	{
+		Serialize  = 1 << 0,  // JSON保存対象
+		Inspect    = 1 << 1,  // ImGui表示対象
+		All        = Serialize | Inspect,
+	};
+
+	constexpr FieldFlag operator|(FieldFlag _a, FieldFlag _b)
+	{
+		return static_cast<FieldFlag>(
+			static_cast<uint8_t>(_a) | static_cast<uint8_t>(_b));
+	}
+	constexpr bool HasFlag(FieldFlag _field, FieldFlag _flag)
+	{
+		return (static_cast<uint8_t>(_field) & static_cast<uint8_t>(_flag)) != 0;
+	}
 
 	/**
 	 * @brief フィールド情報
@@ -36,14 +56,7 @@ namespace ecs_serial {
 	{
 		std::string_view name;	// jsonキー/フィールド名
 		MemberT T::* member;	// メンバポインタ
-	};
-
-	/**
-	 * @brief バリアント情報
-	 */
-	struct VariantInfo {
-		std::string name;	// バリアント名
-		json defaultData;	// デフォルトデータ
+		FieldFlag flags = FieldFlag::All;	// フラグ
 	};
 
 	/**
@@ -55,7 +68,6 @@ namespace ecs_serial {
 	{
 		static constexpr auto Fields() { return std::make_tuple(); }
 		static constexpr std::string_view Name() { return "Unknown"; }
-		static std::vector<VariantInfo> Variants() { return {}; }
 	};
 
 
@@ -68,16 +80,19 @@ namespace ecs_serial {
 	{
 	public:
 		// 呼び出しラッパ
-		using AddFunc = std::function<void(ecs::Coordinator&, ecs::Entity&, const json&)>;
-		using HasFunc = std::function<bool(ecs::Coordinator&, ecs::Entity&)>;
-		using ToJsonFunc = std::function<json(ecs::Coordinator&, ecs::Entity&)>;
+		using AddFunc = std::function<void(ecs::Coordinator&, ecs::Entity, const json&)>;
+		using HasFunc = std::function<bool(ecs::Coordinator&, ecs::Entity)>;
+		using ToJsonFunc = std::function<json(ecs::Coordinator&, ecs::Entity)>;
+		using InspectFunc = std::function<bool(ecs::Coordinator&, ecs::Entity, float)>;
+		using RemoveFunc = std::function<void(ecs::Coordinator&, ecs::Entity)>;
 
 		struct Entry
 		{
-			AddFunc add{};
-			HasFunc has{};
-			ToJsonFunc toJson{};
-			std::vector<VariantInfo> variants{};
+			AddFunc     add{};
+			HasFunc     has{};
+			ToJsonFunc  toJson{};
+			InspectFunc inspect{};   // ImGui描画関数
+			RemoveFunc  remove{};    // コンポーネント削除関数
 		};
 
 		/**
@@ -91,23 +106,23 @@ namespace ecs_serial {
 		}
 
 		/**
-		 * @brief 名前と追加関数を登録
-		 * @param _name コンポーネント名
-		 * @param _add AddComponent 実行ラムダ
-		 * @param _has HasComponent 実行ラムダ
-		 * @param _toJson ToJson 実行ラムダ
+		 * @brief 名前と全関数を登録
 		 */
-		void Register(std::string_view _name, AddFunc _add, HasFunc _has, ToJsonFunc _toJson)
+		void Register(std::string_view _name, AddFunc _add, HasFunc _has,
+		              ToJsonFunc _toJson, InspectFunc _inspect, RemoveFunc _remove)
 		{
 			assert(registry_.find(std::string(_name)) == registry_.end());
-			registry_[std::string(_name)] = Entry{ std::move(_add), std::move(_has), std::move(_toJson) };
+			registry_[std::string(_name)] = Entry{
+				std::move(_add), std::move(_has), std::move(_toJson),
+				std::move(_inspect), std::move(_remove)
+			};
 		}
 
 		/**
 		* @brief 名前が存在すればコンポーネントを追加
 		* @return 追加できた: true, できない: false
 		*/
-		[[nodiscard]] bool AddIfExists(ecs::Coordinator& _coord, ecs::Entity& _e, std::string_view _name, const json& _data)
+		[[nodiscard]] bool AddIfExists(ecs::Coordinator& _coord, ecs::Entity _e, std::string_view _name, const json& _data)
 		{
 			auto it = registry_.find(std::string(_name));
 			if (it == registry_.end()) {
@@ -120,12 +135,7 @@ namespace ecs_serial {
 			return true;
 		}
 
-		bool Contains(const std::string& _name) const
-		{
-			return registry_.find(_name) != registry_.end();
-		}
-
-		json SerializeComponents(ecs::Coordinator& _coord, ecs::Entity& _e)
+		json SerializeComponents(ecs::Coordinator& _coord, ecs::Entity _e)
 		{
 			json comps = json::object();
 			for (auto& [name, entry] : registry_) {
@@ -145,7 +155,7 @@ namespace ecs_serial {
 			return registry_;
 		}
 
-		[[nodiscard]] bool AddDefault(ecs::Coordinator& _coord, ecs::Entity& _e, const std::string& _name)
+		[[nodiscard]] bool AddDefault(ecs::Coordinator& _coord, ecs::Entity _e, const std::string& _name)
 		{
 			auto it = registry_.find(_name);
 			if (it == registry_.end()) { return false; }
@@ -349,7 +359,7 @@ namespace ecs_serial {
 	}
 
 	/**
-	 * @brief オブジェクト -> JSON
+	 * @brief オブジェクト -> JSON（Serializeフラグのあるフィールドのみ）
 	 */
 	template<class T>
 	json Serialize(const T& _obj)
@@ -357,15 +367,16 @@ namespace ecs_serial {
 		json j = json::object();
 		auto fields = TypeReflection<T>::Fields();
 		for_each(fields, [&](auto&& _f) {
-			const auto& value = _obj.*(_f.member);
-			j[_f.name] = to_json_value(value);
-			});
-
+			if (HasFlag(_f.flags, FieldFlag::Serialize)) {
+				const auto& value = _obj.*(_f.member);
+				j[_f.name] = to_json_value(value);
+			}
+		});
 		return j;
 	}
 
 	/**
-	 * @brief JSON -> オブジェクト
+	 * @brief JSON -> オブジェクト（Serializeフラグのあるフィールドのみ）
 	 */
 	template<class T>
 	T Deserialize(const json& _j)
@@ -373,11 +384,12 @@ namespace ecs_serial {
 		T obj{};
 		auto fields = TypeReflection<T>::Fields();
 		for_each(fields, [&](auto&& f) {
-			if (_j.contains(f.name)) {
-				assign_value(obj.*(f.member), _j.at(f.name));
+			if (HasFlag(f.flags, FieldFlag::Serialize)) {
+				if (_j.contains(f.name)) {
+					assign_value(obj.*(f.member), _j.at(f.name));
+				}
 			}
-			});
-
+		});
 		return obj;
 	}
 
@@ -402,15 +414,29 @@ template<> struct ecs_serial::TypeReflection<Type> { \
 		return std::make_tuple(
 
  /**
-  * @brief フィールド列挙マクロ
-  * 末尾カンマは呼び出し側で調整 (最後のフィールドはカンマ無し)
+  * @brief フィールド列挙マクロ（保存 + 表示）
   */
 #define ECS_REFLECT_FIELD(Member) \
-		ecs_serial::FieldInfo<This, decltype(This::Member)>{ std::string_view(#Member), &This::Member }
+		ecs_serial::FieldInfo<This, decltype(This::Member)>{ \
+			std::string_view(#Member), &This::Member, ecs_serial::FieldFlag::All }
 
-  /**
-   * @brief 型特殊化終了
-   */
+/**
+ * @brief 表示専用フィールド（保存されない）
+ */
+#define ECS_REFLECT_FIELD_INSPECT_ONLY(Member) \
+		ecs_serial::FieldInfo<This, decltype(This::Member)>{ \
+			std::string_view(#Member), &This::Member, ecs_serial::FieldFlag::Inspect }
+
+/**
+ * @brief 保存専用フィールド（ImGuiに表示されない）
+ */
+#define ECS_REFLECT_FIELD_SERIALIZE_ONLY(Member) \
+		ecs_serial::FieldInfo<This, decltype(This::Member)>{ \
+			std::string_view(#Member), &This::Member, ecs_serial::FieldFlag::Serialize }
+
+/**
+ * @brief 型特殊化終了
+ */
 #define ECS_REFLECT_END() ); } };
 
 
@@ -422,6 +448,7 @@ template<> struct ecs_serial::TypeReflection<Type> { \
     do { \
         ecs_serial::ComponentRegistry::Get().Register( \
             ecs_serial::TypeReflection<ComponentT>::Name(), \
+            /* add */ \
             [](ecs::Coordinator& _coord, ecs::Entity _e, const nlohmann::json& _j){ \
                 auto componentPtr = std::make_shared<ComponentT>( \
                     ecs_serial::Deserialize<ComponentT>(_j) \
@@ -434,13 +461,25 @@ template<> struct ecs_serial::TypeReflection<Type> { \
                     } \
                 ); \
             }, \
+            /* has */ \
             [](ecs::Coordinator& _coord, ecs::Entity _e) { \
                 return _coord.HasComponent<ComponentT>(_e); \
             }, \
+            /* toJson */ \
             [](ecs::Coordinator& _coord, ecs::Entity _e) { \
                 auto* p = _coord.GetComponent<ComponentT>(_e); \
                 if (!p) { return nlohmann::json::object(); } \
                 return ecs_serial::Serialize(*p); \
+            }, \
+			/* inspect */ \
+			[](ecs::Coordinator& _coord, ecs::Entity _e, float _speed) -> bool { \
+				auto* p = _coord.GetComponent<ComponentT>(_e); \
+				if (!p) { return false; } \
+				return debug::DrawReflectedComponentFields(*p, _speed); \
+}, \
+            /* remove */ \
+            [](ecs::Coordinator& _coord, ecs::Entity _e) { \
+                _coord.RequestRemoveComponent<ComponentT>(_e); \
             } \
         ); \
     } while(0)

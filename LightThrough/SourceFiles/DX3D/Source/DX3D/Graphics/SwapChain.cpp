@@ -1,19 +1,9 @@
-/**
- * @file SwapChain.cpp
- * @brief スワップチェイン
- * @author Arima Keita
- * @date 2025-06-25
- */
-
  /*---------- インクルード ----------*/
 #include <DX3D/Graphics/SwapChain.h>
 
 
-/**
- * @brief コンストラクタ
- * @param _desc スワップチェインの設定
- * @param _gDesc グラフィックリソースの設定
- */
+
+//! @brief コンストラクタ
 dx3d::SwapChain::SwapChain(const SwapChainDesc& _desc, const GraphicsResourceDesc& _gDesc)
 	: GraphicsResource(_gDesc),
 	size_(_desc.winSize)
@@ -47,18 +37,24 @@ dx3d::Rect dx3d::SwapChain::GetSize() const noexcept
 }
 
 
-/**
- * @brief 描画、切り替え
- * @param _vsync フラグ
- */
+//! @brief バッファの表示
 void dx3d::SwapChain::Present(bool _vsync)
 {
 	DX3DGraphicsLogThrowOnFail(swap_chain_->Present(_vsync, 0), "Present に 失敗");
 }
 
-/**
- * @brief バッファのロード
- */
+//! @brief バックバッファのテクスチャを取得
+Microsoft::WRL::ComPtr<ID3D11Texture2D> dx3d::SwapChain::GetBackBufferTexture() const
+{
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> buffer{};
+	DX3DGraphicsLogThrowOnFail(
+		swap_chain_->GetBuffer(0, IID_PPV_ARGS(&buffer)),
+		"GetBuffer に失敗"
+	);
+	return buffer;
+}
+
+//! @brief バッファの再読み込み
 void dx3d::SwapChain::ReloadBuffers()
 {
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> buffer{};

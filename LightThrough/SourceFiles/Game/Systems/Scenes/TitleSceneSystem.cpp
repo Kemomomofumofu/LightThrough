@@ -43,6 +43,7 @@ namespace ecs {
 	 */
 	void TitleSceneSystem::Update(float _dt)
 	{
+		/*
 		using namespace DirectX;
 
 		if (scene_manager_.GetActiveScene() != "TitleScene") { return; }
@@ -108,10 +109,6 @@ namespace ecs {
 			// Transform ‚ðƒ‰ƒCƒg•ûŒü‚ÉŒü‚¯‚é
 			tf->SetRotationFromDirection(dir);
 		}
-	}
-
-
-	void TitleSceneSystem::DebugTitleScene()
-	{
+		*/
 	}
 }

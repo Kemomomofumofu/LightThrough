@@ -10,167 +10,13 @@
                             "z": 0.5
                         }
                     },
-                    "isStatic": false,
-                    "isTrigger": false,
-                    "sphere": {
-                        "radius": 0.5
-                    },
-                    "type": 1
-                },
-                "ecs::GroundContact": {
-                    "isGrounded": true
-                },
-                "ecs::MoveDirectionSource": {
-                    "targetName": "PlayerCamera"
-                },
-                "ecs::Name": {
-                    "value": "Player"
-                },
-                "ecs::PlayerController": {
-                    "handLightName": "PlayerSpotLight",
-                    "jumpForce": 6.5,
-                    "moveSpeed": 25.0
-                },
-                "ecs::Rigidbody": {
-                    "angularDrag": 1.0,
-                    "drag": 2.0,
-                    "friction": 1.0,
-                    "isKinematic": false,
-                    "isStatic": false,
-                    "mass": 1.0,
-                    "restitution": 0.0,
-                    "useGravity": true
-                },
-                "ecs::Transform": {
-                    "position": {
-                        "x": -0.11505254358053207,
-                        "y": 0.9876113533973694,
-                        "z": 5.076033592224121
-                    },
-                    "rotationQuat": {
-                        "w": 1.0,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "scale": {
-                        "x": 1.0,
-                        "y": 1.0,
-                        "z": 1.0
-                    }
-                }
-            },
-            "id": 1
-        },
-        {
-            "components": {
-                "ecs::LightCommon": {
-                    "color": {
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 1.0
-                    },
-                    "enabled": false,
-                    "intensity": 100.0
-                },
-                "ecs::Name": {
-                    "value": "PlayerSpotLight"
-                },
-                "ecs::ObjectChild": {
-                    "rootName": "PlayerCamera"
-                },
-                "ecs::SpotLight": {
-                    "innerCos": 1.0,
-                    "outerCos": 0.800000011920929,
-                    "range": 100.0
-                },
-                "ecs::Transform": {
-                    "position": {
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "rotationQuat": {
-                        "w": 1.0,
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "scale": {
-                        "x": 1.0,
-                        "y": 1.0,
-                        "z": 1.0
-                    }
-                }
-            },
-            "id": 2
-        },
-        {
-            "components": {
-                "ecs::Camera": {
-                    "aspectRatio": 1.7777777910232544,
-                    "farZ": 100.0,
-                    "fovY": 100.0,
-                    "isActive": true,
-                    "isMain": true,
-                    "nearZ": 0.10000000149011612
-                },
-                "ecs::CameraController": {
-                    "enableMove": false,
-                    "invertY": false,
-                    "mode": 0,
-                    "mouseSensitivity": 0.0020000000949949026,
-                    "moveSpeed": 5.0,
-                    "orbitDistance": 5.0,
-                    "orbitPitch": 0.13079412281513214,
-                    "orbitTarget": {
-                        "x": 0.0,
-                        "y": 0.0,
-                        "z": 0.0
-                    },
-                    "orbitYaw": 1.8999505043029785,
-                    "pitch": 0.09479638934135437,
-                    "yaw": 3.1505470275878906
-                },
-                "ecs::Name": {
-                    "value": "PlayerCamera"
-                },
-                "ecs::ObjectChild": {
-                    "rootName": "Player"
-                },
-                "ecs::Transform": {
-                    "position": {
-                        "x": 0.0,
-                        "y": 1.0,
-                        "z": 0.0
-                    },
-                    "rotationQuat": {
-                        "w": -0.004471996333450079,
-                        "x": -0.0002121234283549711,
-                        "y": 0.9988669157028198,
-                        "z": -0.047379978001117706
-                    },
-                    "scale": {
-                        "x": 1.0,
-                        "y": 1.0,
-                        "z": 1.0
-                    }
-                }
-            },
-            "id": 3
-        },
-        {
-            "components": {
-                "ecs::Collider": {
-                    "box": {
-                        "halfExtents": {
-                            "x": 0.5,
-                            "y": 0.5,
-                            "z": 0.5
-                        }
-                    },
                     "isStatic": true,
                     "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "sphere": {
                         "radius": 0.5
                     },
@@ -184,7 +30,7 @@
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 0.0,
+                        "x": 10.0,
                         "y": 0.0,
                         "z": 0.0
                     },
@@ -201,7 +47,7 @@
                     }
                 }
             },
-            "id": 4
+            "id": 134217735
         },
         {
             "components": {
@@ -218,14 +64,14 @@
                     "value": "StartLight"
                 },
                 "ecs::SpotLight": {
-                    "innerCos": 1.0,
-                    "outerCos": 0.800000011920929,
+                    "innerAngleRad": 0.49000000953674316,
+                    "outerAngleRad": 0.5,
                     "range": 50.0
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 0.0,
-                        "y": 11.050000190734863,
+                        "x": 10.0,
+                        "y": 10.0,
                         "z": 0.0
                     },
                     "rotationQuat": {
@@ -241,10 +87,30 @@
                     }
                 }
             },
-            "id": 5
+            "id": 134217736
         },
         {
             "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 3.5,
+                            "y": 3.5,
+                            "z": 0.15000000596046448
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": true,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 9.300000190734863
+                    },
+                    "sphere": {
+                        "radius": 2.700000047683716
+                    },
+                    "type": 1
+                },
                 "ecs::LightCommon": {
                     "color": {
                         "x": 1.0,
@@ -258,13 +124,13 @@
                     "value": "GoalLight"
                 },
                 "ecs::SpotLight": {
-                    "innerCos": 0.8999999761581421,
-                    "outerCos": 0.800000011920929,
-                    "range": 50.0
+                    "innerAngleRad": 0.49000000953674316,
+                    "outerAngleRad": 0.5,
+                    "range": 100.0
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 0.0,
+                        "x": 10.0,
                         "y": 10.0,
                         "z": 30.0
                     },
@@ -279,9 +145,13 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "ecs::TriggerTag": {
+                    "param": "Stage_1",
+                    "type": 1
                 }
             },
-            "id": 6
+            "id": 134217737
         },
         {
             "components": {
@@ -295,6 +165,11 @@
                     },
                     "isStatic": false,
                     "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "sphere": {
                         "radius": 0.5
                     },
@@ -318,9 +193,9 @@
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": -0.04106812924146652,
-                        "y": 1.487287163734436,
-                        "z": 1.913218379020691
+                        "x": 10.428467750549316,
+                        "y": 1.489852786064148,
+                        "z": 3.4548089504241943
                     },
                     "rotationQuat": {
                         "w": 1.0,
@@ -335,7 +210,7 @@
                     }
                 }
             },
-            "id": 7
+            "id": 83886082
         },
         {
             "components": {
@@ -349,6 +224,11 @@
                     },
                     "isStatic": true,
                     "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
                     "sphere": {
                         "radius": 0.5
                     },
@@ -362,7 +242,7 @@
                 },
                 "ecs::Transform": {
                     "position": {
-                        "x": 0.0,
+                        "x": 10.0,
                         "y": 9.199999809265137,
                         "z": 21.850000381469727
                     },
@@ -379,10 +259,10 @@
                     }
                 }
             },
-            "id": 8
+            "id": 134217739
         }
     ],
-    "sceneId": "TestScene",
-    "sceneName": "TestScene",
+    "sceneId": "Stage_2",
+    "sceneName": "Stage_2",
     "version": 1
 }

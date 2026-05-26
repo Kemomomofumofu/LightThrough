@@ -176,7 +176,6 @@
     <ClInclude Include="SourceFiles\DX3D\Include\Game\Scene\SceneData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.h" />
     <ClInclude Include="SourceFiles\Game\Factorys\PrefabFactory.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Buffers\InstanceData.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\Texture.h" />
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.h" />
@@ -217,7 +216,6 @@
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\Core\Lifetime.h" />
     <ClInclude Include="SourceFiles\Game\Components\Physics\GroundContact.h" />
-    <ClInclude Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.h" />
     <ClInclude Include="SourceFiles\Game\Components\GamePlay\LightPlaceRequest.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.h" />
@@ -227,6 +225,14 @@
     <ClInclude Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureHandle.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.h" />
     <ClInclude Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Events\TriggerEvents.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Events\TriggerEventDispatchSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Scenes\TitleSceneState.h" />
+    <ClInclude Include="SourceFiles\Game\Components\Scenes\TitleSceneItem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneInputSystem.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneVisualSystem.h" />
+    <ClInclude Include="SourceFiles\Debug\ComponentInspector.h" />
+    <ClInclude Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\DeviceContext.cpp">
@@ -303,7 +309,6 @@
     <ClCompile Include="SourceFiles\DX3D\Source\Game\Scene\SceneManager.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\Game\Scene\SceneSerializer.cpp" />
     <ClCompile Include="SourceFiles\Game\Factorys\PrefabFactory.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\InputLayout.cpp" />
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\PipelineCache.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Collisions\ColliderSyncSystem.cpp" />
@@ -323,13 +328,16 @@
     <ClCompile Include="SourceFiles\DX3D\Source\DX3D\Graphics\Textures\TextureRegistry.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MoveDirectionSourceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\ObjectResolveSystem.cpp" />
-    <ClCompile Include="SourceFiles\Game\Systems\Renderers\OutlineRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Physics\GroundDetectionSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Gimmicks\LightSpawnSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\LightReferenceResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\MeshHandleResolveSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Renderers\SpriteRenderSystem.cpp" />
     <ClCompile Include="SourceFiles\Game\Systems\Initialization\Resolve\TextureHandleResolveSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Events\TriggerEventDispatchSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneInputSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneVisualSystem.cpp" />
+    <ClCompile Include="SourceFiles\Game\Systems\Scenes\TitleSceneSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceFiles\DX3D\Source\Game\ECS\ComponentManager.inl" />
@@ -349,5 +357,8 @@
     <FxCompile Include="Assets\Shaders\Pixel\PS_ShadowMapDebug.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Sprite.hlsl" />
+    <FxCompile Include="Assets\Shaders\Vertex\VS_Fullscreen.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_PostVhs.hlsl" />
+    <FxCompile Include="Assets\Shaders\Pixel\PS_PostOutline.hlsl" />
   </ItemGroup>
 </Project>

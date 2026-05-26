@@ -108,7 +108,6 @@ namespace ecs
 		CollectBatches();			// バッチ収集
 		UpdateBatches();			// バッチ更新
 
-		// todo: シーンリロード時に他Systemが、shadow_lights_のclearより先にshadow_lights_にアクセスしてクラッシュする問題がある
 		shadow_lights_.clear();
 		// 深度パス実行
 		int32_t shadowIndex = 0;
@@ -309,11 +308,11 @@ namespace ecs
 
 
 	/**
-	 * @brief Brief シャドウマップ描画パス
+	 * @brief シャドウマップ描画パス
 	 */
 	void LightDepthRenderSystem::RenderShadowPass(ShadowLightEntry _entry, ID3D11DepthStencilView* _dsv)
 	{
-		// todo: 即時コンテキストを直叩きからAPIに置き換える
+		// todo: 即時コンテキストを直叩きからAPIに置き換えたい(優先度は低めで)
 
 		auto debugRenderSystem = debug_render_system_.lock();
 		auto immediateContext = engine_.GetImmediateContext();

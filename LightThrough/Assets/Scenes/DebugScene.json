@@ -1,0 +1,84 @@
+{
+    "entities": [
+        {
+            "components": {
+                "ecs::Camera": {
+                    "aspectRatio": 1.7777777910232544,
+                    "farZ": 100.0,
+                    "fovY": 100.0,
+                    "isActive": true,
+                    "isMain": true,
+                    "nearZ": 0.10000000149011612
+                },
+                "ecs::CameraController": {
+                    "enableMove": true,
+                    "invertY": false,
+                    "mode": 0,
+                    "mouseSensitivity": 0.0020000000949949026,
+                    "moveSpeed": 5.0,
+                    "orbitDistance": 5.0,
+                    "orbitPitch": 0.13079412281513214,
+                    "orbitTarget": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "orbitYaw": 1.8999505043029785,
+                    "pitch": 1.5607963800430298,
+                    "yaw": 14.222494125366211
+                },
+                "ecs::Name": {
+                    "value": "PlayerCamera"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": -10.084277153015137,
+                        "y": 14.567534446716309,
+                        "z": 10.472691535949707
+                    },
+                    "rotationQuat": {
+                        "w": 0.4806049168109894,
+                        "x": 0.4758227467536926,
+                        "y": 0.5234680771827698,
+                        "z": -0.5182594060897827
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 1
+        },
+        {
+            "components": {
+                "ecs::Name": {
+                    "value": "EventHub"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 1.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 6
+        }
+    ],
+    "sceneId": "DebugScene",
+    "sceneName": "DebugScene",
+    "version": 1
+}

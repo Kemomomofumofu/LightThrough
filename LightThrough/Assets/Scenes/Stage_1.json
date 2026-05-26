@@ -1,0 +1,160 @@
+{
+    "entities": [
+        {
+            "components": {
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 0.0,
+                        "y": 1.0,
+                        "z": 0.0
+                    },
+                    "enabled": true,
+                    "intensity": 100.0
+                },
+                "ecs::Name": {
+                    "value": "StartLight"
+                },
+                "ecs::SpotLight": {
+                    "innerAngleRad": 0.49000000953674316,
+                    "outerAngleRad": 0.5,
+                    "range": 50.0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 0.0,
+                        "y": 10.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 0.7071068286895752,
+                        "x": 0.7071067094802856,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                }
+            },
+            "id": 4
+        },
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "z": 0.5
+                        }
+                    },
+                    "isStatic": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "sphere": {
+                        "radius": 0.5
+                    },
+                    "type": 1
+                },
+                "ecs::MeshRenderer": {
+                    "meshName": "Cube"
+                },
+                "ecs::Name": {
+                    "value": "Ground"
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 5.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 1.0,
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1000.0,
+                        "y": 1.0,
+                        "z": 1000.0
+                    }
+                }
+            },
+            "id": 5
+        },
+        {
+            "components": {
+                "ecs::Collider": {
+                    "box": {
+                        "halfExtents": {
+                            "x": 3.5,
+                            "y": 3.5,
+                            "z": 0.15000000596046448
+                        }
+                    },
+                    "isStatic": false,
+                    "isTrigger": true,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 9.300000190734863
+                    },
+                    "sphere": {
+                        "radius": 2.700000047683716
+                    },
+                    "type": 1
+                },
+                "ecs::LightCommon": {
+                    "color": {
+                        "x": 1.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "enabled": true,
+                    "intensity": 100.0
+                },
+                "ecs::Name": {
+                    "value": "GoalLight"
+                },
+                "ecs::SpotLight": {
+                    "innerAngleRad": 0.49000000953674316,
+                    "outerAngleRad": 0.5,
+                    "range": 100.0
+                },
+                "ecs::Transform": {
+                    "position": {
+                        "x": 10.0,
+                        "y": 10.0,
+                        "z": 0.0
+                    },
+                    "rotationQuat": {
+                        "w": 0.7071068286895752,
+                        "x": 0.7071067094802856,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "scale": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "ecs::TriggerTag": {
+                    "param": "Stage_2",
+                    "type": 1
+                }
+            },
+            "id": 6
+        }
+    ],
+    "sceneId": "Stage_1",
+    "sceneName": "Stage_1",
+    "version": 1
+}

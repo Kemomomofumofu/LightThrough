@@ -14,6 +14,7 @@
 #include <Game/ECS/ComponentManager.h>
 #include <Game/ECS/SystemManager.h>
 #include <Game/Serialization/ComponentReflection.h>
+#include <Debug/ComponentInspector.h>
 
 namespace ecs {
 	/**
@@ -32,7 +33,7 @@ namespace ecs {
 	/**
 	 * @brief EntityにComponentを追加
 	 * @param <Com> 追加するComponentの種類
-	 * @param _e 追加先のEntity
+	 * @param _e 追加先Entity
 	 * @param _component 追加するComponentの参照
 	 */
 	template<typename Com>
@@ -49,7 +50,7 @@ namespace ecs {
 	/**
 	 * @brief EntityからComponentを削除
 	 * @param <Com> 削除するComponentの種類
-	 * @param _e 削除先のEntity
+	 * @param _e 削除先Entity
 	 */
 	template<typename Com>
 	void Coordinator::RemoveComponent(Entity _e)
@@ -62,7 +63,7 @@ namespace ecs {
 	/**
 	 * @brief EntityからComponentを取得
 	 * @param <Com> 取得するComponentの種類
-	 * @param _e 削除先のEntity
+	 * @param _e 削除先Entity
 	 */
 	template<typename Com>
 	Com* Coordinator::GetComponent(Entity _e)
@@ -74,19 +75,12 @@ namespace ecs {
 	/**
 	 * @brief 指定されたComponentを持っているEntityを取得
 	 * @param <Com> 指定するComponent
-	 * @return EntityのVector型リスト
+	 * @return EntityのVector型リスト（const参照、コピーなし）
 	 */
 	template<typename Com>
-	inline std::vector<Entity> Coordinator::GetEntitiesWithComponent()
+	inline const std::vector<Entity>& Coordinator::GetEntitiesWithComponent()
 	{
-		std::vector<Entity> result;
-		for (const auto& e : entity_manager_->GetAllEntities()) {
-			if (component_manager_->HasComponent<Com>(e)) {
-				result.push_back(e);	// 持っているなら追加
-			}
-		}
-
-		return result;
+		return component_manager_->template GetEntitiesWithComponent<Com>();
 	}
 
 
@@ -142,7 +136,7 @@ namespace ecs {
 	/**
 	 * @brief EntityからComponentの削除リクエストを出す
 	 * @param <Com> 削除するComponentの種類
-	 * @param _e 削除先のEntity
+	 * @param _e 削除先Entity
 	 */
 	template<typename Com>
 	inline void Coordinator::RequestRemoveComponent(Entity _e)
@@ -167,12 +161,12 @@ namespace ecs {
 	 * @param <Sys> Signatureを設定するSystemの種類
 	 * @param _signature 設定するSignature
 	 */
-	 // todo: 登録する際に、普通に間違えてComponent渡す可能性あるの怖い。対策すべきでは？
+	 // todo: 登録する際に、別に間違えるComponent渡す可能性あるの怖い。対策すべきでは？
 	template<typename Sys>
 	void Coordinator::SetSystemSignature(Signature& _signature)
 	{
 		system_manager_->SetSignature<Sys>(_signature);
-		// すでに存在するEntityに対しても反映させる
+		// すでに存在するEntityに対しても判定し直す
 		for (auto& e : entity_manager_->GetAllEntities()) {
 			system_manager_->EntitySignatureChanged(e, entity_manager_->GetSignature(e));
 		}
@@ -189,5 +183,16 @@ namespace ecs {
 	std::shared_ptr<Sys> Coordinator::GetSystem()
 	{
 		return system_manager_->GetSystem<Sys>();
+	}
+
+	/**
+	 * @brief 指定した型のComponentを全走査してコールバックを呼び出す
+	 * @tparam Com コンポーネントの種類
+	 * @param _func コールバック関数 (Entity, const Com&)
+	 */
+	template<typename Com>
+	void Coordinator::ForEachComponent(const std::function<void(Entity, const Com&)>& _func)
+	{
+		component_manager_->ForEachComponent<Com>(_func);
 	}
 }

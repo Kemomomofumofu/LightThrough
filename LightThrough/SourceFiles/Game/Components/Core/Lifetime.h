@@ -16,3 +16,8 @@ namespace ecs {
 		bool infiniteLifetime = false;	// –³ŒÀŽõ–½ƒtƒ‰ƒO
 	};
 }
+
+ECS_REFLECT_BEGIN(ecs::Lifetime)
+ECS_REFLECT_FIELD(lifetime),
+ECS_REFLECT_FIELD(infiniteLifetime)
+ECS_REFLECT_END()

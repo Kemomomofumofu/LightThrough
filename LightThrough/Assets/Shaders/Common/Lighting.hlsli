@@ -34,7 +34,7 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
 {
     float3 L = _light.pos_type.xyz - _worldPos;
     
-    // 距離と範囲判定(早期リターン)
+    // 距離と範囲判定
     float range = _light.dir_range.w;
     float dist2 = dot(L, L);
     float range2 = range * range;
@@ -48,7 +48,7 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
     float dist = sqrt(dist2);
     L /= max(dist, 1e-4);
     
-    // 裏側判定(早期リターン)
+    // 裏側判定
     float ndotl = Lambert(_normal, L);
     if (ndotl <= 0)
     {
@@ -70,12 +70,16 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
     
     // 中心からの減衰
     float spot = saturate((angle - outer) / max(inner - outer, 1e-4));
-    // 距離減衰付き
+    // 距離減衰
     //float atten = 1.0 - saturate(dist / max(range, 1e-4));
     
-    return ndotl * spot;
-    //return ndotl * spot * atten;
+    return spot;
+    
+    // return ndotl * spot; // 法線方向による減衰あり
+    // return ndotl * spot * atten; // 法線方向と距離による減衰あり
 
+    
+    
     //if (angle > inner)
     //{
     //    return 1.0f;
@@ -86,6 +90,7 @@ float ComputeSpot(LightPacked _light, float3 _normal, float3 _worldPos)
     //}
 }
 
+// ライトの種類に応じたライティング計算
 float ComputeLight(LightPacked _light, float3 _normal, float3 _worldPos)
 {
     int type = (int) _light.pos_type.w;

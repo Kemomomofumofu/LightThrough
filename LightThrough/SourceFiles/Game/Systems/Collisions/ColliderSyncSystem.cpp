@@ -19,6 +19,28 @@
 
 
 namespace ecs {
+	namespace {
+		DirectX::XMFLOAT3 ApplyLocalOffset(const Transform* _tf, const DirectX::XMFLOAT3& _offset)
+		{
+			using namespace DirectX;
+			// オフセットがゼロなら計算せずにワールド位置を返す
+			if (math::IsZeroVec(_offset)) { return _tf->GetWorldPosition(); }
+
+			XMFLOAT3 r = _tf->GetWorldRightCached();
+			XMFLOAT3 u = _tf->GetWorldUpCached();
+			XMFLOAT3 f = _tf->GetWorldForwardCached();
+
+			XMFLOAT3 worldPos = _tf->GetWorldPosition();
+			worldPos = math::Add(worldPos, math::Scale(r, _offset.x));
+			worldPos = math::Add(worldPos, math::Scale(u, _offset.y));
+			worldPos = math::Add(worldPos, math::Scale(f, _offset.z));
+
+			return worldPos;
+		}
+	}
+
+
+
 	ColliderSyncSystem::ColliderSyncSystem(const SystemDesc& _desc)
 		: ISystem(_desc)
 	{
@@ -41,7 +63,7 @@ namespace ecs {
 	 */
 	void ColliderSyncSystem::FixedUpdate(float _fixedDt)
 	{
-		for (auto e : entities_) {
+		for (auto& e : entities_) {
 			auto tf = ecs_.GetComponent<Transform>(e);
 			auto col = ecs_.GetComponent<Collider>(e);
 
@@ -74,7 +96,7 @@ namespace ecs {
 		const auto& s = _col->sphere;
 		const auto ws = _tf->GetWorldScaleCached();
 		float maxScale = (std::max)({ ws.x, ws.y, ws.z });
-		_col->worldSphere.center = _tf->GetWorldPosition();
+		_col->worldSphere.center = ApplyLocalOffset(_tf, _col->offset);
 		_col->worldSphere.radius = s.radius * maxScale;
 		_col->broadPhaseRadius = _col->worldSphere.radius;
 	}
@@ -97,7 +119,7 @@ namespace ecs {
 		_col->worldOBB.axis[2] = math::Normalize(f);
 
 		// 中心と半径
-		_col->worldOBB.center = _tf->GetWorldPosition();
+		_col->worldOBB.center = ApplyLocalOffset(_tf, _col->offset);
 
 		const auto ws = _tf->GetWorldScaleCached();
 		_col->worldOBB.half = {

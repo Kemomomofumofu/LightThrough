@@ -16,6 +16,7 @@
 #include <Game/Components/Core/Transform.h>
 #include <Game/Components/Physics/Collider.h>
 #include <Game/Components/Physics/Rigidbody.h>
+#include <Game/Components/Events/TriggerEvents.h>
 
 #include <DX3D/Math/MathUtils.h>
 
@@ -25,8 +26,6 @@ namespace ecs {
 	using namespace DirectX;
 
 	namespace {
-
-
 		template <class ...Ts>
 		struct Overloaded : Ts... { using Ts::operator()...; };
 		template <class... Ts>
@@ -56,11 +55,22 @@ namespace ecs {
 			);
 		}
 
+		// コライダーのワールド中心を取得するヘルパー
+		XMFLOAT3 GetColliderWorldCenter(const Collider* _col)
+		{
+			switch (_col->type) {
+			case collision::ShapeType::Sphere:
+				return _col->worldSphere.center;
+			case collision::ShapeType::Box:
+				return _col->worldOBB.center;
+			default:
+				return { 0, 0, 0 };
+			}
+		}
+
 		// Transform 変更直後に Collider の world 情報を即時更新するヘルパー
 		void UpdateColliderWorldFromTransform(Entity _e, Transform* _tf, Collider* _col)
 		{
-			// Transform 側の world 行列が必要なら BuildWorld を呼ぶ（Transform 側が dirty を管理しているならそちらで）
-			// ここでは Transform の position/rotation/scale の値を直接使って world 情報だけ更新する。
 			switch (_col->type) {
 			case collision::ShapeType::Sphere:
 			{
@@ -73,7 +83,6 @@ namespace ecs {
 			}
 			case collision::ShapeType::Box:
 			{
-				// rotationQuat から軸を計算して worldOBB.axis を更新（ColliderSync::BuildOBB と同一処理）
 				using namespace DirectX;
 				XMVECTOR q = XMQuaternionNormalize(XMLoadFloat4(&_tf->rotationQuat));
 
@@ -98,7 +107,6 @@ namespace ecs {
 			}			default:
 				break;
 			}
-			// Collider に即時反映したことを示す旗（使っているならセット）
 			_col->shapeDirty = false;
 		}
 
@@ -125,42 +133,19 @@ namespace ecs {
 	//! @brief 固定更新
 	void CollisionResolveSystem::FixedUpdate(float _fixedDt)
 	{
-		// 初期生成時にすり抜けてしまう問題を避けるため、最初の数フレームは影判定をスキップする (応急的な措置ではあるので、一フレームは必ずdeltaTimeを0にするような仕組みがあるといいかも。)
+		// memo: 初期生成時にすり抜けてしまう問題を避けるため、最初の数フレームは影判定をスキップする (応急的な措置ではあるので、一フレームは必ずdeltaTimeを0にするような仕組みがあるといいかも。)
 		constexpr float SHADOW_SKIP_Time = 1.0f;
-		if (time_ < SHADOW_SKIP_Time) { time_ += _fixedDt; }
-		bool skipShadowCheck = (time_ < SHADOW_SKIP_Time);
-
+		bool skipShadowCheck = false;
+		if (time_ < SHADOW_SKIP_Time) {
+			time_ += _fixedDt;
+			skipShadowCheck = (time_ < SHADOW_SKIP_Time);
+		}
 
 		auto shadow = shadow_test_system_.lock();
-		contacts_.clear();
-		// 全ペアも記憶する
+
 		std::unordered_set<std::pair<Entity, Entity>, EntityPairHash> currentContacts;
-
-		// ---------- 接触収集 ---------- //
-		std::vector<Entity> ents(entities_.begin(), entities_.end());
-		const size_t n = ents.size();
-
-		for (size_t i = 0; i < n; ++i) {
-			const Entity eA = ents[i];
-			auto tfA = ecs_.GetComponent<Transform>(eA);
-			auto colA = ecs_.GetComponent<Collider>(eA);
-			if (colA->isTrigger) { continue; }
-
-			for (size_t j = i + 1; j < n; ++j) {
-				const Entity eB = ents[j];
-				auto tfB = ecs_.GetComponent<Transform>(eB);
-				auto colB = ecs_.GetComponent<Collider>(eB);
-				if (colB->isTrigger) { continue; }
-
-				const float r = colA->broadPhaseRadius + colB->broadPhaseRadius;
-				if (math::DistSq(tfA->position, tfB->position) > r * r) { continue; }
-				auto c = DispatchContact(colA, colB);
-				if (!c || c->penetration <= 1e-6f) { continue; }
-
-				contacts_.push_back(ContactRecord{ eA, eB, *c, {} });
-				currentContacts.insert(std::minmax(eA, eB));
-			}
-		}
+		// ---------- 衝突ペアの収集 ---------- //
+		CollectCollisionPairs(currentContacts);
 
 		// ---------- 影判定スキップリスト更新 ---------- //
 		for (auto it = shadow_skip_pairs_.begin(); it != shadow_skip_pairs_.end();) {
@@ -174,8 +159,85 @@ namespace ecs {
 		}
 
 		// ---------- Contact の正規化 ---------- // 
+		NormalizeContacts();
+
+		// ---------- 影判定用サンプル点登録 ---------- // 
+		if (!skipShadowCheck) {
+			RegisterShadowTestPoints();
+		}
+
+		// ---------- 影判定実行 ---------- //
+		shadow->ExecuteShadowTests();
+
+		// ---------- 影判定結果に基づくフィルタリング ---------- //
+		ShadowFilterCollisions();
+
+		// ---------- トリガーイベント処理 ---------- //
+		ProcessTriggerEvents();
+
+		// ---------- 解決フェーズ ---------- //
+		SolvePenetration();
+		SolveVelocity(_fixedDt);
+
+
+		// ---------- 影衝突スキップペアの更新 ---------- //
+		UpdateShadowSkipPairs();
+
+	}
+
+	//! @brief シーン読み込み時処理
+	void CollisionResolveSystem::OnSceneLoaded()
+	{
+		contact_records_.clear();
+		trigger_records_.clear();
+		shadow_skip_pairs_.clear();
+		time_ = 0.0f;
+	}
+
+	//!@ 衝突ペアの収集
+	void CollisionResolveSystem::CollectCollisionPairs(std::unordered_set<std::pair<Entity, Entity>, EntityPairHash>& _currentContacts)
+	{
+		contact_records_.clear();
+		trigger_records_.clear();
+
+		std::vector<Entity> ents(entities_.begin(), entities_.end());
+		const size_t n = ents.size();
+
+		for (size_t i = 0; i < n; ++i) {
+			const Entity eA = ents[i];
+			auto tfA = ecs_.GetComponent<Transform>(eA);
+			auto colA = ecs_.GetComponent<Collider>(eA);
+
+			for (size_t j = i + 1; j < n; ++j) {
+				const Entity eB = ents[j];
+				auto tfB = ecs_.GetComponent<Transform>(eB);
+				auto colB = ecs_.GetComponent<Collider>(eB);
+
+				// ブロードフェーズ
+				const XMFLOAT3 centerA = GetColliderWorldCenter(colA);
+				const XMFLOAT3 centerB = GetColliderWorldCenter(colB);
+				const float r = colA->broadPhaseRadius + colB->broadPhaseRadius;
+				if (math::DistSq(centerA, centerB) > r * r) { continue; }
+
+				auto c = DispatchContact(colA, colB);
+				if (!c || c->penetration <= 1e-6f) { continue; }
+
+				if (colA->isTrigger || colB->isTrigger) {
+					trigger_records_.push_back(TriggerRecord{ eA, eB });
+					continue;
+				}
+
+				contact_records_.push_back(ContactRecord{ eA, eB, *c, {} });
+				_currentContacts.insert(std::minmax(eA, eB));
+			}
+		}
+	}
+
+	//! @brief 衝突法線の正規化
+	void CollisionResolveSystem::NormalizeContacts()
+	{
 		// 以降は rec.contact.normal を唯一の法線として使う
-		for (auto& rec : contacts_) {
+		for (auto& rec : contact_records_) {
 			auto colA = ecs_.GetComponent<Collider>(rec.a);
 			auto colB = ecs_.GetComponent<Collider>(rec.b);
 
@@ -190,10 +252,15 @@ namespace ecs {
 
 			rec.contact.normal = n;
 		}
+	}
 
-		// ---------- 影判定用サンプル点登録 ---------- // 
-		if (!skipShadowCheck && shadow_collision_enabled_ && shadow) {
-			for (auto& rec : contacts_) {
+	//! @brief 影判定のサンプル点生成
+	void CollisionResolveSystem::RegisterShadowTestPoints()
+	{
+		auto shadow = shadow_test_system_.lock();
+
+		if (shadow_collision_enabled_ && shadow) {
+			for (auto& rec : contact_records_) {
 				auto baseCol = ecs_.GetComponent<Collider>(rec.a);
 				auto otherCol = ecs_.GetComponent<Collider>(rec.b);
 				const XMFLOAT3 n = rec.contact.normal;
@@ -210,27 +277,66 @@ namespace ecs {
 			}
 		}
 
-		// test
-		shadow->ExecuteShadowTests();
+	}
 
-		// ---------- 解決フェーズ ---------- //
-		const float baumgarte = 0.2f;
+	//! @brief トリガーイベントの処理
+	void CollisionResolveSystem::ProcessTriggerEvents()
+	{
+		for (const auto& rec : trigger_records_) {
+			// イベント通知用のメソッド
+			auto emitTrigger = [&](Entity _self, Entity _other) {
+				if (!ecs_.HasComponent<TriggerTag>(_other)) { return; }
+				const auto* tag = ecs_.GetComponent<TriggerTag>(_other);
 
-		for (auto& rec : contacts_) {
+				TriggerContact::Entry entry{};
+				entry.other = _other;
+				entry.type = static_cast<TriggerType>(tag->type);
+				entry.param = tag->param;
 
-			// Shadow によって衝突自体を無視するケース
-			if (!skipShadowCheck) {
-				std::pair<Entity, Entity> key = std::minmax(rec.a, rec.b);
-				if (shadow_skip_pairs_.count(key)) {
-					rec.shadowSkiped = true;
-					continue; // スキップ対象なら即スキップ
+				// トリガーコンタクトを付与
+				if (ecs_.HasComponent<TriggerContact>(_self)) {
+					ecs_.GetComponent<TriggerContact>(_self)->entries.push_back(entry);
 				}
-				if (shadow_collision_enabled_ && shadow && shadow->AreBothInShadow(rec.a, rec.b)) {
-					shadow_skip_pairs_.insert(key); // 今回新たにスキップ対象に追加
-					rec.shadowSkiped = true;
-					continue;
+				else {
+					TriggerContact tc{};
+					tc.entries.push_back(entry);
+					ecs_.RequestAddComponent(_self, tc);
 				}
+				};
+
+			// 双方向にイベント通知
+			emitTrigger(rec.a, rec.b);
+			emitTrigger(rec.b, rec.a);
+		}
+	}
+
+	//! @brief 影判定
+	void CollisionResolveSystem::ShadowFilterCollisions()
+	{
+		auto shadow = shadow_test_system_.lock();
+
+		for (auto& rec : contact_records_) {
+			std::pair<Entity, Entity> key = std::minmax(rec.a, rec.b);
+
+			// 既にスキップ対象のペア
+			if (shadow_skip_pairs_.count(key)) {
+				rec.shadowSkiped = true;
+				continue;
 			}
+			// 新たに両方影の中にいるペア
+			if (shadow_collision_enabled_ && shadow && shadow->AreBothInShadow(rec.a, rec.b)) {
+				shadow_skip_pairs_.insert(key);
+				rec.shadowSkiped = true;
+				continue;
+			}
+		}
+	}
+
+	//! @brief 重なり解決
+	void CollisionResolveSystem::SolvePenetration()
+	{
+		for (auto& rec : contact_records_) {
+			if (rec.shadowSkiped) { continue; }
 
 			// 再取得（rec.a/rec.b は正規化後の順序）
 			auto colA = ecs_.GetComponent<Collider>(rec.a);
@@ -253,30 +359,33 @@ namespace ecs {
 				tfB->dirty = true;
 				UpdateColliderWorldFromTransform(rec.b, tfB, colB);
 			}
+		}
+	}
 
-			// ---------- インパルス解決 ---------- //
-			// ここでは "Static-Static" はスキップ、"Dynamic-Dynamic" と "Static-Dynamic" を扱う
-			if (colA->isStatic && colB->isStatic) {
-				continue; // 両方 static => 何もしない
-			}
+	//! @brief 加速度解決
+	void CollisionResolveSystem::SolveVelocity(float _dt)
+	{
+		const float baumgarte = 0.2f;
+
+		for (auto& rec : contact_records_) {
+			if (rec.shadowSkiped) { continue; }
+
+			auto colA = ecs_.GetComponent<Collider>(rec.a);
+			auto colB = ecs_.GetComponent<Collider>(rec.b);
+
+			// 両方staticはスキップ
+			if (colA->isStatic && colB->isStatic) { continue; }
 
 			// Rigidbody 必要性チェック（dynamic 側に Rigidbody が無ければ速度処理は不要）
 			Rigidbody* rbA = ecs_.HasComponent<Rigidbody>(rec.a) ? ecs_.GetComponent<Rigidbody>(rec.a) : nullptr;
 			Rigidbody* rbB = ecs_.HasComponent<Rigidbody>(rec.b) ? ecs_.GetComponent<Rigidbody>(rec.b) : nullptr;
 
-			// 動的側がいずれか存在しない場合はスキップ
-			if ((!rbA || rbA->isStatic || rbA->isKinematic) && (!rbB || rbB->isStatic || rbB->isKinematic)) {
-				continue;
-			}
+			if ((!rbA || rbA->isStatic || rbA->isKinematic) && (!rbB || rbB->isStatic || rbB->isKinematic)) { continue; }
 
 			// penetration と bias の算出
 			const float pen = (std::max)(rec.contact.penetration - solve_slop_, 0.0f);
-
-			// 判定: 双方 dynamic か、それ以外（片側 static）
 			const bool bothDynamic = !(colA->isStatic || colB->isStatic);
-
-			// bias は基本的に dynamic-dynamic のみ効かせ、static-dynamic では 0 にして静的オブジェクトが「速度によって」押される事を防ぐ
-			const float bias = (bothDynamic && pen > 0.0f && _fixedDt > 0.0f) ? (baumgarte * (pen / _fixedDt)) : 0.0f;
+			const float bias = (bothDynamic && pen > 0.0f && _dt > 0.0f) ? (baumgarte * (pen / _dt)) : 0.0f;
 
 			// 速度差（vB - vA）
 			XMFLOAT3 vA{ 0,0,0 }, vB{ 0,0,0 };
@@ -289,7 +398,7 @@ namespace ecs {
 			if (rbA) e = (std::max)(e, std::clamp(rbA->restitution, 0.0f, 1.0f));
 			if (rbB) e = (std::max)(e, std::clamp(rbB->restitution, 0.0f, 1.0f));
 
-			// 質量係数（片側 static の場合はその側は invMass = 0）
+			// 質量係数
 			const float invA = (rbA && rbA->mass > 0.0f && !rbA->isStatic && !rbA->isKinematic) ? (1.0f / rbA->mass) : 0.0f;
 			const float invB = (rbB && rbB->mass > 0.0f && !rbB->isStatic && !rbB->isKinematic) ? (1.0f / rbB->mass) : 0.0f;
 
@@ -301,7 +410,6 @@ namespace ecs {
 
 			const XMFLOAT3 impulseN = math::Scale(rec.contact.normal, jn);
 
-			// Static-動的 の場合でも、静的側には速度を与えない（invMass==0 のため実際は影響しないが明確にする）
 			if (rbA && invA > 0.0f) {
 				rbA->linearVelocity = math::Sub(rbA->linearVelocity, math::Scale(impulseN, invA));
 			}
@@ -315,7 +423,6 @@ namespace ecs {
 			if (tLen > 1e-6f) {
 				t = math::Scale(t, 1.0f / tLen);
 
-				// 摩擦係数: 双方が持つ場合は平均、それ以外は持っている方の値を使う
 				float muA = (rbA) ? std::clamp(rbA->friction, 0.0f, 1.0f) : 0.0f;
 				float muB = (rbB) ? std::clamp(rbB->friction, 0.0f, 1.0f) : 0.0f;
 				float mu = (rbA && rbB) ? ((muA + muB) * 0.5f) : (muA + muB);
@@ -333,10 +440,15 @@ namespace ecs {
 				}
 			}
 		}
+	}
 
-		// ---------- 影衝突スキップペアの更新 ---------- //
+	//! @brief スキップするペアの更新
+	void CollisionResolveSystem::UpdateShadowSkipPairs()
+	{
+		auto shadow = shadow_test_system_.lock();
+
 		std::unordered_set<std::pair<Entity, Entity>, EntityPairHash> newShadowSkips;
-		for (const auto& rec : contacts_) {
+		for (const auto& rec : contact_records_) {
 			if (shadow_collision_enabled_ && shadow) {
 				std::pair<Entity, Entity> key = std::minmax(rec.a, rec.b);
 				if (shadow_skip_pairs_.count(key)) {
@@ -345,14 +457,6 @@ namespace ecs {
 			}
 		}
 		shadow_skip_pairs_ = std::move(newShadowSkips);
-	}
-
-	//! @brief シーン読み込み時処理
-	void CollisionResolveSystem::OnSceneLoaded()
-	{
-		contacts_.clear();
-		shadow_skip_pairs_.clear();
-		time_ = 0.0f;
 	}
 
 } // namespace ecs

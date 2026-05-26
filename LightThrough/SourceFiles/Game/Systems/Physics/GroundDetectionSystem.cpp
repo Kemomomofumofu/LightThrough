@@ -47,7 +47,7 @@ namespace ecs {
 		constexpr float GROUND_NORMAL_Y_THRESHOLD = 0.7f;
 
 		// 衝突結果の走査
-		for (const auto& c : crs->GetContacts()) {
+		for (const auto& c : crs->GetContactRecords()) {
 			// 陰によりスキップされた衝突は地面判定に使わない
 			if (c.shadowSkiped) { continue; }
 

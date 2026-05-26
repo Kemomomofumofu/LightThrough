@@ -37,6 +37,12 @@ namespace ecs {
 			bool shadowSkiped = false; // 影判定でスキップされたか
 		};
 
+		//! @brief トリガー衝突記録
+		struct TriggerRecord {
+			Entity a;
+			Entity b;
+		};
+
 		explicit CollisionResolveSystem(const SystemDesc& _desc);
 		void Init() override;
 		void FixedUpdate(float _fixedDt) override;
@@ -45,8 +51,10 @@ namespace ecs {
 		//! @brief 影の中での衝突解消を有効にするか
 		void SetShadowCollisionEnabled(bool _enabled) { shadow_collision_enabled_ = _enabled; }
 
-		// 衝突リストを取得
-		const std::vector<ContactRecord>& GetContacts() const { return contacts_; }
+		//! @brief 衝突リストを取得
+		const std::vector<ContactRecord>& GetContactRecords() const { return contact_records_; }
+		//! @brief トリガー衝突リストを取得
+		const std::vector<TriggerRecord>& GetTriggerRecords() const { return trigger_records_; }
 	private:
 		using EntityPair = std::pair<Entity, Entity>;
 		struct EntityPairHash {
@@ -55,14 +63,29 @@ namespace ecs {
 			}
 		};
 
+		void CollectCollisionPairs(std::unordered_set<std::pair<Entity, Entity>, EntityPairHash>& _currentContacts);
+		void NormalizeContacts();
+		void RegisterShadowTestPoints();
+		void ProcessTriggerEvents();
+		void ShadowFilterCollisions();
+		void SolvePenetration();
+		void SolveVelocity(float _dt);
+		void UpdateShadowSkipPairs();
+
+
+	private:
 		std::weak_ptr<ShadowTestSystem> shadow_test_system_{};
-		std::vector<ContactRecord> contacts_; // 衝突リスト
+		std::vector<ContactRecord> contact_records_{}; // 衝突リスト
+		std::vector<TriggerRecord> trigger_records_{}; // トリガー衝突リスト
+
+
+
 		std::unordered_set<std::pair<Entity, Entity>, EntityPairHash> shadow_skip_pairs_{}; // 影で衝突解消をスキップするペア集合
 
 		float solve_percent_ = 2.0f; // 解消割合
 		float solve_slop_ = 0.01f;   // 微小貫通を無視する閾値
 		bool shadow_collision_enabled_ = true;	// 影での衝突解消を有効にするか
 
-		float time_ = 0; // 時間計測用
+		float time_ = 0.0f; // 時間計測用
 	};
 }

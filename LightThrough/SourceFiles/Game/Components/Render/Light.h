@@ -7,6 +7,7 @@
 
  // ---------- インクルード ---------- // 
 #include <cstdint>
+#include <cmath>
 #include <DirectXMath.h>
 #include <Game/Serialization/ComponentReflection.h>
 
@@ -49,15 +50,30 @@ namespace ecs {
 	struct SpotLight
 	{
 		float range = 100.0f;	// 到達距離
-		float innerCos = 0.9f;	// 内側コサイン
-		float outerCos = 0.8f;	// 外側コサイン
-		uint32_t _pad0{};
+		float innerAngleRad = 0.49f; // 内側角度(ラジアン)
+		float outerAngleRad = 0.5f; // 外側角度(ラジアン)
 
-		//! @brief Fov(Y)ラジアンの計算
-		inline float CulcFovYRadians() const noexcept {
-			float oc = std::clamp(outerCos, -1.0f, 1.0f);
-			return 2.0f * acosf(oc);
+		static constexpr float MIN_OUTER_RAD = 0.001f;
+
+		inline void Normalize() noexcept
+		{
+			if (!std::isfinite(range)) { range = 0.0f; }
+			range = (std::max)(0.0f, range);
+
+			if (!std::isfinite(innerAngleRad)) { innerAngleRad = 0.0f; }
+			if (!std::isfinite(outerAngleRad)) { outerAngleRad = 0.0f; }
+
+			constexpr float maxOuter = DirectX::XMConvertToRadians(89.9f);
+			outerAngleRad = std::clamp(outerAngleRad, MIN_OUTER_RAD, maxOuter);
+			innerAngleRad = std::clamp(innerAngleRad, 0.0f, outerAngleRad);
+
 		}
+
+		//! @brief 半角から全角へ変換
+		inline float CalcFovYRadians() const noexcept { return (std::max)(2.0f * MIN_OUTER_RAD, 2.0f * outerAngleRad); }
+
+		inline float OuterCos() const noexcept { return cosf(outerAngleRad); }
+		inline float InnerCos() const noexcept { return cosf(innerAngleRad); }
 	};
 
 	// GPUに送る際に使う構造体
@@ -114,8 +130,8 @@ namespace ecs {
 		if (_spot) {
 			L.pos_type.w = 1.0f; // Spot
 			L.dir_range.w = _spot->range;
-			L.spotAngles_shadowIndex.x = _spot->innerCos;
-			L.spotAngles_shadowIndex.y = _spot->outerCos;
+			L.spotAngles_shadowIndex.x = _spot->InnerCos();
+			L.spotAngles_shadowIndex.y = _spot->OuterCos();
 		}
 
 		return L;
@@ -124,14 +140,14 @@ namespace ecs {
 	inline LightViewProj BuildLightViewProj(const Transform* _tf, const SpotLight* _spot, float _nearZ = 0.0045f)
 	{
 		using namespace DirectX;
-		
+
 		// Transformの現在の方向ベクトルを取得
 		XMFLOAT3 ff3 = _tf->GetWorldForwardCached();
 		XMFLOAT3 uf3 = _tf->GetWorldUpCached();
 
 		XMVECTOR f = XMVector3Normalize(XMLoadFloat3(&ff3));
 		XMVECTOR u = XMVector3Normalize(XMLoadFloat3(&uf3));
-		
+
 		// 前方向と上方向がほぼ平行な場合は別の上方向を使用
 		float dotFU = XMVectorGetX(XMVector3Dot(f, u));
 		if (fabsf(dotFU) > 0.98f) {
@@ -146,7 +162,7 @@ namespace ecs {
 			// 直交化: upからforwardへの射影成分を除去
 			u = XMVector3Normalize(u - f * XMVectorGetX(XMVector3Dot(f, u)));
 		}
-		
+
 		// ビュー行列を構築
 		XMVECTOR eye = _tf->GetWorldPositionV();
 		XMMATRIX view = XMMatrixLookToLH(eye, f, u);
@@ -154,7 +170,7 @@ namespace ecs {
 		// 射影行列を構築
 		XMMATRIX proj;
 		if (_spot) {
-			float fovY = _spot->CulcFovYRadians();
+			float fovY = _spot->CalcFovYRadians();
 			float farZ = (std::max)(1.0f, _spot->range);
 			proj = XMMatrixPerspectiveFovLH(fovY, 1.0f, _nearZ, farZ);
 		}
@@ -180,6 +196,6 @@ ECS_REFLECT_END()
 // スポットライト
 ECS_REFLECT_BEGIN(ecs::SpotLight)
 ECS_REFLECT_FIELD(range),
-ECS_REFLECT_FIELD(innerCos),
-ECS_REFLECT_FIELD(outerCos)
+ECS_REFLECT_FIELD(innerAngleRad),
+ECS_REFLECT_FIELD(outerAngleRad)
 ECS_REFLECT_END()
