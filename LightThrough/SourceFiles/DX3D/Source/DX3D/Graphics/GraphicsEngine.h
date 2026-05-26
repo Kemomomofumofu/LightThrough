@@ -45,6 +45,7 @@ namespace dx3d {
 		void RenderInstanced(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0, PipelineKey _key = { VertexShaderKind::Instanced, PixelShaderKind::Default });
 		void RenderInstancedOnImmediate(VertexBuffer& _vb, IndexBuffer& _ib, VertexBuffer& _instanceVB, uint32_t _instanceCount, uint32_t _startInstance = 0, PipelineKey _key = { VertexShaderKind::Instanced, PixelShaderKind::Default });
 		void EndFrame();
+		void PresentFrame();
 
 		ID3D11RenderTargetView* GetSceneColorRTV() const noexcept { return scene_color_.rtv.Get(); }
 		ID3D11ShaderResourceView* GetSceneColorSRV() const noexcept { return scene_color_.srv.Get(); }

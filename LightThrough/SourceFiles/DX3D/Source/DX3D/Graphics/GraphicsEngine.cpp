@@ -145,6 +145,10 @@ namespace dx3d {
 		auto& context = *deferred_context_;
 		auto& device = *graphics_device_;
 		device.ExecuteCommandList(context);
+	}
+
+	void GraphicsEngine::PresentFrame()
+	{
 		swap_chain_->Present();
 	}
 

@@ -317,12 +317,15 @@ namespace dx3d {
 			ApplySceneTransitionOffset();
 		}
 
-		// デバッグUIの描画
-		debug::DebugUI::Render();
 
 		// 描画
 		graphics_engine_->EndFrame();
 
+		// デバッグUIの描画
+		debug::DebugUI::Render();
+
+		graphics_engine_->PresentFrame();
+		
 #if defined(_DEBUG) || defined(DEBUG)
 		if (auto* dev = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get()) {
 			const HRESULT hr = dev->GetDeviceRemovedReason();
