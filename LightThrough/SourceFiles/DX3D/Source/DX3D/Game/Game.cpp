@@ -191,7 +191,7 @@ namespace dx3d {
 		try {
 			// ImGuiの初期化
 			ID3D11Device* device = graphics_engine_->GetGraphicsDevice().GetD3DDevice().Get();
-			ID3D11DeviceContext* context = graphics_engine_->GetDeferredContext().GetDeferredContext().Get();
+			ID3D11DeviceContext* context = graphics_engine_->GetImmediateContext();
 			void* hwnd = display_->GetHandle();
 			debug::DebugUI::Init(device, context, hwnd);
 
@@ -320,6 +320,10 @@ namespace dx3d {
 
 		// 描画
 		graphics_engine_->EndFrame();
+
+		// デバッグUIの描画のためにRenderTargetをセットする
+		ID3D11RenderTargetView* rtv = display_->GetSwapChain().GetBackBufferRTV();
+		graphics_engine_->GetImmediateContext()->OMSetRenderTargets(1, &rtv, nullptr);
 
 		// デバッグUIの描画
 		debug::DebugUI::Render();

@@ -22,8 +22,7 @@ int main(void)
 
 	try {
 		dx3d::Game game({
-			// {1920, 1080},					// ウィンドウサイズ
-			{640, 360},
+			{1920, 1080},					// ウィンドウサイズ
 			dx3d::Logger::LogLevel::Info	// ログ
 			});
 		game.Run();	// ゲーム実行

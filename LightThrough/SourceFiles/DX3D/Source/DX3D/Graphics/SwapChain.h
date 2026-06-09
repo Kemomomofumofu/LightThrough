@@ -18,6 +18,7 @@ namespace dx3d {
 		void BindBackBuffer(DeviceContext& _context);
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> GetBackBufferTexture() const;
+		ID3D11RenderTargetView* GetBackBufferRTV() const noexcept { return rtv_.Get(); }
 
 		//25-11-05 todo: 仮でここに置いとく。最終的にはPipelineStateに統合するのが丸そう。
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> depth_tex_{};

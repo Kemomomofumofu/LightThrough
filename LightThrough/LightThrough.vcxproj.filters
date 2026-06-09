@@ -357,8 +357,5 @@
     <FxCompile Include="Assets\Shaders\Pixel\PS_ShadowMapDebug.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Color.hlsl" />
     <FxCompile Include="Assets\Shaders\Pixel\PS_Sprite.hlsl" />
-    <FxCompile Include="Assets\Shaders\Vertex\VS_Fullscreen.hlsl" />
-    <FxCompile Include="Assets\Shaders\Pixel\PS_PostVhs.hlsl" />
-    <FxCompile Include="Assets\Shaders\Pixel\PS_PostOutline.hlsl" />
   </ItemGroup>
 </Project>
